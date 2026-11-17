@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ge/core/assert.hpp"
+#include "ge/core/hash.hpp"
 #include "ge/ecs/entity.hpp"
 #include "ge/ecs/entity_allocator.hpp"
 #include "ge/ecs/sparse_set.hpp"
@@ -8,6 +9,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <span>
 #include <tuple>
 #include <type_traits>
@@ -48,12 +50,34 @@ public:
     ResourceBase(ResourceBase&&) = delete;
     ResourceBase& operator=(ResourceBase&&) = delete;
     virtual ~ResourceBase() = default;
+
+    /// An independent copy, or null when the resource is not copyable.
+    [[nodiscard]] virtual std::unique_ptr<ResourceBase> clone() const = 0;
+
+    /// Hash of the value, or nothing when the type is not `Hashable`.
+    [[nodiscard]] virtual std::optional<std::uint64_t> digest() const = 0;
 };
 
 template <typename R>
 struct ResourceBox final : ResourceBase {
     template <typename... Args>
     explicit ResourceBox(Args&&... args) : value(std::forward<Args>(args)...) {}
+
+    [[nodiscard]] std::unique_ptr<ResourceBase> clone() const override {
+        if constexpr (std::is_copy_constructible_v<R>) {
+            return std::make_unique<ResourceBox>(value);
+        } else {
+            return nullptr;
+        }
+    }
+
+    [[nodiscard]] std::optional<std::uint64_t> digest() const override {
+        if constexpr (Hashable<R>) {
+            return hash_of(value);
+        } else {
+            return std::nullopt;
+        }
+    }
 
     R value;
 };
@@ -77,6 +101,83 @@ public:
     World(World&&) noexcept = default;
     World& operator=(World&&) noexcept = default;
     ~World() = default;
+
+    // ---- snapshots -----------------------------------------------------------
+
+    /// An independent copy of the world: entities, components and resources.
+    ///
+    /// This is what replays, rollback and "what if" simulation are built on.
+    /// Returns nothing when a component type is not copyable, because the copy
+    /// would silently miss it. Resources that are not copyable (such as the
+    /// pending `Commands` queue) are left out of the copy.
+    [[nodiscard]] std::optional<World> clone() const {
+        World copy;
+        copy.allocator_ = allocator_;
+        copy.storages_.resize(storages_.size());
+        for (std::size_t id = 0; id < storages_.size(); ++id) {
+            if (storages_[id] == nullptr) {
+                continue;
+            }
+            copy.storages_[id] = storages_[id]->clone();
+            if (copy.storages_[id] == nullptr) {
+                return std::nullopt;
+            }
+        }
+        copy.resources_.resize(resources_.size());
+        for (std::size_t id = 0; id < resources_.size(); ++id) {
+            if (resources_[id] != nullptr) {
+                copy.resources_[id] = resources_[id]->clone();
+            }
+        }
+        return copy;
+    }
+
+    /// A 64-bit hash of the whole state: which entities exist, their
+    /// components and the resources. Two worlds that went through the same
+    /// deterministic simulation have the same fingerprint; a divergence
+    /// changes it, which makes it the cheap way to compare runs or to detect a
+    /// desync between peers.
+    ///
+    /// It covers every component and resource of a `Hashable` type (see
+    /// `fingerprint_is_complete`); for the others only the entities that carry
+    /// them count. It does not depend on the order types were first used, but
+    /// it does not tell two component types apart either: stable type names
+    /// will come with the module descriptors.
+    [[nodiscard]] std::uint64_t fingerprint() const {
+        std::uint64_t storages_sum = 0;
+        for (const auto& storage : storages_) {
+            if (storage != nullptr) {
+                storages_sum += storage->digest();
+            }
+        }
+        std::uint64_t resources_sum = 0;
+        for (const auto& resource : resources_) {
+            if (resource != nullptr) {
+                resources_sum += resource->digest().value_or(0);
+            }
+        }
+        Hasher hasher;
+        hasher.add(allocator_);
+        hasher.add(storages_sum);
+        hasher.add(resources_sum);
+        return hasher.value();
+    }
+
+    /// True when `fingerprint` covers every component and resource value.
+    [[nodiscard]] bool fingerprint_is_complete() const noexcept {
+        const auto covered = [](const auto& item) { return item == nullptr || item->hashable(); };
+        for (const auto& storage : storages_) {
+            if (!covered(storage)) {
+                return false;
+            }
+        }
+        for (const auto& resource : resources_) {
+            if (resource != nullptr && !resource->digest().has_value()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     // ---- entities ------------------------------------------------------------
 

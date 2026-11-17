@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ge/core/hash.hpp"
+
 #include <cstdint>
 
 namespace ge::app {
@@ -21,6 +23,14 @@ struct Time {
     float frame_delta = 0.0F;
     /// How far the next tick is, in [0, 1): for interpolating what is drawn.
     float alpha = 0.0F;
+
+    /// Hashes only what the simulation depends on: `frame_delta` and `alpha`
+    /// follow the real clock, so they are left out.
+    void hash(Hasher& hasher) const {
+        hasher.add(tick);
+        hasher.add(tick_rate);
+        hasher.add(fixed_delta);
+    }
 };
 
 } // namespace ge::app

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ge/core/hash.hpp"
+
 #include <cstdint>
 
 namespace ge {
@@ -43,6 +45,11 @@ public:
 
     [[nodiscard]] std::uint64_t state() const noexcept { return state_; }
     [[nodiscard]] std::uint64_t stream() const noexcept { return (increment_ - 1U) >> 1U; }
+
+    void hash(Hasher& hasher) const {
+        hasher.add(state_);
+        hasher.add(increment_);
+    }
 
     [[nodiscard]] friend bool operator==(const Random&, const Random&) noexcept = default;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ge/core/hash.hpp"
 #include "ge/ecs/entity.hpp"
 
 #include <cstddef>
@@ -25,6 +26,10 @@ public:
 
     /// Snapshot of every live entity, ordered by slot index.
     [[nodiscard]] std::vector<Entity> alive() const;
+
+    /// Hashes every slot's generation and liveness, and the free list in order
+    /// (it decides which slot the next entity gets).
+    void hash(Hasher& hasher) const;
 
 private:
     std::vector<std::uint32_t> generations_;

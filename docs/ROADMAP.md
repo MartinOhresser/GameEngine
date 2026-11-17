@@ -141,4 +141,5 @@ Le risque principal est de vouloir « n'importe quel jeu » trop tôt : l'ambiti
 ## Statut
 
 - M0 : fait.
-- M1 : en cours.
+- M1 : fait (simulation déterministe, pas fixe, commandes, événements, ordre des systèmes, copie et empreinte du monde).
+- M2 : à venir.
