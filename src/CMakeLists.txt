@@ -1,4 +1,4 @@
-add_library(ge_core STATIC core/version.cpp)
+add_library(ge_core STATIC core/random.cpp core/version.cpp)
 add_library(ge::core ALIAS ge_core)
 target_include_directories(ge_core PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_compile_features(ge_core PUBLIC cxx_std_20)
