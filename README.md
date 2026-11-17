@@ -10,7 +10,7 @@ Un moteur de jeu en **C++20**, construit autour d'un **ECS** (Entity-Component-S
 
 ### L'ambition
 
-Pouvoir faire **n'importe quel type de jeu** avec le même socle :
+Pouvoir faire **n'importe quel type de jeu** avec le même socle, et décrire chaque jeu dans un **fichier de configuration** (modules, affichage, entrées, niveaux) que Claude peut écrire à partir d'un simple prompt. Cible à terme :
 
 | Axe | Cible |
 | --- | --- |
@@ -19,6 +19,8 @@ Pouvoir faire **n'importe quel type de jeu** avec le même socle :
 | Mode | solo ou réseau (lobby, matchmaking) |
 | Interface | HUD, menus, inventaires |
 | Plateformes | desktop (Linux, macOS, Windows), mobile (Android, iOS), web (WebAssembly) |
+
+Le **MVP** est plus modeste : un jeu **2D solo sur desktop**, défini par config. Le réseau, la 3D, la manette, le tactile et le mobile ne sont pas planifiés, mais l'architecture est contrainte dès maintenant pour ne pas les bloquer (voir la [roadmap](docs/ROADMAP.md)).
 
 ### Les paris techniques
 
@@ -123,17 +125,17 @@ Les releases sont publiées automatiquement sur tag `vX.Y.Z` (le tag doit corres
 
 ## Feuille de route
 
-Chaque étape est une pull request (ou plusieurs) qui passe la CI ci-dessus.
+La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, garde-fous) est dans [docs/ROADMAP.md](docs/ROADMAP.md). En résumé :
 
-1. ✅ Cœur ECS, boucle applicative, plugins.
-2. Événements et commandes différées (modifier le monde pendant une itération en toute sécurité).
-3. Temps, boucle à pas fixe, ordonnancement avec dépendances entre systèmes.
-4. Couche plateforme : fenêtre, entrées (clavier, souris, manette, tactile) derrière des interfaces.
-5. Rendu 2D, puis abstraction GPU et rendu 3D.
-6. Interface (HUD, menus, inventaires).
-7. Sérialisation et snapshots du monde.
-8. Réseau : transport, lobby, matchmaking, puis réplication et rollback.
-9. Exemples de jeux complets, un par genre, pour éprouver la généricité.
+1. ✅ **M0** Cœur ECS, boucle applicative, plugins, CI.
+2. **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
+3. **M2** Modules et catalogue (`module.json`).
+4. **M3** Manifeste de jeu, validation et générateur (`gectl`).
+5. **M4** Tests sans fenêtre (headless).
+6. **M5** Skills : du prompt au jeu.
+7. **M6 à M8** Plateforme desktop, rendu 2D, interface (fin du MVP).
+
+Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 
 ## Contribuer
 
