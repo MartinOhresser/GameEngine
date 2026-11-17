@@ -5,7 +5,7 @@ target_compile_features(ge_core PUBLIC cxx_std_20)
 target_compile_definitions(ge_core PRIVATE GE_VERSION_STRING="${PROJECT_VERSION}")
 ge_target_options(ge_core)
 
-add_library(ge_ecs STATIC ecs/entity_allocator.cpp)
+add_library(ge_ecs STATIC ecs/commands.cpp ecs/entity_allocator.cpp)
 add_library(ge::ecs ALIAS ge_ecs)
 target_link_libraries(ge_ecs PUBLIC ge::core)
 ge_target_options(ge_ecs)

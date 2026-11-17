@@ -3,10 +3,13 @@ add_executable(
   support/main.cpp
   core/test_random.cpp
   core/test_version.cpp
+  ecs/test_commands.cpp
   ecs/test_entity_allocator.cpp
+  ecs/test_events.cpp
   ecs/test_sparse_set.cpp
   ecs/test_world.cpp
   app/test_app.cpp
+  app/test_commands_events.cpp
   app/test_schedule_order.cpp
   app/test_time.cpp
   app/test_plugin_flow.cpp)
