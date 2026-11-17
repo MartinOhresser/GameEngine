@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "screen_wrap",
+  "version": "0.1.0",
+  "description": "Entities that leave one side of the play area come back on the opposite side.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "WrapArea",
+      "description": "Size of the area an entity wraps around in, starting at the origin.",
+      "replicable": false,
+      "fields": [
+        { "name": "width", "type": "f32", "default": 800 },
+        { "name": "height", "type": "f32", "default": 600 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "wrap",
+      "description": "Brings a Position that left its WrapArea back inside, on the other side.",
+      "stage": "FixedUpdate",
+      "reads": ["WrapArea"],
+      "writes": ["transform2d.Position"],
+      "after": ["transform2d.integrate"]
+    }
+  ]
+}

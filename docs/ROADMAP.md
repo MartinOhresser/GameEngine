@@ -142,4 +142,5 @@ Le risque principal est de vouloir « n'importe quel jeu » trop tôt : l'ambiti
 
 - M0 : fait.
 - M1 : fait (simulation déterministe, pas fixe, commandes, événements, ordre des systèmes, copie et empreinte du monde).
-- M2 : à venir.
+- M2 : fait (`module.json` et schéma, code généré, `gectl check/catalog/generate`, 3 modules d'exemple, vérifications en CI). Détail dans `docs/MODULES.md`.
+- M3 : à venir.

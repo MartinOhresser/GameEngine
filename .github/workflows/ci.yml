@@ -37,6 +37,16 @@ jobs:
       - name: Check formatting
         run: git ls-files '*.cpp' '*.hpp' | xargs --no-run-if-empty clang-format-18 --dry-run --Werror
 
+  modules:
+    name: Modules (schema, includes)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install jsonschema
+        run: pip install jsonschema
+      - name: Check module.json files, includes and platform code
+        run: python3 scripts/check_modules.py --require-schema
+
   build-test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -108,6 +118,8 @@ jobs:
         run: |
           gcovr --root . --gcov-executable gcov-13 \
             --filter '^include/ge/' --filter '^src/' \
+            --filter '^tools/' --filter '^modules/' \
+            --exclude '.*/gen/.*' --exclude 'tools/gectl/main.cpp' \
             --merge-lines --txt-metric line --print-summary \
             --txt \
             --xml coverage.xml \
@@ -172,6 +184,7 @@ jobs:
     needs:
       - workflow-lint
       - format
+      - modules
       - build-test
       - sanitizers
       - clang-tidy

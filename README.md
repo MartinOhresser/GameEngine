@@ -123,13 +123,27 @@ Toute pull request doit passer le job agrégé **`ci-success`** :
 
 Les releases sont publiées automatiquement sur tag `vX.Y.Z` (le tag doit correspondre à la version CMake). Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour le détail et les réglages GitHub recommandés (protection de branche exigeant `ci-success`, merge par squash).
 
+
+## Modules et `gectl`
+
+Un module ajoute des composants et des systèmes sans toucher au noyau : on décrit le module dans un `module.json`, `gectl generate` produit le code des composants et l'enregistrement des systèmes, il ne reste qu'à écrire la logique. Trois modules d'exemple sont dans `modules/`.
+
+```bash
+cmake --preset dev && cmake --build --preset dev
+./build/dev/tools/gectl check            # valide les modules
+./build/dev/tools/gectl catalog          # ce que les modules offrent, en JSON
+./build/dev/tools/gectl generate         # régénère le code des modules
+```
+
+Format, règles et marche à suivre : [docs/MODULES.md](docs/MODULES.md).
+
 ## Feuille de route
 
 La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, garde-fous) est dans [docs/ROADMAP.md](docs/ROADMAP.md). En résumé :
 
 1. ✅ **M0** Cœur ECS, boucle applicative, plugins, CI.
-2. **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
-3. **M2** Modules et catalogue (`module.json`).
+2. ✅ **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
+3. ✅ **M2** Modules et catalogue (`module.json`, `gectl`).
 4. **M3** Manifeste de jeu, validation et générateur (`gectl`).
 5. **M4** Tests sans fenêtre (headless).
 6. **M5** Skills : du prompt au jeu.
