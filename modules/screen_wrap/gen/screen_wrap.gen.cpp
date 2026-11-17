@@ -3,26 +3,44 @@
 #include "ge/mod/screen_wrap/screen_wrap.gen.hpp"
 
 #include <array>
+#include <limits>
+#include <span>
 #include <string_view>
+#include <utility>
 
 // NOLINTBEGIN
 namespace ge::mod::screen_wrap {
 
 namespace {
 
+void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    WrapArea component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "width") {
+            component.width = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "height") {
+            component.height = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"width", "f32"}, {"height", "f32"}}};
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"screen_wrap.WrapArea"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"screen_wrap.wrap", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
 constexpr std::array<std::string_view, 1> depends{"transform2d"};
+constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
 
 const ::ge::app::ModuleInfo& info() noexcept {
-    static const ::ge::app::ModuleInfo value{"screen_wrap", "0.1.0", depends, components, systems};
+    static const ::ge::app::ModuleInfo value{"screen_wrap", "0.1.0", depends, components, systems, params, nullptr};
     return value;
 }
 

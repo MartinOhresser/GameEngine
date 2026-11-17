@@ -49,6 +49,7 @@ Le dossier porte le même nom que le module. Les modules sont des bibliothèques
 | --- | --- |
 | `name`, `version` | Nom en `snake_case` et version `x.y.z`. |
 | `depends` | Modules utilisés. Ils doivent être installés avant celui-ci. |
+| `params[]` | Réglages que le manifeste d'un jeu peut changer : `name`, `type`, `default` (obligatoire), `min` et `max` optionnels (types numériques). |
 | `components[].replicable` | Obligatoire : le composant fait-il partie de l'état qu'un jeu en réseau répliquerait ? |
 | `components[].fields[]` | `name`, `type` (`i32 u32 i64 u64 f32 f64 bool`), `default` optionnel (zéro sinon). |
 | `systems[].stage` | `Startup`, `PreUpdate`, `FixedUpdate`, `Update` ou `PostUpdate`. La logique de jeu va dans `FixedUpdate`. |
@@ -62,6 +63,8 @@ Le schéma `schemas/module.schema.json` donne l'autocomplétion dans les éditeu
 `gectl generate` écrit dans `gen/` :
 
 - un `struct` par composant, avec ses valeurs par défaut, `operator==` et `hash` (donc inclus dans l'empreinte du monde) ;
+- une structure `Params` (si le module déclare des `params`), stockée comme ressource : `world.resource<Params>()` ;
+- pour chaque composant, une fonction qui le construit sur une entité à partir de valeurs lues dans un fichier de jeu (les champs absents gardent leur défaut) ; c'est ce qui permet de créer des entités depuis du JSON sans code ;
 - la déclaration de chaque système, `void nom(ecs::World&)`, que le module doit définir : un système oublié fait échouer l'édition de liens ;
 - `info()`, la description du module, et `install(App&)`, qui enregistre le module et ses systèmes sous le nom `module.systeme`, avec leur ordre.
 
