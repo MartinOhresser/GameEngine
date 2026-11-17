@@ -4,6 +4,7 @@ add_executable(
   core/test_hash.cpp
   core/test_random.cpp
   core/test_version.cpp
+  game/test_game.cpp
   json/test_json.cpp
   module/test_generate.cpp
   module/test_spec.cpp
@@ -20,7 +21,7 @@ add_executable(
   app/test_schedule_order.cpp
   app/test_time.cpp
   app/test_plugin_flow.cpp)
-target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::mod::transform2d
+target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game ge::mod::transform2d
                       ge::mod::lifetime ge::mod::screen_wrap)
 target_compile_definitions(ge_tests PRIVATE GE_EXPECTED_VERSION="${PROJECT_VERSION}")
 if(GE_BUILD_TOOLS)

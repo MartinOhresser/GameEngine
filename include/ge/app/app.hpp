@@ -148,6 +148,9 @@ public:
 
     [[nodiscard]] bool has_module(std::string_view name) const noexcept;
 
+    /// The installed modules, in installation order.
+    [[nodiscard]] const std::vector<ModuleInfo>& modules() const noexcept { return modules_; }
+
     /// Names of the installed modules, in installation order.
     [[nodiscard]] std::vector<std::string> module_names() const;
 

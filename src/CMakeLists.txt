@@ -25,3 +25,8 @@ add_library(ge_module STATIC module/spec.cpp module/generate.cpp)
 add_library(ge::module ALIAS ge_module)
 target_link_libraries(ge_module PUBLIC ge::json)
 ge_target_options(ge_module)
+
+add_library(ge_game STATIC game/catalog.cpp game/game.cpp game/runtime.cpp)
+add_library(ge::game ALIAS ge_game)
+target_link_libraries(ge_game PUBLIC ge::app ge::module)
+ge_target_options(ge_game)

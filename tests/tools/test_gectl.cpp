@@ -194,3 +194,33 @@ TEST_CASE("gectl: catalog output is compact on request") {
     CHECK(compact.out.find('\n') == compact.out.size() - 1U);
     CHECK(gectl({"catalog", "--modules", "/definitely/not/here"}).code == 1);
 }
+
+TEST_CASE("gectl: validate checks a game's files against the modules") {
+    const Sandbox sandbox("validate");
+    sandbox.write("modules/a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir() + "/modules";
+    sandbox.write("game/game.json", R"({
+        "schema_version": 1, "name": "demo", "modules": ["a"],
+        "prefabs": ["p.json"], "scenes": ["s.json"], "start_scene": "main"
+    })");
+    sandbox.write("game/p.json",
+                  R"({"schema_version": 1, "name": "p", "components": {"a.C": {"x": 1}}})");
+    sandbox.write("game/s.json",
+                  R"({"schema_version": 1, "name": "main", "entities": [{"prefab": "p"}]})");
+    const std::string game = sandbox.dir() + "/game/game.json";
+
+    const Run good = gectl({"validate", "--modules", modules, game});
+    CHECK(good.code == 0);
+    CHECK(has(good.out, "valid (1 prefabs, 1 scenes)"));
+
+    sandbox.write("game/p.json",
+                  R"({"schema_version": 1, "name": "p", "components": {"a.C": {"y": 1}}})");
+    const Run bad = gectl({"validate", "--modules", modules, game});
+    CHECK(bad.code == 1);
+    CHECK(has(bad.err, "p.json: components.a.C.y: unknown field"));
+
+    CHECK(gectl({"validate", "--modules", modules}).code == 2);
+    CHECK(gectl({"validate", "--modules", modules, "a.json", "b.json"}).code == 2);
+    CHECK(gectl({"validate", "--modules", modules, sandbox.dir() + "/nope.json"}).code == 1);
+    CHECK(gectl({"validate", "--modules", "/definitely/not/here", game}).code == 1);
+}
