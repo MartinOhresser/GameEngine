@@ -164,7 +164,8 @@ jobs:
       - name: Build libraries
         run: cmake --build build/ios
 
-  # Single required check for branch protection: it fails if any job above failed.
+  # Single required check for branch protection: it fails unless every job above
+  # succeeded (failed, cancelled and skipped jobs all count as failures).
   ci-success:
     name: CI success
     if: always()
@@ -185,6 +186,9 @@ jobs:
           RESULTS: ${{ join(needs.*.result, ' ') }}
         run: |
           echo "Job results: $RESULTS"
-          if [[ "$RESULTS" == *failure* || "$RESULTS" == *cancelled* ]]; then
-            exit 1
-          fi
+          for result in $RESULTS; do
+            if [[ "$result" != "success" ]]; then
+              echo "::error::A required job finished with result '$result'"
+              exit 1
+            fi
+          done
