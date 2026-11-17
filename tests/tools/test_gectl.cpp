@@ -224,3 +224,44 @@ TEST_CASE("gectl: validate checks a game's files against the modules") {
     CHECK(gectl({"validate", "--modules", modules, sandbox.dir() + "/nope.json"}).code == 1);
     CHECK(gectl({"validate", "--modules", "/definitely/not/here", game}).code == 1);
 }
+
+TEST_CASE("gectl: every game of the repository is valid") {
+    const std::string root = std::string(GE_SOURCE_DIR);
+    int games = 0;
+    for (const auto& entry : fs::directory_iterator(root + "/games")) {
+        const fs::path manifest = entry.path() / "game.json";
+        if (!fs::exists(manifest)) {
+            continue;
+        }
+        ++games;
+        const Run run = gectl({"validate", "--modules", root + "/modules", manifest.string()});
+        CHECK(run.err.empty());
+        CHECK(run.code == 0);
+    }
+    CHECK(games >= 1);
+}
+
+TEST_CASE("gectl: schema writes the editor schemas, and notices when they are stale") {
+    const Sandbox sandbox("schema");
+    sandbox.write("modules/a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir() + "/modules";
+    const std::string out_dir = sandbox.dir() + "/out";
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 1);
+    const Run written = gectl({"schema", "--modules", modules, "--out", out_dir});
+    CHECK(written.code == 0);
+    CHECK(has(written.out, "game.schema.json"));
+    CHECK(has(sandbox.read("out/prefab.schema.json"), "\"a.C\""));
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 0);
+    sandbox.write("out/scene.schema.json", "{}");
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 1);
+    CHECK(gectl({"schema", "--out"}).code == 2);
+    CHECK(gectl({"schema", "--modules", "/definitely/not/here"}).code == 1);
+}
+
+TEST_CASE("gectl: the schemas of the repository are up to date") {
+    const std::string root = std::string(GE_SOURCE_DIR);
+    const Run run = gectl(
+        {"schema", "--check", "--modules", root + "/modules", "--out", root + "/schemas/game"});
+    CHECK(run.err.empty());
+    CHECK(run.code == 0);
+}

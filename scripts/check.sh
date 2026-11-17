@@ -30,6 +30,12 @@ done
 
 echo "==> generated code is up to date"
 ./build/dev/tools/gectl generate --check
+./build/dev/tools/gectl schema --check
+
+echo "==> games are valid"
+for game in games/*/game.json; do
+  ./build/dev/tools/gectl validate "$game"
+done
 
 echo "==> tidy"
 cmake --preset tidy > /dev/null

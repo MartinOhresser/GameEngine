@@ -5,6 +5,7 @@ add_executable(
   core/test_random.cpp
   core/test_version.cpp
   game/test_game.cpp
+  game/test_schema.cpp
   json/test_json.cpp
   module/test_generate.cpp
   module/test_spec.cpp
@@ -25,8 +26,8 @@ target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game ge::
                       ge::mod::lifetime ge::mod::screen_wrap)
 target_compile_definitions(ge_tests PRIVATE GE_EXPECTED_VERSION="${PROJECT_VERSION}")
 if(GE_BUILD_TOOLS)
-  target_sources(ge_tests PRIVATE tools/test_gectl.cpp)
-  target_link_libraries(ge_tests PRIVATE gectl_lib)
+  target_sources(ge_tests PRIVATE tools/test_gectl.cpp runner/test_runner.cpp)
+  target_link_libraries(ge_tests PRIVATE gectl_lib ge::runner)
   target_include_directories(ge_tests PRIVATE "${PROJECT_SOURCE_DIR}/tools/gectl")
   target_compile_definitions(ge_tests PRIVATE GE_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 endif()

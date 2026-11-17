@@ -20,6 +20,8 @@ function(ge_add_module name)
     target_link_libraries(${target} PUBLIC ge::mod::${dependency})
   endforeach()
   ge_target_options(${target})
+  # The universal runner links every module listed here.
+  set_property(GLOBAL APPEND PROPERTY GE_ALL_MODULES ${name})
 endfunction()
 
 ge_add_module(transform2d)
