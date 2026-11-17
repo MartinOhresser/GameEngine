@@ -29,6 +29,21 @@ struct FieldSpec {
     json::Value default_value;
 };
 
+/// Whether a JSON value is acceptable for a field of this type: right kind and
+/// inside the range of the type.
+[[nodiscard]] bool value_fits(FieldType type, const json::Value& value);
+
+/// A setting of the module, given a value by the game's manifest.
+struct ParamSpec {
+    std::string name;
+    std::string description;
+    FieldType type = FieldType::F32;
+    json::Value default_value;
+    /// Inclusive bounds, for numeric types; null when absent.
+    json::Value min;
+    json::Value max;
+};
+
 struct ComponentSpec {
     std::string name;
     std::string description;
@@ -58,6 +73,7 @@ struct ModuleSpec {
     std::string version;
     std::string description;
     std::vector<std::string> depends;
+    std::vector<ParamSpec> params;
     std::vector<ComponentSpec> components;
     std::vector<SystemSpec> systems;
 };

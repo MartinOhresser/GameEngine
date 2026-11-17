@@ -11,6 +11,18 @@
 
 namespace ge::mod::transform2d {
 
+/// Settings of the module, filled from the game's manifest. Read them with
+/// `world.resource<Params>()`.
+struct Params {
+    float speed_scale = 1.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(speed_scale);
+    }
+
+    [[nodiscard]] friend bool operator==(const Params&, const Params&) = default;
+};
+
 /// Where an entity is, in world units.
 struct Position {
     float x = 0.0F;

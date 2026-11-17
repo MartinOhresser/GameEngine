@@ -127,3 +127,50 @@ TEST_CASE("generate: output is deterministic and ships a formatting opt-out") {
     REQUIRE(format != nullptr);
     CHECK(format->content == "DisableFormat: true\n");
 }
+
+TEST_CASE("generate: params become a resource struct with bounds and an apply function") {
+    const auto files = generate_from(R"({
+      "schema_version": 1, "name": "demo", "version": "1.0.0",
+      "params": [
+        {"name": "gravity", "type": "f32", "default": 9.5, "min": 0, "max": 20},
+        {"name": "lives", "type": "u32", "default": 3},
+        {"name": "hard", "type": "bool", "default": true}
+      ]
+    })");
+    const GeneratedFile* header = find_file(files, "demo.gen.hpp");
+    const GeneratedFile* source = find_file(files, "demo.gen.cpp");
+    REQUIRE(header != nullptr);
+    REQUIRE(source != nullptr);
+    CHECK(contains(header->content, "struct Params {"));
+    CHECK(contains(header->content, "float gravity = 9.5F;"));
+    CHECK(contains(header->content, "std::uint32_t lives = 3U;"));
+    CHECK(contains(header->content, "bool hard = true;"));
+    const std::string& cpp = source->content;
+    CHECK(contains(cpp,
+                   "{{\"gravity\", \"f32\", 0.0, 20.0}, {\"lives\", \"u32\", "
+                   "std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()}"));
+    CHECK(contains(cpp, "void apply_params("));
+    CHECK(contains(cpp, "(*target).gravity = ::ge::app::scalar_as<float>(field.value);"));
+    CHECK(contains(cpp, "app.world().insert_resource(Params{});"));
+    CHECK(contains(cpp, "params, &apply_params};"));
+}
+
+TEST_CASE("generate: components get an insert function that reads field values") {
+    const auto files = generate_from(R"({
+      "schema_version": 1, "name": "demo", "version": "1.0.0",
+      "components": [
+        {"name": "Health", "replicable": true, "fields": [{"name": "points", "type": "i32"}]},
+        {"name": "Marker", "replicable": false}
+      ]
+    })");
+    const GeneratedFile* source = find_file(files, "demo.gen.cpp");
+    REQUIRE(source != nullptr);
+    CHECK(contains(source->content, "Health component;"));
+    CHECK(contains(source->content, "if (field.name == \"points\") {"));
+    CHECK(contains(source->content,
+                   "component.points = ::ge::app::scalar_as<std::int32_t>(field.value);"));
+    CHECK(contains(source->content, "Marker component;"));
+    CHECK(contains(source->content,
+                   "static_cast<void>(world.insert(entity, std::move(component)));"));
+    CHECK(contains(source->content, "systems, params, nullptr};"));
+}

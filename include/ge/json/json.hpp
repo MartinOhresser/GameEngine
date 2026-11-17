@@ -91,9 +91,20 @@ struct ParseResult {
     [[nodiscard]] bool ok() const noexcept { return !error.has_value(); }
 };
 
-/// Parses a complete JSON document. Strict: no comments, no trailing commas,
-/// no duplicate keys, nesting limited to 128 levels.
-[[nodiscard]] ParseResult parse(std::string_view text);
+/// Extensions to JSON for files people edit by hand.
+struct ParseOptions {
+    /// Allow `// line` and `/* block */` comments.
+    bool comments = false;
+    /// Allow a comma after the last item of an array or object.
+    bool trailing_commas = false;
+};
+
+/// Comments and trailing commas allowed: the format of game files.
+inline constexpr ParseOptions relaxed{true, true};
+
+/// Parses a complete JSON document. Strict by default: no comments, no
+/// trailing commas, no duplicate keys, nesting limited to 128 levels.
+[[nodiscard]] ParseResult parse(std::string_view text, ParseOptions options = {});
 
 /// The shortest text that reads back as exactly `value` (and always looks like
 /// a real: "3.0", never "3"). Non-finite values give "0.0".

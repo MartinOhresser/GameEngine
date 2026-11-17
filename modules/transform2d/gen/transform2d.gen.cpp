@@ -3,32 +3,77 @@
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <array>
+#include <limits>
+#include <span>
 #include <string_view>
+#include <utility>
 
 // NOLINTBEGIN
 namespace ge::mod::transform2d {
 
 namespace {
 
+void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Position component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "x") {
+            component.x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "y") {
+            component.y = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"x", "f32"}, {"y", "f32"}}};
+
+void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Velocity component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "x") {
+            component.x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "y") {
+            component.y = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"x", "f32"}, {"y", "f32"}}};
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Position", true, component_0_fields}, {"Velocity", true, component_1_fields}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Position", true, component_0_fields, insert_component_0}, {"Velocity", true, component_1_fields, insert_component_1}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"transform2d.integrate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
 constexpr std::array<std::string_view, 0> depends{};
+constexpr std::array<::ge::app::ParamInfo, 1> params{{{"speed_scale", "f32", 0.0, 10.0}}};
+
+void apply_params(::ge::ecs::World& world, std::span<const ::ge::app::FieldValue> values) {
+    Params* target = world.resource<Params>();
+    if (target == nullptr) {
+        return;
+    }
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "speed_scale") {
+            (*target).speed_scale = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+}
 
 } // namespace
 
 const ::ge::app::ModuleInfo& info() noexcept {
-    static const ::ge::app::ModuleInfo value{"transform2d", "0.1.0", depends, components, systems};
+    static const ::ge::app::ModuleInfo value{"transform2d", "0.1.0", depends, components, systems, params, &apply_params};
     return value;
 }
 
 void install(::ge::app::App& app) {
     app.add_module(info());
+    app.world().insert_resource(Params{});
     app.add_system(::ge::app::Stage::FixedUpdate, &integrate, "transform2d.integrate");
 }
 

@@ -4,7 +4,8 @@
 namespace ge::mod::transform2d {
 
 void integrate(ecs::World& world) {
-    const float step = world.resource<app::Time>()->fixed_delta;
+    const float step =
+        world.resource<app::Time>()->fixed_delta * world.resource<Params>()->speed_scale;
     world.each<Position, const Velocity>(
         [step](ecs::Entity, Position& position, const Velocity& velocity) {
             position.x += velocity.x * step;

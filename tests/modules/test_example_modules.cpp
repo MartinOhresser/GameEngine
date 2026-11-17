@@ -139,3 +139,56 @@ TEST_CASE("modules: generated components compare and hash") {
     CHECK(ge::hash_of(first) == ge::hash_of(same));
     CHECK(ge::hash_of(first) != ge::hash_of(swapped));
 }
+
+TEST_CASE("modules: the game can build a component from field values") {
+    App app;
+    transform2d::install(app);
+    const auto& position = transform2d::info().components[0];
+    REQUIRE(position.insert != nullptr);
+    const Entity entity = app.world().spawn();
+    const std::vector<ge::app::FieldValue> values = {{"x", 4.5}, {"y", std::int64_t{7}}};
+    position.insert(app.world(), entity, values);
+    const auto* made = app.world().get<transform2d::Position>(entity);
+    REQUIRE(made != nullptr);
+    CHECK(made->x == 4.5F);
+    CHECK(made->y == 7.0F);
+    // Fields that are not given keep their default.
+    const Entity other = app.world().spawn();
+    position.insert(app.world(), other, {});
+    CHECK(app.world().get<transform2d::Position>(other)->x == 0.0F);
+}
+
+TEST_CASE("modules: settings are a resource the game can change") {
+    App app;
+    transform2d::install(app);
+    REQUIRE(app.world().resource<transform2d::Params>() != nullptr);
+    CHECK(app.world().resource<transform2d::Params>()->speed_scale == 1.0F);
+    const ge::app::ModuleInfo& info = transform2d::info();
+    REQUIRE(info.params.size() == 1U);
+    CHECK(info.params[0].name == "speed_scale");
+    CHECK(info.params[0].min == 0.0);
+    CHECK(info.params[0].max == 10.0);
+    REQUIRE(info.apply_params != nullptr);
+
+    const Entity entity =
+        app.world().spawn_with(transform2d::Position{}, transform2d::Velocity{60.0F, 0.0F});
+    const std::vector<ge::app::FieldValue> values = {{"speed_scale", 0.5}};
+    info.apply_params(app.world(), values);
+    app.run_frames(60);
+    const float x = app.world().get<transform2d::Position>(entity)->x;
+    CHECK(x > 29.9F);
+    CHECK(x < 30.1F);
+    // A module without settings has nothing to apply.
+    CHECK(lifetime::info().apply_params == nullptr);
+    CHECK(lifetime::info().params.empty());
+}
+
+TEST_CASE("modules: scalars convert to the field's type") {
+    using ge::app::Scalar;
+    using ge::app::scalar_as;
+    CHECK(scalar_as<float>(Scalar{2.5}) == 2.5F);
+    CHECK(scalar_as<std::int32_t>(Scalar{std::int64_t{-4}}) == -4);
+    CHECK(scalar_as<bool>(Scalar{true}));
+    CHECK(scalar_as<std::uint32_t>(Scalar{true}) == 1U);
+    CHECK(scalar_as<double>(Scalar{std::int64_t{3}}) == 3.0);
+}

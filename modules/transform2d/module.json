@@ -4,6 +4,16 @@
   "name": "transform2d",
   "version": "0.1.0",
   "description": "Position and velocity in the 2D plane, and the movement that links them.",
+  "params": [
+    {
+      "name": "speed_scale",
+      "description": "Multiplies every velocity: 0.5 runs the whole game at half speed.",
+      "type": "f32",
+      "default": 1,
+      "min": 0,
+      "max": 10
+    }
+  ],
   "components": [
     {
       "name": "Position",

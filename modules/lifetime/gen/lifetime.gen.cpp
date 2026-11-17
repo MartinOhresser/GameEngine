@@ -3,26 +3,42 @@
 #include "ge/mod/lifetime/lifetime.gen.hpp"
 
 #include <array>
+#include <limits>
+#include <span>
 #include <string_view>
+#include <utility>
 
 // NOLINTBEGIN
 namespace ge::mod::lifetime {
 
 namespace {
 
+void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Lifetime component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "ticks") {
+            component.ticks = ::ge::app::scalar_as<std::int32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
 constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"ticks", "i32"}}};
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Lifetime", true, component_0_fields}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Lifetime", true, component_0_fields, insert_component_0}}};
 
 constexpr std::array<std::string_view, 0> system_0_reads{};
 constexpr std::array<std::string_view, 1> system_0_writes{"lifetime.Lifetime"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"lifetime.expire", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
 constexpr std::array<std::string_view, 0> depends{};
+constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
 
 const ::ge::app::ModuleInfo& info() noexcept {
-    static const ::ge::app::ModuleInfo value{"lifetime", "0.1.0", depends, components, systems};
+    static const ::ge::app::ModuleInfo value{"lifetime", "0.1.0", depends, components, systems, params, nullptr};
     return value;
 }
 

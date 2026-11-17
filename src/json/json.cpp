@@ -93,7 +93,7 @@ constexpr int max_depth = 128;
 
 class Parser {
 public:
-    explicit Parser(std::string_view text) : text_(text) {}
+    Parser(std::string_view text, ParseOptions options) : text_(text), options_(options) {}
 
     ParseResult run() {
         ParseResult result;
@@ -139,10 +139,38 @@ private:
     }
 
     void skip_space() {
-        while (!at_end() && (text_[pos_] == ' ' || text_[pos_] == '\t' || text_[pos_] == '\n' ||
-                             text_[pos_] == '\r')) {
-            ++pos_;
+        while (!at_end() && !failed_) {
+            const char c = text_[pos_];
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                ++pos_;
+            } else if (options_.comments && c == '/' && skip_comment()) {
+                continue;
+            } else {
+                break;
+            }
         }
+    }
+
+    /// At a '/', skips a comment and returns true; false when it is not one.
+    bool skip_comment() {
+        const char next = pos_ + 1 < text_.size() ? text_[pos_ + 1] : '\0';
+        if (next == '/') {
+            while (!at_end() && text_[pos_] != '\n') {
+                ++pos_;
+            }
+            return true;
+        }
+        if (next == '*') {
+            const std::size_t start = pos_;
+            const std::size_t end = text_.find("*/", pos_ + 2);
+            if (end == std::string_view::npos) {
+                fail_at(start, "unterminated comment");
+                return true;
+            }
+            pos_ = end + 2;
+            return true;
+        }
+        return false;
     }
 
     bool consume(char expected) {
@@ -234,6 +262,11 @@ private:
             }
             if (!consume(',')) {
                 fail("expected ',' or '}'");
+                continue;
+            }
+            skip_space();
+            if (options_.trailing_commas && consume('}')) {
+                return object;
             }
         }
         return {};
@@ -259,6 +292,11 @@ private:
             }
             if (!consume(',')) {
                 fail("expected ',' or ']'");
+                continue;
+            }
+            skip_space();
+            if (options_.trailing_commas && consume(']')) {
+                return array;
             }
         }
         return {};
@@ -454,6 +492,7 @@ private:
     }
 
     std::string_view text_;
+    ParseOptions options_;
     std::size_t pos_ = 0;
     bool failed_ = false;
     ParseError error_;
@@ -461,8 +500,8 @@ private:
 
 } // namespace
 
-ParseResult parse(std::string_view text) {
-    return Parser(text).run();
+ParseResult parse(std::string_view text, ParseOptions options) {
+    return Parser(text, options).run();
 }
 
 // ---- writing ---------------------------------------------------------------

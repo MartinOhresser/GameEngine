@@ -363,6 +363,78 @@ void read_system(Reader& reader, const json::Value& value, const std::string& pa
     module.systems.push_back(std::move(system));
 }
 
+void read_param(Reader& reader, const json::Value& value, const std::string& path,
+                ModuleSpec& module) {
+    const json::Value* object = reader.object_at(value, path);
+    if (object == nullptr) {
+        return;
+    }
+    reader.reject_unknown(*object, path, {"name", "description", "type", "default", "min", "max"});
+    ParamSpec param;
+    if (reader.string_at(*object, "name", path, true, param.name)) {
+        check_name(reader, Reader::join_path(path, "name"), param.name, false);
+        const bool duplicate =
+            std::any_of(module.params.begin(), module.params.end(),
+                        [&param](const ParamSpec& other) { return other.name == param.name; });
+        if (duplicate) {
+            reader.error(Reader::join_path(path, "name"),
+                         "two params are named \"" + param.name + "\"");
+        }
+    }
+    static_cast<void>(reader.string_at(*object, "description", path, false, param.description));
+    std::string type_name;
+    if (!reader.string_at(*object, "type", path, true, type_name)) {
+        module.params.push_back(std::move(param));
+        return;
+    }
+    const std::optional<FieldType> type = field_type_from(type_name);
+    if (!type) {
+        reader.error(Reader::join_path(path, "type"),
+                     "unknown type \"" + type_name +
+                         "\" (expected one of: " + join(field_type_names()) + ")");
+        module.params.push_back(std::move(param));
+        return;
+    }
+    param.type = *type;
+
+    const auto bound = [&](const char* key, json::Value& out) {
+        const json::Value* given = object->find(key);
+        if (given == nullptr) {
+            return;
+        }
+        if (*type == FieldType::Bool) {
+            reader.error(Reader::join_path(path, key), "a bool has no bounds");
+        } else if (!default_fits(*type, *given)) {
+            reader.error(Reader::join_path(path, key),
+                         std::string("the bound does not fit the type ") + type_name);
+        } else {
+            out = *given;
+        }
+    };
+    bound("min", param.min);
+    bound("max", param.max);
+    if (param.min.is_number() && param.max.is_number() &&
+        param.min.as_real() > param.max.as_real()) {
+        reader.error(Reader::join_path(path, "min"), "min is greater than max");
+    }
+
+    const json::Value* def = object->find("default");
+    if (def == nullptr) {
+        reader.error(path, "missing required key \"default\"");
+    } else if (!default_fits(*type, *def)) {
+        reader.error(Reader::join_path(path, "default"),
+                     "the default does not fit the type " + type_name);
+    } else {
+        param.default_value = *def;
+        const bool too_low = param.min.is_number() && def->as_real() < param.min.as_real();
+        const bool too_high = param.max.is_number() && def->as_real() > param.max.as_real();
+        if (too_low || too_high) {
+            reader.error(Reader::join_path(path, "default"), "the default is outside min and max");
+        }
+    }
+    module.params.push_back(std::move(param));
+}
+
 bool is_qualified(const std::string& reference) {
     return reference.find('.') != std::string::npos;
 }
@@ -417,6 +489,10 @@ void check_local_references(Reader& reader, const ModuleSpec& module) {
 
 } // namespace
 
+bool value_fits(FieldType type, const json::Value& value) {
+    return default_fits(type, value);
+}
+
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index): every enumerator has a name
 std::string_view to_string(FieldType type) noexcept {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): every enumerator has a
@@ -468,7 +544,7 @@ LoadResult load_module(std::string_view text, std::string_view file) {
     }
     reader.reject_unknown(*root, "",
                           {"$schema", "schema_version", "name", "version", "description", "depends",
-                           "components", "systems"});
+                           "params", "components", "systems"});
 
     if (const json::Value* version = root->find("schema_version"); version == nullptr) {
         reader.error("", "missing required key \"schema_version\"");
@@ -499,6 +575,11 @@ LoadResult load_module(std::string_view text, std::string_view file) {
         }
     }
 
+    if (const json::Value* params = reader.array_at(*root, "params", ""); params != nullptr) {
+        for (std::size_t i = 0; i < params->items().size(); ++i) {
+            read_param(reader, params->items()[i], Reader::index_path("params", i), module);
+        }
+    }
     if (const json::Value* components = reader.array_at(*root, "components", "");
         components != nullptr) {
         for (std::size_t i = 0; i < components->items().size(); ++i) {
@@ -647,6 +728,22 @@ json::Value catalog_entry(const ModuleSpec& module) {
         return array;
     };
 
+    json::Value params = json::Value::array();
+    for (const ParamSpec& param : module.params) {
+        json::Value entry = json::Value::object();
+        entry.set("name", json::Value::string(param.name));
+        entry.set("description", json::Value::string(param.description));
+        entry.set("type", json::Value::string(std::string(to_string(param.type))));
+        entry.set("default", param.default_value);
+        if (param.min.is_number()) {
+            entry.set("min", param.min);
+        }
+        if (param.max.is_number()) {
+            entry.set("max", param.max);
+        }
+        params.push_back(std::move(entry));
+    }
+
     json::Value components = json::Value::array();
     for (const ComponentSpec& component : module.components) {
         json::Value fields = json::Value::array();
@@ -685,6 +782,7 @@ json::Value catalog_entry(const ModuleSpec& module) {
     entry.set("version", json::Value::string(module.version));
     entry.set("description", json::Value::string(module.description));
     entry.set("depends", strings(module.depends));
+    entry.set("params", std::move(params));
     entry.set("components", std::move(components));
     entry.set("systems", std::move(systems));
     return entry;

@@ -254,3 +254,75 @@ TEST_CASE("modules: the catalog entry lists everything a reader needs") {
     CHECK(entry.find("systems")->items()[0].find("stage")->as_string() == "Update");
     CHECK(entry.find("depends")->items().empty());
 }
+
+namespace {
+
+const char* const with_params = R"({
+  "schema_version": 1, "name": "demo", "version": "1.0.0",
+  "params": [
+    {"name": "gravity", "description": "Pull.", "type": "f32", "default": 9.5, "min": 0, "max": 20},
+    {"name": "lives", "type": "u32", "default": 3},
+    {"name": "hard_mode", "type": "bool", "default": false}
+  ]
+})";
+
+} // namespace
+
+TEST_CASE("module: params load with their bounds") {
+    const auto result = load_module(with_params, "demo/module.json");
+    REQUIRE(result.ok());
+    REQUIRE(result.spec.params.size() == 3U);
+    CHECK(result.spec.params[0].name == "gravity");
+    CHECK(result.spec.params[0].type == ge::module::FieldType::F32);
+    CHECK(result.spec.params[0].default_value.as_real() == 9.5);
+    CHECK(result.spec.params[0].min.as_real() == 0.0);
+    CHECK(result.spec.params[0].max.as_real() == 20.0);
+    CHECK(result.spec.params[1].min.is_null());
+    const auto entry = ge::module::catalog_entry(result.spec);
+    const auto& first = entry.find("params")->items()[0];
+    CHECK(first.find("max")->as_real() == 20.0);
+    CHECK(entry.find("params")->items()[1].find("max") == nullptr);
+}
+
+TEST_CASE("module: param problems") {
+    const auto fails = [](const char* from, const char* to, const char* fragment) {
+        std::string text = with_params;
+        const std::size_t at = text.find(from);
+        REQUIRE(at != std::string::npos);
+        text.replace(at, std::string(from).size(), to);
+        CHECK(load_fails(text, fragment));
+    };
+    fails(R"("name": "gravity")", R"("name": "Gravity")", "lower_snake_case");
+    fails(R"("name": "lives")", R"("name": "gravity")", "two params are named");
+    fails(R"("type": "f32", "default": 9.5)", R"("type": "f32")",
+          "missing required key \"default\"");
+    fails(R"("default": 9.5)", R"("default": 25)", "outside min and max");
+    fails(R"("default": 9.5)", R"("default": -1)", "outside min and max");
+    fails(R"("default": 9.5)", R"("default": true)", "does not fit the type f32");
+    fails(R"("min": 0)", R"("min": 30)", "min is greater than max");
+    fails(R"("max": 20)", R"("max": "x")", "does not fit the type f32");
+    fails(R"("type": "bool", "default": false)", R"("type": "bool", "default": false, "min": 0)",
+          "a bool has no bounds");
+    fails(R"("type": "u32")", R"("type": "int")", "unknown type \"int\"");
+    fails(R"("type": "u32")", R"("type": 3)", "expected a string");
+    fails(R"({"name": "lives")", R"({"colour": 1, "name": "lives")", "unknown key");
+    CHECK(load_fails(R"({"schema_version": 1, "name": "d", "version": "1.0.0", "params": [4]})",
+                     "expected an object"));
+    CHECK(load_fails(R"({"schema_version": 1, "name": "d", "version": "1.0.0", "params": 4})",
+                     "expected an array"));
+    CHECK(load_fails(
+        R"({"schema_version": 1, "name": "d", "version": "1.0.0", "params": [{"name": "x", "type": "f32", "default": 0, "min": 1, "max": 2}]})",
+        "outside min and max"));
+}
+
+TEST_CASE("module: value_fits checks kind and range") {
+    using ge::json::Value;
+    using ge::module::FieldType;
+    using ge::module::value_fits;
+    CHECK(value_fits(FieldType::I32, Value::integer(-5)));
+    CHECK(!value_fits(FieldType::I32, Value::real(1.5)));
+    CHECK(!value_fits(FieldType::U32, Value::integer(-1)));
+    CHECK(value_fits(FieldType::F32, Value::integer(3)));
+    CHECK(value_fits(FieldType::Bool, Value::boolean(true)));
+    CHECK(!value_fits(FieldType::Bool, Value::integer(1)));
+}

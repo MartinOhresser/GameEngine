@@ -172,3 +172,45 @@ TEST_CASE("json: reals are written as the shortest text that reads back exactly"
         CHECK(parsed.value.as_real() == value);
     }
 }
+
+TEST_CASE("json: relaxed files allow comments and trailing commas") {
+    const char* text = R"(
+        // A game file.
+        {
+            "a": [1, 2, /* inline */ 3,],   // trailing commas are fine
+            "b": {"c": true,},
+            /* block
+               comment */
+            "d": "// not a comment",
+        }
+    )";
+    const auto result = parse(text, ge::json::relaxed);
+    REQUIRE(result.ok());
+    CHECK(result.value.find("a")->items().size() == 3U);
+    CHECK(result.value.find("b")->find("c")->as_bool());
+    CHECK(result.value.find("d")->as_string() == "// not a comment");
+    CHECK(parse("[1,]", ge::json::relaxed).ok());
+    CHECK(parse("{}", ge::json::relaxed).ok());
+    CHECK(parse("[,]", ge::json::relaxed).error.has_value());
+    CHECK(parse("{,}", ge::json::relaxed).error.has_value());
+    CHECK(parse("[1 2]", ge::json::relaxed).error.has_value());
+    CHECK(parse("{\"a\": 1 \"b\": 2}", ge::json::relaxed).error.has_value());
+}
+
+TEST_CASE("json: relaxed comment errors and strict mode") {
+    const auto unterminated = parse("1 /* never closed", ge::json::relaxed);
+    REQUIRE(unterminated.error.has_value());
+    CHECK(unterminated.error->message == "unterminated comment");
+    CHECK(unterminated.error->column == 3U);
+    const auto lone_slash = parse("[1 / 2]", ge::json::relaxed);
+    CHECK(lone_slash.error.has_value());
+    CHECK(parse("// only a comment", ge::json::relaxed).error.has_value());
+    CHECK(parse("1 // trailing", ge::json::relaxed).value.as_int() == 1);
+    // Strict mode still refuses all of it.
+    CHECK(parse("[1,]").error.has_value());
+    CHECK(parse("[1] // c").error.has_value());
+    ge::json::ParseOptions comments_only;
+    comments_only.comments = true;
+    CHECK(parse("[1] // c", comments_only).ok());
+    CHECK(parse("[1,] // c", comments_only).error.has_value());
+}

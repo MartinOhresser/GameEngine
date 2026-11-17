@@ -18,6 +18,11 @@
       "items": { "$ref": "#/$defs/snake_name" },
       "uniqueItems": true
     },
+    "params": {
+      "description": "Settings a game can change in its manifest, with optional bounds.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/param" }
+    },
     "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
     "systems": { "type": "array", "items": { "$ref": "#/$defs/system" } }
   },
@@ -27,6 +32,19 @@
       "description": "A name of this module, or `module.name` for a dependency.",
       "type": "string",
       "pattern": "^([a-z][a-z0-9_]*\\.)?[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "param": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "default"],
+      "properties": {
+        "name": { "$ref": "#/$defs/snake_name" },
+        "description": { "type": "string" },
+        "type": { "enum": ["i32", "u32", "i64", "u64", "f32", "f64", "bool"] },
+        "default": { "type": ["number", "boolean"] },
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      }
     },
     "component": {
       "type": "object",
