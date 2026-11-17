@@ -4,7 +4,7 @@
 
 ## Contexte
 
-Le moteur doit tourner sur desktop, mobile (Android NDK, iOS) et web (WebAssembly), et pouvoir plus tard s'intégrer à des plateformes aux contraintes strictes. Une étude comparative préalable avait privilégié Rust ; le choix final s'est porté sur C++ pour l'écosystème, l'accès natif aux SDK mobiles et la familiarité.
+Le moteur doit tourner sur desktop, mobile (Android NDK, iOS) et web (WebAssembly), et pouvoir plus tard s'intégrer à des plateformes aux contraintes strictes. Le choix s'est porté sur C++ pour l'écosystème, l'accès natif aux SDK mobiles et la familiarité.
 
 ## Décision
 
