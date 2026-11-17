@@ -107,8 +107,9 @@ jobs:
       - name: Report
         run: |
           gcovr --root . --gcov-executable gcov-13 \
-            --filter 'include/ge/' --filter 'src/' \
-            --print-summary \
+            --filter '^include/ge/' --filter '^src/' \
+            --txt-metric line --print-summary \
+            --txt \
             --xml coverage.xml \
             --fail-under-line "$COVERAGE_MIN"
       - uses: actions/upload-artifact@v4

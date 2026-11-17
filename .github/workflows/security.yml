@@ -15,8 +15,13 @@ permissions:
 jobs:
   codeql:
     name: CodeQL (C/C++)
+    # Code scanning is free on public repositories only; on a private one it
+    # needs GitHub Advanced Security. The job starts running once the repo is
+    # public (or once Advanced Security is enabled and this condition removed).
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-24.04
     permissions:
+      actions: read # needed by CodeQL on private repositories
       contents: read
       security-events: write
     steps:
