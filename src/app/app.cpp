@@ -164,6 +164,9 @@ void Schedule::run_stage(Stage stage, ecs::World& world) {
     }
     for (const std::size_t entry : order_cache_[slot]) {
         stages_[slot][entry].run(world);
+        if (auto* commands = world.resource<ecs::Commands>(); commands != nullptr) {
+            commands->apply(world);
+        }
     }
 }
 
@@ -214,6 +217,7 @@ std::vector<std::size_t> Schedule::execution_order(Stage stage,
 App::App() {
     world_.insert_resource(Time{});
     world_.insert_resource(Random{});
+    world_.insert_resource(ecs::Commands{});
     set_tick_rate(60);
 }
 
@@ -229,9 +233,22 @@ void App::set_tick_rate(std::uint32_t ticks_per_second) {
     }
 }
 
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+void App::add_stage_hook(Stage stage, System hook) {
+    hooks_[index_of(stage)].push_back(std::move(hook));
+}
+
+void App::run_stage(Stage stage) {
+    schedule_.run_stage(stage, world_);
+    for (const System& hook : hooks_[index_of(stage)]) {
+        hook(world_);
+    }
+}
+// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+
 void App::run_startup_once() {
     if (!started_) {
-        schedule_.run_stage(Stage::Startup, world_);
+        run_stage(Stage::Startup);
         started_ = true;
     }
 }
@@ -246,11 +263,11 @@ void App::advance(std::chrono::nanoseconds real_delta) {
         time->frame_delta = static_cast<float>(elapsed_ns) * 1e-9F;
     }
 
-    schedule_.run_stage(Stage::PreUpdate, world_);
+    run_stage(Stage::PreUpdate);
 
     std::uint32_t ticks_run = 0;
     while (accumulator_ns_ >= step_ns_ && ticks_run < max_catch_up_ticks_) {
-        schedule_.run_stage(Stage::FixedUpdate, world_);
+        run_stage(Stage::FixedUpdate);
         accumulator_ns_ -= step_ns_;
         ++ticks_run;
         if (Time* time = world_.resource<Time>(); time != nullptr) {
@@ -263,8 +280,8 @@ void App::advance(std::chrono::nanoseconds real_delta) {
         time->alpha = static_cast<float>(accumulator_ns_) / static_cast<float>(step_ns_);
     }
 
-    schedule_.run_stage(Stage::Update, world_);
-    schedule_.run_stage(Stage::PostUpdate, world_);
+    run_stage(Stage::Update);
+    run_stage(Stage::PostUpdate);
     ++frames_;
 }
 

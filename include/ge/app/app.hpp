@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ge/app/time.hpp"
+#include "ge/ecs/commands.hpp"
+#include "ge/ecs/events.hpp"
 #include "ge/ecs/world.hpp"
 
 #include <array>
@@ -27,6 +29,9 @@ enum class Stage : std::uint8_t {
     Update,      ///< Per-frame logic that does not belong to the simulation.
     PostUpdate,  ///< Reconcile and clean up.
 };
+
+/// Number of stages.
+inline constexpr std::size_t stage_count = 5;
 
 [[nodiscard]] std::string_view to_string(Stage stage) noexcept;
 
@@ -72,7 +77,8 @@ public:
     /// is the system's position in the stage.
     void add_system(Stage stage, System system, std::string name = {}, Order order = {});
 
-    /// Runs every system of one stage.
+    /// Runs every system of one stage. When the world holds a `Commands`
+    /// resource, its queue is applied after each system.
     void run_stage(Stage stage, ecs::World& world);
 
     [[nodiscard]] std::size_t system_count(Stage stage) const noexcept;
@@ -90,8 +96,6 @@ private:
         System run;
         Order order;
     };
-
-    static constexpr std::size_t stage_count = 5;
 
     /// Indices into the stage's entries, in execution order. Problems found on
     /// the way are appended to `problems` when it is not null.
@@ -151,6 +155,25 @@ public:
         return *this;
     }
 
+    /// Registers the event type `T`: stores an `Events<T>` resource and ends
+    /// its generation once `domain` has run (after each fixed tick for
+    /// `FixedUpdate`, after the stage's frame run otherwise).
+    ///
+    /// An event sent during tick N is readable by every system during tick N
+    /// and tick N+1, then dropped. Simulation events should use the default
+    /// `FixedUpdate` domain so they depend on ticks, never on frame timing;
+    /// presentation events (sounds, particles) can use `Update`.
+    template <typename T>
+    App& add_event(Stage domain = Stage::FixedUpdate) {
+        world_.emplace_resource<ecs::Events<T>>();
+        add_stage_hook(domain, [](ecs::World& world) {
+            if (auto* events = world.resource<ecs::Events<T>>(); events != nullptr) {
+                events->update();
+            }
+        });
+        return *this;
+    }
+
     /// Sets the fixed tick rate (ticks per second, at least 1) and the matching
     /// `Time` fields. Call it before the first frame.
     void set_tick_rate(std::uint32_t ticks_per_second);
@@ -175,9 +198,12 @@ public:
 
 private:
     void run_startup_once();
+    void run_stage(Stage stage);
+    void add_stage_hook(Stage stage, System hook);
 
     ecs::World world_;
     Schedule schedule_;
+    std::array<std::vector<System>, stage_count> hooks_;
     std::uint64_t frames_ = 0;
     std::uint64_t step_ns_ = 0;
     std::uint64_t accumulator_ns_ = 0;

@@ -12,5 +12,7 @@
 ///     world.each<Position, const Velocity>(
 ///         [](ge::ecs::Entity, Position& p, const Velocity& v) { p.x += v.x; });
 
-#include "ge/ecs/entity.hpp" // IWYU pragma: export
-#include "ge/ecs/world.hpp"  // IWYU pragma: export
+#include "ge/ecs/commands.hpp" // IWYU pragma: export
+#include "ge/ecs/entity.hpp"   // IWYU pragma: export
+#include "ge/ecs/events.hpp"   // IWYU pragma: export
+#include "ge/ecs/world.hpp"    // IWYU pragma: export
