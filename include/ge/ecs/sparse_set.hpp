@@ -1,10 +1,12 @@
 #pragma once
 
+#include "ge/core/hash.hpp"
 #include "ge/ecs/entity.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <span>
 #include <type_traits>
 #include <utility>
@@ -25,6 +27,16 @@ public:
 
     /// Removes the component of the entity in slot `index`, if there is one.
     virtual void remove_entity(std::uint32_t index) = 0;
+
+    /// An independent copy, or null when the component type is not copyable.
+    [[nodiscard]] virtual std::unique_ptr<StorageBase> clone() const = 0;
+
+    /// Whether `digest` covers the component values (false: presence only).
+    [[nodiscard]] virtual bool hashable() const noexcept = 0;
+
+    /// Hash of the storage that does not depend on storage order, so the same
+    /// entities and values give the same digest however they got there.
+    [[nodiscard]] virtual std::uint64_t digest() const = 0;
 };
 
 /// Components of one type, packed in a dense array with a sparse index by
@@ -36,6 +48,12 @@ class SparseSet final : public StorageBase {
                   "components must be movable");
 
 public:
+    SparseSet() = default;
+
+    /// Rebuilds a storage from the three parallel arrays of another one.
+    SparseSet(std::vector<std::uint32_t> sparse, std::vector<Entity> entities, std::vector<T> data)
+        : sparse_(std::move(sparse)), entities_(std::move(entities)), data_(std::move(data)) {}
+
     /// Stores a component for `entity`, replacing the one it already had.
     template <typename... Args>
     T& emplace(Entity entity, Args&&... args) {
@@ -78,6 +96,32 @@ public:
         if (index < sparse_.size() && sparse_[index] != absent) {
             erase_slot(sparse_[index]);
         }
+    }
+
+    [[nodiscard]] std::unique_ptr<StorageBase> clone() const override {
+        if constexpr (std::is_copy_constructible_v<T>) {
+            return std::make_unique<SparseSet>(sparse_, entities_, data_);
+        } else {
+            return nullptr;
+        }
+    }
+
+    [[nodiscard]] bool hashable() const noexcept override { return Hashable<T>; }
+
+    [[nodiscard]] std::uint64_t digest() const override {
+        std::uint64_t sum = 0;
+        for (std::size_t slot = 0; slot < data_.size(); ++slot) {
+            Hasher hasher;
+            hasher.add(entities_[slot]);
+            if constexpr (Hashable<T>) {
+                hasher.add(data_[slot]);
+            }
+            sum += hasher.value();
+        }
+        Hasher total;
+        total.add(static_cast<std::uint64_t>(data_.size()));
+        total.add(sum);
+        return total.value();
     }
 
     [[nodiscard]] std::size_t size() const noexcept { return data_.size(); }

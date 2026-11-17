@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ge/core/hash.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -82,6 +84,14 @@ public:
 
     /// Number of events ever sent, dropped ones included.
     [[nodiscard]] std::uint64_t total_sent() const noexcept { return sent_; }
+
+    /// Hashes the stored events and the count sent, when `T` is hashable.
+    void hash(Hasher& hasher) const
+        requires Hashable<T>
+    {
+        hasher.add(sent_);
+        for_each([&hasher](const T& event) { hasher.add(event); });
+    }
 
 private:
     std::vector<T> previous_;

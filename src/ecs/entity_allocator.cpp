@@ -46,4 +46,16 @@ std::vector<Entity> EntityAllocator::alive() const {
     return result;
 }
 
+void EntityAllocator::hash(Hasher& hasher) const {
+    hasher.add(static_cast<std::uint64_t>(generations_.size()));
+    for (std::size_t index = 0; index < generations_.size(); ++index) {
+        hasher.add(generations_[index]);
+        hasher.add(alive_[index]);
+    }
+    hasher.add(static_cast<std::uint64_t>(free_.size()));
+    for (const std::uint32_t slot : free_) {
+        hasher.add(slot);
+    }
+}
+
 } // namespace ge::ecs
