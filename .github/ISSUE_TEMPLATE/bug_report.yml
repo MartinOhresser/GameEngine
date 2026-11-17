@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not behave as documented
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest code or steps that show the problem.
+      render: cpp
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Web (WebAssembly)
+        - iOS
+        - Android
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: compiler
+    attributes:
+      label: Compiler and version
+      placeholder: "GCC 13.3, Clang 18, MSVC 19.4x, AppleClang 16"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or sanitizer output
+      render: text

@@ -1,0 +1,11 @@
+---
+# Tests use macros (TEST_CASE, CHECK) and magic numbers on purpose.
+InheritParentConfig: true
+Checks: >
+  -cppcoreguidelines-macro-usage,
+  -bugprone-macro-parentheses,
+  -cert-err33-c,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-pro-type-vararg,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-naming

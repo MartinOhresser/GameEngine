@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a new capability or an API change
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What kind of game or workflow is hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Sketch the API as a user would write it.
+      render: cpp
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Area
+      options:
+        - ECS core
+        - Application and plugins
+        - Rendering
+        - Input
+        - Networking
+        - UI
+        - Tooling and CI
+        - Other
+    validations:
+      required: true

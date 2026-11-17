@@ -1,0 +1,69 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "GE_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "dev",
+      "displayName": "Debug with warnings as errors",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "release",
+      "displayName": "Release with warnings as errors",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "asan",
+      "displayName": "Debug with AddressSanitizer and UBSan",
+      "inherits": "dev",
+      "cacheVariables": { "GE_SANITIZE": "address;undefined" }
+    },
+    {
+      "name": "tidy",
+      "displayName": "Debug with clang-tidy on every target",
+      "inherits": "dev",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Debug instrumented for coverage",
+      "inherits": "dev",
+      "cacheVariables": { "GE_COVERAGE": "ON" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" },
+    { "name": "release", "configurePreset": "release" },
+    { "name": "asan", "configurePreset": "asan" },
+    { "name": "tidy", "configurePreset": "tidy" },
+    { "name": "coverage", "configurePreset": "coverage" }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    { "name": "dev", "configurePreset": "dev", "inherits": "base" },
+    { "name": "release", "configurePreset": "release", "inherits": "base" },
+    { "name": "asan", "configurePreset": "asan", "inherits": "base" },
+    { "name": "coverage", "configurePreset": "coverage", "inherits": "base" }
+  ]
+}
