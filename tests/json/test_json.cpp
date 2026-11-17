@@ -166,7 +166,7 @@ TEST_CASE("json: reals are written as the shortest text that reads back exactly"
     CHECK(format_real(std::numeric_limits<double>::infinity()) == "0.0");
     CHECK(format_real(std::numeric_limits<float>::quiet_NaN()) == "0.0");
     for (const double value :
-         {3.14159265358979 * 1.000001, 1.0 / 3.0, 123456.789, 2.2250738585072014e-308}) {
+         {0.30000000000000004, 1.0 / 3.0, 123456.789, 2.2250738585072014e-308}) {
         const auto parsed = parse(format_real(value));
         REQUIRE(parsed.ok());
         CHECK(parsed.value.as_real() == value);
