@@ -142,8 +142,8 @@ Format, règles et marche à suivre : [docs/MODULES.md](docs/MODULES.md).
 La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, garde-fous) est dans [docs/ROADMAP.md](docs/ROADMAP.md). En résumé :
 
 1. ✅ **M0** Cœur ECS, boucle applicative, plugins, CI.
-2. **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
-3. **M2** Modules et catalogue (`module.json`).
+2. ✅ **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
+3. ✅ **M2** Modules et catalogue (`module.json`, `gectl`).
 4. **M3** Manifeste de jeu, validation et générateur (`gectl`).
 5. **M4** Tests sans fenêtre (headless).
 6. **M5** Skills : du prompt au jeu.
