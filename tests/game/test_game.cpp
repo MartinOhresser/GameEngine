@@ -127,6 +127,16 @@ TEST_CASE("game: a valid game loads completely") {
     CHECK(game.find_scene("nope") == nullptr);
 }
 
+TEST_CASE("game: a manifest path written with backslashes (Windows) finds its files") {
+    Files files;
+    for (const auto& [path, text] : sample_game()) {
+        files["g\\" + path.substr(2)] = text;
+    }
+    const auto loaded = ge::game::load_game("g\\game.json", reader_of(files), linked_catalog());
+    CHECK(loaded.ok());
+    CHECK(loaded.game.scenes.size() == 1U);
+}
+
 TEST_CASE("game: prefab chains merge field by field, then the entity's own values") {
     const auto loaded = load(sample_game());
     REQUIRE(loaded.ok());

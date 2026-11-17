@@ -213,7 +213,7 @@ bool is_safe_relative(const std::string& path) {
 }
 
 std::string directory_of(const std::string& path) {
-    const std::size_t slash = path.rfind('/');
+    const std::size_t slash = path.find_last_of("/\\");
     return slash == std::string::npos ? std::string() : path.substr(0, slash + 1);
 }
 
