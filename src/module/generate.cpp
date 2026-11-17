@@ -1,7 +1,5 @@
 #include "ge/module/generate.hpp"
 
-#include <array>
-#include <charconv>
 #include <cstdint>
 #include <limits>
 
@@ -29,17 +27,6 @@ std::string cpp_type(FieldType type) {
     return {}; // GCOVR_EXCL_LINE: unreachable for valid enum values
 }
 
-template <typename Float>
-std::string float_text(Float value) {
-    std::array<char, 40> buffer{};
-    const auto result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
-    std::string text(buffer.data(), result.ptr);
-    if (text.find_first_of(".eE") == std::string::npos) {
-        text += ".0";
-    }
-    return text;
-}
-
 /// The C++ literal for a field's default value (zero when none is given).
 std::string default_literal(const FieldSpec& field) {
     const json::Value& value = field.default_value;
@@ -65,9 +52,10 @@ std::string default_literal(const FieldSpec& field) {
     case FieldType::U64:
         return std::to_string(value.is_int() ? value.as_int() : 0) + "ULL";
     case FieldType::F32:
-        return float_text(static_cast<float>(value.is_number() ? value.as_real() : 0.0)) + "F";
+        return json::format_real(static_cast<float>(value.is_number() ? value.as_real() : 0.0)) +
+               "F";
     case FieldType::F64:
-        return float_text(value.is_number() ? value.as_real() : 0.0);
+        return json::format_real(value.is_number() ? value.as_real() : 0.0);
     }
     return {}; // GCOVR_EXCL_LINE: unreachable for valid enum values
 }

@@ -151,3 +151,24 @@ TEST_CASE("json: building values") {
     CHECK(object.is_object());
     CHECK(Value::boolean(true).is_bool());
 }
+
+TEST_CASE("json: reals are written as the shortest text that reads back exactly") {
+    using ge::json::format_real;
+    CHECK(format_real(800.0) == "800.0");
+    CHECK(format_real(0.1) == "0.1");
+    CHECK(format_real(-2.5) == "-2.5");
+    CHECK(format_real(0.0) == "0.0");
+    CHECK(format_real(1e-7) == "1e-07");
+    CHECK(format_real(1e20) == "1e+20");
+    CHECK(format_real(0.1F) == "0.1");
+    CHECK(format_real(1.25F) == "1.25");
+    CHECK(format_real(16777216.0F) == "16777216.0");
+    CHECK(format_real(std::numeric_limits<double>::infinity()) == "0.0");
+    CHECK(format_real(std::numeric_limits<float>::quiet_NaN()) == "0.0");
+    for (const double value :
+         {3.14159265358979 * 1.000001, 1.0 / 3.0, 123456.789, 2.2250738585072014e-308}) {
+        const auto parsed = parse(format_real(value));
+        REQUIRE(parsed.ok());
+        CHECK(parsed.value.as_real() == value);
+    }
+}

@@ -95,6 +95,11 @@ struct ParseResult {
 /// no duplicate keys, nesting limited to 128 levels.
 [[nodiscard]] ParseResult parse(std::string_view text);
 
+/// The shortest text that reads back as exactly `value` (and always looks like
+/// a real: "3.0", never "3"). Non-finite values give "0.0".
+[[nodiscard]] std::string format_real(double value);
+[[nodiscard]] std::string format_real(float value);
+
 /// Writes a value as JSON. `indent` is the number of spaces per level; 0 gives
 /// a compact one-line form. Non-finite reals are written as null.
 [[nodiscard]] std::string dump(const Value& value, int indent = 2);

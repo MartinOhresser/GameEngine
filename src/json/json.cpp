@@ -1,8 +1,11 @@
 #include "ge/json/json.hpp"
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <system_error>
 
 namespace ge::json {
@@ -439,9 +442,11 @@ private:
                 return Value::integer(value);
             }
         }
-        double value = 0.0;
-        const auto result = std::from_chars(token.data(), token.data() + token.size(), value);
-        if (result.ec != std::errc{}) {
+        // Floating-point std::from_chars is missing from some standard libraries
+        // the engine targets (WebAssembly, older iOS), so strtod does the work.
+        const std::string text(token);
+        const double value = std::strtod(text.c_str(), nullptr);
+        if (!std::isfinite(value)) {
             fail_at(start, "number out of range");
             return {};
         }
@@ -499,17 +504,7 @@ void write_string(std::string& out, const std::string& text) {
 }
 
 void write_real(std::string& out, double value) {
-    if (!std::isfinite(value)) {
-        out += "null";
-        return;
-    }
-    std::array<char, 40> buffer{};
-    const auto result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
-    std::string text(buffer.data(), result.ptr);
-    if (text.find_first_of(".eE") == std::string::npos) {
-        text += ".0";
-    }
-    out += text;
+    out += std::isfinite(value) ? format_real(value) : "null";
 }
 
 void write_value(std::string& out, const Value& value, int indent, int level) {
@@ -579,6 +574,47 @@ void write_value(std::string& out, const Value& value, int indent, int level) {
 }
 
 } // namespace
+
+namespace {
+
+/// Shortest "%.{n}g" text that reads back as `value` with `read`.
+template <typename Real, typename Read>
+std::string shortest(Real value, int max_digits, Read read) {
+    std::array<char, 40> buffer{};
+    // "%g" switches to an exponent when it has fewer digits than the integer
+    // part, so start at that many digits to print 800 rather than 8e+02.
+    const double magnitude = std::fabs(static_cast<double>(value));
+    const int integer_digits = magnitude >= 1.0 ? static_cast<int>(std::log10(magnitude)) + 1 : 1;
+    for (int digits = std::min(integer_digits, max_digits); digits <= max_digits; ++digits) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        std::snprintf(buffer.data(), buffer.size(), "%.*g", digits, static_cast<double>(value));
+        if (read(buffer.data()) == value) {
+            break;
+        }
+    }
+    std::string text(buffer.data());
+    std::replace(text.begin(), text.end(), ',', '.'); // a locale with a decimal comma
+    if (text.find_first_of(".eE") == std::string::npos) {
+        text += ".0";
+    }
+    return text;
+}
+
+} // namespace
+
+std::string format_real(double value) {
+    if (!std::isfinite(value)) {
+        return "0.0";
+    }
+    return shortest(value, 17, [](const char* text) { return std::strtod(text, nullptr); });
+}
+
+std::string format_real(float value) {
+    if (!std::isfinite(value)) {
+        return "0.0";
+    }
+    return shortest(value, 9, [](const char* text) { return std::strtof(text, nullptr); });
+}
 
 std::string dump(const Value& value, int indent) {
     std::string out;
