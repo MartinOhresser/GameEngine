@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ge/app/module.hpp"
+#include "ge/app/stage.hpp"
 #include "ge/app/time.hpp"
 #include "ge/ecs/commands.hpp"
 #include "ge/ecs/events.hpp"
@@ -17,23 +19,6 @@
 #include <vector>
 
 namespace ge::app {
-
-/// Phases of a frame, in execution order.
-///
-/// `Startup` runs once, before the first frame. The others run every frame, in
-/// the order `PreUpdate`, `FixedUpdate`, `Update`, `PostUpdate`.
-enum class Stage : std::uint8_t {
-    Startup,     ///< Once, before the first frame.
-    PreUpdate,   ///< Gather input.
-    FixedUpdate, ///< Simulation: runs zero or more times per frame, at a fixed rate.
-    Update,      ///< Per-frame logic that does not belong to the simulation.
-    PostUpdate,  ///< Reconcile and clean up.
-};
-
-/// Number of stages.
-inline constexpr std::size_t stage_count = 5;
-
-[[nodiscard]] std::string_view to_string(Stage stage) noexcept;
 
 /// Any callable taking the world is a system.
 using System = std::function<void(ecs::World&)>;
@@ -155,6 +140,21 @@ public:
         return *this;
     }
 
+    /// Records that a module is installed. A module's generated `install`
+    /// calls this before registering its systems. Problems (a dependency that
+    /// is not installed yet, the same module twice) are listed by
+    /// `module_problems`, so a game can check them once at startup.
+    App& add_module(const ModuleInfo& info);
+
+    [[nodiscard]] bool has_module(std::string_view name) const noexcept;
+
+    /// Names of the installed modules, in installation order.
+    [[nodiscard]] std::vector<std::string> module_names() const;
+
+    [[nodiscard]] const std::vector<std::string>& module_problems() const noexcept {
+        return module_problems_;
+    }
+
     /// Registers the event type `T`: stores an `Events<T>` resource and ends
     /// its generation once `domain` has run (after each fixed tick for
     /// `FixedUpdate`, after the stage's frame run otherwise).
@@ -204,6 +204,8 @@ private:
     ecs::World world_;
     Schedule schedule_;
     std::array<std::vector<System>, stage_count> hooks_;
+    std::vector<ModuleInfo> modules_;
+    std::vector<std::string> module_problems_;
     std::uint64_t frames_ = 0;
     std::uint64_t step_ns_ = 0;
     std::uint64_t accumulator_ns_ = 0;

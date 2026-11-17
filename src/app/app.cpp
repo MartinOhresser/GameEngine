@@ -233,6 +233,36 @@ void App::set_tick_rate(std::uint32_t ticks_per_second) {
     }
 }
 
+App& App::add_module(const ModuleInfo& info) {
+    if (has_module(info.name)) {
+        module_problems_.push_back("module '" + std::string(info.name) + "' is installed twice");
+        return *this;
+    }
+    for (const std::string_view dependency : info.depends) {
+        if (!has_module(dependency)) {
+            module_problems_.push_back("module '" + std::string(info.name) + "' needs module '" +
+                                       std::string(dependency) +
+                                       "', which must be installed before it");
+        }
+    }
+    modules_.push_back(info);
+    return *this;
+}
+
+bool App::has_module(std::string_view name) const noexcept {
+    return std::any_of(modules_.begin(), modules_.end(),
+                       [name](const ModuleInfo& module) { return module.name == name; });
+}
+
+std::vector<std::string> App::module_names() const {
+    std::vector<std::string> names;
+    names.reserve(modules_.size());
+    for (const ModuleInfo& module : modules_) {
+        names.emplace_back(module.name);
+    }
+    return names;
+}
+
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 void App::add_stage_hook(Stage stage, System hook) {
     hooks_[index_of(stage)].push_back(std::move(hook));

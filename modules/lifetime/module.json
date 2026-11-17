@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "lifetime",
+  "version": "0.1.0",
+  "description": "Entities that disappear after a number of ticks (projectiles, effects, timed pickups).",
+  "components": [
+    {
+      "name": "Lifetime",
+      "description": "Ticks left before the entity is destroyed.",
+      "replicable": true,
+      "fields": [{ "name": "ticks", "type": "i32", "default": 60 }]
+    }
+  ],
+  "systems": [
+    {
+      "name": "expire",
+      "description": "Counts Lifetime down each tick and destroys the entity when it reaches zero.",
+      "stage": "FixedUpdate",
+      "writes": ["Lifetime"]
+    }
+  ]
+}

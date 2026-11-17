@@ -12,6 +12,7 @@ Checks: >
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   misc-*,
+  -misc-no-recursion,
   -misc-include-cleaner,
   -misc-non-private-member-variables-in-classes,
   modernize-*,

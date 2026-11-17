@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MartinOhresser/GameEngine/schemas/module.schema.json",
+  "title": "Game engine module",
+  "description": "Describes one module: the components it adds, the systems it runs and the modules it needs. `gectl check` enforces the same rules and a few that a schema cannot express (references between modules).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "version"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "name": { "$ref": "#/$defs/snake_name", "description": "Also the name of the directory the module lives in." },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "description": { "type": "string" },
+    "depends": {
+      "description": "Modules this one uses. Install them before this one.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/snake_name" },
+      "uniqueItems": true
+    },
+    "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+    "systems": { "type": "array", "items": { "$ref": "#/$defs/system" } }
+  },
+  "$defs": {
+    "snake_name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "reference": {
+      "description": "A name of this module, or `module.name` for a dependency.",
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9_]*\\.)?[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "replicable"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+        "description": { "type": "string" },
+        "replicable": {
+          "description": "Whether the component belongs to the state a networked game would replicate between peers.",
+          "type": "boolean"
+        },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/snake_name" },
+        "type": { "enum": ["i32", "u32", "i64", "u64", "f32", "f64", "bool"] },
+        "default": { "type": ["number", "boolean"] }
+      }
+    },
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "stage"],
+      "properties": {
+        "name": { "$ref": "#/$defs/snake_name" },
+        "description": { "type": "string" },
+        "stage": { "enum": ["Startup", "PreUpdate", "FixedUpdate", "Update", "PostUpdate"] },
+        "reads": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+        "writes": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+        "after": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+        "before": { "type": "array", "items": { "$ref": "#/$defs/reference" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "transform2d",
+  "version": "0.1.0",
+  "description": "Position and velocity in the 2D plane, and the movement that links them.",
+  "components": [
+    {
+      "name": "Position",
+      "description": "Where an entity is, in world units.",
+      "replicable": true,
+      "fields": [
+        { "name": "x", "type": "f32", "default": 0 },
+        { "name": "y", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Velocity",
+      "description": "How far an entity moves per second, in world units.",
+      "replicable": true,
+      "fields": [
+        { "name": "x", "type": "f32", "default": 0 },
+        { "name": "y", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "integrate",
+      "description": "Moves every entity that has a Velocity by velocity times the tick duration.",
+      "stage": "FixedUpdate",
+      "reads": ["Velocity"],
+      "writes": ["Position"]
+    }
+  ]
+}
