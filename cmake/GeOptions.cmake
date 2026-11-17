@@ -39,12 +39,19 @@ function(ge_target_options target)
               -Wold-style-cast
               -Wnon-virtual-dtor
               -Woverloaded-virtual
-              -Wnull-dereference
               -Wdouble-promotion
               -Wformat=2
               # The engine runs on mobile and consoles where games disable both.
               -fno-exceptions
               -fno-rtti)
+    # GCC 13 reports false positives at -O2/-O3 on std::vector internals and on
+    # branches it cannot prove dead, so these are enabled for Clang only (the
+    # sanitizers and clang-tidy still cover real bugs).
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      target_compile_options(${target} PRIVATE -Wnull-dereference)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      target_compile_options(${target} PRIVATE -Wno-stringop-overflow)
+    endif()
     if(GE_WARNINGS_AS_ERRORS)
       target_compile_options(${target} PRIVATE -Werror)
     endif()

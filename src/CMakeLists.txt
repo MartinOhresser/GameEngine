@@ -4,3 +4,13 @@ target_include_directories(ge_core PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_compile_features(ge_core PUBLIC cxx_std_20)
 target_compile_definitions(ge_core PRIVATE GE_VERSION_STRING="${PROJECT_VERSION}")
 ge_target_options(ge_core)
+
+add_library(ge_ecs STATIC ecs/entity_allocator.cpp)
+add_library(ge::ecs ALIAS ge_ecs)
+target_link_libraries(ge_ecs PUBLIC ge::core)
+ge_target_options(ge_ecs)
+
+add_library(ge_app STATIC app/app.cpp)
+add_library(ge::app ALIAS ge_app)
+target_link_libraries(ge_app PUBLIC ge::ecs)
+ge_target_options(ge_app)

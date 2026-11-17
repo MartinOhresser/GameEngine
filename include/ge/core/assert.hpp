@@ -20,6 +20,7 @@ namespace ge::detail {
 /// Checks an internal invariant. Active unless `NDEBUG` is defined; in that
 /// case the expression is still compiled (so it cannot rot) but not evaluated.
 #ifndef NDEBUG
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage): needs the call site's file and line.
 #define GE_ASSERT(condition)                                                                       \
     do {                                                                                           \
         if (!(condition)) {                                                                        \
@@ -27,6 +28,7 @@ namespace ge::detail {
         }                                                                                          \
     } while (false)
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage): see above.
 #define GE_ASSERT(condition)                                                                       \
     do {                                                                                           \
         static_cast<void>(sizeof(condition));                                                      \
