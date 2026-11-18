@@ -258,13 +258,26 @@ bool default_fits(FieldType type, const json::Value& value) {
     return false; // GCOVR_EXCL_LINE: unreachable for valid enum values
 }
 
+void read_field_ref(Reader& reader, const json::Value& object, const std::string& path,
+                    FieldSpec& field) {
+    const std::string ref_path = Reader::join_path(path, "ref");
+    if (!reader.string_at(object, "ref", path, false, field.ref)) {
+        return;
+    }
+    check_name(reader, ref_path, field.ref, false);
+    if (field.type != FieldType::U32) {
+        reader.error(ref_path, "only a u32 field can have a ref: its value is an index into a "
+                               "list the game declares");
+    }
+}
+
 void read_field(Reader& reader, const json::Value& value, const std::string& path,
                 ComponentSpec& component) {
     const json::Value* object = reader.object_at(value, path);
     if (object == nullptr) {
         return;
     }
-    reader.reject_unknown(*object, path, {"name", "type", "default"});
+    reader.reject_unknown(*object, path, {"name", "type", "default", "ref"});
     FieldSpec field;
     const bool has_name = reader.string_at(*object, "name", path, true, field.name);
     if (has_name) {
@@ -295,6 +308,9 @@ void read_field(Reader& reader, const json::Value& value, const std::string& pat
                 }
             }
         }
+    }
+    if (object->find("ref") != nullptr) {
+        read_field_ref(reader, *object, path, field);
     }
     component.fields.push_back(std::move(field));
 }
@@ -753,6 +769,9 @@ json::Value catalog_entry(const ModuleSpec& module) {
             entry.set("type", json::Value::string(std::string(to_string(field.type))));
             if (!field.default_value.is_null()) {
                 entry.set("default", field.default_value);
+            }
+            if (!field.ref.empty()) {
+                entry.set("ref", json::Value::string(field.ref));
             }
             fields.push_back(std::move(entry));
         }

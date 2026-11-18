@@ -67,7 +67,11 @@
       "properties": {
         "name": { "$ref": "#/$defs/snake_name" },
         "type": { "enum": ["i32", "u32", "i64", "u64", "f32", "f64", "bool"] },
-        "default": { "type": ["number", "boolean"] }
+        "default": { "type": ["number", "boolean"] },
+        "ref": {
+          "$ref": "#/$defs/snake_name",
+          "description": "Only for u32 fields: an index into a list the game declares (e.g. atlas); game files may write the item's name."
+        }
       }
     },
     "system": {

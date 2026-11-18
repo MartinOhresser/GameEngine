@@ -27,6 +27,9 @@ struct FieldSpec {
     FieldType type = FieldType::I32;
     /// Null means "the zero of the type".
     json::Value default_value;
+    /// Only for u32 fields: the field is an index into a list the game declares
+    /// (for example "atlas"), and a game file may write the item's name instead.
+    std::string ref;
 };
 
 /// Whether a JSON value is acceptable for a field of this type: right kind and

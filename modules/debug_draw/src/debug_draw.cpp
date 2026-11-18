@@ -32,7 +32,6 @@ void draw(ecs::World& world) {
             renderer.draw(
                 app::DrawCommand{"square", position.x, position.y, square.size, pack(square)});
         });
-    renderer.end_frame();
 }
 
 } // namespace ge::mod::debug_draw

@@ -92,6 +92,16 @@ struct ParamSetting {
     json::Value value;
 };
 
+/// A picture cut into equal cells: the sprites of a game come from it.
+/// Cells are numbered row by row from the top left, starting at 0.
+struct AtlasData {
+    std::string name;
+    /// Path of the image file, as the file reader understands it.
+    std::string image;
+    int cell_width = 0;
+    int cell_height = 0;
+};
+
 /// The game's `game.json`.
 struct Manifest {
     std::string name;
@@ -100,6 +110,7 @@ struct Manifest {
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
     std::vector<ParamSetting> params;
+    std::vector<std::string> atlas_files;
     std::vector<std::string> prefab_files;
     std::vector<std::string> scene_files;
     std::vector<std::string> scenario_files;
@@ -114,12 +125,19 @@ struct Game {
     std::vector<PrefabData> prefabs;
     std::vector<SceneData> scenes;
     std::vector<ScenarioData> scenarios;
+    /// In the order of the manifest: an atlas's position is the index a u32
+    /// field with `"ref": "atlas"` holds.
+    std::vector<AtlasData> atlases;
     /// What the `input` file binds; empty when the manifest names none.
     platform::InputMap input;
 
     [[nodiscard]] const PrefabData* find_prefab(std::string_view name) const;
     [[nodiscard]] const SceneData* find_scene(std::string_view name) const;
     [[nodiscard]] const ScenarioData* find_scenario(std::string_view name) const;
+
+    /// The names that a u32 field with `"ref": <ref>` can use, in index order;
+    /// empty when the game has no such list.
+    [[nodiscard]] std::vector<std::string> ref_names(std::string_view ref) const;
 };
 
 /// Returns the text of a file, or nothing when it cannot be read. Paths are

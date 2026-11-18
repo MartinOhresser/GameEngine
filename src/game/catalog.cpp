@@ -52,7 +52,7 @@ Catalog Catalog::from_specs(const std::vector<module::ModuleSpec>& modules) {
             ComponentDef component_def;
             component_def.name = component.name;
             for (const module::FieldSpec& field : component.fields) {
-                component_def.fields.push_back(FieldDef{field.name, field.type});
+                component_def.fields.push_back(FieldDef{field.name, field.type, field.ref});
             }
             def.components.push_back(std::move(component_def));
         }
@@ -93,7 +93,7 @@ Catalog Catalog::from_infos(std::span<const app::ModuleInfo* const> modules) {
             component_def.name = std::string(component.name);
             for (const app::FieldInfo& field : component.fields) {
                 component_def.fields.push_back(
-                    FieldDef{std::string(field.name), type_of(field.type)});
+                    FieldDef{std::string(field.name), type_of(field.type), std::string(field.ref)});
             }
             def.components.push_back(std::move(component_def));
         }

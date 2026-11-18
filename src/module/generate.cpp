@@ -187,7 +187,7 @@ std::vector<FieldSpec> param_fields(const ModuleSpec& module) {
     std::vector<FieldSpec> fields;
     fields.reserve(module.params.size());
     for (const ParamSpec& param : module.params) {
-        fields.push_back(FieldSpec{param.name, param.type, param.default_value});
+        fields.push_back(FieldSpec{param.name, param.type, param.default_value, {}});
     }
     return fields;
 }
@@ -262,7 +262,7 @@ std::string components_text(const ModuleSpec& module) {
         for (std::size_t f = 0; f < component.fields.size(); ++f) {
             const FieldSpec& field = component.fields[f];
             out += (f == 0 ? "{{" : ", {") + quoted(field.name) + ", " +
-                   quoted(std::string(to_string(field.type))) + "}";
+                   quoted(std::string(to_string(field.type))) + ", " + quoted(field.ref) + "}";
         }
         out += component.fields.empty() ? "};\n\n" : "}};\n\n";
     }

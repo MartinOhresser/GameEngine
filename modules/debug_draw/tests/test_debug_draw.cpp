@@ -32,7 +32,6 @@ TEST_CASE("debug_draw: every square is drawn at its position, once per frame") {
     CHECK(app.world().insert(entity, debug_draw::Square{32.0F, 255U, 0U, 128U}));
     app.run_frames(2);
     REQUIRE(renderer->commands().size() == 2U);
-    CHECK(renderer->frames() == 2U);
     const ge::app::DrawCommand expected{"square", 10.0F, 20.0F, 32.0F, 0xFF0080FFU};
     CHECK(renderer->commands()[0] == expected);
     CHECK(renderer->commands()[1] == expected);
@@ -47,7 +46,6 @@ TEST_CASE("debug_draw: entities without a position or without a square are not d
     CHECK(app.world().insert(no_square, transform2d::Position{}));
     app.run_frames(1);
     CHECK(renderer->commands().empty());
-    CHECK(renderer->frames() == 1U); // the frame still ends: the screen is cleared
 }
 
 TEST_CASE("debug_draw: colours above 255 are clamped") {

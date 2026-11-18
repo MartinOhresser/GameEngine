@@ -14,6 +14,8 @@ namespace ge::game {
 struct FieldDef {
     std::string name;
     module::FieldType type = module::FieldType::I32;
+    /// The list this u32 field indexes ("atlas"), or empty; see `FieldSpec::ref`.
+    std::string ref;
 };
 
 struct ComponentDef {

@@ -100,7 +100,6 @@ TEST_CASE("backend: the game draws and plays through the backend's devices") {
     ge::app::App app;
     app.add_system(ge::app::Stage::Update, [](ge::ecs::World& world) {
         world.resource<ge::app::RenderBackend>()->renderer().draw({"ship", 1.0F, 2.0F});
-        world.resource<ge::app::RenderBackend>()->renderer().end_frame();
         world.resource<ge::app::AudioBackend>()->device().play("beep");
     });
     ScriptedBackend backend(60, 4);
