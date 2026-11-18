@@ -9,6 +9,7 @@
 #include <optional>
 #include <stb_image.h>
 #include <utility>
+#include <vector>
 
 namespace ge::platform::sdl {
 
@@ -81,7 +82,7 @@ public:
           half_height_(static_cast<float>(view_height) / 2.0F) {}
 
     ~SdlRenderer() override {
-        for (Atlas& atlas : atlases_) {
+        for (const Atlas& atlas : atlases_) {
             if (atlas.texture != nullptr) {
                 SDL_DestroyTexture(atlas.texture);
             }
@@ -112,9 +113,9 @@ public:
         int width = 0;
         int height = 0;
         int channels = 0;
-        stbi_uc* pixels =
-            stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(bytes.data()),
-                                  static_cast<int>(bytes.size()), &width, &height, &channels, 4);
+        const std::vector<stbi_uc> encoded(bytes.begin(), bytes.end());
+        stbi_uc* pixels = stbi_load_from_memory(encoded.data(), static_cast<int>(encoded.size()),
+                                                &width, &height, &channels, 4);
         if (pixels == nullptr) {
             error = "\"" + atlas.image + "\" is not a PNG image this engine can read";
             return false;
@@ -206,8 +207,10 @@ private:
         const int columns = std::max(1, atlas.width / std::max(1, atlas.cell_width));
         const int rows = std::max(1, atlas.height / std::max(1, atlas.cell_height));
         const int frame = static_cast<int>(command.frame) % (columns * rows);
-        const SDL_FRect source{static_cast<float>((frame % columns) * atlas.cell_width),
-                               static_cast<float>((frame / columns) * atlas.cell_height),
+        const int column = frame % columns;
+        const int row = frame / columns;
+        const SDL_FRect source{static_cast<float>(column * atlas.cell_width),
+                               static_cast<float>(row * atlas.cell_height),
                                static_cast<float>(atlas.cell_width),
                                static_cast<float>(atlas.cell_height)};
         const float width =

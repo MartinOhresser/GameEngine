@@ -37,13 +37,6 @@ TEST_CASE("sprite2d: a sprite is drawn from its atlas cell at its position") {
     sprite2d::Sprite sprite;
     sprite.atlas = 2U;
     sprite.frame = 5U;
-    sprite.width = 32.0F;
-    sprite.height = 16.0F;
-    sprite.flip_x = true;
-    sprite.red = 255U;
-    sprite.green = 128U;
-    sprite.blue = 0U;
-    sprite.alpha = 200U;
     spawn(app, 10.0F, 20.0F, sprite);
     app.run_frames(1);
     REQUIRE(renderer->commands().size() == 1U);
@@ -53,10 +46,37 @@ TEST_CASE("sprite2d: a sprite is drawn from its atlas cell at its position") {
     CHECK(command.y == 20.0F);
     CHECK(command.atlas == 2);
     CHECK(command.frame == 5U);
+}
+
+TEST_CASE("sprite2d: size and mirroring reach the renderer, and colour is untinted by default") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    sprite.width = 32.0F;
+    sprite.height = 16.0F;
+    sprite.flip_x = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 1U);
+    const ge::app::DrawCommand& command = renderer->commands()[0];
     CHECK(command.width == 32.0F);
     CHECK(command.height == 16.0F);
     CHECK(command.flip_x);
-    CHECK(command.color == 0xFF8000C8U);
+    CHECK(command.color == 0xFFFFFFFFU);
+}
+
+TEST_CASE("sprite2d: the tint and the alpha are packed as 0xRRGGBBAA") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    sprite.red = 255U;
+    sprite.green = 128U;
+    sprite.blue = 0U;
+    sprite.alpha = 200U;
+    spawn(app, 0.0F, 0.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 1U);
+    CHECK(renderer->commands()[0].color == 0xFF8000C8U);
 }
 
 TEST_CASE("sprite2d: higher layers are drawn later, equal layers in creation order") {
