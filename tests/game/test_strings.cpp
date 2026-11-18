@@ -99,11 +99,11 @@ TEST_CASE("strings: the language in use gives the words, in the order of the key
     CHECK(table.texts[0] == "Jouer"); // fr was picked
     CHECK(table.texts[1] == "Points : {value}");
 
-    const auto english = load_changed("g/game.json", "\"locale\": \"fr\"", "\"locale\": \"en\"");
+    const auto english = load_changed("g/game.json", R"("locale": "fr")", R"("locale": "en")");
     REQUIRE(english.ok());
     CHECK(ge::game::text_table_of(english.game).texts[0] == "Play");
 
-    const auto first = load_changed("g/game.json", "\"locale\": \"fr\",", "");
+    const auto first = load_changed("g/game.json", R"("locale": "fr",)", "");
     REQUIRE(first.ok());
     CHECK(ge::game::text_table_of(first.game).texts[0] == "Play"); // no locale: the first file
 }
@@ -139,18 +139,17 @@ TEST_CASE("strings: an unknown key says what exists") {
 }
 
 TEST_CASE("strings: every language must have the same keys") {
-    const auto missing =
-        load_changed("g/text/fr.json", ", \"hud.score\": \"Points : {value}\"", "");
+    const auto missing = load_changed("g/text/fr.json", R"(, "hud.score": "Points : {value}")", "");
     CHECK(mentions(missing, "missing the key \"hud.score\" that en has"));
     const auto extra =
-        load_changed("g/text/fr.json", "\"hud.score\"", "\"hud.points\": \"x\", \"hud.score\"");
+        load_changed("g/text/fr.json", R"("hud.score")", R"("hud.points": "x", "hud.score")");
     CHECK(mentions(extra, "this key is not in en"));
 }
 
 TEST_CASE("strings: the files and the locale are checked") {
     CHECK(mentions(load_changed("g/game.json", "\"locale\": \"fr\"", "\"locale\": \"de\""),
                    "no strings file is the language \"de\""));
-    CHECK(mentions(load_changed("g/text/fr.json", "\"locale\": \"fr\"", "\"locale\": \"en\""),
+    CHECK(mentions(load_changed("g/text/fr.json", R"("locale": "fr")", R"("locale": "en")"),
                    "another file already is the language"));
     CHECK(mentions(load_changed("g/text/en.json", "\"menu.start\"", "\"Menu Start\""),
                    "a key must be lowercase"));
@@ -162,7 +161,7 @@ TEST_CASE("strings: the files and the locale are checked") {
 }
 
 TEST_CASE("strings: the lists the manifest builds cannot also be declared by hand") {
-    CHECK(mentions(load_changed("g/game.json", "\"locale\": \"fr\",",
+    CHECK(mentions(load_changed("g/game.json", R"("locale": "fr",)",
                                 "\"locale\": \"fr\", \"lists\": {\"string\": [\"x\"]},"),
                    "the string list is made by"));
 }

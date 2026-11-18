@@ -17,15 +17,20 @@ constexpr std::size_t max_set_size = 32;
 
 /// One name given for a ref field: it must be in the game's list, and in a set
 /// it must be among the first 32 names, which are the ones a bit mask can hold.
+/// The manifest key that fills the built-in list `ref`, or "lists" for a list of the game's own.
+std::string manifest_key_of(const std::string& ref) {
+    if (ref == "atlas") {
+        return "atlases";
+    }
+    return ref == "string" ? "strings" : "lists";
+}
+
 void check_ref_name(Checker& checker, const std::string& path, const FieldDef& field,
                     const std::vector<std::string>& names, const std::string& name) {
     if (names.empty()) {
         checker.error(path, "this field names an item of the game's " + field.ref +
                                 " list, but the game declares none (see the manifest's " +
-                                (field.ref == "atlas"    ? "atlases"
-                                 : field.ref == "string" ? "strings"
-                                                         : "lists") +
-                                ")");
+                                manifest_key_of(field.ref) + ")");
         return;
     }
     const auto found = std::find(names.begin(), names.end(), name);
@@ -499,6 +504,7 @@ void check_strings(const Context& context, const Game& game,
                           "another file already is the language \"" + other.locale + "\"");
         }
         std::vector<std::string> keys;
+        keys.reserve(other.entries.size());
         for (const auto& entry : other.entries) {
             keys.push_back(entry.first);
         }
@@ -522,6 +528,7 @@ void check_strings(const Context& context, const Game& game,
                                                      return data.locale == manifest.locale;
                                                  })) {
         std::vector<std::string> locales;
+        locales.reserve(game.strings.size());
         for (const StringsData& data : game.strings) {
             locales.push_back(data.locale);
         }
@@ -727,49 +734,85 @@ const StringsData* Game::active_strings() const {
     return found == strings.end() ? &strings.front() : &*found;
 }
 
-std::vector<std::string> Game::ref_names(std::string_view ref) const {
+namespace {
+
+/// The actions of the manifest's own list, then those the input file binds.
+std::vector<std::string> action_names(const Game& game) {
     std::vector<std::string> names;
-    if (ref == "atlas") {
-        for (const AtlasData& atlas : atlases) {
-            names.push_back(atlas.name);
+    for (const auto& list : game.manifest.lists) {
+        if (list.first == "action") {
+            names = list.second;
         }
-        return names;
+    }
+    for (const platform::Binding& binding : game.input.bindings()) {
+        if (std::find(names.begin(), names.end(), binding.action) == names.end()) {
+            names.push_back(binding.action);
+        }
+    }
+    return names;
+}
+
+/// The keys of the first strings file: they name the game's texts.
+std::vector<std::string> string_keys(const Game& game) {
+    std::vector<std::string> names;
+    if (!game.strings.empty()) {
+        names.reserve(game.strings.front().entries.size());
+        for (const auto& entry : game.strings.front().entries) {
+            names.push_back(entry.first);
+        }
+    }
+    return names;
+}
+
+} // namespace
+
+std::vector<std::string> Game::ref_names(std::string_view ref) const {
+    if (ref == "atlas") {
+        return detail::names_of(atlases);
     }
     if (ref == "scene") {
-        for (const SceneData& scene : scenes) {
-            names.push_back(scene.name);
-        }
-        return names;
+        return detail::names_of(scenes);
     }
     if (ref == "action") {
-        // The manifest's own list first, then the actions the input file binds.
-        for (const auto& list : manifest.lists) {
-            if (list.first == "action") {
-                names = list.second;
-            }
-        }
-        for (const platform::Binding& binding : input.bindings()) {
-            if (std::find(names.begin(), names.end(), binding.action) == names.end()) {
-                names.push_back(binding.action);
-            }
-        }
-        return names;
+        return action_names(*this);
     }
     if (ref == "string") {
-        if (!strings.empty()) {
-            for (const auto& entry : strings.front().entries) {
-                names.push_back(entry.first);
-            }
-        }
-        return names;
+        return string_keys(*this);
     }
     for (const auto& list : manifest.lists) {
         if (list.first == ref) {
             return list.second;
         }
     }
-    return names;
+    return {};
 }
+
+namespace {
+
+/// Reads every file the manifest lists under `key`; `read` turns the JSON into
+/// data (or null after reporting), `keep` stores it. Returns the paths of the
+/// files that gave data, in the order `keep` received them.
+template <typename Data, typename Read, typename Keep>
+std::vector<std::string> read_listed(Context& context, const std::string& manifest_path,
+                                     const char* key, const std::vector<std::string>& files,
+                                     Read read, Keep keep) {
+    std::vector<std::string> paths;
+    for (std::size_t i = 0; i < files.size(); ++i) {
+        const std::string path = context.directory + files[i];
+        const std::optional<json::Value> json =
+            read_json(context, path, manifest_path, index_path(key, i));
+        if (!json) {
+            continue;
+        }
+        if (std::optional<Data> data = read(context, path, *json)) {
+            keep(path, std::move(*data));
+            paths.push_back(path);
+        }
+    }
+    return paths;
+}
+
+} // namespace
 
 LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
                      const Catalog& catalog) {
@@ -786,39 +829,22 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
     }
     context.modules = loaded.game.manifest.modules;
 
-    for (std::size_t i = 0; i < loaded.game.manifest.atlas_files.size(); ++i) {
-        const std::string path = context.directory + loaded.game.manifest.atlas_files[i];
-        const std::optional<json::Value> data =
-            read_json(context, path, manifest_path, index_path("atlases", i));
-        if (!data) {
-            continue;
-        }
-        std::optional<AtlasData> atlas = read_atlas(context, path, *data);
-        if (!atlas) {
-            continue;
-        }
-        const bool duplicate =
-            std::any_of(loaded.game.atlases.begin(), loaded.game.atlases.end(),
-                        [&atlas](const AtlasData& other) { return other.name == atlas->name; });
-        if (duplicate) {
-            context.diagnostics->push_back(
-                Diagnostic{path, "name", "two atlases are named \"" + atlas->name + "\""});
-        }
-        loaded.game.atlases.push_back(std::move(*atlas));
-    }
-    std::vector<std::string> strings_files;
-    for (std::size_t i = 0; i < loaded.game.manifest.strings_files.size(); ++i) {
-        const std::string path = context.directory + loaded.game.manifest.strings_files[i];
-        const std::optional<json::Value> data =
-            read_json(context, path, manifest_path, index_path("strings", i));
-        if (!data) {
-            continue;
-        }
-        if (std::optional<StringsData> strings = read_strings(context, path, *data)) {
-            loaded.game.strings.push_back(std::move(*strings));
-            strings_files.push_back(path);
-        }
-    }
+    Game& game = loaded.game;
+    read_listed<AtlasData>(
+        context, manifest_path, "atlases", game.manifest.atlas_files, read_atlas,
+        [&context, &game](const std::string& path, AtlasData atlas) {
+            const bool duplicate =
+                std::any_of(game.atlases.begin(), game.atlases.end(),
+                            [&atlas](const AtlasData& other) { return other.name == atlas.name; });
+            if (duplicate) {
+                context.diagnostics->push_back(
+                    Diagnostic{path, "name", "two atlases are named \"" + atlas.name + "\""});
+            }
+            game.atlases.push_back(std::move(atlas));
+        });
+    const std::vector<std::string> strings_files = read_listed<StringsData>(
+        context, manifest_path, "strings", game.manifest.strings_files, read_strings,
+        [&game](const std::string&, StringsData data) { game.strings.push_back(std::move(data)); });
     check_strings(context, loaded.game, strings_files);
     context.refs["atlas"] = loaded.game.ref_names("atlas");
     context.refs["string"] = loaded.game.ref_names("string");
@@ -832,47 +858,19 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
     context.refs["action"] = loaded.game.ref_names("action");
     context.refs["scene"] = scene_names_ahead(context, loaded.game.manifest);
 
-    std::vector<std::string> prefab_files;
-    for (std::size_t i = 0; i < loaded.game.manifest.prefab_files.size(); ++i) {
-        const std::string path = context.directory + loaded.game.manifest.prefab_files[i];
-        const std::optional<json::Value> data =
-            read_json(context, path, manifest_path, index_path("prefabs", i));
-        if (!data) {
-            continue;
-        }
-        if (std::optional<PrefabData> prefab = read_prefab(context, path, *data)) {
-            loaded.game.prefabs.push_back(std::move(*prefab));
-            prefab_files.push_back(path);
-        }
-    }
-    std::vector<std::string> scene_files;
-    for (std::size_t i = 0; i < loaded.game.manifest.scene_files.size(); ++i) {
-        const std::string path = context.directory + loaded.game.manifest.scene_files[i];
-        const std::optional<json::Value> data =
-            read_json(context, path, manifest_path, index_path("scenes", i));
-        if (!data) {
-            continue;
-        }
-        if (std::optional<SceneData> scene = read_scene(context, path, *data)) {
-            loaded.game.scenes.push_back(std::move(*scene));
-            scene_files.push_back(path);
-        }
-    }
-    check_links(context, loaded.game, prefab_files, scene_files, manifest_path);
+    const std::vector<std::string> prefab_files = read_listed<PrefabData>(
+        context, manifest_path, "prefabs", game.manifest.prefab_files, read_prefab,
+        [&game](const std::string&, PrefabData data) { game.prefabs.push_back(std::move(data)); });
+    const std::vector<std::string> scene_files = read_listed<SceneData>(
+        context, manifest_path, "scenes", game.manifest.scene_files, read_scene,
+        [&game](const std::string&, SceneData data) { game.scenes.push_back(std::move(data)); });
+    check_links(context, game, prefab_files, scene_files, manifest_path);
 
-    std::vector<std::string> scenario_files;
-    for (std::size_t i = 0; i < loaded.game.manifest.scenario_files.size(); ++i) {
-        const std::string path = context.directory + loaded.game.manifest.scenario_files[i];
-        const std::optional<json::Value> data =
-            read_json(context, path, manifest_path, index_path("scenarios", i));
-        if (!data) {
-            continue;
-        }
-        if (std::optional<ScenarioData> scenario = read_scenario(context, path, *data)) {
-            loaded.game.scenarios.push_back(std::move(*scenario));
-            scenario_files.push_back(path);
-        }
-    }
+    const std::vector<std::string> scenario_files =
+        read_listed<ScenarioData>(context, manifest_path, "scenarios", game.manifest.scenario_files,
+                                  read_scenario, [&game](const std::string&, ScenarioData data) {
+                                      game.scenarios.push_back(std::move(data));
+                                  });
     check_scenario_links(context, loaded.game, scenario_files);
     return loaded;
 }

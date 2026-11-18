@@ -164,7 +164,7 @@ TEST_CASE("lists: only a set takes several names, and a number must be in range"
 
 TEST_CASE("lists: a list the game does not declare is an error where it is used") {
     const auto loaded =
-        load_changed("g/game.json", "\"item_kind\": [\"potion\", \"sword\", \"key\"],", "");
+        load_changed("g/game.json", R"("item_kind": ["potion", "sword", "key"],)", "");
     CHECK(!loaded.ok());
     CHECK(mentions(loaded, "the game declares none"));
 }
@@ -191,8 +191,8 @@ TEST_CASE("lists: a set holds at most 32 names") {
     names += "]";
     Files files = sample();
     std::string& manifest = files["g/game.json"];
-    manifest.replace(manifest.find("[\"weapon\", \"consumable\", \"tool\"]"),
-                     std::string("[\"weapon\", \"consumable\", \"tool\"]").size(), names);
+    manifest.replace(manifest.find(R"(["weapon", "consumable", "tool"])"),
+                     std::string(R"(["weapon", "consumable", "tool"])").size(), names);
     files["g/prefabs/bag.json"] = R"({"schema_version": 1, "name": "bag",
         "components": {"bags.Bag": {"accepts": ["c32"]}}})";
     const auto loaded = load(files);

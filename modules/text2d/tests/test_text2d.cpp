@@ -68,6 +68,12 @@ TEST_CASE("text2d: every letter is a cell of the font, side by side from the pos
     CHECK(scene.drawn()[0].x == 104.0F); // the left edge is the position
     CHECK(scene.drawn()[1].x == 112.0F);
     CHECK(scene.drawn()[0].y == 54.0F); // the top edge is the position
+}
+
+TEST_CASE("text2d: a letter is drawn at the font's cell size, white, in the world") {
+    Scene scene({"ab"});
+    scene.show(100.0F, 50.0F, text_of(0));
+    REQUIRE(scene.drawn().size() == 2U);
     CHECK(scene.drawn()[0].width == 8.0F);
     CHECK(scene.drawn()[0].height == 8.0F);
     CHECK(scene.drawn()[0].color == 0xFFFFFFFFU);

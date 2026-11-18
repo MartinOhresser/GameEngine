@@ -5,10 +5,10 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -28,13 +28,11 @@ std::uint32_t pack(const Text& text) {
 
 /// A number as it reads in a text: 12, not 12.000000; 2.5 with at most two decimals.
 std::string format_number(float value) {
-    std::array<char, 32> buffer{};
-    if (value == std::floor(value) && std::fabs(value) < 1.0e9F) {
-        std::snprintf(buffer.data(), buffer.size(), "%.0f", static_cast<double>(value));
-    } else {
-        std::snprintf(buffer.data(), buffer.size(), "%.2f", static_cast<double>(value));
-    }
-    return buffer.data();
+    std::array<char, 48> buffer{};
+    const bool whole = value == std::floor(value) && std::fabs(value) < 1.0e9F;
+    const auto done = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value,
+                                    std::chars_format::fixed, whole ? 0 : 2);
+    return {buffer.data(), done.ptr};
 }
 
 /// The text with its {value} replaced by the number.
@@ -45,7 +43,7 @@ std::string with_value(const std::string& source, float value) {
     while (true) {
         const std::size_t at = source.find(marker, from);
         if (at == std::string::npos) {
-            out.append(source, from, std::string::npos);
+            out += source.substr(from);
             return out;
         }
         out.append(source, from, at - from);
