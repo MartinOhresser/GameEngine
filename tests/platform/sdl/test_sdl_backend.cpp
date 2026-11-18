@@ -472,7 +472,7 @@ fs::path write_scoring_game(const char* name) {
 }
 
 std::string read_text(const fs::path& path) {
-    std::ifstream stream(path);
+    const std::ifstream stream(path);
     std::ostringstream text;
     text << stream.rdbuf();
     return text.str();

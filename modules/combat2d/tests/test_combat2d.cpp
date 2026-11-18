@@ -131,7 +131,7 @@ TEST_CASE("combat2d: with fall_death a mortal dies under the bottom edge of the 
     const Entity inside = spawn_mortal(app, 100.0F, 700.0F, climber);
     const Entity margin = spawn_mortal(app, 200.0F, 760.0F, climber); // 770 is the limit
     const Entity below = spawn_mortal(app, 300.0F, 780.0F, climber);
-    combat2d::Mortal stays;
+    const combat2d::Mortal stays;
     const Entity careless = spawn_mortal(app, 400.0F, 5000.0F, stays); // fall_death is off
     app.run_frames(1);
     CHECK(!dead(app, inside));

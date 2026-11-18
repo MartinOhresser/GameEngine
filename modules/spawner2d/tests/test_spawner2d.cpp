@@ -67,6 +67,25 @@ void add(Setup& setup, const spawner2d::Generator& generator) {
     CHECK(setup.app.world().insert(entity, generator));
 }
 
+/// A usual platform row: prefab 3, inside the band x in [100, 300], no velocity.
+void check_row(const SpawnRequest& request, float y) {
+    CHECK(request.prefab == 3U);
+    CHECK(request.y == y);
+    CHECK(request.x >= 100.0F);
+    CHECK(request.x <= 300.0F);
+    CHECK(!request.has_velocity);
+}
+
+/// The shot of the hero at (100, 300) with the gun below: up at 500, from (104, 280).
+void check_shot(const SpawnRequest& shot) {
+    CHECK(shot.prefab == 2U);
+    CHECK(shot.x == 104.0F);
+    CHECK(shot.y == 280.0F);
+    CHECK(shot.has_velocity);
+    CHECK(shot.vx == 0.0F);
+    CHECK(shot.vy == -500.0F);
+}
+
 } // namespace
 
 TEST_CASE("spawner2d: a generator fills the screen and 200 units above it") {
@@ -76,12 +95,7 @@ TEST_CASE("spawner2d: a generator fills the screen and 200 units above it") {
     // the screen shows y from 0 to 720: rows from 700 up to just above -200
     REQUIRE(setup.seen->size() == 9);
     for (std::size_t i = 0; i < setup.seen->size(); ++i) {
-        const SpawnRequest& request = (*setup.seen)[i];
-        CHECK(request.prefab == 3U);
-        CHECK(request.y == 700.0F - 100.0F * static_cast<float>(i));
-        CHECK(request.x >= 100.0F);
-        CHECK(request.x <= 300.0F);
-        CHECK(!request.has_velocity);
+        check_row((*setup.seen)[i], 700.0F - 100.0F * static_cast<float>(i));
     }
 }
 
@@ -298,13 +312,7 @@ TEST_CASE("spawner2d: a shooter fires when its action is pressed, with a cooldow
     actions->raise("shoot"); // pressed during the next tick
     setup.app.run_frames(1);
     REQUIRE(setup.seen->size() == 1);
-    const SpawnRequest& shot = setup.seen->front();
-    CHECK(shot.prefab == 2U);
-    CHECK(shot.x == 104.0F);
-    CHECK(shot.y == 280.0F);
-    CHECK(shot.has_velocity);
-    CHECK(shot.vx == 0.0F);
-    CHECK(shot.vy == -500.0F);
+    check_shot(setup.seen->front());
 
     // pressed again at once: the cooldown (3 ticks) refuses it
     actions->raise("shoot");
