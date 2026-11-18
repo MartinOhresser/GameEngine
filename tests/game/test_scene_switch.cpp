@@ -200,7 +200,7 @@ TEST_CASE("scenes: a scenario follows the game from scene to scene") {
     REQUIRE(loaded.ok());
     const auto result = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
     for (const std::string& failure : result.failures) {
-        CHECK(failure == "");
+        CHECK(failure.empty());
     }
     CHECK(result.passed());
 

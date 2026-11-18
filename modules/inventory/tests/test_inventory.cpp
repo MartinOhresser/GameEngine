@@ -275,58 +275,76 @@ TEST_CASE("inventory: a stored item is shown on its slot, as part of the interfa
           w.app.world().get<transform2d::Position>(slot_two)->x);
 }
 
-TEST_CASE("inventory: a hand picks an item up and puts it down, with the same rules") {
+/// A hotbar of four slots, two to a row, with a potion in slot 0 and a Hand over it.
+/// Slot 2 takes weapons only.
+struct HandWorld {
     World w;
-    w.slot(backpack, 0);
-    w.slot(backpack, 1);
-    w.slot(backpack, 2, weapon);
-    w.slot(backpack, 3);
-    w.gatherer(backpack);
-    const auto flask = w.item(potion, consumable);
-    w.app.run_frames(1);
-    REQUIRE(in_slot(w.get(flask), backpack, 0U));
+    ge::ecs::Entity flask;
+    ge::ecs::Entity cursor;
+    std::uint64_t at = 0;
 
-    const auto cursor = w.app.world().spawn();
-    inventory::Hand hand;
-    hand.container = backpack;
-    hand.columns = 2; // two slots to a row
-    hand.left = 0;
-    hand.right = 1;
-    hand.up = 2;
-    hand.down = 3;
-    hand.select = 4;
-    hand.cancel = 5;
-    CHECK(w.app.world().insert(cursor, hand));
-    CHECK(w.app.world().insert(cursor, transform2d::Position{}));
-    auto* script = w.app.world().resource<ge::app::ScriptedInput>();
-    // Each press lasts one tick and is followed by a tick of rest.
-    std::uint64_t at = w.app.tick_count();
-    auto press = [script, &at](const char* action) {
+    HandWorld() {
+        w.slot(backpack, 0);
+        w.slot(backpack, 1);
+        w.slot(backpack, 2, weapon);
+        w.slot(backpack, 3);
+        w.gatherer(backpack);
+        flask = w.item(potion, consumable);
+        w.app.run_frames(1);
+        cursor = w.app.world().spawn();
+        inventory::Hand hand;
+        hand.container = backpack;
+        hand.columns = 2; // two slots to a row
+        hand.left = 0;
+        hand.right = 1;
+        hand.up = 2;
+        hand.down = 3;
+        hand.select = 4;
+        hand.cancel = 5;
+        CHECK(w.app.world().insert(cursor, hand));
+        CHECK(w.app.world().insert(cursor, transform2d::Position{}));
+        at = w.app.tick_count();
+    }
+
+    /// Presses an action for one tick, then lets a tick of rest follow.
+    void press(const char* action) {
+        auto* script = w.app.world().resource<ge::app::ScriptedInput>();
         script->add(at, action, 1.0F);
         script->add(at + 1, action, 0.0F);
         at += 2;
-    };
-    press("select"); // pick up the potion at slot 0
-    press("right");  // to slot 1
-    press("down");   // to slot 3 (two to a row)
-    w.app.run_frames(6);
-    CHECK(w.app.world().get<inventory::Hand>(cursor)->holding);
-    press("select"); // put it there
-    w.app.run_frames(2);
-    CHECK(!w.app.world().get<inventory::Hand>(cursor)->holding);
-    CHECK(in_slot(w.get(flask), backpack, 3U));
-    CHECK(w.app.world().get<transform2d::Position>(cursor)->x == 30.0F); // sits on slot 3
+    }
 
-    // Slot 2 takes weapons only: putting the potion there is refused and it stays.
-    press("select"); // pick it up again
-    press("left");   // slot 2
-    press("select"); // try to put it down there
-    w.app.run_frames(6);
-    CHECK(!w.app.world().get<inventory::Hand>(cursor)->holding);
-    CHECK(in_slot(w.get(flask), backpack, 3U)); // refused: still where it was
-    press("select");
-    press("cancel"); // let go without putting down
-    w.app.run_frames(4);
-    CHECK(!w.app.world().get<inventory::Hand>(cursor)->holding);
-    CHECK(in_slot(w.get(flask), backpack, 3U));
+    [[nodiscard]] const inventory::Hand& hand() const {
+        return *w.app.world().get<inventory::Hand>(cursor);
+    }
+};
+
+TEST_CASE("inventory: a hand picks an item up and puts it down") {
+    HandWorld h;
+    REQUIRE(in_slot(h.w.get(h.flask), backpack, 0U));
+    h.press("select"); // pick up the potion at slot 0
+    h.press("right");  // to slot 1
+    h.press("down");   // to slot 3 (two to a row)
+    h.w.app.run_frames(6);
+    CHECK(h.hand().holding);
+    h.press("select"); // put it there
+    h.w.app.run_frames(2);
+    CHECK(!h.hand().holding);
+    CHECK(in_slot(h.w.get(h.flask), backpack, 3U));
+    CHECK(h.w.app.world().get<transform2d::Position>(h.cursor)->x == 30.0F); // sits on slot 3
+}
+
+TEST_CASE("inventory: a hand obeys the slots' rules, and can let go") {
+    HandWorld h;
+    h.press("select");
+    h.press("down"); // slot 2, which takes weapons only
+    h.press("select");
+    h.w.app.run_frames(6);
+    CHECK(!h.hand().holding);
+    CHECK(in_slot(h.w.get(h.flask), backpack, 0U)); // refused: still where it was
+    h.press("select");
+    h.press("cancel"); // let go without putting down
+    h.w.app.run_frames(4);
+    CHECK(!h.hand().holding);
+    CHECK(in_slot(h.w.get(h.flask), backpack, 0U));
 }

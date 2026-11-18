@@ -63,10 +63,17 @@ std::vector<Candidate> buttons_of(ecs::World& world, std::uint32_t menu) {
 
 /// Where the focus goes after `up` or `down`, an index among the sorted buttons.
 std::size_t moved_focus(std::size_t current, std::size_t count, int step, bool wrap) {
+    const std::size_t last = count - 1;
     if (step < 0) {
-        return current > 0 ? current - 1 : (wrap ? count - 1 : 0);
+        if (current > 0) {
+            return current - 1;
+        }
+        return wrap ? last : 0;
     }
-    return current + 1 < count ? current + 1 : (wrap ? 0 : count - 1);
+    if (current < last) {
+        return current + 1;
+    }
+    return wrap ? 0 : last;
 }
 
 std::optional<std::size_t> hovered(const std::vector<Candidate>& buttons, float x, float y) {
@@ -131,8 +138,8 @@ void anchor(ecs::World& world) {
     if (view == nullptr) {
         return;
     }
-    const float width = static_cast<float>(view->width);
-    const float height = static_cast<float>(view->height);
+    const auto width = static_cast<float>(view->width);
+    const auto height = static_cast<float>(view->height);
     world.each<const Anchor, transform2d::Position>(
         [width, height](ecs::Entity, const Anchor& at, transform2d::Position& position) {
             position.x = width * at.anchor_x + at.offset_x;
@@ -163,7 +170,7 @@ void layout(ecs::World& world) {
             }
             const std::uint32_t columns = std::max<std::uint32_t>(grid->grid.columns, 1U);
             const auto column = static_cast<float>(cell.index % columns);
-            const auto row = static_cast<float>(cell.index / columns);
+            const auto row = static_cast<float>(static_cast<std::uint32_t>(cell.index / columns));
             position.x = grid->origin.x + column * (grid->grid.cell_width + grid->grid.spacing_x);
             position.y = grid->origin.y + row * (grid->grid.cell_height + grid->grid.spacing_y);
         });
