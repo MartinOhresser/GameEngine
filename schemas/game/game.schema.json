@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "lifetime",
+          "screen_wrap",
+          "transform2d"
+        ]
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "properties": {
+        "tick_rate": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "lifetime": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "screen_wrap": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "transform2d": {
+          "type": "object",
+          "properties": {
+            "speed_scale": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "prefabs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "start_scene": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    }
+  },
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Game manifest",
+  "required": [
+    "schema_version",
+    "name",
+    "modules"
+  ]
+}

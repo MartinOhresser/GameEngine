@@ -1,6 +1,8 @@
 #include "gectl.hpp"
 
 #include "ge/core/version.hpp"
+#include "ge/game/game.hpp"
+#include "ge/game/schema.hpp"
 #include "ge/json/json.hpp"
 #include "ge/module/generate.hpp"
 #include "ge/module/spec.hpp"
@@ -9,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <system_error>
@@ -34,12 +37,17 @@ constexpr const char* usage_text =
     "  gectl generate [--modules DIR] [--check] [MODULE...]\n"
     "      Write the C++ generated from module.json into DIR/MODULE/gen.\n"
     "      With --check, write nothing and fail if the files are out of date.\n"
+    "  gectl validate [--modules DIR] GAME.json\n"
+    "      Check a game's manifest, prefabs and scenes against the modules.\n"
+    "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
+    "      Write JSON Schemas for game files (completion and checks in editors).\n"
     "  gectl help\n"
     "\n"
     "DIR defaults to ./modules. Exit codes: 0 success, 1 invalid or stale, 2 usage.\n";
 
 struct Options {
     std::string modules_dir = "modules";
+    std::string out_dir = "schemas/game";
     bool compact = false;
     bool check_only = false;
     std::vector<std::string> names;
@@ -54,6 +62,11 @@ std::string parse_options(const std::vector<std::string>& args, Options& options
                 return "--modules needs a directory";
             }
             options.modules_dir = args[++i];
+        } else if (arg == "--out") {
+            if (i + 1 >= args.size()) {
+                return "--out needs a directory";
+            }
+            options.out_dir = args[++i];
         } else if (arg == "--compact") {
             options.compact = true;
         } else if (arg == "--check") {
@@ -206,7 +219,7 @@ bool sync_file(const fs::path& target, const std::string& content, bool check_on
         return true;
     }
     if (check_only) {
-        err << target.generic_string() << ": out of date, run `gectl generate`\n";
+        err << target.generic_string() << ": out of date, run `gectl generate` or `gectl schema`\n";
         return false;
     }
     std::error_code error;
@@ -252,6 +265,51 @@ int command_generate(const Options& options, std::ostream& out, std::ostream& er
     return all_synced ? exit_ok : exit_invalid;
 }
 
+int command_schema(const Options& options, std::ostream& out, std::ostream& err) {
+    const Loaded loaded = load_all(options.modules_dir);
+    if (!loaded.problems.empty()) {
+        return report(loaded, err);
+    }
+    bool all_synced = true;
+    for (const game::SchemaFile& file :
+         game::editor_schemas(game::Catalog::from_specs(loaded.modules))) {
+        const std::string content = json::dump(file.schema) + "\n";
+        all_synced = sync_file(fs::path(options.out_dir) / file.path, content, options.check_only,
+                               out, err) &&
+                     all_synced;
+    }
+    return all_synced ? exit_ok : exit_invalid;
+}
+
+int command_validate(const Options& options, std::ostream& out, std::ostream& err) {
+    if (options.names.size() != 1) {
+        err << "validate needs exactly one game file\n\n" << usage_text;
+        return exit_usage;
+    }
+    const Loaded loaded = load_all(options.modules_dir);
+    if (!loaded.problems.empty()) {
+        return report(loaded, err);
+    }
+    const game::FileReader read = [](const std::string& path) -> std::optional<std::string> {
+        std::string text;
+        if (!read_file(path, text)) {
+            return std::nullopt;
+        }
+        return text;
+    };
+    const game::LoadedGame game =
+        game::load_game(options.names.front(), read, game::Catalog::from_specs(loaded.modules));
+    for (const module::Diagnostic& problem : game.diagnostics) {
+        err << problem.to_string() << '\n';
+    }
+    if (!game.ok()) {
+        return exit_invalid;
+    }
+    out << options.names.front() << ": valid (" << game.game.prefabs.size() << " prefabs, "
+        << game.game.scenes.size() << " scenes)\n";
+    return exit_ok;
+}
+
 } // namespace
 
 int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostream& err) {
@@ -264,7 +322,8 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
         out << usage_text;
         return exit_ok;
     }
-    if (command != "check" && command != "catalog" && command != "generate") {
+    if (command != "check" && command != "catalog" && command != "generate" &&
+        command != "validate" && command != "schema") {
         err << "unknown command \"" << command << "\"\n\n" << usage_text;
         return exit_usage;
     }
@@ -278,6 +337,12 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command == "catalog") {
         return command_catalog(options, out, err);
+    }
+    if (command == "schema") {
+        return command_schema(options, out, err);
+    }
+    if (command == "validate") {
+        return command_validate(options, out, err);
     }
     return command_generate(options, out, err);
 }

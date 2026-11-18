@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "drifter",
+  "components": {
+    "transform2d.Position": { "x": 400, "y": 300 },
+    "transform2d.Velocity": { "x": 2, "y": 1 },
+    "screen_wrap.WrapArea": { "width": 800, "height": 600 },
+  },
+}

@@ -32,6 +32,7 @@ add_subdirectory(modules)
 
 if(GE_BUILD_TOOLS)
   add_subdirectory(tools)
+  add_subdirectory(runner)
 endif()
 
 if(GE_BUILD_TESTS)

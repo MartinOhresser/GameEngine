@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "ember",
+  "extends": "drifter",
+  "components": {
+    "lifetime.Lifetime": { "ticks": 90 },
+  },
+}

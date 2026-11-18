@@ -1,0 +1,15 @@
+// A small game made only of data: sparks drift across the screen, wrap around
+// its edges, and burn out. No C++ was written for it.
+{
+  "schema_version": 1,
+  "name": "sparks",
+  "description": "Sparks that drift, wrap around the screen and burn out.",
+  "modules": ["transform2d", "screen_wrap", "lifetime"],
+  "simulation": { "tick_rate": 60, "seed": 7 },
+  "params": {
+    "transform2d": { "speed_scale": 1.5 },
+  },
+  "prefabs": ["prefabs/drifter.json", "prefabs/fast_drifter.json", "prefabs/ember.json"],
+  "scenes": ["scenes/main.json"],
+  "start_scene": "main",
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "fast_drifter",
+  "extends": "drifter",
+  "components": {
+    "transform2d.Velocity": { "x": 9, "y": -4 },
+  },
+}

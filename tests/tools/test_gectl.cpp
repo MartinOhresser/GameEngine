@@ -194,3 +194,74 @@ TEST_CASE("gectl: catalog output is compact on request") {
     CHECK(compact.out.find('\n') == compact.out.size() - 1U);
     CHECK(gectl({"catalog", "--modules", "/definitely/not/here"}).code == 1);
 }
+
+TEST_CASE("gectl: validate checks a game's files against the modules") {
+    const Sandbox sandbox("validate");
+    sandbox.write("modules/a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir() + "/modules";
+    sandbox.write("game/game.json", R"({
+        "schema_version": 1, "name": "demo", "modules": ["a"],
+        "prefabs": ["p.json"], "scenes": ["s.json"], "start_scene": "main"
+    })");
+    sandbox.write("game/p.json",
+                  R"({"schema_version": 1, "name": "p", "components": {"a.C": {"x": 1}}})");
+    sandbox.write("game/s.json",
+                  R"({"schema_version": 1, "name": "main", "entities": [{"prefab": "p"}]})");
+    const std::string game = sandbox.dir() + "/game/game.json";
+
+    const Run good = gectl({"validate", "--modules", modules, game});
+    CHECK(good.code == 0);
+    CHECK(has(good.out, "valid (1 prefabs, 1 scenes)"));
+
+    sandbox.write("game/p.json",
+                  R"({"schema_version": 1, "name": "p", "components": {"a.C": {"y": 1}}})");
+    const Run bad = gectl({"validate", "--modules", modules, game});
+    CHECK(bad.code == 1);
+    CHECK(has(bad.err, "p.json: components.a.C.y: unknown field"));
+
+    CHECK(gectl({"validate", "--modules", modules}).code == 2);
+    CHECK(gectl({"validate", "--modules", modules, "a.json", "b.json"}).code == 2);
+    CHECK(gectl({"validate", "--modules", modules, sandbox.dir() + "/nope.json"}).code == 1);
+    CHECK(gectl({"validate", "--modules", "/definitely/not/here", game}).code == 1);
+}
+
+TEST_CASE("gectl: every game of the repository is valid") {
+    const std::string root = std::string(GE_SOURCE_DIR);
+    int games = 0;
+    for (const auto& entry : fs::directory_iterator(root + "/games")) {
+        const fs::path manifest = entry.path() / "game.json";
+        if (!fs::exists(manifest)) {
+            continue;
+        }
+        ++games;
+        const Run run = gectl({"validate", "--modules", root + "/modules", manifest.string()});
+        CHECK(run.err.empty());
+        CHECK(run.code == 0);
+    }
+    CHECK(games >= 1);
+}
+
+TEST_CASE("gectl: schema writes the editor schemas, and notices when they are stale") {
+    const Sandbox sandbox("schema");
+    sandbox.write("modules/a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir() + "/modules";
+    const std::string out_dir = sandbox.dir() + "/out";
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 1);
+    const Run written = gectl({"schema", "--modules", modules, "--out", out_dir});
+    CHECK(written.code == 0);
+    CHECK(has(written.out, "game.schema.json"));
+    CHECK(has(sandbox.read("out/prefab.schema.json"), "\"a.C\""));
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 0);
+    sandbox.write("out/scene.schema.json", "{}");
+    CHECK(gectl({"schema", "--modules", modules, "--out", out_dir, "--check"}).code == 1);
+    CHECK(gectl({"schema", "--out"}).code == 2);
+    CHECK(gectl({"schema", "--modules", "/definitely/not/here"}).code == 1);
+}
+
+TEST_CASE("gectl: the schemas of the repository are up to date") {
+    const std::string root = std::string(GE_SOURCE_DIR);
+    const Run run = gectl(
+        {"schema", "--check", "--modules", root + "/modules", "--out", root + "/schemas/game"});
+    CHECK(run.err.empty());
+    CHECK(run.code == 0);
+}
