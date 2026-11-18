@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "move_sprite",
+  "description": "A square the player moves with the arrow keys or WASD. The reference game of the desktop platform (M6).",
+  "modules": ["transform2d", "action_control", "debug_draw"],
+  "simulation": { "tick_rate": 60, "seed": 1 },
+  "input": "input.json",
+  "prefabs": ["prefabs/player.json", "prefabs/marker.json"],
+  "scenes": ["scenes/main.json"],
+  "scenarios": ["scenarios/hold_right.json", "scenarios/diagonal.json", "scenarios/idle.json"],
+  "start_scene": "main",
+}

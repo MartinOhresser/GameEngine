@@ -100,3 +100,26 @@ TEST_CASE("app: the same script gives the same world") {
     CHECK(run(1.0F) == run(1.0F));
     CHECK(run(1.0F) != run(0.5F));
 }
+
+TEST_CASE("app: live input sets actions at the start of each tick, like a script") {
+    App app;
+    int pressed_ticks = 0;
+    app.add_system(
+        Stage::FixedUpdate,
+        [&pressed_ticks](ge::ecs::World& world) {
+            pressed_ticks += world.resource<Actions>()->pressed("jump") ? 1 : 0;
+        },
+        "test.read");
+    auto* live = app.world().resource<ge::app::LiveInput>();
+    REQUIRE(live != nullptr);
+    CHECK(live->value("jump") == 0.0F);
+    live->set("jump", 1.0F);
+    live->set("jump", 1.0F); // setting again changes nothing
+    CHECK(live->values().size() == 1U);
+    app.run_frames(3);
+    CHECK(pressed_ticks == 1); // seen on the first tick only
+    CHECK(app.world().resource<Actions>()->down("jump"));
+    live->set("jump", 0.0F);
+    app.run_frames(1);
+    CHECK(!app.world().resource<Actions>()->down("jump"));
+}

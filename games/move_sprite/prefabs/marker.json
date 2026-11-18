@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "marker",
+  "components": {
+    "transform2d.Position": {},
+    "debug_draw.Square": { "size": 12, "red": 71, "green": 85, "blue": 105 },
+  },
+}

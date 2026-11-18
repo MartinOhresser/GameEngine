@@ -220,6 +220,39 @@ std::vector<std::string> read_file_list(Checker& checker, const json::Value& roo
     return files;
 }
 
+/// The optional "input": the path of the file that binds keys to actions.
+void read_input_file(Checker& checker, const json::Value& root, Manifest& manifest) {
+    std::string path;
+    if (!checker.text(root, "input", "", false, path) || path.empty()) {
+        return;
+    }
+    if (!is_safe_relative(path)) {
+        checker.error("input",
+                      "\"" + path + "\" must be a relative path inside the game's directory");
+        return;
+    }
+    manifest.input_file = path;
+}
+
+void read_input_map(const Context& context, const std::string& manifest_path, Game& game) {
+    if (game.manifest.input_file.empty()) {
+        return;
+    }
+    const std::string path = context.directory + game.manifest.input_file;
+    const std::optional<std::string> text = (*context.read)(path);
+    if (!text) {
+        context.diagnostics->push_back(
+            Diagnostic{manifest_path, "input", "cannot read the file \"" + path + "\""});
+        return;
+    }
+    platform::InputMapResult result = platform::parse_input_map(*text, path);
+    for (platform::InputProblem& problem : result.problems) {
+        context.diagnostics->push_back(Diagnostic{std::move(problem.file), std::move(problem.path),
+                                                  std::move(problem.message)});
+    }
+    game.input = std::move(result.map);
+}
+
 bool read_manifest(const Context& context, Checker& checker, const json::Value& root,
                    Manifest& manifest) {
     const json::Value* object = checker.object(root, "");
@@ -228,7 +261,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "prefabs", "scenes", "scenarios",
+                            "simulation", "params", "prefabs", "scenes", "scenarios", "input",
                             "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
@@ -243,6 +276,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     manifest.prefab_files = read_file_list(checker, *object, "prefabs");
     manifest.scene_files = read_file_list(checker, *object, "scenes");
     manifest.scenario_files = read_file_list(checker, *object, "scenarios");
+    read_input_file(checker, *object, manifest);
     static_cast<void>(checker.name(*object, "start_scene", "", true, manifest.start_scene));
     return true;
 }
@@ -473,6 +507,7 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         }
     }
     check_scenario_links(context, loaded.game, scenario_files);
+    read_input_map(context, manifest_path, loaded.game);
     return loaded;
 }
 

@@ -158,6 +158,7 @@ Value game_schema(const Catalog& catalog) {
     properties.set("prefabs", array_of(type_only("string")));
     properties.set("scenes", array_of(type_only("string")));
     properties.set("scenarios", array_of(type_only("string")));
+    properties.set("input", type_only("string"));
     properties.set("start_scene", name_schema());
     return document("Game manifest", std::move(properties),
                     required({"schema_version", "name", "modules"}));
@@ -225,6 +226,29 @@ Value scenario_schema() {
                     required({"schema_version", "name", "ticks"}));
 }
 
+/// Sources are "kind:name" in lower case; the scale of each is a number.
+Value input_schema() {
+    Value source_names = type_only("string");
+    source_names.set("pattern", Value::string("^(key|mouse|pad|touch):[a-z0-9_]+$"));
+    Value sources = type_only("object");
+    sources.set("propertyNames", std::move(source_names));
+    sources.set("additionalProperties", type_only("number"));
+    sources.set("minProperties", Value::integer(1));
+
+    Value binding = Value::object();
+    binding.set("action", name_schema());
+    binding.set("sources", std::move(sources));
+    Value binding_object = closed_object(std::move(binding));
+    binding_object.set("required", required({"action", "sources"}));
+
+    Value properties = Value::object();
+    properties.set("schema_version", version_schema());
+    properties.set("description", type_only("string"));
+    properties.set("bindings", array_of(binding_object));
+    return document("Input bindings", std::move(properties),
+                    required({"schema_version", "bindings"}));
+}
+
 } // namespace
 
 std::vector<SchemaFile> editor_schemas(const Catalog& catalog) {
@@ -233,6 +257,7 @@ std::vector<SchemaFile> editor_schemas(const Catalog& catalog) {
     files.push_back({"prefab.schema.json", prefab_schema(catalog)});
     files.push_back({"scene.schema.json", scene_schema(catalog)});
     files.push_back({"scenario.schema.json", scenario_schema()});
+    files.push_back({"input.schema.json", input_schema()});
     return files;
 }
 

@@ -68,4 +68,18 @@ void ScriptedInput::hash(Hasher& hasher) const {
     hasher.add(static_cast<std::uint64_t>(next_));
 }
 
+void LiveInput::set(std::string_view action, float value) {
+    const auto found = values_.find(action);
+    if (found == values_.end()) {
+        values_.emplace(std::string(action), value);
+    } else {
+        found->second = value;
+    }
+}
+
+float LiveInput::value(std::string_view action) const {
+    const auto found = values_.find(action);
+    return found == values_.end() ? 0.0F : found->second;
+}
+
 } // namespace ge::app

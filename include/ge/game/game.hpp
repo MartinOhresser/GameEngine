@@ -3,6 +3,7 @@
 #include "ge/game/catalog.hpp"
 #include "ge/json/json.hpp"
 #include "ge/module/spec.hpp"
+#include "ge/platform/input_map.hpp"
 
 #include <cstdint>
 #include <functional>
@@ -102,6 +103,8 @@ struct Manifest {
     std::vector<std::string> prefab_files;
     std::vector<std::string> scene_files;
     std::vector<std::string> scenario_files;
+    /// The file that binds keys and buttons to actions; empty if the game has none.
+    std::string input_file;
     std::string start_scene;
 };
 
@@ -111,6 +114,8 @@ struct Game {
     std::vector<PrefabData> prefabs;
     std::vector<SceneData> scenes;
     std::vector<ScenarioData> scenarios;
+    /// What the `input` file binds; empty when the manifest names none.
+    platform::InputMap input;
 
     [[nodiscard]] const PrefabData* find_prefab(std::string_view name) const;
     [[nodiscard]] const SceneData* find_scene(std::string_view name) const;

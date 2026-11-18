@@ -34,6 +34,30 @@
                 },
                 "additionalProperties": false
               },
+              "debug_draw.Square": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "number"
+                  },
+                  "red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
               "lifetime.Lifetime": {
                 "type": "object",
                 "properties": {

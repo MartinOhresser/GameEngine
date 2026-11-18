@@ -41,6 +41,12 @@
       }
     },
     {
+      "name": "platform",
+      "displayName": "Debug with the SDL3 window backend and geplay",
+      "inherits": "dev",
+      "cacheVariables": { "GE_BUILD_PLATFORM": "ON" }
+    },
+    {
       "name": "coverage",
       "displayName": "Debug instrumented for coverage",
       "inherits": "dev",
@@ -52,6 +58,7 @@
     { "name": "release", "configurePreset": "release" },
     { "name": "asan", "configurePreset": "asan" },
     { "name": "tidy", "configurePreset": "tidy" },
+    { "name": "platform", "configurePreset": "platform" },
     { "name": "coverage", "configurePreset": "coverage" }
   ],
   "testPresets": [
@@ -64,6 +71,7 @@
     { "name": "dev", "configurePreset": "dev", "inherits": "base" },
     { "name": "release", "configurePreset": "release", "inherits": "base" },
     { "name": "asan", "configurePreset": "asan", "inherits": "base" },
+    { "name": "platform", "configurePreset": "platform", "inherits": "base" },
     { "name": "coverage", "configurePreset": "coverage", "inherits": "base" }
   ]
 }

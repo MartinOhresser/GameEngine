@@ -204,6 +204,12 @@ json::Value engine_description() {
                                             "jump); game logic reads actions, never a keyboard."));
     resources.push_back(resource("ScriptedInput", "Action changes at given ticks: the player of "
                                                   "tests and scenarios."));
+    resources.push_back(resource("LiveInput", "Action values held by a live backend (window, pad); "
+                                              "applied at the start of each tick."));
+    resources.push_back(resource("RenderBackend", "Where the game draws; presentation only, never "
+                                                  "read by game logic."));
+    resources.push_back(
+        resource("AudioBackend", "Where the game plays sounds; presentation only."));
 
     json::Value engine = json::Value::object();
     engine.set("version", json::Value::string(std::string(ge::version())));

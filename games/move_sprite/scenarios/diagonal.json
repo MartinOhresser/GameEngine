@@ -1,0 +1,14 @@
+// Right and up together, 10 ticks: 30 units each way (y grows downward).
+{
+  "schema_version": 1,
+  "name": "diagonal",
+  "ticks": 10,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 0, "action": "move_y", "value": -1 },
+  ],
+  "expect": [
+    "player.transform2d.Position.x == 430",
+    "player.transform2d.Position.y == 270",
+  ],
+}

@@ -19,10 +19,13 @@ if(PROJECT_IS_TOP_LEVEL)
   option(GE_BUILD_EXAMPLES "Build the examples" ON)
   # The tools run on the build machine, so they are skipped when cross-compiling.
   option(GE_BUILD_TOOLS "Build gectl and the tools" ${GE_DEFAULT_TOOLS})
+  # The window backend (SDL3) and geplay. Off by default: nothing else needs it.
+  option(GE_BUILD_PLATFORM "Build the SDL3 window backend and geplay" OFF)
 else()
   option(GE_BUILD_TESTS "Build the test suite" OFF)
   option(GE_BUILD_EXAMPLES "Build the examples" OFF)
   option(GE_BUILD_TOOLS "Build gectl and the tools" OFF)
+  option(GE_BUILD_PLATFORM "Build the SDL3 window backend and geplay" OFF)
 endif()
 
 include(cmake/GeOptions.cmake)
@@ -38,6 +41,11 @@ endif()
 if(GE_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
+endif()
+
+# After the tests so enable_testing() is already on, after the runner so geplay can use it.
+if(GE_BUILD_PLATFORM)
+  add_subdirectory(platform/sdl)
 endif()
 
 if(GE_BUILD_EXAMPLES AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/CMakeLists.txt")
