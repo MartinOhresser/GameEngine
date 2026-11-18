@@ -1,24 +1,23 @@
-# Build output
-/build/
-/out/
-CMakeUserPresets.json
 
+!.vscode/extensions.json
+!.vscode/settings.json
+# Build output
 # Coverage and profiling
+# Editors and OS
+# Local environment
 *.gcda
 *.gcno
 *.gcov
-coverage.xml
-coverage/
-
-# Editors and OS
-.idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.cache/
 .DS_Store
-Thumbs.db
-
-# Local environment
+.cache/
 .env
 .env.*
+.idea/
+.vscode/*
+/build/
+/out/
+CMakeUserPresets.json
+Thumbs.db
+__pycache__/
+coverage.xml
+coverage/

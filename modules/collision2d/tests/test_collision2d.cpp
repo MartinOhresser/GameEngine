@@ -56,7 +56,7 @@ std::uint32_t count_of(ge::app::App& app, ge::ecs::Entity entity) {
 
 TEST_CASE("collision2d: a body stops against a wall and loses the speed that went into it") {
     ge::app::App app = game();
-    app.set_tick_rate(1); // one tick is one second: velocity is the step
+    app.set_tick_rate(1);                   // one tick is one second: velocity is the step
     wall(app, 100.0F, 0.0F, 20.0F, 100.0F); // spans x 90..110
     const ge::ecs::Entity body = mover(app, 70.0F, 0.0F, 20.0F, 3.0F);
     app.run_frames(1); // moves to x 90, its right edge at 95: inside the wall

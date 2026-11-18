@@ -1,0 +1,14 @@
+// The hero's animation runs on simulation ticks: four cells, eight ticks each,
+// starting over. It plays even while the hero stands still.
+{
+  "schema_version": 1,
+  "name": "hero_walks",
+  "ticks": 40,
+  "expect": [
+    { "at": 7, "check": "player.sprite2d.Sprite.frame == 0" },
+    { "at": 8, "check": "player.sprite2d.Sprite.frame == 1" },
+    { "at": 16, "check": "player.sprite2d.Sprite.frame == 2" },
+    { "at": 24, "check": "player.sprite2d.Sprite.frame == 3" },
+    { "at": 32, "check": "player.sprite2d.Sprite.frame == 0" },
+  ],
+}

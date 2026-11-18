@@ -6,6 +6,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- M7 : rendu 2D. `Renderer` étendu (`load_atlas`, `set_camera`, commandes de sprite avec cellule, taille, miroir et teinte) ; `end_frame` est appelé une fois par image par la boucle. Le backend SDL charge les PNG (`stb_image`) et dessine sprites et carrés selon la caméra, sans lissage.
+- M7 : atlas déclarés dans le manifeste (`atlases`), champs `u32` à `"ref"` qui acceptent un nom dans les fichiers de jeu, `game::load_atlases`.
+- M7 : modules `sprite2d` (`Sprite`, `SpriteAnimation`, tri par couche), `camera2d` (`Camera`, `CameraTarget`, `CameraFollow`) et `collision2d` (`Collider`, `Body`, `Contacts`, détection par balayage trié) ; le générateur gère les composants sans champ.
+- M7 : jeu de référence `games/treasure_run` (images et scène générées par un script versionné), `scripts/make_png.py`, `docs/RENDERING.md`, ADR 0008.
 - Système de build CMake (C++20) avec presets `dev`, `release`, `asan`, `tidy`, `coverage`.
 - Bibliothèque `ge_core` : version du moteur, macro `GE_ASSERT`.
 - Bibliothèque `ge_ecs` : entités à génération, stockage sparse set, `World` (composants, requêtes `each`, ressources).

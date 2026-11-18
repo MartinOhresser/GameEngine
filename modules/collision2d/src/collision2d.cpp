@@ -110,8 +110,8 @@ void block(ecs::World& world) {
         // The body may be pushed left while it is checked, so allow one more
         // body width of margin.
         const float earliest = body.min_x - widest - (body.max_x - body.min_x);
-        auto first = std::ranges::lower_bound(
-            walls, earliest, {}, [](const Box& wall) { return wall.min_x; });
+        auto first = std::ranges::lower_bound(walls, earliest, {},
+                                              [](const Box& wall) { return wall.min_x; });
         for (; first != walls.end(); ++first) {
             const Box& wall = *first;
             if (wall.min_x >= body.max_x) {

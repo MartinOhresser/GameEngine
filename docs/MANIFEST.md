@@ -32,6 +32,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `modules` | modules utilisés, dépendances comprises (`screen_wrap` exige `transform2d`) |
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
+| `atlases` | images découpées en cellules pour les sprites, facultatif ; l'ordre donne les numéros (le premier est 0) : voir [RENDERING.md](RENDERING.md) |
 | `prefabs`, `scenes` | listes de fichiers, chemins relatifs au dossier du jeu |
 | `scenarios` | scénarios de test, facultatif : voir [TESTING.md](TESTING.md) |
 | `input` | fichier qui associe touches et boutons aux actions, facultatif : voir [PLATFORM.md](PLATFORM.md) |

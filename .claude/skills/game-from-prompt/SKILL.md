@@ -14,7 +14,7 @@ Un jeu de ce dépôt est **uniquement des fichiers JSON** dans `games/<nom>/` : 
 3. **Lire le catalogue** : `./build/dev/tools/gectl catalog --compact` (skill `engine-catalog`). Tu ne cites que des modules, composants, champs et réglages qui y figurent.
 4. **Découper l'idée en comportements** (« le joueur se déplace », « une pièce disparaît au contact », « un score ») et associe chacun à des composants du catalogue. Liste ce qui manque.
 5. **Combler les manques** : un module par besoin cohérent (skill `add-module`), sur sa propre branche et PR. Préfère étendre un module existant d'un petit ajout plutôt que d'en créer un presque identique.
-6. **Écrire le jeu** dans `games/<nom>/` : `game.json`, `prefabs/`, `scenes/` (skill `add-level`), `scenarios/` (skill `playtest-headless`). Prends `games/move_sprite` (entrées clavier, dessin), `games/pilot` (entrées) et `games/sparks` (données seules) comme modèles. Un jeu jouable au clavier déclare `"input": "input.json"` (touches → actions, voir `docs/PLATFORM.md`) et utilise le module `debug_draw` (`Square`) pour se voir.
+6. **Écrire le jeu** dans `games/<nom>/` : `game.json`, `prefabs/`, `scenes/` (skill `add-level`), `scenarios/` (skill `playtest-headless`). Prends `games/move_sprite` (entrées clavier, dessin), `games/pilot` (entrées) et `games/sparks` (données seules) comme modèles. Un jeu jouable au clavier déclare `"input": "input.json"` (touches → actions, voir `docs/PLATFORM.md`) et se voit soit par des carrés colorés (`debug_draw`, `Square`), soit par des sprites : `games/treasure_run` (atlas PNG dans `atlases`, `sprite2d.Sprite` avec `"atlas": "nom"`, `camera2d` pour suivre le héros, `collision2d` pour les murs). Voir `docs/RENDERING.md`.
 7. **Valider** : `./build/dev/tools/gectl validate games/<nom>/game.json`. Corrige jusqu'à zéro erreur ; les messages disent le fichier, l'endroit et souvent la correction.
 8. **Jouer sans fenêtre** : `./build/dev/runner/gerun games/<nom>/game.json --test`. Un scénario par règle annoncée. Pour regarder l'état final : `gerun games/<nom>/game.json --ticks 300`. Pour voir le jeu (si `-DGE_BUILD_PLATFORM=ON`, préréglage `platform`) : `geplay games/<nom>/game.json`, ou `geplay games/<nom>/game.json --headless --frames 60 --screenshot image.bmp` pour une capture sans écran.
 9. **Contrôler** : `./scripts/check.sh` doit passer (il valide aussi tous les jeux et leurs scénarios), puis branche, commit (titre « Conventional Commits »), PR.
@@ -31,7 +31,7 @@ Un jeu de ce dépôt est **uniquement des fichiers JSON** dans `games/<nom>/` : 
 
 ## Limites actuelles (à dire à l'utilisateur quand elles comptent)
 
-- Le dessin se limite à des carrés colorés (`debug_draw`) : sprites, texte et caméra arrivent en M7, l'interface en M8.
+- Le dessin offre des carrés (`debug_draw`), des sprites animés (`sprite2d`) et une caméra (`camera2d`) ; le texte et l'interface (HUD, menus, inventaire) arrivent en M8. Tu ne peux pas peindre une image : utilise des atlas existants ou génère-les avec un script comme `games/treasure_run/tools/make_assets.py`.
 - Une entité ne peut pas en désigner une autre dans les fichiers, et on ne change pas de scène en cours de partie : ces besoins se règlent par un module.
 - Un composant ne porte que des nombres et des booléens (pas de texte).
 - Les actions d'entrée sont des noms convenus (`move_x`, `move_y` pour `action_control`) ; `input.json` les lie aux touches (`key:`) et à la souris (`mouse:`) ; manette et tactile viendront plus tard sans changer les jeux.

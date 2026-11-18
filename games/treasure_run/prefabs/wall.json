@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "wall",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "tiles",
+      "frame": 2,
+      "width": 32,
+      "height": 32,
+      "layer": 1
+    },
+    "collision2d.Collider": {
+      "width": 32,
+      "height": 32,
+      "layer": 1,
+      "solid": true
+    }
+  }
+}

@@ -27,6 +27,7 @@ Un niveau est une **scène** : un fichier `games/<nom>/scenes/<scène>.json` qui
    - `name` (facultatif, unique dans la scène) sert à citer l'entité dans un scénario.
    - Une entité a un `prefab`, des `components`, ou les deux : ses propres valeurs l'emportent, champ par champ.
    - Les champs omis prennent le défaut du module.
+2b. **Niveau étendu** : n'écris pas des centaines de tuiles à la main. Pars d'une carte en texte et génère la scène avec un script versionné dans le jeu (modèle : `games/treasure_run/tools/make_assets.py`, où une tuile est une entité avec `Position` et `Sprite`, et un mur y ajoute un `collision2d.Collider` avec `"solid": true`).
 3. **L'enregistrer** dans `game.json` : ajoute le fichier à `"scenes"` ; `"start_scene"` désigne la scène du départ.
 4. **La tester** : un scénario avec `"scene": "level_2"` (skill `playtest-headless`) qui prouve ce que le niveau doit offrir (entités présentes, comportement attendu).
 5. **Valider** : `./build/dev/tools/gectl validate games/<nom>/game.json`, puis `./build/dev/runner/gerun games/<nom>/game.json --test`.

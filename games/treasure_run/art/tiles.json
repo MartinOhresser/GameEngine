@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "name": "tiles",
+  "image": "tiles.png",
+  "cell_width": 16,
+  "cell_height": 16
+}

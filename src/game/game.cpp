@@ -32,7 +32,8 @@ void check_ref_value(const Context& context, Checker& checker, const std::string
         return;
     }
     check_value(checker, path, field.type, value);
-    if (value.is_int() && !names.empty() && value.as_int() >= static_cast<std::int64_t>(names.size())) {
+    if (value.is_int() && !names.empty() &&
+        value.as_int() >= static_cast<std::int64_t>(names.size())) {
         checker.error(path, "there is no " + field.ref + " number " +
                                 std::to_string(value.as_int()) + " (the game has " +
                                 std::to_string(names.size()) + ": " + join(names) + ")");
@@ -293,8 +294,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "atlases", "prefabs", "scenes",
-                            "scenarios", "input", "start_scene"});
+                            "simulation", "params", "atlases", "prefabs", "scenes", "scenarios",
+                            "input", "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -341,8 +342,7 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
         return std::nullopt;
     }
     checker.reject_unknown(
-        *object, "",
-        {"$schema", "schema_version", "name", "image", "cell_width", "cell_height"});
+        *object, "", {"$schema", "schema_version", "name", "image", "cell_width", "cell_height"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -353,8 +353,8 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
     std::string image;
     if (checker.text(*object, "image", "", true, image)) {
         if (!is_safe_relative(image)) {
-            checker.error("image", "\"" + image +
-                                       "\" must be a relative path next to the atlas file");
+            checker.error("image",
+                          "\"" + image + "\" must be a relative path next to the atlas file");
         } else {
             atlas.image = directory_of(file) + image;
             if (!(*context.read)(atlas.image)) {
@@ -574,8 +574,8 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
             std::any_of(loaded.game.atlases.begin(), loaded.game.atlases.end(),
                         [&atlas](const AtlasData& other) { return other.name == atlas->name; });
         if (duplicate) {
-            context.diagnostics->push_back(Diagnostic{
-                path, "name", "two atlases are named \"" + atlas->name + "\""});
+            context.diagnostics->push_back(
+                Diagnostic{path, "name", "two atlases are named \"" + atlas->name + "\""});
         }
         loaded.game.atlases.push_back(std::move(*atlas));
     }
