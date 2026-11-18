@@ -437,8 +437,11 @@ bool is_package_id(std::string_view text) {
             }
             segment_start = false;
             ++segments;
-        } else if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')) {
-            return false;
+        } else {
+            const bool allowed = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+            if (!allowed) {
+                return false;
+            }
         }
     }
     return segments >= 2 && !segment_start;
