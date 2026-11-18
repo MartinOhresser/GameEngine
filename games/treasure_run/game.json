@@ -10,14 +10,14 @@
   "description": "Walk a hero around a walled room with the arrow keys or WASD, collecting coins and gems. The camera follows the hero and the walls stop it.",
   "modules": [
     "transform2d", "action_control", "pickup", "sprite2d", "text2d", "camera2d", "collision2d",
-    "scene_switch", "ui", "inventory",
+    "scene_switch", "ui", "inventory", "host",
   ],
   "simulation": { "tick_rate": 60, "seed": 5 },
   "input": "input.json",
   // The names this game gives to things: menus, groups of cells, containers, kinds and
 // categories of items, tags and its own actions (the others come from input.json).
   "lists": {
-    "action": ["start_game", "show_credits"],
+    "action": ["start_game", "show_credits", "quit_game"],
     "menu": ["main_menu"],
     "group": ["menu_buttons", "hotbar"],
     "tag": ["player"],
@@ -56,6 +56,7 @@
     "scenarios/menu_choose.json",
     "scenarios/menu_play.json",
     "scenarios/menu_pointer.json",
+    "scenarios/quit_from_the_menu.json",
   ],
   "start_scene": "menu",
 }

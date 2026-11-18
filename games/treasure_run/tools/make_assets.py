@@ -270,7 +270,8 @@ def hud():
 
 
 def menu_scene():
-    buttons = [("play", "menu.play", "start_game"), ("credits", "menu.credits", "show_credits")]
+    buttons = [("play", "menu.play", "start_game"), ("credits", "menu.credits", "show_credits"),
+               ("quit", "menu.quit", "quit_game")]
     out = [
         {"name": "menu_title", "components": text("menu.title", 44, 0, -190, 0.5, 0.5, 0.5, 0.5)},
         {"name": "menu_input", "components": {"ui.Menu": {
@@ -292,6 +293,8 @@ def menu_scene():
         "scene": "main", "use_action": True, "action": "start_game"}}})
     out.append({"name": "go_credits", "components": {"scene_switch.GoToScene": {
         "scene": "credits", "use_action": True, "action": "show_credits"}}})
+    # The "Quit" button raises quit_game; the host (launcher, player) then closes the game.
+    out.append({"name": "quit_game", "components": {"host.Quit": {"action": "quit_game"}}})
     return out
 
 

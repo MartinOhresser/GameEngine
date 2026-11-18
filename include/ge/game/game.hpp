@@ -50,6 +50,8 @@ enum class CheckKind : std::uint8_t {
     Gone,        ///< "spark gone"
     Fingerprint, ///< "fingerprint == 5f4962bd950cf9b3"
     Scene,       ///< "scene is credits": the game is in that scene (`entity` holds its name)
+    Quit,        ///< "game quits": the game asked to leave (a "Quit" button was pressed)
+    HostCall,    ///< "host calls play": the game raised that host command (`entity` holds its name)
 };
 
 /// One thing a scenario expects to be true at a given tick.

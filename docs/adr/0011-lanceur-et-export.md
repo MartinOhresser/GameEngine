@@ -69,6 +69,10 @@ Chaque plateforme est une **cible** (`ExportTarget` : un nom, la possibilité de
 
 Le dossier `data/` contient les fichiers du jeu tels quels (JSON, PNG, sons). Les compacter dans un seul fichier est possible plus tard sans toucher aux jeux, puisque la lecture passe déjà par un `FileReader` interchangeable (c'est aussi ce qui permettra de lire dans un APK). Le zip est fabriqué par `cmake -E tar --format=zip`.
 
+## Écarts constatés à l'implémentation
+
+- **E2.** Le module `host` porte `Quit` et `Call` ; les ressources `QuitRequest`, `HostRequests` et `HostInfo` sont dans le cœur (`ge/app/host.hpp`). `Backend` gagne `resize` ; l'hôte, pas le jeu, remet la fenêtre à la taille du lanceur au retour. Sur mobile, `Quit` ne fait rien (`HostInfo::mobile`), mais le **bouton** reste visible : le masquer demande à `ui` de lire `HostInfo` et viendra avec le texte dynamique (E3).
+
 ## Limites assumées
 
 - **SmartScreen.** Un `.exe` non signé téléchargé affiche « Windows a protégé votre PC » ; le destinataire clique sur « Informations complémentaires » puis « Exécuter quand même ». Seul un certificat de signature (payant) l'évite ; une option `--sign` viendra plus tard.

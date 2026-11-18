@@ -1,3 +1,4 @@
+#include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
 #include "ge/game/scenario.hpp"
 
@@ -96,6 +97,21 @@ void check_field(const Run& run, const Check& check, std::vector<std::string>& f
     }
 }
 
+/// A host command is "called" when it is waiting in the queue: no host drains it in a scenario.
+void check_host_call(const Run& run, const Check& check, std::vector<std::string>& failures) {
+    const std::vector<std::string> commands = run.game->ref_names("host_command");
+    const auto found = std::find(commands.begin(), commands.end(), check.entity);
+    const auto* requests = run.app.world().resource<app::HostRequests>();
+    const auto index = static_cast<std::uint32_t>(found - commands.begin());
+    const bool called =
+        found != commands.end() && requests != nullptr &&
+        std::any_of(requests->pending.begin(), requests->pending.end(),
+                    [index](const app::HostRequest& request) { return request.command == index; });
+    if (!called) {
+        failures.push_back(failure(check, "the game did not call it"));
+    }
+}
+
 void evaluate(const Run& run, const Check& check, std::vector<std::string>& failures) {
     switch (check.kind) {
     case CheckKind::Field:
@@ -127,6 +143,16 @@ void evaluate(const Run& run, const Check& check, std::vector<std::string>& fail
         }
         break;
     }
+    case CheckKind::Quit: {
+        const auto* quit = run.app.world().resource<app::QuitRequest>();
+        if (quit == nullptr || !quit->requested) {
+            failures.push_back(failure(check, "the game did not ask to quit"));
+        }
+        break;
+    }
+    case CheckKind::HostCall:
+        check_host_call(run, check, failures);
+        break;
     case CheckKind::Fingerprint: {
         const std::uint64_t actual = run.app.world().fingerprint();
         if ((actual == check.fingerprint) != (check.compare == Compare::Eq)) {

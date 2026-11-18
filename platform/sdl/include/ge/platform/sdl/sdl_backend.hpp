@@ -60,6 +60,7 @@ public:
     [[nodiscard]] std::chrono::nanoseconds now() override;
     [[nodiscard]] std::shared_ptr<app::Renderer> renderer() override;
     [[nodiscard]] std::shared_ptr<app::AudioDevice> audio() override;
+    bool resize(int width, int height) override;
 
     /// Loads a .wav file so that `AudioDevice::play(name)` plays it. False,
     /// with `error` filled, if the file cannot be read.

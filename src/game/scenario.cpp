@@ -90,7 +90,8 @@ bool parse_hex(const std::string& text, std::uint64_t& out) {
 
 constexpr const char* check_forms =
     "expected \"entity.module.Component.field > number\", \"entities == number\", "
-    "\"entity alive\", \"entity gone\", \"scene is name\" or \"fingerprint == hex\"";
+    "\"entity alive\", \"entity gone\", \"scene is name\", \"game quits\", "
+    "\"host calls command\" or \"fingerprint == hex\"";
 
 std::string parse_comparison(const std::vector<std::string>& words, Check& out) {
     const std::optional<Compare> compare = compare_from(words[1]);
@@ -145,6 +146,15 @@ std::string parse_check(const std::string& text, Check& out) {
     if (words.size() == 2 && (words[1] == "alive" || words[1] == "gone")) {
         out.kind = words[1] == "alive" ? CheckKind::Alive : CheckKind::Gone;
         out.entity = words[0];
+        return {};
+    }
+    if (words.size() == 2 && words[0] == "game" && words[1] == "quits") {
+        out.kind = CheckKind::Quit;
+        return {};
+    }
+    if (words.size() == 3 && words[0] == "host" && words[1] == "calls") {
+        out.kind = CheckKind::HostCall;
+        out.entity = words[2];
         return {};
     }
     if (words.size() == 3 && words[0] == "scene" && words[1] == "is") {
@@ -308,6 +318,24 @@ void check_field(const Context& context, Checker& checker, const std::string& pa
     }
 }
 
+/// The names a check takes from the game itself: a scene, a host command.
+void check_names_of_game(Checker& checker, const Game& game, const std::string& path,
+                         const Check& check) {
+    if (check.kind == CheckKind::Scene && game.find_scene(check.entity) == nullptr) {
+        checker.error(path, "no scene is named \"" + check.entity + "\"" +
+                                suggestion(check.entity, names_of(game.scenes)));
+    }
+    if (check.kind != CheckKind::HostCall) {
+        return;
+    }
+    const std::vector<std::string> commands = game.ref_names("host_command");
+    if (std::find(commands.begin(), commands.end(), check.entity) == commands.end()) {
+        checker.error(path, "no host command is named \"" + check.entity +
+                                R"(" in the list "host_command")" +
+                                suggestion(check.entity, commands));
+    }
+}
+
 void check_one_scenario(const Context& context, const Game& game, const ScenarioData& scenario,
                         const std::string& file) {
     Checker checker(file, *context.diagnostics);
@@ -347,10 +375,7 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
                                     check.entity + "\"" + suggestion(check.entity, named));
             continue;
         }
-        if (check.kind == CheckKind::Scene && game.find_scene(check.entity) == nullptr) {
-            checker.error(path, "no scene is named \"" + check.entity + "\"" +
-                                    suggestion(check.entity, names_of(game.scenes)));
-        }
+        check_names_of_game(checker, game, path, check);
         if (check.kind == CheckKind::Field) {
             check_field(context, checker, path, check);
         }

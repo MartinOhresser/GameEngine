@@ -4,6 +4,7 @@
   "entries": {
     "menu.title": "Doodle Jump",
     "menu.play": "Play",
+    "menu.quit": "Quit",
     "menu.best": "Best: {value}",
     "menu.help1": "Arrows or A / D: move",
     "menu.help2": "Space or Up: shoot",

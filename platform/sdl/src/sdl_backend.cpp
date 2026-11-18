@@ -93,6 +93,12 @@ public:
     SdlRenderer(SdlRenderer&&) = delete;
     SdlRenderer& operator=(SdlRenderer&&) = delete;
 
+    /// The view the game is drawn in changed size (a new window size).
+    void set_view(int view_width, int view_height) {
+        half_width_ = static_cast<float>(view_width) / 2.0F;
+        half_height_ = static_cast<float>(view_height) / 2.0F;
+    }
+
     void draw(const app::DrawCommand& command) override {
         open_frame();
         if (command.atlas >= 0) {
@@ -465,6 +471,17 @@ std::shared_ptr<app::Renderer> SdlBackend::renderer() {
 
 std::shared_ptr<app::AudioDevice> SdlBackend::audio() {
     return impl_->audio;
+}
+
+bool SdlBackend::resize(int width, int height) {
+    if (width <= 0 || height <= 0) {
+        return false;
+    }
+    SDL_SetWindowSize(impl_->session->window, width, height);
+    SDL_SetRenderLogicalPresentation(impl_->session->renderer, width, height,
+                                     SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl_->renderer->set_view(width, height);
+    return true;
 }
 
 bool SdlBackend::load_sound(const std::string& name, const std::string& path, std::string& error) {

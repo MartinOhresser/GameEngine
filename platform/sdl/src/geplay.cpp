@@ -229,6 +229,7 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
 
     LoopOptions options;
     options.max_frames = arguments.frames;
+    options.back_sources = {"key:escape"}; // Escape leaves, as in the launcher
     const std::string save_path = save_path_of(arguments, loaded.game.manifest.name);
     if (!save_path.empty()) {
         if (const std::optional<std::string> text = read_file(save_path); text) {

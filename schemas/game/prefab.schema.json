@@ -256,6 +256,41 @@
           },
           "additionalProperties": false
         },
+        "host.Quit": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "on_mobile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "host.Call": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "argument": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "inventory.Slot": {
           "type": "object",
           "properties": {

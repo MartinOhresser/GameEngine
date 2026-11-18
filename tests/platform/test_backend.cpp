@@ -1,4 +1,5 @@
 #include "ge/app/app.hpp"
+#include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
 #include "ge/mod/action_control/action_control.gen.hpp"
@@ -119,6 +120,50 @@ TEST_CASE("backend: max_frames stops a loop the backend would not stop") {
     CHECK(result.frames == 5U);
     CHECK(!result.backend_stopped);
     CHECK(app.tick_count() == 5U);
+}
+
+TEST_CASE("backend: a quit request ends the loop after the frame that raised it") {
+    ge::app::App app;
+    app.add_system(ge::app::Stage::Update, [](ge::ecs::World& world) {
+        if (world.resource<ge::app::Time>()->tick == 2U) {
+            world.resource<ge::app::QuitRequest>()->requested = true;
+        }
+    });
+    ScriptedBackend backend(60, 100);
+    const auto result = ge::platform::run_loop(app, backend, InputMap{});
+    CHECK(result.quit_requested);
+    CHECK(!result.back_requested);
+    CHECK(!result.backend_stopped);
+    CHECK(result.frames < 10U);
+}
+
+TEST_CASE("backend: a back source ends the loop before the game sees it") {
+    ge::app::App app;
+    ScriptedBackend backend(60, 100);
+    backend.at(3, "key:escape", 1.0F);
+    ge::platform::LoopOptions options;
+    options.back_sources = {"key:escape"};
+    const auto result = ge::platform::run_loop(app, backend, InputMap{}, options);
+    CHECK(result.back_requested);
+    CHECK(!result.quit_requested);
+    CHECK(result.frames == 3U);
+}
+
+TEST_CASE("backend: without back sources the escape key is just a key") {
+    ge::app::App app;
+    ScriptedBackend backend(60, 10);
+    backend.at(3, "key:escape", 1.0F);
+    const auto result = ge::platform::run_loop(app, backend, InputMap{});
+    CHECK(!result.back_requested);
+    CHECK(result.backend_stopped);
+}
+
+TEST_CASE("backend: a scripted backend remembers the size it was resized to") {
+    ScriptedBackend backend(60, 1);
+    CHECK(backend.width() == 0);
+    CHECK(backend.resize(480, 800));
+    CHECK(backend.width() == 480);
+    CHECK(backend.height() == 800);
 }
 
 TEST_CASE("audio: the recorder remembers requests, the null device ignores them") {

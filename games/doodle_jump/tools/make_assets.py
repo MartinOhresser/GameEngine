@@ -226,8 +226,11 @@ def menu_scene():
                                                       red=90, green=90, blue=90)},
            {"name": "menu_help2", "components": text("menu.help2", 16, 0, 146, 0.5, 0.5, 0.5, 0.5,
                                                       red=90, green=90, blue=90)}]
-    out += menu_of("main_menu", "menu_buttons", [("play", "menu.play", "start_game")], -40)
+    out += menu_of("main_menu", "menu_buttons",
+                   [("play", "menu.play", "start_game"), ("quit", "menu.quit", "quit_game")], -40)
     out.append(go("go_play", "game", use_action=True, action="start_game"))
+    # The "Quit" button raises quit_game; the host (launcher, player) then closes the game.
+    out.append({"name": "quit_game", "components": {"host.Quit": {"action": "quit_game"}}})
     return out
 
 
