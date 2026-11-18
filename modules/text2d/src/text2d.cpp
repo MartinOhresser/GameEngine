@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <array>
-#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -28,11 +27,21 @@ std::uint32_t pack(const Text& text) {
 
 /// A number as it reads in a text: 12, not 12.000000; 2.5 with at most two decimals.
 std::string format_number(float value) {
-    std::array<char, 48> buffer{};
-    const bool whole = value == std::floor(value) && std::fabs(value) < 1.0e9F;
-    const auto done = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value,
-                                    std::chars_format::fixed, whole ? 0 : 2);
-    return {buffer.data(), done.ptr};
+    // Whole numbers are written without decimals, the others with two. Done by
+    // hand (not std::to_chars) because that is missing on the oldest iOS targets.
+    constexpr double limit = 1.0e9;
+    const double clamped = std::clamp(static_cast<double>(value), -limit, limit);
+    const bool whole = clamped == std::floor(clamped);
+    const auto hundredths = static_cast<std::int64_t>(std::llround(std::fabs(clamped) * 100.0));
+    std::string out = clamped < 0.0 && hundredths != 0 ? "-" : "";
+    out += std::to_string(hundredths / 100);
+    if (!whole) {
+        const std::int64_t decimals = hundredths % 100;
+        out += '.';
+        out += static_cast<char>('0' + decimals / 10);
+        out += static_cast<char>('0' + decimals % 10);
+    }
+    return out;
 }
 
 /// The text with its {value} replaced by the number.
