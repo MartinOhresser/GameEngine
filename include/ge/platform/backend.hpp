@@ -88,6 +88,7 @@ struct LoopResult {
 /// into actions with `map`, then advances the game by the time that really
 /// passed. The backend's renderer and audio replace the app's. Game logic is
 /// unchanged by this: ticks stay fixed (see `App::advance`).
-LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map, LoopOptions options = {});
+LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
+                    const LoopOptions& options = {});
 
 } // namespace ge::platform
