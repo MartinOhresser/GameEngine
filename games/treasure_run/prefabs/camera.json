@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "camera",
+  "components": {
+    "transform2d.Position": {},
+    "camera2d.Camera": {
+      "zoom": 1
+    },
+    "camera2d.CameraFollow": {
+      "stiffness": 0.1
+    }
+  }
+}

@@ -1,0 +1,15 @@
+// Arrow keys or WASD walk the hero; a gamepad or a touch screen will add
+// sources here without touching the game.
+{
+  "schema_version": 1,
+  "bindings": [
+    {
+      "action": "move_x",
+      "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:a": -1 },
+    },
+    {
+      "action": "move_y",
+      "sources": { "key:down": 1, "key:s": 1, "key:up": -1, "key:w": -1 },
+    },
+  ],
+}

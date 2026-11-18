@@ -223,6 +223,107 @@ TEST_CASE("sdl: a frame is drawn, captured and saved") {
     CHECK(error.find("cannot write") != std::string::npos);
 }
 
+namespace {
+std::string test_atlas() {
+    return std::string(GE_SOURCE_DIR) + "/tests/platform/sdl/data/atlas.png";
+}
+} // namespace
+
+TEST_CASE("sdl: sprites are cut from an atlas, tinted and flipped") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    // 16x16 picture, 8x8 cells: red, green / blue, transparent.
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+
+    ge::app::DrawCommand red{"sprite", 100.0F, 100.0F, 0.0F, 0xFFFFFFFFU};
+    red.atlas = 0;
+    red.frame = 0;
+    ge::app::DrawCommand green = red;
+    green.x = 200.0F;
+    green.frame = 1;
+    ge::app::DrawCommand blue_flipped = red;
+    blue_flipped.x = 300.0F;
+    blue_flipped.frame = 2;
+    blue_flipped.flip_x = true;
+    ge::app::DrawCommand empty = red;
+    empty.x = 400.0F;
+    empty.frame = 3;
+    ge::app::DrawCommand tinted = red;
+    tinted.x = 500.0F;
+    tinted.color = 0x00FFFFFFU; // keeps only green and blue: red becomes black
+    ge::app::DrawCommand big = red;
+    big.x = 600.0F;
+    big.width = 32.0F;
+    big.height = 16.0F;
+    for (const auto& command : {red, green, blue_flipped, empty, tinted, big}) {
+        renderer->draw(command);
+    }
+    renderer->end_frame();
+
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(frame.at(100, 100) == 0xFF0000FFU); // red cell, drawn at its natural size
+    CHECK(frame.at(96, 100) == 0x7F0000FFU);  // its darker left edge
+    CHECK(frame.at(104, 100) == 0x121420FFU); // just outside it
+    CHECK(frame.at(200, 100) == 0x00FF00FFU); // cell 1 is the green one
+    CHECK(frame.at(300, 100) == 0x0000FFFFU); // cell 2, mirrored
+    CHECK(frame.at(303, 100) == 0x00007FFFU); // the dark edge is now on the right
+    CHECK(frame.at(296, 100) == 0x0000FFFFU);
+    CHECK(frame.at(400, 100) == 0x121420FFU); // a transparent cell draws nothing
+    CHECK(frame.at(500, 100) == 0x000000FFU); // the tint removed the red
+    CHECK(frame.at(600, 100) == 0xFF0000FFU); // a wider sprite is stretched...
+    CHECK(frame.at(615, 107) == 0xFF0000FFU); // ...to 32x16
+    CHECK(frame.at(615, 109) == 0x121420FFU);
+}
+
+TEST_CASE("sdl: the camera moves and zooms sprites and squares, for one frame") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+
+    ge::app::DrawCommand sprite{"sprite", 100.0F, 100.0F, 0.0F, 0xFFFFFFFFU};
+    sprite.atlas = 0;
+    renderer->set_camera({50.0F, 50.0F, 2.0F}); // looks at (50, 50), twice as big
+    renderer->draw(sprite);
+    renderer->draw({"square", 50.0F, 50.0F, 10.0F, 0xFF8000FFU}); // at the screen centre
+    renderer->end_frame();
+    const sdl::Frame& zoomed = backend->last_frame();
+    // World (100, 100) is 50 away from the camera: 100 pixels at zoom 2, from the
+    // centre of an 800x600 window; the 8-pixel cell becomes 16 pixels wide.
+    CHECK(zoomed.at(500, 400) == 0xFF0000FFU);
+    CHECK(zoomed.at(507, 407) == 0xFF0000FFU);
+    CHECK(zoomed.at(509, 400) == 0x121420FFU);
+    CHECK(zoomed.at(400, 300) == 0xFF8000FFU);
+    CHECK(zoomed.at(100, 100) == 0x121420FFU); // nothing at the unmoved place
+
+    renderer->draw(sprite); // the next frame has no camera again
+    renderer->end_frame();
+    CHECK(backend->last_frame().at(100, 100) == 0xFF0000FFU);
+}
+
+TEST_CASE("sdl: an atlas that cannot be loaded says why") {
+    auto backend = open();
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    CHECK(!renderer->load_atlas(0, {"/nonexistent/atlas.png", 8, 8}, error));
+    CHECK(error.find("cannot read") != std::string::npos);
+    const fs::path not_a_png = temp_file("not_a_png.png");
+    std::ofstream(not_a_png) << "this is not a picture";
+    CHECK(!renderer->load_atlas(0, {not_a_png.string(), 8, 8}, error));
+    CHECK(error.find("PNG") != std::string::npos);
+    std::error_code ignored;
+    fs::remove(not_a_png, ignored);
+    // Drawing from an atlas that never loaded is silent, not a crash.
+    ge::app::DrawCommand sprite{"sprite", 10.0F, 10.0F, 0.0F, 0xFFFFFFFFU};
+    sprite.atlas = 3;
+    renderer->draw(sprite);
+    renderer->end_frame();
+}
+
 TEST_CASE("sdl: without capture there is no frame to save") {
     auto backend = open(false);
     REQUIRE(backend != nullptr);

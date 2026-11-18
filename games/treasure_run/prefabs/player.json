@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "name": "player",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "action_control.Controlled": {
+      "speed": 120
+    },
+    "pickup.Collector": {
+      "radius": 14
+    },
+    "collision2d.Collider": {
+      "width": 20,
+      "height": 20,
+      "layer": 2
+    },
+    "collision2d.Body": {},
+    "collision2d.Contacts": {},
+    "sprite2d.Sprite": {
+      "atlas": "hero",
+      "frame": 0,
+      "width": 32,
+      "height": 32,
+      "layer": 5
+    },
+    "sprite2d.SpriteAnimation": {
+      "frame_count": 4,
+      "ticks_per_frame": 8
+    },
+    "camera2d.CameraTarget": {}
+  }
+}

@@ -1,0 +1,16 @@
+// The camera starts on the hero and trails it: each tick it covers a tenth of
+// the distance. It never gets ahead of the hero and never stops following.
+{
+  "schema_version": 1,
+  "name": "camera_follows",
+  "ticks": 150,
+  "inputs": [{ "tick": 0, "action": "move_x", "value": 1 }],
+  "expect": [
+    { "at": 0, "check": "camera.transform2d.Position.x == 80" },
+    { "at": 50, "check": "camera.transform2d.Position.x > 100" },
+    { "at": 50, "check": "camera.transform2d.Position.x < 180" },
+    { "at": 150, "check": "camera.transform2d.Position.x > 250" },
+    { "at": 150, "check": "camera.transform2d.Position.x < 380" },
+    "camera.camera2d.Camera.zoom == 1",
+  ],
+}

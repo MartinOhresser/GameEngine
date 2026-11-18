@@ -38,6 +38,7 @@ struct FieldValue {
 struct FieldInfo {
     std::string_view name;
     std::string_view type; ///< "i32", "f32", "bool"...
+    std::string_view ref;  ///< Name of the list a u32 field indexes (see `FieldSpec::ref`), or "".
 };
 
 /// A setting of a module (`params` in `module.json`), with its bounds.

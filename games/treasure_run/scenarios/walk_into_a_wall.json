@@ -1,0 +1,16 @@
+// The hero starts at tile (2, 2) and walks right at 2 units per tick. The wall
+// at tile (13, 2) has its left face at x = 416; the hero is 20 wide, so it must
+// stop with its centre at x = 406 and keep sliding no further, however long the
+// key is held.
+{
+  "schema_version": 1,
+  "name": "walk_into_a_wall",
+  "ticks": 300,
+  "inputs": [{ "tick": 0, "action": "move_x", "value": 1 }],
+  "expect": [
+    { "at": 100, "check": "player.transform2d.Position.x == 280" },
+    { "at": 163, "check": "player.transform2d.Position.x == 406" },
+    "player.transform2d.Position.x == 406",
+    "player.transform2d.Position.y == 80",
+  ],
+}

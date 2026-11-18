@@ -4,6 +4,7 @@ add_executable(
   core/test_hash.cpp
   core/test_random.cpp
   core/test_version.cpp
+  game/test_atlas.cpp
   game/test_game.cpp
   game/test_scenario.cpp
   game/test_schema.cpp

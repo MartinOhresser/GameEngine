@@ -18,11 +18,31 @@ app::Scalar to_scalar(const json::Value& value) {
     return value.as_real();
 }
 
-/// The values of a JSON object as the fields generated code understands.
-std::vector<app::FieldValue> to_fields(const json::Value& object) {
+/// The index of the item a game file names for a field with a `ref`.
+app::Scalar ref_index(const Game& game, std::string_view ref, const std::string& name) {
+    const std::vector<std::string> names = game.ref_names(ref);
+    const auto found = std::find(names.begin(), names.end(), name);
+    return static_cast<std::int64_t>(found - names.begin());
+}
+
+/// The values of a JSON object as the fields generated code understands. A
+/// name given for a field with a `ref` becomes the item's index.
+std::vector<app::FieldValue> to_fields(const Game& game, const app::ComponentInfo& info,
+                                       const json::Value& object) {
     std::vector<app::FieldValue> fields;
     fields.reserve(object.members().size());
     for (const auto& member : object.members()) {
+        if (member.second.is_string()) {
+            const auto field = std::find_if(info.fields.begin(), info.fields.end(),
+                                            [&member](const app::FieldInfo& candidate) {
+                                                return candidate.name == member.first;
+                                            });
+            if (field != info.fields.end() && !field->ref.empty()) {
+                fields.push_back(app::FieldValue{
+                    member.first, ref_index(game, field->ref, member.second.as_string())});
+            }
+            continue;
+        }
         fields.push_back(app::FieldValue{member.first, to_scalar(member.second)});
     }
     return fields;
@@ -123,7 +143,7 @@ SetupResult spawn_scene(app::App& app, const Game& game, std::string_view scene_
                                           "' is not available: its module is not installed");
                 continue;
             }
-            const std::vector<app::FieldValue> fields = to_fields(component.fields);
+            const std::vector<app::FieldValue> fields = to_fields(game, *info, component.fields);
             info->insert(app.world(), entity, fields);
         }
         if (!data.name.empty()) {
@@ -165,6 +185,19 @@ SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEn
     }
     result.named = std::move(scene.named);
     return result;
+}
+
+std::vector<std::string> load_atlases(const Game& game, app::Renderer& renderer) {
+    std::vector<std::string> problems;
+    for (std::size_t index = 0; index < game.atlases.size(); ++index) {
+        const AtlasData& atlas = game.atlases[index];
+        const app::AtlasInfo info{atlas.image, atlas.cell_width, atlas.cell_height};
+        std::string error;
+        if (!renderer.load_atlas(static_cast<int>(index), info, error)) {
+            problems.push_back("atlas \"" + atlas.name + "\": " + error);
+        }
+    }
+    return problems;
 }
 
 } // namespace ge::game

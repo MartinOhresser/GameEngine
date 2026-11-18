@@ -3,8 +3,13 @@
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cctype>
+#include <fstream>
+#include <iterator>
 #include <map>
+#include <optional>
+#include <stb_image.h>
 #include <utility>
+#include <vector>
 
 namespace ge::platform::sdl {
 
@@ -71,20 +76,75 @@ struct Session {
 /// Draws the game's commands into the window, then shows the frame.
 class SdlRenderer final : public app::Renderer {
 public:
-    SdlRenderer(std::shared_ptr<Session> session, bool capture)
-        : session_(std::move(session)), renderer_(session_->renderer), capture_(capture) {}
+    SdlRenderer(std::shared_ptr<Session> session, bool capture, int view_width, int view_height)
+        : session_(std::move(session)), renderer_(session_->renderer), capture_(capture),
+          half_width_(static_cast<float>(view_width) / 2.0F),
+          half_height_(static_cast<float>(view_height) / 2.0F) {}
+
+    ~SdlRenderer() override {
+        for (const Atlas& atlas : atlases_) {
+            if (atlas.texture != nullptr) {
+                SDL_DestroyTexture(atlas.texture);
+            }
+        }
+    }
+    SdlRenderer(const SdlRenderer&) = delete;
+    SdlRenderer& operator=(const SdlRenderer&) = delete;
+    SdlRenderer(SdlRenderer&&) = delete;
+    SdlRenderer& operator=(SdlRenderer&&) = delete;
 
     void draw(const app::DrawCommand& command) override {
         open_frame();
-        const std::uint32_t c = command.color;
-        SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
-                               static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
-                               static_cast<std::uint8_t>((c >> 8U) & 0xFFU),
-                               static_cast<std::uint8_t>(c & 0xFFU));
-        const float size = command.size > 0.0F ? command.size : default_size;
-        const SDL_FRect rect{command.x - size / 2.0F, command.y - size / 2.0F, size, size};
-        SDL_RenderFillRect(renderer_, &rect);
+        if (command.atlas >= 0) {
+            draw_sprite(command);
+        } else {
+            draw_square(command);
+        }
     }
+
+    bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
+        std::ifstream file(atlas.image, std::ios::binary);
+        if (!file) {
+            error = "cannot read the image \"" + atlas.image + "\"";
+            return false;
+        }
+        const std::string bytes((std::istreambuf_iterator<char>(file)),
+                                std::istreambuf_iterator<char>());
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+        const std::vector<stbi_uc> encoded(bytes.begin(), bytes.end());
+        stbi_uc* pixels = stbi_load_from_memory(encoded.data(), static_cast<int>(encoded.size()),
+                                                &width, &height, &channels, 4);
+        if (pixels == nullptr) {
+            error = "\"" + atlas.image + "\" is not a PNG image this engine can read";
+            return false;
+        }
+        SDL_Surface* surface =
+            SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, pixels, width * 4);
+        SDL_Texture* texture =
+            surface != nullptr ? SDL_CreateTextureFromSurface(renderer_, surface) : nullptr;
+        if (surface != nullptr) {
+            SDL_DestroySurface(surface);
+        }
+        stbi_image_free(pixels);
+        if (texture == nullptr) {
+            error = "cannot use \"" + atlas.image + "\": " + sdl_error();
+            return false;
+        }
+        SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST); // pixel art stays sharp
+        if (static_cast<std::size_t>(index) >= atlases_.size()) {
+            atlases_.resize(static_cast<std::size_t>(index) + 1U);
+        }
+        Atlas& slot = atlases_[static_cast<std::size_t>(index)];
+        if (slot.texture != nullptr) {
+            SDL_DestroyTexture(slot.texture);
+        }
+        slot = Atlas{texture, width, height, atlas.cell_width, atlas.cell_height};
+        return true;
+    }
+
+    void set_camera(const app::CameraView& camera) override { camera_ = camera; }
 
     void end_frame() override {
         open_frame(); // a frame with nothing in it is still a frame: the screen is cleared
@@ -93,6 +153,7 @@ public:
         }
         SDL_RenderPresent(renderer_);
         open_ = false;
+        camera_.reset();
         ++presented_;
     }
 
@@ -101,6 +162,74 @@ public:
 
 private:
     static constexpr float default_size = 16.0F;
+
+    struct Atlas {
+        SDL_Texture* texture = nullptr;
+        int width = 0;
+        int height = 0;
+        int cell_width = 0;
+        int cell_height = 0;
+    };
+
+    /// The world point seen through the camera, as pixels of the screen.
+    void to_screen(float world_x, float world_y, float& screen_x, float& screen_y) const {
+        if (!camera_) {
+            screen_x = world_x;
+            screen_y = world_y;
+            return;
+        }
+        screen_x = (world_x - camera_->x) * camera_->zoom + half_width_;
+        screen_y = (world_y - camera_->y) * camera_->zoom + half_height_;
+    }
+
+    [[nodiscard]] float zoom() const { return camera_ ? camera_->zoom : 1.0F; }
+
+    void draw_square(const app::DrawCommand& command) {
+        const std::uint32_t c = command.color;
+        SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 8U) & 0xFFU),
+                               static_cast<std::uint8_t>(c & 0xFFU));
+        const float size = (command.size > 0.0F ? command.size : default_size) * zoom();
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command.x, command.y, x, y);
+        const SDL_FRect rect{x - size / 2.0F, y - size / 2.0F, size, size};
+        SDL_RenderFillRect(renderer_, &rect);
+    }
+
+    void draw_sprite(const app::DrawCommand& command) {
+        const auto index = static_cast<std::size_t>(command.atlas);
+        if (index >= atlases_.size() || atlases_[index].texture == nullptr) {
+            return; // an atlas that failed to load draws nothing
+        }
+        const Atlas& atlas = atlases_[index];
+        const int columns = std::max(1, atlas.width / std::max(1, atlas.cell_width));
+        const int rows = std::max(1, atlas.height / std::max(1, atlas.cell_height));
+        const int frame = static_cast<int>(command.frame) % (columns * rows);
+        const int column = frame % columns;
+        const int row = frame / columns;
+        const SDL_FRect source{static_cast<float>(column * atlas.cell_width),
+                               static_cast<float>(row * atlas.cell_height),
+                               static_cast<float>(atlas.cell_width),
+                               static_cast<float>(atlas.cell_height)};
+        const float width =
+            (command.width > 0.0F ? command.width : static_cast<float>(atlas.cell_width)) * zoom();
+        const float height =
+            (command.height > 0.0F ? command.height : static_cast<float>(atlas.cell_height)) *
+            zoom();
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command.x, command.y, x, y);
+        const SDL_FRect target{x - width / 2.0F, y - height / 2.0F, width, height};
+        const std::uint32_t c = command.color;
+        SDL_SetTextureColorMod(atlas.texture, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 8U) & 0xFFU));
+        SDL_SetTextureAlphaMod(atlas.texture, static_cast<std::uint8_t>(c & 0xFFU));
+        SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, 0.0, nullptr,
+                                 command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    }
 
     void open_frame() {
         if (!open_) {
@@ -143,6 +272,10 @@ private:
     SDL_Renderer* renderer_;
     bool capture_;
     bool open_ = false;
+    std::vector<Atlas> atlases_;
+    std::optional<app::CameraView> camera_;
+    float half_width_;
+    float half_height_;
     std::uint64_t presented_ = 0;
     Frame frame_;
 };
@@ -260,7 +393,8 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     }
     SDL_SetRenderLogicalPresentation(impl->session->renderer, options.width, options.height,
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    impl->renderer = std::make_shared<SdlRenderer>(impl->session, options.capture);
+    impl->renderer = std::make_shared<SdlRenderer>(impl->session, options.capture, options.width,
+                                                   options.height);
     impl->audio = std::make_shared<SdlAudio>(impl->session);
     impl->start_ns = SDL_GetTicksNS();
     return std::unique_ptr<SdlBackend>(new SdlBackend(std::move(impl)));

@@ -42,7 +42,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"radius", "f32"}, {"score", "i32"}}};
+constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"radius", "f32", ""}, {"score", "i32", ""}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -72,7 +72,7 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"value", "i32"}, {"radius", "f32"}}};
+constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"value", "i32", ""}, {"radius", "f32", ""}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Collector", true, component_0_fields, insert_component_0, read_component_0}, {"Pickup", true, component_1_fields, insert_component_1, read_component_1}}};
 

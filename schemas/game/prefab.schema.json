@@ -25,6 +25,75 @@
           },
           "additionalProperties": false
         },
+        "camera2d.Camera": {
+          "type": "object",
+          "properties": {
+            "zoom": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "camera2d.CameraTarget": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "camera2d.CameraFollow": {
+          "type": "object",
+          "properties": {
+            "stiffness": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "collision2d.Collider": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "layer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "mask": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "solid": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "collision2d.Body": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "collision2d.Contacts": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "debug_draw.Square": {
           "type": "object",
           "properties": {
@@ -96,6 +165,85 @@
             },
             "height": {
               "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "sprite2d.Sprite": {
+          "type": "object",
+          "properties": {
+            "atlas": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "layer": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "flip_x": {
+              "type": "boolean"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alpha": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "sprite2d.SpriteAnimation": {
+          "type": "object",
+          "properties": {
+            "first_frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "frame_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "ticks_per_frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "looping": {
+              "type": "boolean"
+            },
+            "elapsed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false

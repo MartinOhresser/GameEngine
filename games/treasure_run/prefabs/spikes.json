@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "spikes",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "tiles",
+      "frame": 3,
+      "width": 32,
+      "height": 32,
+      "layer": -5
+    },
+    "collision2d.Collider": {
+      "width": 24,
+      "height": 24,
+      "layer": 4
+    }
+  }
+}

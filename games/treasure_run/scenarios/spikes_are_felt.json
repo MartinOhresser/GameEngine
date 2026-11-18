@@ -1,0 +1,17 @@
+// Spikes are a collider of layer 4 at tile (2, 7), x = 80 and y 228..252.
+// Walking down, the hero (20 tall) overlaps them from y = 220 (tick 70) until
+// y = 262 (tick 91). Touching is felt through Contacts, not through blocking.
+{
+  "schema_version": 1,
+  "name": "spikes_are_felt",
+  "ticks": 120,
+  "inputs": [{ "tick": 0, "action": "move_y", "value": 1 }],
+  "expect": [
+    { "at": 69, "check": "player.collision2d.Contacts.count == 0" },
+    { "at": 70, "check": "player.collision2d.Contacts.count == 1" },
+    { "at": 70, "check": "player.collision2d.Contacts.layers == 4" },
+    { "at": 90, "check": "player.collision2d.Contacts.count == 1" },
+    { "at": 91, "check": "player.collision2d.Contacts.count == 0" },
+    "player.transform2d.Position.y == 320",
+  ],
+}

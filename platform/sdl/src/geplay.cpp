@@ -176,6 +176,14 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
         return exit_invalid;
     }
     load_sounds(*backend, arguments.game_path, err);
+    const std::vector<std::string> atlas_problems =
+        game::load_atlases(loaded.game, *backend->renderer());
+    for (const std::string& problem : atlas_problems) {
+        err << arguments.game_path << ": " << problem << '\n';
+    }
+    if (!atlas_problems.empty()) {
+        return exit_invalid;
+    }
 
     LoopOptions options;
     options.max_frames = arguments.frames;

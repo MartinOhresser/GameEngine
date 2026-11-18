@@ -30,10 +30,16 @@ else()
   message(FATAL_ERROR "SDL3 was found but offers no SDL3::SDL3 target")
 endif()
 
+# stb_image decodes the PNG atlases. Third-party code: no engine warnings, no
+# clang-tidy.
+add_library(ge_stb_image STATIC third_party/stb_image_impl.cpp)
+target_include_directories(ge_stb_image SYSTEM PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party")
+set_target_properties(ge_stb_image PROPERTIES CXX_CLANG_TIDY "" CXX_STANDARD 20)
+
 add_library(ge_platform_sdl STATIC src/sdl_backend.cpp)
 add_library(ge::platform_sdl ALIAS ge_platform_sdl)
 target_include_directories(ge_platform_sdl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(ge_platform_sdl PUBLIC ge::platform PRIVATE ${GE_SDL_TARGET})
+target_link_libraries(ge_platform_sdl PUBLIC ge::platform PRIVATE ${GE_SDL_TARGET} ge_stb_image)
 ge_target_options(ge_platform_sdl)
 
 # geplay: the universal runner with a window. Needs the runner library.

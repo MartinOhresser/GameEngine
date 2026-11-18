@@ -1,0 +1,16 @@
+// Walking right along the first row passes two coins, at x = 176 and x = 272.
+// The hero (reach 14) touches a coin (radius 8) within 22 units: x >= 154 after
+// 37 ticks for the first, x >= 250 after 85 ticks for the second.
+{
+  "schema_version": 1,
+  "name": "collect_coins",
+  "ticks": 120,
+  "inputs": [{ "tick": 0, "action": "move_x", "value": 1 }],
+  "expect": [
+    { "at": 36, "check": "player.pickup.Collector.score == 0" },
+    { "at": 37, "check": "player.pickup.Collector.score == 10" },
+    { "at": 84, "check": "player.pickup.Collector.score == 10" },
+    { "at": 85, "check": "player.pickup.Collector.score == 20" },
+    "player.pickup.Collector.score == 20",
+  ],
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "collision2d",
+  "version": "0.1.0",
+  "description": "Boxes that know when they overlap: walls and floors that stop moving entities, and a count of what an entity is touching. It works on positions only, so it does not depend on drawing and runs the same with or without a window.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Collider",
+      "description": "An axis-aligned box of the given width and height centred on the entity's Position. layer says what the entity is, mask says which layers it reacts to; both are bit sets (1 is bit 0, 2 is bit 1, 4 is bit 2...), so layer 2 with mask 5 is an entity of the second kind that reacts to the first and third kinds. solid makes it a wall that stops every Body whose mask includes its layer.",
+      "replicable": true,
+      "fields": [
+        { "name": "width", "type": "f32", "default": 16 },
+        { "name": "height", "type": "f32", "default": 16 },
+        { "name": "layer", "type": "u32", "default": 1 },
+        { "name": "mask", "type": "u32", "default": 4294967295 },
+        { "name": "solid", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Body",
+      "description": "The entity is pushed out of solid colliders (and loses the speed that went into them) instead of crossing them. Needs a Collider. Moves faster than its own size in one tick can jump over a thin wall: keep walls at least as thick as the fastest body travels per tick.",
+      "replicable": true,
+      "fields": []
+    },
+    {
+      "name": "Contacts",
+      "description": "Filled in every tick for an entity that also has a Collider: count is the number of other colliders overlapping it whose layer is in its mask, and layers is the union of their layers. Boxes that only share an edge do not overlap. Put it on the entities that need to know what they touch.",
+      "replicable": true,
+      "fields": [
+        { "name": "count", "type": "u32", "default": 0 },
+        { "name": "layers", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "block",
+      "description": "Pushes every Body out of the solid colliders it overlaps, along the shortest way out, and cancels its Velocity towards the wall. Entities are handled in creation order, so the result is the same on every run.",
+      "stage": "FixedUpdate",
+      "reads": ["Collider"],
+      "writes": ["transform2d.Position", "transform2d.Velocity"],
+      "after": ["transform2d.integrate"]
+    },
+    {
+      "name": "detect",
+      "description": "Counts what every Contacts entity touches, after bodies have been moved out of walls.",
+      "stage": "FixedUpdate",
+      "reads": ["Collider", "transform2d.Position"],
+      "writes": ["Contacts"],
+      "after": ["block"]
+    }
+  ]
+}

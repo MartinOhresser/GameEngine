@@ -134,6 +134,9 @@ std::string struct_text(const std::string& name, const std::vector<FieldSpec>& f
 
 /// The loop that copies the fields a game file gave into `target`.
 std::string assign_fields(const std::vector<FieldSpec>& fields, const std::string& target) {
+    if (fields.empty()) {
+        return ""; // a marker component has nothing to copy
+    }
     std::string out = "    for (const ::ge::app::FieldValue& field : values) {\n";
     bool first = true;
     for (const FieldSpec& field : fields) {
@@ -187,7 +190,7 @@ std::vector<FieldSpec> param_fields(const ModuleSpec& module) {
     std::vector<FieldSpec> fields;
     fields.reserve(module.params.size());
     for (const ParamSpec& param : module.params) {
-        fields.push_back(FieldSpec{param.name, param.type, param.default_value});
+        fields.push_back(FieldSpec{param.name, param.type, param.default_value, {}});
     }
     return fields;
 }
@@ -262,7 +265,7 @@ std::string components_text(const ModuleSpec& module) {
         for (std::size_t f = 0; f < component.fields.size(); ++f) {
             const FieldSpec& field = component.fields[f];
             out += (f == 0 ? "{{" : ", {") + quoted(field.name) + ", " +
-                   quoted(std::string(to_string(field.type))) + "}";
+                   quoted(std::string(to_string(field.type))) + ", " + quoted(field.ref) + "}";
         }
         out += component.fields.empty() ? "};\n\n" : "}};\n\n";
     }

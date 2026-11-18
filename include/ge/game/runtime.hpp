@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ge/app/app.hpp"
+#include "ge/app/render.hpp"
 #include "ge/game/game.hpp"
 
 #include <span>
@@ -46,5 +47,11 @@ struct SetupResult {
 /// Creates the entities of a scene, with the prefabs applied. The modules the
 /// game uses must be installed in `app`.
 [[nodiscard]] SetupResult spawn_scene(app::App& app, const Game& game, std::string_view scene);
+
+/// Gives the renderer the pictures of the game's atlases, in manifest order (an
+/// atlas's position is the index that `Sprite.atlas` holds). Returns what went
+/// wrong, one message per atlas it could not load; an empty list means all
+/// loaded.
+[[nodiscard]] std::vector<std::string> load_atlases(const Game& game, app::Renderer& renderer);
 
 } // namespace ge::game

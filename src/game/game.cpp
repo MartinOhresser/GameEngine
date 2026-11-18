@@ -12,8 +12,37 @@ namespace {
 
 using namespace detail;
 
-void read_component_fields(Checker& checker, const json::Value& value, const std::string& path,
-                           const ComponentDef& component, ComponentData& out) {
+/// A u32 field that refers to a list of the game (an atlas, say) may name the
+/// item instead of giving its index; a number must be a valid index.
+void check_ref_value(const Context& context, Checker& checker, const std::string& path,
+                     const FieldDef& field, const json::Value& value) {
+    const auto table = context.refs.find(field.ref);
+    const std::vector<std::string> none;
+    const std::vector<std::string>& names = table == context.refs.end() ? none : table->second;
+    if (value.is_string()) {
+        if (names.empty()) {
+            checker.error(path, "this field names an item of the game's " + field.ref +
+                                    " list, but the game declares none (see the manifest's " +
+                                    field.ref + "s)");
+        } else if (std::find(names.begin(), names.end(), value.as_string()) == names.end()) {
+            checker.error(path, "no " + field.ref + " is named \"" + value.as_string() + "\"" +
+                                    suggestion(value.as_string(), names) +
+                                    " (expected one of: " + join(names) + ")");
+        }
+        return;
+    }
+    check_value(checker, path, field.type, value);
+    if (value.is_int() && !names.empty() &&
+        value.as_int() >= static_cast<std::int64_t>(names.size())) {
+        checker.error(path, "there is no " + field.ref + " number " +
+                                std::to_string(value.as_int()) + " (the game has " +
+                                std::to_string(names.size()) + ": " + join(names) + ")");
+    }
+}
+
+void read_component_fields(const Context& context, Checker& checker, const json::Value& value,
+                           const std::string& path, const ComponentDef& component,
+                           ComponentData& out) {
     const json::Value* fields = checker.object(value, path);
     if (fields == nullptr) {
         return;
@@ -29,7 +58,11 @@ void read_component_fields(Checker& checker, const json::Value& value, const std
                                              : " (expected one of: " + join(names) + ")"));
             continue;
         }
-        check_value(checker, field_path, field->type, member.second);
+        if (field->ref.empty()) {
+            check_value(checker, field_path, field->type, member.second);
+        } else {
+            check_ref_value(context, checker, field_path, *field, member.second);
+        }
     }
     out.fields = *fields;
 }
@@ -76,7 +109,7 @@ std::vector<ComponentData> read_components(const Context& context, Checker& chec
         }
         ComponentData data;
         data.name = key;
-        read_component_fields(checker, member.second, component_path, *component, data);
+        read_component_fields(context, checker, member.second, component_path, *component, data);
         result.push_back(std::move(data));
     }
     return result;
@@ -261,8 +294,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "prefabs", "scenes", "scenarios", "input",
-                            "start_scene"});
+                            "simulation", "params", "atlases", "prefabs", "scenes", "scenarios",
+                            "input", "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -273,6 +306,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     read_modules(context, checker, *object, manifest);
     read_simulation(checker, *object, manifest);
     read_params(context, checker, *object, manifest);
+    manifest.atlas_files = read_file_list(checker, *object, "atlases");
     manifest.prefab_files = read_file_list(checker, *object, "prefabs");
     manifest.scene_files = read_file_list(checker, *object, "scenes");
     manifest.scenario_files = read_file_list(checker, *object, "scenarios");
@@ -282,6 +316,56 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
 }
 
 // ---- prefabs and scenes ----------------------------------------------------
+
+/// Largest cell of an atlas: well beyond any sprite, small enough to catch a typo.
+constexpr std::int64_t max_cell_size = 4096;
+
+bool read_cell_size(Checker& checker, const json::Value& object, const char* key, int& out) {
+    const json::Value* value = object.find(key);
+    if (value == nullptr) {
+        checker.error("", std::string("missing required key \"") + key + "\"");
+        return false;
+    }
+    if (!value->is_int() || value->as_int() < 1 || value->as_int() > max_cell_size) {
+        checker.error(key, "must be a whole number from 1 to " + std::to_string(max_cell_size));
+        return false;
+    }
+    out = static_cast<int>(value->as_int());
+    return true;
+}
+
+std::optional<AtlasData> read_atlas(const Context& context, const std::string& file,
+                                    const json::Value& root) {
+    Checker checker(file, *context.diagnostics);
+    const json::Value* object = checker.object(root, "");
+    if (object == nullptr) {
+        return std::nullopt;
+    }
+    checker.reject_unknown(
+        *object, "", {"$schema", "schema_version", "name", "image", "cell_width", "cell_height"});
+    if (const json::Value* version = object->find("schema_version"); version == nullptr) {
+        checker.error("", "missing required key \"schema_version\"");
+    } else if (!version->is_int() || version->as_int() != 1) {
+        checker.error("schema_version", "only schema version 1 is supported");
+    }
+    AtlasData atlas;
+    static_cast<void>(checker.name(*object, "name", "", true, atlas.name));
+    std::string image;
+    if (checker.text(*object, "image", "", true, image)) {
+        if (!is_safe_relative(image)) {
+            checker.error("image",
+                          "\"" + image + "\" must be a relative path next to the atlas file");
+        } else {
+            atlas.image = directory_of(file) + image;
+            if (!(*context.read)(atlas.image)) {
+                checker.error("image", "cannot read the image \"" + atlas.image + "\"");
+            }
+        }
+    }
+    static_cast<void>(read_cell_size(checker, *object, "cell_width", atlas.cell_width));
+    static_cast<void>(read_cell_size(checker, *object, "cell_height", atlas.cell_height));
+    return atlas;
+}
 
 std::optional<PrefabData> read_prefab(const Context& context, const std::string& file,
                                       const json::Value& root) {
@@ -450,10 +534,20 @@ const ScenarioData* Game::find_scenario(std::string_view name) const {
     return found == scenarios.end() ? nullptr : &*found;
 }
 
+std::vector<std::string> Game::ref_names(std::string_view ref) const {
+    std::vector<std::string> names;
+    if (ref == "atlas") {
+        for (const AtlasData& atlas : atlases) {
+            names.push_back(atlas.name);
+        }
+    }
+    return names;
+}
+
 LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
                      const Catalog& catalog) {
     LoadedGame loaded;
-    Context context{&read, &catalog, &loaded.diagnostics, directory_of(manifest_path), {}};
+    Context context{&read, &catalog, &loaded.diagnostics, directory_of(manifest_path), {}, {}};
 
     const std::optional<json::Value> root = read_json(context, manifest_path, manifest_path, "");
     if (!root) {
@@ -464,6 +558,28 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         return loaded;
     }
     context.modules = loaded.game.manifest.modules;
+
+    for (std::size_t i = 0; i < loaded.game.manifest.atlas_files.size(); ++i) {
+        const std::string path = context.directory + loaded.game.manifest.atlas_files[i];
+        const std::optional<json::Value> data =
+            read_json(context, path, manifest_path, index_path("atlases", i));
+        if (!data) {
+            continue;
+        }
+        std::optional<AtlasData> atlas = read_atlas(context, path, *data);
+        if (!atlas) {
+            continue;
+        }
+        const bool duplicate =
+            std::any_of(loaded.game.atlases.begin(), loaded.game.atlases.end(),
+                        [&atlas](const AtlasData& other) { return other.name == atlas->name; });
+        if (duplicate) {
+            context.diagnostics->push_back(
+                Diagnostic{path, "name", "two atlases are named \"" + atlas->name + "\""});
+        }
+        loaded.game.atlases.push_back(std::move(*atlas));
+    }
+    context.refs["atlas"] = loaded.game.ref_names("atlas");
 
     std::vector<std::string> prefab_files;
     for (std::size_t i = 0; i < loaded.game.manifest.prefab_files.size(); ++i) {

@@ -28,7 +28,7 @@ struct Square {
     [[nodiscard]] friend bool operator==(const Square&, const Square&) = default;
 };
 
-/// Asks the renderer to draw every Square, then ends the frame. Presentation only: it never changes the simulation.
+/// Asks the renderer to draw every Square. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
 /// Runs in PostUpdate.
 void draw(::ge::ecs::World& world);
 

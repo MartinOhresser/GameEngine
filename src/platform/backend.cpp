@@ -51,6 +51,7 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map, LoopOp
         }
         const std::chrono::nanoseconds now = backend.now();
         app.advance(now - last);
+        app.world().resource<app::RenderBackend>()->renderer().end_frame();
         last = now;
         ++result.frames;
     }

@@ -9,6 +9,7 @@
 #include "ge/module/spec.hpp"
 
 #include <algorithm>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -232,6 +233,8 @@ struct Context {
     std::vector<Diagnostic>* diagnostics;
     std::string directory;
     std::vector<std::string> modules; // the manifest's, for checking components
+    /// Lists a u32 field can name an item of: ref name -> item names in index order.
+    std::map<std::string, std::vector<std::string>> refs;
 };
 
 /// Reads and parses a JSON file with comments and trailing commas allowed.
