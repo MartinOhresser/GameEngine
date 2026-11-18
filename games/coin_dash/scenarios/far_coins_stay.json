@@ -1,0 +1,11 @@
+// Without input the ship stays put: nothing is collected, nothing disappears.
+{
+  "schema_version": 1,
+  "name": "far_coins_stay",
+  "ticks": 100,
+  "expect": [
+    "ship.pickup.Collector.score == 0",
+    "entities == 4",
+    "coin_far alive",
+  ],
+}

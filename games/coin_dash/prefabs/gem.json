@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "gem",
+  "extends": "coin",
+  "components": {
+    "pickup.Pickup": { "value": 50 },   // worth more; the radius stays the coin's
+  },
+}

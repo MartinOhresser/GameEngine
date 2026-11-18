@@ -239,7 +239,7 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     }
     checker.reject_unknown(
         *object, "",
-        {"$schema", "schema_version", "name", "description", "ticks", "inputs", "expect"});
+        {"$schema", "schema_version", "name", "description", "scene", "ticks", "inputs", "expect"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -248,6 +248,7 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     ScenarioData scenario;
     static_cast<void>(checker.name(*object, "name", "", true, scenario.name));
     static_cast<void>(checker.text(*object, "description", "", false, scenario.description));
+    static_cast<void>(checker.name(*object, "scene", "", false, scenario.scene));
     const json::Value* ticks = object->find("ticks");
     if (ticks == nullptr || !ticks->is_int() || ticks->as_int() < 1 ||
         static_cast<std::uint64_t>(ticks->as_int()) > max_ticks) {
@@ -305,7 +306,13 @@ void check_field(const Context& context, Checker& checker, const std::string& pa
 void check_one_scenario(const Context& context, const Game& game, const ScenarioData& scenario,
                         const std::string& file) {
     Checker checker(file, *context.diagnostics);
-    const SceneData* start = game.find_scene(game.manifest.start_scene);
+    const std::string& scene_name =
+        scenario.scene.empty() ? game.manifest.start_scene : scenario.scene;
+    const SceneData* start = game.find_scene(scene_name);
+    if (start == nullptr && !scenario.scene.empty()) {
+        checker.error("scene", "no scene is named \"" + scene_name + "\"" +
+                                   suggestion(scene_name, names_of(game.scenes)));
+    }
     std::vector<std::string> named;
     if (start != nullptr) {
         for (const EntityData& entity : start->entities) {
@@ -320,9 +327,8 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
         const bool needs_entity = check.kind == CheckKind::Field ||
                                   check.kind == CheckKind::Alive || check.kind == CheckKind::Gone;
         if (needs_entity && std::find(named.begin(), named.end(), check.entity) == named.end()) {
-            checker.error(path, "the start scene \"" + game.manifest.start_scene +
-                                    "\" has no entity named \"" + check.entity + "\"" +
-                                    suggestion(check.entity, named));
+            checker.error(path, "the scene \"" + scene_name + "\" has no entity named \"" +
+                                    check.entity + "\"" + suggestion(check.entity, named));
             continue;
         }
         if (check.kind == CheckKind::Field) {

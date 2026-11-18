@@ -7,6 +7,8 @@
 #include "ge/module/generate.hpp"
 #include "ge/module/spec.hpp"
 
+#include "scaffold.hpp"
+
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -41,6 +43,8 @@ constexpr const char* usage_text =
     "      Check a game's manifest, prefabs and scenes against the modules.\n"
     "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
+    "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
+    "      Create DIR/NAME with a working example (module.json, system, test).\n"
     "  gectl help\n"
     "\n"
     "DIR defaults to ./modules. Exit codes: 0 success, 1 invalid or stale, 2 usage.\n";
@@ -51,7 +55,24 @@ struct Options {
     bool compact = false;
     bool check_only = false;
     std::vector<std::string> names;
+    std::vector<std::string> depends;
 };
+
+std::vector<std::string> split_commas(const std::string& text) {
+    std::vector<std::string> parts;
+    std::size_t start = 0;
+    while (start <= text.size()) {
+        std::size_t end = text.find(',', start);
+        if (end == std::string::npos) {
+            end = text.size();
+        }
+        if (end > start) {
+            parts.push_back(text.substr(start, end - start));
+        }
+        start = end + 1;
+    }
+    return parts;
+}
 
 /// Parses the arguments after the command. Returns an error message, or empty.
 std::string parse_options(const std::vector<std::string>& args, Options& options) {
@@ -67,6 +88,11 @@ std::string parse_options(const std::vector<std::string>& args, Options& options
                 return "--out needs a directory";
             }
             options.out_dir = args[++i];
+        } else if (arg == "--depends") {
+            if (i + 1 >= args.size()) {
+                return "--depends needs a comma-separated list of modules";
+            }
+            options.depends = split_commas(args[++i]);
         } else if (arg == "--compact") {
             options.compact = true;
         } else if (arg == "--check") {
@@ -174,6 +200,10 @@ json::Value engine_description() {
     resources.push_back(resource("Commands", "Deferred world changes, applied after each system."));
     resources.push_back(
         resource("Events<T>", "Per-type event queue, created with App::add_event<T>()."));
+    resources.push_back(resource("Actions", "What the player is doing, as named values (move_x, "
+                                            "jump); game logic reads actions, never a keyboard."));
+    resources.push_back(resource("ScriptedInput", "Action changes at given ticks: the player of "
+                                                  "tests and scenarios."));
 
     json::Value engine = json::Value::object();
     engine.set("version", json::Value::string(std::string(ge::version())));
@@ -281,6 +311,68 @@ int command_schema(const Options& options, std::ostream& out, std::ostream& err)
     return all_synced ? exit_ok : exit_invalid;
 }
 
+/// Writes a file, creating its directories. Returns false and says why on failure.
+bool write_new_file(const fs::path& target, const std::string& content, std::ostream& err) {
+    std::error_code error;
+    fs::create_directories(target.parent_path(), error);
+    std::ofstream stream(target, std::ios::binary | std::ios::trunc);
+    stream << content;
+    if (error || !stream) {
+        err << target.generic_string() << ": cannot write the file\n";
+        return false;
+    }
+    return true;
+}
+
+int command_new_module(const Options& options, std::ostream& out, std::ostream& err) {
+    if (options.names.size() != 1) {
+        err << "new-module needs exactly one module name\n\n" << usage_text;
+        return exit_usage;
+    }
+    const std::string& name = options.names.front();
+    const fs::path directory = fs::path(options.modules_dir) / name;
+    Loaded loaded = load_all(options.modules_dir);
+    if (!loaded.problems.empty()) {
+        return report(loaded, err);
+    }
+    if (fs::exists(directory)) {
+        err << directory.generic_string() << ": the module already exists\n";
+        return exit_invalid;
+    }
+
+    const std::vector<ScaffoldFile> files = scaffold_module(name, options.depends);
+    const std::string label = (directory / "module.json").generic_string();
+    module::LoadResult created = module::load_module(files.front().content, label);
+    loaded.modules.push_back(created.spec);
+    loaded.files.push_back(label);
+    std::vector<module::Diagnostic> problems = std::move(created.diagnostics);
+    if (problems.empty()) {
+        problems = module::check_modules(loaded.modules, loaded.files);
+    }
+    for (const module::Diagnostic& problem : problems) {
+        err << problem.to_string() << '\n';
+    }
+    if (!problems.empty()) {
+        return exit_invalid;
+    }
+
+    for (const ScaffoldFile& file : files) {
+        if (!write_new_file(directory / file.path, file.content, err)) {
+            return exit_invalid;
+        }
+        out << "wrote " << (directory / file.path).generic_string() << '\n';
+    }
+    for (const module::GeneratedFile& file : module::generate(created.spec)) {
+        if (!write_new_file(directory / "gen" / file.path, file.content, err)) {
+            return exit_invalid;
+        }
+        out << "wrote " << (directory / "gen" / file.path).generic_string() << '\n';
+    }
+    out << "next: edit " << label << " and src/" << name << ".cpp, run `gectl generate " << name
+        << "`, then re-run CMake; the module is picked up from its directory\n";
+    return exit_ok;
+}
+
 int command_validate(const Options& options, std::ostream& out, std::ostream& err) {
     if (options.names.size() != 1) {
         err << "validate needs exactly one game file\n\n" << usage_text;
@@ -323,7 +415,7 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
         return exit_ok;
     }
     if (command != "check" && command != "catalog" && command != "generate" &&
-        command != "validate" && command != "schema") {
+        command != "validate" && command != "schema" && command != "new-module") {
         err << "unknown command \"" << command << "\"\n\n" << usage_text;
         return exit_usage;
     }
@@ -337,6 +429,9 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command == "catalog") {
         return command_catalog(options, out, err);
+    }
+    if (command == "new-module") {
+        return command_new_module(options, out, err);
     }
     if (command == "schema") {
         return command_schema(options, out, err);

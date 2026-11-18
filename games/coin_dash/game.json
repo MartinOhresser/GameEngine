@@ -1,0 +1,17 @@
+// "A ship I steer that picks up coins; every coin is worth points."
+// Made with the pickup module, written for this game (see modules/pickup).
+{
+  "schema_version": 1,
+  "name": "coin_dash",
+  "description": "Steer a ship and collect coins and gems. The score is the total value collected.",
+  "modules": ["transform2d", "action_control", "pickup"],
+  "simulation": { "tick_rate": 60, "seed": 3 },
+  "prefabs": ["prefabs/ship.json", "prefabs/coin.json", "prefabs/gem.json"],
+  "scenes": ["scenes/main.json"],
+  "scenarios": [
+    "scenarios/collect_a_coin.json",
+    "scenarios/collect_a_gem.json",
+    "scenarios/far_coins_stay.json",
+  ],
+  "start_scene": "main",
+}

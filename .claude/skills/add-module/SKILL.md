@@ -1,0 +1,39 @@
+---
+name: add-module
+description: Créer ou étendre un module du moteur (composants, systèmes, tests) quand le catalogue ne couvre pas un besoin de jeu. À utiliser quand engine-catalog ne trouve pas de module adapté.
+---
+
+# Ajouter un module
+
+Un module est un dossier `modules/<nom>/` qui ajoute des **composants** (données) et des **systèmes** (logique). Il passe par une branche, une PR et la CI, comme tout code. Un module n'entre au catalogue que s'il sert un jeu réel : ne crée pas de module « au cas où ».
+
+## Étapes
+
+1. **Vérifier qu'il en faut un** : relis le catalogue (skill `engine-catalog`). Un petit ajout à un module existant (un champ, un système) vaut mieux qu'un doublon.
+2. **Branche** : `git checkout -b feat/module-<nom>`.
+3. **Créer le squelette** : `./build/dev/tools/gectl new-module <nom> --depends transform2d` (liste les modules dont tu utilises les composants). Il crée un module qui compile et passe son test :
+   - `modules/<nom>/module.json` : la fiche (source de vérité)
+   - `modules/<nom>/src/<nom>.cpp` : la logique des systèmes
+   - `modules/<nom>/tests/test_<nom>.cpp` : le test
+   - `modules/<nom>/gen/` : code généré, ne le modifie jamais à la main
+4. **Décrire dans `module.json`** : composants (`name`, `description`, `replicable`, `fields` avec `type` et `default`), systèmes (`name`, `description`, `stage`, `reads`, `writes`, `after`, `before`), réglages éventuels (`params` avec `min`/`max`). Remplace l'exemple `Example`/`step`. Sois précis dans les `description` : c'est ce que lira le prochain `engine-catalog`.
+5. **Générer** : `./build/dev/tools/gectl generate <nom>` puis relancer `cmake --preset dev` (le module est trouvé tout seul, aucun fichier CMake à éditer).
+6. **Écrire les systèmes** dans `src/<nom>.cpp` : une fonction par système déclaré, de signature `void <système>(ecs::World& world)`, dans `namespace ge::mod::<nom>`.
+7. **Écrire les tests** dans `modules/<nom>/tests/` : au minimum un test par système, qui installe le module (et ses dépendances), crée des entités, fait tourner `app.run_frames(n)` et vérifie le résultat. Le test d'exemple montre la forme.
+8. **Utiliser le module** dans un jeu (skill `game-from-prompt`) et prouver son effet par un scénario.
+9. **Contrôler** : `./scripts/check.sh`. Puis commit, push, PR.
+
+## Règles de code d'un système
+
+- **Déterministe** : même graine et mêmes actions donnent le même état. Pas d'horloge, pas de `rand`, pas de `std::random_device` : le hasard vient de `world.resource<Random>()`, le temps de `Time` (`fixed_delta`, `tick`). N'itère pas un conteneur non ordonné (`unordered_map`) d'une façon qui change le résultat.
+- **Simulation dans `FixedUpdate`**. `Update` et `PostUpdate` sont pour la présentation.
+- **Pendant `world.each`**, on ne crée ni ne détruit d'entité ni de composant : passe par `world.resource<ecs::Commands>()` (`despawn`, `insert`, `remove`), appliqué après le système. Pour comparer des entités entre elles, copie d'abord ce qu'il faut dans un `std::vector`, puis boucle.
+- **Entrées** : lis `world.resource<app::Actions>()` (`value`, `down`, `pressed`, `released`), jamais un clavier.
+- **Aucun code de plateforme** (pas de `<windows.h>`, SDL, etc.) et seulement des inclusions du module, de ses dépendances déclarées et de `ge/...`. `scripts/check_modules.py` le vérifie.
+- Types de champs : `i32 u32 i64 u64 f32 f64 bool`. Pas de texte, pas de pointeur, pas de référence à une autre entité pour l'instant.
+- Ordre entre systèmes : `after`/`before` dans `module.json`, avec des noms complets `module.système`.
+- Nommage : modules et systèmes en `snake_case`, composants en `PascalCase`.
+
+## Après
+
+Indique dans la PR : le besoin de jeu qui a motivé le module, ses composants et systèmes, et le scénario qui le prouve.

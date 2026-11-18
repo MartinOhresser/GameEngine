@@ -84,7 +84,7 @@ TEST_CASE("gectl: the repository's modules are valid, catalogued and up to date"
     const std::string modules = std::string(GE_SOURCE_DIR) + "/modules";
     const Run check = gectl({"check", "--modules", modules});
     CHECK(check.code == 0);
-    CHECK(has(check.out, "ok: 4 modules"));
+    CHECK(has(check.out, "ok: "));
     const Run generated = gectl({"generate", "--check", "--modules", modules});
     CHECK(generated.code == 0);
     if (generated.code != 0) {
@@ -95,7 +95,7 @@ TEST_CASE("gectl: the repository's modules are valid, catalogued and up to date"
     const auto parsed = ge::json::parse(catalog.out);
     REQUIRE(parsed.ok());
     CHECK(parsed.value.find("engine")->find("stages")->items().size() == 5U);
-    CHECK(parsed.value.find("modules")->items().size() == 4U);
+    CHECK(parsed.value.find("modules")->items().size() >= 4U);
 }
 
 TEST_CASE("gectl: help and usage errors") {
@@ -264,4 +264,47 @@ TEST_CASE("gectl: the schemas of the repository are up to date") {
         {"schema", "--check", "--modules", root + "/modules", "--out", root + "/schemas/game"});
     CHECK(run.err.empty());
     CHECK(run.code == 0);
+}
+
+TEST_CASE("gectl: new-module creates a module that is valid and generated") {
+    const Sandbox sandbox("new_module");
+    sandbox.write("a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir();
+    const Run created = gectl({"new-module", "b", "--depends", "a", "--modules", modules});
+    CHECK(created.code == 0);
+    CHECK(has(created.out, "wrote "));
+    CHECK(has(created.out, "next: edit"));
+    const std::string manifest = sandbox.read("b/module.json");
+    CHECK(has(manifest, "\"name\": \"b\""));
+    CHECK(has(manifest, "\"depends\": [\"a\"]"));
+    CHECK(has(sandbox.read("b/src/b.cpp"), "void step(ecs::World& world)"));
+    const std::string test = sandbox.read("b/tests/test_b.cpp");
+    CHECK(has(test, "ge::mod::a::install(app);"));
+    CHECK(test.find("ge/mod/a/a.gen.hpp") < test.find("ge/mod/b/b.gen.hpp"));
+    CHECK(has(sandbox.read("b/gen/b.gen.cpp"), "namespace ge::mod::b"));
+    // The new module is part of the set: it checks and its generated code is current.
+    CHECK(gectl({"check", "--modules", modules}).code == 0);
+    CHECK(gectl({"generate", "--check", "b", "--modules", modules}).code == 0);
+}
+
+TEST_CASE("gectl: new-module refuses what would make the modules invalid") {
+    const Sandbox sandbox("new_module_refused");
+    sandbox.write("a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir();
+    const Run exists = gectl({"new-module", "a", "--modules", modules});
+    CHECK(exists.code == 1);
+    CHECK(has(exists.err, "the module already exists"));
+    const Run unknown = gectl({"new-module", "c", "--depends", "zzz", "--modules", modules});
+    CHECK(unknown.code == 1);
+    CHECK(has(unknown.err, "zzz"));
+    CHECK(sandbox.read("c/module.json").empty()); // nothing was written
+    const Run bad_name = gectl({"new-module", "Bad-Name", "--modules", modules});
+    CHECK(bad_name.code == 1);
+    CHECK(sandbox.read("Bad-Name/module.json").empty());
+    const Run reserved = gectl({"new-module", "core", "--modules", modules});
+    CHECK(reserved.code == 1);
+    CHECK(gectl({"new-module", "--modules", modules}).code == 2);
+    CHECK(gectl({"new-module", "x", "y", "--modules", modules}).code == 2);
+    CHECK(gectl({"new-module", "x", "--depends"}).code == 2);
+    CHECK(gectl({"new-module", "x", "--modules", "/definitely/not/here"}).code == 1);
 }

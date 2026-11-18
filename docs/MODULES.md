@@ -86,15 +86,22 @@ ge::mod::screen_wrap::install(app); // après transform2d, sa dépendance
 | `gectl check` | Valide tous les `module.json` et leurs liens. |
 | `gectl catalog [--compact]` | Affiche en JSON ce que le moteur et les modules offrent : c'est ce que lit Claude pour choisir des modules. |
 | `gectl generate [--check] [module...]` | Écrit (ou vérifie) le code généré. |
+| `gectl new-module NOM [--depends A,B]` | Crée `modules/NOM` avec un exemple qui compile et passe son test. |
+| `gectl validate JEU.json` | Valide un jeu (voir [MANIFEST.md](MANIFEST.md)). |
+| `gectl schema [--check]` | Écrit les schémas JSON des fichiers de jeu. |
 
 Codes de sortie : 0 succès, 1 invalide ou périmé, 2 erreur d'usage. Les erreurs indiquent le fichier, l'endroit dans le document et la raison.
 
 ## Ajouter un module
 
-1. Créer `modules/<nom>/module.json`.
-2. `gectl generate`, puis écrire `modules/<nom>/src/<nom>.cpp` avec les systèmes déclarés.
-3. Ajouter `ge_add_module(<nom> [DEPENDS ...])` dans `modules/CMakeLists.txt` et un test.
-4. `./scripts/check.sh` avant la pull request.
+Un module est **un dossier** : CMake trouve tout dossier de `modules/` qui contient un `module.json` (ses `depends` deviennent des dépendances d'édition de liens) et le lanceur `gerun` le lie tout seul. Aucun fichier CMake à modifier.
+
+1. `gectl new-module <nom> --depends <modules utilisés>` crée le squelette : `module.json`, `src/<nom>.cpp`, `tests/test_<nom>.cpp` et le code généré, avec un exemple qui compile et passe son test.
+2. Décrire les composants et systèmes dans `module.json`, puis `gectl generate <nom>`.
+3. Écrire les systèmes dans `src/<nom>.cpp` et leurs tests dans `modules/<nom>/tests/` (compilés avec les autres tests).
+4. Relancer CMake (`cmake --preset dev`), puis `./scripts/check.sh` avant la pull request.
+
+Claude suit la même marche avec le skill `add-module` ; voir [AUTHORING.md](AUTHORING.md).
 
 ## Règles vérifiées en CI
 

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "coin",
+  "components": {
+    "transform2d.Position": {},
+    "pickup.Pickup": { "value": 10, "radius": 8 },
+  },
+}

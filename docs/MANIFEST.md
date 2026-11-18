@@ -1,6 +1,6 @@
 # Écrire un jeu en JSON
 
-Pour tester un jeu sans fenêtre, voir [TESTING.md](TESTING.md).
+Pour tester un jeu sans fenêtre, voir [TESTING.md](TESTING.md) ; pour le faire écrire par Claude, [AUTHORING.md](AUTHORING.md).
 
 Un jeu est un dossier de petits fichiers JSON. **Tout y est une entité** : le joueur, les ennemis, les éléments d'interface, plus tard les cinématiques ou l'histoire. Aucun code n'est écrit pour un jeu : si le catalogue de modules ne suffit pas, on écrit un nouveau module (voir [MODULES.md](MODULES.md)), puis le jeu l'utilise.
 
