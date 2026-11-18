@@ -24,8 +24,12 @@ float wrapped(float value, float size) {
 void wrap(ecs::World& world) {
     world.each<transform2d::Position, const WrapArea>(
         [](ecs::Entity, transform2d::Position& position, const WrapArea& area) {
-            position.x = wrapped(position.x, area.width);
-            position.y = wrapped(position.y, area.height);
+            if (area.wrap_x) {
+                position.x = wrapped(position.x, area.width);
+            }
+            if (area.wrap_y) {
+                position.y = wrapped(position.y, area.height);
+            }
         });
 }
 

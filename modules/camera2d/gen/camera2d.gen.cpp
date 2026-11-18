@@ -62,6 +62,14 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "stiffness") {
             component.stiffness = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "follow_x") {
+            component.follow_x = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "follow_y") {
+            component.follow_y = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "offset_y") {
+            component.offset_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "only_up") {
+            component.only_up = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -76,10 +84,22 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     if (field == "stiffness") {
         return ::ge::app::Scalar{static_cast<double>(component->stiffness)};
     }
+    if (field == "follow_x") {
+        return ::ge::app::Scalar{static_cast<bool>(component->follow_x)};
+    }
+    if (field == "follow_y") {
+        return ::ge::app::Scalar{static_cast<bool>(component->follow_y)};
+    }
+    if (field == "offset_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_y)};
+    }
+    if (field == "only_up") {
+        return ::ge::app::Scalar{static_cast<bool>(component->only_up)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_2_fields{{{"stiffness", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 5> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2}}};
 

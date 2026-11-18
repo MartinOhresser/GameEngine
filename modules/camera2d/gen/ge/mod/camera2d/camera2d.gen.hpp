@@ -29,12 +29,20 @@ struct CameraTarget {
     [[nodiscard]] friend bool operator==(const CameraTarget&, const CameraTarget&) = default;
 };
 
-/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow.
+/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it.
 struct CameraFollow {
     float stiffness = 1.0F;
+    bool follow_x = true;
+    bool follow_y = true;
+    float offset_y = 0.0F;
+    bool only_up = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(stiffness);
+        hasher.add(follow_x);
+        hasher.add(follow_y);
+        hasher.add(offset_y);
+        hasher.add(only_up);
     }
 
     [[nodiscard]] friend bool operator==(const CameraFollow&, const CameraFollow&) = default;

@@ -32,8 +32,14 @@ void follow(ecs::World& world) {
     world.each<const CameraFollow, transform2d::Position>(
         [&target](ecs::Entity, const CameraFollow& follow, transform2d::Position& position) {
             const float stiffness = std::clamp(follow.stiffness, 0.0F, 1.0F);
-            position.x += (target->x - position.x) * stiffness;
-            position.y += (target->y - position.y) * stiffness;
+            if (follow.follow_x) {
+                position.x += (target->x - position.x) * stiffness;
+            }
+            if (follow.follow_y) {
+                const float goal = target->y + follow.offset_y;
+                const float next = position.y + (goal - position.y) * stiffness;
+                position.y = follow.only_up ? std::min(position.y, next) : next;
+            }
         });
 }
 

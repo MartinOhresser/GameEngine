@@ -10,7 +10,7 @@ add_library(ge::ecs ALIAS ge_ecs)
 target_link_libraries(ge_ecs PUBLIC ge::core)
 ge_target_options(ge_ecs)
 
-add_library(ge_app STATIC app/app.cpp app/input.cpp app/text.cpp)
+add_library(ge_app STATIC app/app.cpp app/input.cpp app/save.cpp app/text.cpp)
 add_library(ge::app ALIAS ge_app)
 target_link_libraries(ge_app PUBLIC ge::ecs)
 ge_target_options(ge_app)

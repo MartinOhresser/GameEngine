@@ -11,14 +11,18 @@
 
 namespace ge::mod::screen_wrap {
 
-/// Size of the area an entity wraps around in, starting at the origin.
+/// Size of the area an entity wraps around in, starting at the origin. wrap_x and wrap_y turn an axis off: a climber that leaves by the left edge and comes back by the right one, but is free to fall or rise, keeps wrap_y false.
 struct WrapArea {
     float width = 800.0F;
     float height = 600.0F;
+    bool wrap_x = true;
+    bool wrap_y = true;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(width);
         hasher.add(height);
+        hasher.add(wrap_x);
+        hasher.add(wrap_y);
     }
 
     [[nodiscard]] friend bool operator==(const WrapArea&, const WrapArea&) = default;

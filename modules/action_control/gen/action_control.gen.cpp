@@ -20,6 +20,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "speed") {
             component.speed = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "horizontal") {
+            component.horizontal = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "vertical") {
+            component.vertical = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -34,10 +38,16 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "speed") {
         return ::ge::app::Scalar{static_cast<double>(component->speed)};
     }
+    if (field == "horizontal") {
+        return ::ge::app::Scalar{static_cast<bool>(component->horizontal)};
+    }
+    if (field == "vertical") {
+        return ::ge::app::Scalar{static_cast<bool>(component->vertical)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"speed", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"speed", "f32", "", false}, {"horizontal", "bool", "", false}, {"vertical", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Controlled", true, component_0_fields, insert_component_0, read_component_0}}};
 

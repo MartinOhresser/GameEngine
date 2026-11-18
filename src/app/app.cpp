@@ -3,7 +3,9 @@
 #include "ge/app/audio.hpp"
 #include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/save.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/assert.hpp"
@@ -226,6 +228,9 @@ App::App() {
     world_.insert_resource(ecs::Commands{});
     world_.insert_resource(Actions{});
     world_.insert_resource(SceneRequest{});
+    world_.insert_resource(SpawnRequests{});
+    world_.insert_resource(SaveData{});
+    world_.insert_resource(ListNames{});
     world_.insert_resource(EntityNames{});
     world_.insert_resource(ScriptedInput{});
     world_.insert_resource(LiveInput{});
@@ -337,6 +342,22 @@ void App::apply_scene_request() {
     scene_loader_(*this, scene);
 }
 
+void App::apply_spawn_requests() {
+    auto* requests = world_.resource<SpawnRequests>();
+    if (requests == nullptr || requests->queue.empty()) {
+        return;
+    }
+    // Take the queue first: the spawner may let systems of the new entities ask for more.
+    std::vector<SpawnRequest> due;
+    due.swap(requests->queue);
+    if (!prefab_spawner_) {
+        return;
+    }
+    for (const SpawnRequest& request : due) {
+        prefab_spawner_(*this, request);
+    }
+}
+
 void App::run_startup_once() {
     if (!started_) {
         run_stage(Stage::Startup);
@@ -366,6 +387,7 @@ void App::advance(std::chrono::nanoseconds real_delta) {
             ++time->tick;
         }
         apply_scene_request();
+        apply_spawn_requests();
     }
     // Time the cap left over is dropped; only the fraction of a tick is kept.
     accumulator_ns_ %= step_ns_;
@@ -375,6 +397,7 @@ void App::advance(std::chrono::nanoseconds real_delta) {
 
     run_stage(Stage::Update);
     apply_scene_request();
+    apply_spawn_requests();
     run_stage(Stage::PostUpdate);
     ++frames_;
 }

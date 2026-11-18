@@ -11,12 +11,16 @@
 
 namespace ge::mod::action_control {
 
-/// The entity's Velocity follows the actions move_x and move_y, multiplied by speed.
+/// The entity's Velocity follows the actions move_x and move_y, multiplied by speed. horizontal and vertical turn an axis off: the entity then leaves that part of its Velocity alone (a jumper steered left and right keeps vertical false, so gravity decides how it moves up and down).
 struct Controlled {
     float speed = 100.0F;
+    bool horizontal = true;
+    bool vertical = true;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(speed);
+        hasher.add(horizontal);
+        hasher.add(vertical);
     }
 
     [[nodiscard]] friend bool operator==(const Controlled&, const Controlled&) = default;

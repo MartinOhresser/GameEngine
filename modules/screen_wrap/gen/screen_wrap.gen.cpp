@@ -22,6 +22,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.width = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "height") {
             component.height = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "wrap_x") {
+            component.wrap_x = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "wrap_y") {
+            component.wrap_y = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -39,10 +43,16 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "height") {
         return ::ge::app::Scalar{static_cast<double>(component->height)};
     }
+    if (field == "wrap_x") {
+        return ::ge::app::Scalar{static_cast<bool>(component->wrap_x)};
+    }
+    if (field == "wrap_y") {
+        return ::ge::app::Scalar{static_cast<bool>(component->wrap_y)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"wrap_x", "bool", "", false}, {"wrap_y", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0, read_component_0}}};
 

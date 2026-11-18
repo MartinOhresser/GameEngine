@@ -21,6 +21,12 @@
           "properties": {
             "speed": {
               "type": "number"
+            },
+            "horizontal": {
+              "type": "boolean"
+            },
+            "vertical": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -44,6 +50,18 @@
           "properties": {
             "stiffness": {
               "type": "number"
+            },
+            "follow_x": {
+              "type": "boolean"
+            },
+            "follow_y": {
+              "type": "boolean"
+            },
+            "offset_y": {
+              "type": "number"
+            },
+            "only_up": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -420,6 +438,12 @@
             },
             "height": {
               "type": "number"
+            },
+            "wrap_x": {
+              "type": "boolean"
+            },
+            "wrap_y": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

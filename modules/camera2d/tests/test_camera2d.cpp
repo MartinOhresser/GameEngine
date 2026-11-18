@@ -111,3 +111,65 @@ TEST_CASE("camera2d: without a target, or with a stiffness of 0, the camera stay
     app.run_frames(3);
     CHECK(position_of(app, camera).x == 5.0F);
 }
+
+namespace {
+
+ge::ecs::Entity spawn_target(ge::app::App& app, float x, float y) {
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{x, y}));
+    CHECK(app.world().insert(entity, camera2d::CameraTarget{}));
+    return entity;
+}
+
+/// A camera at (`x`, `y`) that follows with the given settings.
+ge::ecs::Entity spawn_follower(ge::app::App& app, float x, float y, camera2d::CameraFollow follow) {
+    const ge::ecs::Entity camera = spawn_camera(app, x, y, 1.0F);
+    CHECK(app.world().insert(camera, follow));
+    return camera;
+}
+
+} // namespace
+
+TEST_CASE("camera2d: an axis turned off is left alone") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    spawn_target(app, 300.0F, 500.0F);
+    camera2d::CameraFollow follow;
+    follow.follow_x = false;
+    const auto camera = spawn_follower(app, 10.0F, 0.0F, follow);
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 10.0F);
+    CHECK(position_of(app, camera).y == 500.0F);
+}
+
+TEST_CASE("camera2d: offset_y shows the target above the middle of the screen") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    spawn_target(app, 0.0F, 400.0F);
+    camera2d::CameraFollow follow;
+    follow.offset_y = 120.0F;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+    app.run_frames(1);
+    CHECK(position_of(app, camera).y == 520.0F);
+}
+
+TEST_CASE("camera2d: only_up lets the camera climb but never come back down") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto target = spawn_target(app, 0.0F, 0.0F);
+    camera2d::CameraFollow follow;
+    follow.only_up = true;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+
+    app.world().get<transform2d::Position>(target)->y = -300.0F; // up: y shrinks
+    app.run_frames(1);
+    CHECK(position_of(app, camera).y == -300.0F);
+
+    app.world().get<transform2d::Position>(target)->y = 250.0F; // falling back
+    app.run_frames(3);
+    CHECK(position_of(app, camera).y == -300.0F);
+
+    app.world().get<transform2d::Position>(target)->y = -320.0F; // higher than ever
+    app.run_frames(1);
+    CHECK(position_of(app, camera).y == -320.0F);
+}

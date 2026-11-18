@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ge/app/module.hpp"
+#include "ge/app/spawn.hpp"
 #include "ge/app/stage.hpp"
 #include "ge/app/time.hpp"
 #include "ge/ecs/commands.hpp"
@@ -197,6 +198,13 @@ public:
     using SceneLoader = std::function<void(App&, std::uint32_t)>;
     void set_scene_loader(SceneLoader loader) { scene_loader_ = std::move(loader); }
 
+    /// What creates an entity when a system leaves a `SpawnRequest` in the
+    /// `SpawnRequests` resource: it is called for each request, in order,
+    /// between two ticks (and at the end of a frame). The game runtime installs
+    /// it; without one, requests are dropped.
+    using PrefabSpawner = std::function<void(App&, const SpawnRequest&)>;
+    void set_prefab_spawner(PrefabSpawner spawner) { prefab_spawner_ = std::move(spawner); }
+
     /// Runs `frames` frames in a row, one fixed tick each.
     void run_frames(std::uint32_t frames);
 
@@ -209,6 +217,7 @@ public:
 private:
     void run_startup_once();
     void apply_scene_request();
+    void apply_spawn_requests();
     void begin_tick_input();
     void record_fields(const ModuleInfo& info);
     void run_stage(Stage stage);
@@ -225,6 +234,7 @@ private:
     std::uint32_t max_catch_up_ticks_ = 8;
     bool started_ = false;
     SceneLoader scene_loader_;
+    PrefabSpawner prefab_spawner_;
 };
 
 } // namespace ge::app
