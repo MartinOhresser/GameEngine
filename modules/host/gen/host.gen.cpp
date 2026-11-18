@@ -54,6 +54,8 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.action = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "argument") {
             component.argument = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "list") {
+            component.list = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -74,10 +76,13 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     if (field == "argument") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->argument)};
     }
+    if (field == "list") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->list)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_1_fields{{{"command", "u32", "host_command", false}, {"action", "u32", "action", false}, {"argument", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_1_fields{{{"command", "u32", "host_command", false}, {"action", "u32", "action", false}, {"argument", "u32", "", false}, {"list", "u32", "runtime_list", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Quit", false, component_0_fields, insert_component_0, read_component_0}, {"Call", false, component_1_fields, insert_component_1, read_component_1}}};
 

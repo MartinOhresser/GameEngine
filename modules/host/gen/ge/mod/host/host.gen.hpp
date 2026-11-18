@@ -24,16 +24,18 @@ struct Quit {
     [[nodiscard]] friend bool operator==(const Quit&, const Quit&) = default;
 };
 
-/// When the action named by action is pressed, leaves one request for the host: command (a name of the game's host_command list, such as play or export) and a number that goes with it. What a command does belongs to the host. A command or an action left at none does nothing.
+/// When the action named by action is pressed, leaves one request for the host: command (a name of the game's host_command list, such as play or export) and a number that goes with it: argument, or, when list names a list filled while the game runs (a launcher's list of games), the item that is selected in it, so "play" learns which game. Nothing is sent while that list has no selection. What a command does belongs to the host. A command or an action left at none does nothing.
 struct Call {
     std::uint32_t command = 4294967295U;
     std::uint32_t action = 4294967295U;
     std::uint32_t argument = 0U;
+    std::uint32_t list = 4294967295U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(command);
         hasher.add(action);
         hasher.add(argument);
+        hasher.add(list);
     }
 
     [[nodiscard]] friend bool operator==(const Call&, const Call&) = default;

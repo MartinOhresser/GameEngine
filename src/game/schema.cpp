@@ -238,6 +238,10 @@ Value scenario_schema() {
     properties.set("scene", name_schema());
     properties.set("ticks", integer_between(1, 10'000'000));
     properties.set("inputs", array_of(input_object));
+    // Run-time lists a host would fill: a name, then texts (any text, not names).
+    Value filled = type_only("object");
+    filled.set("additionalProperties", array_of(type_only("string")));
+    properties.set("lists", std::move(filled));
     const Value check = check_schema();
     properties.set("expect", array_of(check));
     return document("Scenario", std::move(properties),

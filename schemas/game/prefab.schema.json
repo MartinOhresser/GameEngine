@@ -287,6 +287,11 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "list": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false
@@ -948,6 +953,22 @@
           },
           "additionalProperties": false
         },
+        "text2d.Dynamic": {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "transform2d.Position": {
           "type": "object",
           "properties": {
@@ -1170,6 +1191,76 @@
               "maximum": 4294967295
             },
             "focus_frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "disabled_frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "ui.Pager": {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "menu": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "previous": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "next": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "pages": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "ui.Row": {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "row": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "item": {
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295

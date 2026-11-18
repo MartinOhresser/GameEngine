@@ -1,5 +1,7 @@
 #include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
@@ -51,7 +53,7 @@ std::vector<Candidate> buttons_of(ecs::World& world, std::uint32_t menu) {
     std::vector<Candidate> found;
     world.each<const Button, const transform2d::Position>(
         [&](ecs::Entity entity, const Button& button, const transform2d::Position& position) {
-            if (button.menu == menu) {
+            if (button.menu == menu && button.enabled) {
                 found.push_back(Candidate{entity, button.order, button.action, position.x,
                                           position.y, button.width / 2.0F, button.height / 2.0F});
             }
@@ -242,8 +244,100 @@ void menu(ecs::World& world) {
             const bool focused = std::any_of(focus.begin(), focus.end(), [&button](const auto& f) {
                 return f.first == button.menu && f.second == button.order;
             });
-            sprite.frame = focused ? button.focus_frame : button.normal_frame;
+            if (!button.enabled) {
+                sprite.frame = button.disabled_frame;
+            } else {
+                sprite.frame = focused ? button.focus_frame : button.normal_frame;
+            }
         });
+}
+
+namespace {
+
+/// The name of an item of the game's "runtime_list" list, empty when it is not one.
+std::string_view list_name(const app::ListNames* names, std::uint32_t list) {
+    return names == nullptr ? std::string_view{} : names->name("runtime_list", list);
+}
+
+std::uint32_t pages_of(std::size_t count, std::uint32_t page_size) {
+    const std::size_t size = std::max<std::uint32_t>(page_size, 1U);
+    return static_cast<std::uint32_t>(std::max<std::size_t>((count + size - 1U) / size, 1U));
+}
+
+/// One Pager's tick: the buttons Previous and Next turn the page, kept inside the list.
+void turn_page(Pager& pager, std::size_t count, const app::Actions& actions,
+               const app::ActionNames* names) {
+    pager.pages = pages_of(count, pager.page_size);
+    if (pressed(actions, names, pager.previous) && pager.page > 0) {
+        --pager.page;
+    }
+    if (pressed(actions, names, pager.next)) {
+        ++pager.page;
+    }
+    pager.page = std::min(pager.page, pager.pages - 1U);
+}
+
+} // namespace
+
+void pager(ecs::World& world) {
+    const auto* lists = world.resource<app::RuntimeLists>();
+    const auto* list_names = world.resource<app::ListNames>();
+    const auto* actions = world.resource<app::Actions>();
+    if (lists == nullptr || actions == nullptr) {
+        return;
+    }
+    const auto* names = world.resource<app::ActionNames>();
+    world.each<Pager>([&](ecs::Entity, Pager& pager) {
+        turn_page(pager, lists->size(list_name(list_names, pager.list)), *actions, names);
+    });
+    std::vector<Pager> pagers;
+    world.each<const Pager>(
+        [&pagers](ecs::Entity, const Pager& pager) { pagers.push_back(pager); });
+    world.each<Row>([&](ecs::Entity entity, Row& row) {
+        const auto owner = std::find_if(pagers.begin(), pagers.end(),
+                                        [&row](const Pager& p) { return p.list == row.list; });
+        if (owner == pagers.end()) {
+            return;
+        }
+        row.item = owner->page * std::max<std::uint32_t>(owner->page_size, 1U) + row.row;
+        if (auto* dynamic = world.get<text2d::Dynamic>(entity); dynamic != nullptr) {
+            dynamic->list = row.list;
+            dynamic->index = row.item;
+        }
+        if (auto* button = world.get<Button>(entity); button != nullptr) {
+            button->enabled = row.item < lists->size(list_name(list_names, row.list));
+        }
+    });
+}
+
+void select(ecs::World& world) {
+    auto* lists = world.resource<app::RuntimeLists>();
+    const auto* list_names = world.resource<app::ListNames>();
+    if (lists == nullptr) {
+        return;
+    }
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> focus; // menu group, focused order
+    world.each<const Menu>([&focus](ecs::Entity, const Menu& controller) {
+        focus.emplace_back(controller.group, controller.focused);
+    });
+    std::vector<Pager> pagers;
+    world.each<const Pager>(
+        [&pagers](ecs::Entity, const Pager& pager) { pagers.push_back(pager); });
+    world.each<const Row, const Button>([&](ecs::Entity, const Row& row, const Button& button) {
+        const bool focused =
+            button.enabled && std::any_of(focus.begin(), focus.end(), [&button](const auto& f) {
+                return f.first == button.menu && f.second == button.order;
+            });
+        const auto owner = std::find_if(pagers.begin(), pagers.end(), [&](const Pager& p) {
+            return p.list == row.list && p.menu == button.menu;
+        });
+        if (!focused || owner == pagers.end()) {
+            return;
+        }
+        if (const std::string_view name = list_name(list_names, row.list); !name.empty()) {
+            lists->select(name, row.item);
+        }
+    });
 }
 
 } // namespace ge::mod::ui

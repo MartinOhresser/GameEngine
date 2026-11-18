@@ -1,5 +1,7 @@
 #include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/game/scenario.hpp"
 
 #include <algorithm>
@@ -153,6 +155,15 @@ void evaluate(const Run& run, const Check& check, std::vector<std::string>& fail
     case CheckKind::HostCall:
         check_host_call(run, check, failures);
         break;
+    case CheckKind::ListSelected: {
+        const auto* lists = run.app.world().resource<app::RuntimeLists>();
+        const auto actual = static_cast<double>(lists == nullptr ? app::RuntimeLists::none
+                                                                 : lists->selected(check.entity));
+        if (!holds(check.compare, actual, as_number(check.value))) {
+            failures.push_back(failure(check, "the selected item is " + show(actual)));
+        }
+        break;
+    }
     case CheckKind::Fingerprint: {
         const std::uint64_t actual = run.app.world().fingerprint();
         if ((actual == check.fingerprint) != (check.compare == Compare::Eq)) {
@@ -179,6 +190,11 @@ std::optional<std::uint64_t> run_once(const Game& game, const ScenarioData& scen
     if (!run.setup.ok()) {
         setup_problems = run.setup.problems;
         return std::nullopt;
+    }
+    if (auto* lists = run.app.world().resource<app::RuntimeLists>(); lists != nullptr) {
+        for (const auto& list : scenario.lists) {
+            lists->set(list.first, list.second);
+        }
     }
     auto* script = run.app.world().resource<app::ScriptedInput>();
     for (const ScenarioInput& input : scenario.inputs) {

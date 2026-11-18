@@ -87,7 +87,7 @@
     },
     {
       "name": "Button",
-      "description": "A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.",
+      "description": "A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused. A button that is not enabled cannot be focused, hovered or pressed, and shows disabled_frame (a Row turns its button off when the page has no item for it).",
       "replicable": false,
       "fields": [
         { "name": "menu", "type": "u32", "default": 0, "ref": "menu" },
@@ -96,7 +96,33 @@
         { "name": "width", "type": "f32", "default": 100 },
         { "name": "height", "type": "f32", "default": 30 },
         { "name": "normal_frame", "type": "u32", "default": 0 },
-        { "name": "focus_frame", "type": "u32", "default": 0 }
+        { "name": "focus_frame", "type": "u32", "default": 0 },
+        { "name": "enabled", "type": "bool", "default": true },
+        { "name": "disabled_frame", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Pager",
+      "description": "A list filled while the game runs (the games a launcher found, the players of a lobby), shown a page at a time. list names an item of the game's \"runtime_list\" list; page_size is how many Rows show it at once and page the one shown (0 is the first). The actions previous and next (an action left out is none) change the page, which never leaves 0 to pages - 1; pages is written for you, at least 1. menu names the game's \"menu\" whose Buttons are the Rows: the Row that has the focus becomes the selected item of the list, and stays selected when the focus goes to another button (Previous, Play...), so host.Call can act on it.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "menu", "type": "u32", "default": 0, "ref": "menu" },
+        { "name": "page", "type": "u32", "default": 0 },
+        { "name": "page_size", "type": "u32", "default": 5 },
+        { "name": "previous", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "next", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pages", "type": "u32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Row",
+      "description": "One line of the Pager of the same list: it shows item number page * page_size + row of the list. The entity needs a text2d.Text and a text2d.Dynamic (written for you: the list and the item to show) and, to be chosen, a Button. When the page has no item for the row, the Button is switched off. item is written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "row", "type": "u32", "default": 0 },
+        { "name": "item", "type": "u32", "default": 0 }
       ]
     }
   ],
@@ -137,7 +163,22 @@
       "stage": "FixedUpdate",
       "reads": ["Button", "transform2d.Position"],
       "writes": ["Menu", "sprite2d.Sprite"],
+      "after": ["layout", "pager"]
+    },
+    {
+      "name": "pager",
+      "description": "Turns the pages of every Pager and gives each Row its item, switching off the buttons that have none.",
+      "stage": "FixedUpdate",
+      "reads": ["Pager", "Row"],
+      "writes": ["Pager", "Row", "Button", "text2d.Dynamic"],
       "after": ["layout"]
+    },
+    {
+      "name": "select",
+      "description": "Makes the item of the focused Row the selected item of its list.",
+      "stage": "FixedUpdate",
+      "reads": ["Pager", "Row", "Menu", "Button"],
+      "after": ["menu"]
     }
   ]
 }

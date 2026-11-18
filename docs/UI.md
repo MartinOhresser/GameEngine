@@ -14,7 +14,9 @@ Les champs qui désignent « un élément d'une liste » s'écrivent avec des no
   "container": ["backpack", "chest"],       // les conteneurs (inventory.Slot / Item)
   "item_kind": ["key", "sword", "potion"],  // les genres d'objets
   "category": ["tool", "weapon", "consumable"], // les catégories d'objets (32 au plus)
-  "action": ["start_game"]                  // actions propres au jeu, en plus de input.json
+  "action": ["start_game"],                 // actions propres au jeu, en plus de input.json
+  "runtime_list": ["games"],                // les listes de textes remplies pendant la partie
+  "host_command": ["play"]                  // les commandes que le jeu peut envoyer à son hôte
 }
 ```
 
@@ -35,6 +37,8 @@ La liste `field` est faite par le moteur : tous les champs des modules du jeu, s
 | `Bar` | une barre : un `Sprite` de longueur `length * value / max` ; avec un `pivot_x` de 0 elle grandit depuis son bord gauche |
 | `Menu` + `Button` | le contrôleur d'un menu et ses boutons : haut/bas déplacent le focus, `accept` appuie ; avec `use_pointer`, la souris focalise le bouton survolé et `click` appuie |
 
+| `Pager` + `Row` | une liste de textes remplie pendant la partie (voir plus bas), montrée une page à la fois : `page_size` rangées (`Row`), des actions `previous` / `next` pour tourner les pages |
+
 Un bouton **lève une action** nommée (`start_game`) pendant un tick entier. Rien d'autre n'est imposé : un `scene_switch.GoToScene` qui écoute cette action change de scène, mais n'importe quel système peut la lire. Un menu est donc une scène ordinaire.
 
 Un champ d'action laissé de côté vaut « aucune » : il ne fait rien.
@@ -46,6 +50,28 @@ Un champ d'action laissé de côté vaut « aucune » : il ne fait rien.
     "ui.Button": { "order": 0, "action": "start_game" },
     "text2d.Text": { "string": "menu.play" } } }
 ```
+
+## Du texte qui n'est pas dans les fichiers du jeu
+
+Les textes d'un jeu viennent de ses fichiers de langue (clés), et les composants ne portent que des nombres. Pour afficher ce qu'on ne connaît qu'à l'exécution (les jeux qu'un lanceur a trouvés, les joueurs d'un salon, les noms d'objets d'un sac), le moteur a des **listes d'exécution** (`RuntimeLists`) : des listes de textes remplies par l'hôte, par un système ou, dans un scénario, par la clé `lists`. Un texte les montre avec `text2d.Dynamic` : une liste (nom de la liste `runtime_list` du manifeste) et l'indice d'un élément ; l'élément remplace le texte de `Text.string`, mais `Text` garde son apparence et son `{value}`. Un élément absent n'affiche rien.
+
+Pour une liste longue, `ui.Pager` et `ui.Row` font la pagination avec les boutons ordinaires :
+
+```jsonc
+{ "name": "pages", "components": {
+    "ui.Pager": { "list": "games", "menu": "main_menu", "page_size": 8,
+                  "previous": "page_prev", "next": "page_next" } } },
+// une rangée : un bouton dont le texte est l'élément de la page
+{ "name": "row0", "prefab": "button", "components": {
+    "ui.Row": { "list": "games", "row": 0 },
+    "text2d.Dynamic": {},
+    "ui.Button": { "menu": "main_menu", "order": 0, "action": "pick" } } }
+```
+
+- Le `Pager` donne à chaque `Row` son élément (`page * page_size + row`) et **éteint** le bouton d'une rangée sans élément : il n'est plus focalisable ni cliquable et montre `disabled_frame`.
+- La rangée qui a le focus devient l'**élément sélectionné** de la liste, et le reste quand le focus passe à « Précédent » ou « Jouer ».
+- `host.Call` avec `list` envoie cet élément à l'hôte (`play` sait quel jeu).
+- Les rangées se choisissent au clavier et à la souris, comme tout bouton. Le défilement fluide viendra si la pagination ne suffit pas.
 
 ## Le module `inventory`
 

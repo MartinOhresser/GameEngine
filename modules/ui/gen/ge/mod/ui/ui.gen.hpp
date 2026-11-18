@@ -138,7 +138,7 @@ struct Menu {
     [[nodiscard]] friend bool operator==(const Menu&, const Menu&) = default;
 };
 
-/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.
+/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused. A button that is not enabled cannot be focused, hovered or pressed, and shows disabled_frame (a Row turns its button off when the page has no item for it).
 struct Button {
     std::uint32_t menu = 0U;
     std::uint32_t order = 0U;
@@ -147,6 +147,8 @@ struct Button {
     float height = 30.0F;
     std::uint32_t normal_frame = 0U;
     std::uint32_t focus_frame = 0U;
+    bool enabled = true;
+    std::uint32_t disabled_frame = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(menu);
@@ -156,9 +158,49 @@ struct Button {
         hasher.add(height);
         hasher.add(normal_frame);
         hasher.add(focus_frame);
+        hasher.add(enabled);
+        hasher.add(disabled_frame);
     }
 
     [[nodiscard]] friend bool operator==(const Button&, const Button&) = default;
+};
+
+/// A list filled while the game runs (the games a launcher found, the players of a lobby), shown a page at a time. list names an item of the game's "runtime_list" list; page_size is how many Rows show it at once and page the one shown (0 is the first). The actions previous and next (an action left out is none) change the page, which never leaves 0 to pages - 1; pages is written for you, at least 1. menu names the game's "menu" whose Buttons are the Rows: the Row that has the focus becomes the selected item of the list, and stays selected when the focus goes to another button (Previous, Play...), so host.Call can act on it.
+struct Pager {
+    std::uint32_t list = 0U;
+    std::uint32_t menu = 0U;
+    std::uint32_t page = 0U;
+    std::uint32_t page_size = 5U;
+    std::uint32_t previous = 4294967295U;
+    std::uint32_t next = 4294967295U;
+    std::uint32_t pages = 1U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(menu);
+        hasher.add(page);
+        hasher.add(page_size);
+        hasher.add(previous);
+        hasher.add(next);
+        hasher.add(pages);
+    }
+
+    [[nodiscard]] friend bool operator==(const Pager&, const Pager&) = default;
+};
+
+/// One line of the Pager of the same list: it shows item number page * page_size + row of the list. The entity needs a text2d.Text and a text2d.Dynamic (written for you: the list and the item to show) and, to be chosen, a Button. When the page has no item for the row, the Button is switched off. item is written for you.
+struct Row {
+    std::uint32_t list = 0U;
+    std::uint32_t row = 0U;
+    std::uint32_t item = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(row);
+        hasher.add(item);
+    }
+
+    [[nodiscard]] friend bool operator==(const Row&, const Row&) = default;
 };
 
 /// Puts every anchored entity where the window's size says.
@@ -180,6 +222,14 @@ void fill(::ge::ecs::World& world);
 /// Moves the focus of every menu and raises the action of the button that is pressed.
 /// Runs in FixedUpdate.
 void menu(::ge::ecs::World& world);
+
+/// Turns the pages of every Pager and gives each Row its item, switching off the buttons that have none.
+/// Runs in FixedUpdate.
+void pager(::ge::ecs::World& world);
+
+/// Makes the item of the focused Row the selected item of its list.
+/// Runs in FixedUpdate.
+void select(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

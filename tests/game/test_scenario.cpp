@@ -4,7 +4,10 @@
 #include "ge/mod/action_control/action_control.gen.hpp"
 #include "ge/mod/host/host.gen.hpp"
 #include "ge/mod/lifetime/lifetime.gen.hpp"
+#include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/ui/ui.gen.hpp"
 
 #include "../support/mini_test.hpp"
 
@@ -21,11 +24,14 @@ using ge::game::ModuleEntry;
 
 namespace {
 
-const std::array<ModuleEntry, 4> linked = {{
+const std::array<ModuleEntry, 7> linked = {{
     {&ge::mod::transform2d::info, &ge::mod::transform2d::install},
     {&ge::mod::lifetime::info, &ge::mod::lifetime::install},
     {&ge::mod::action_control::info, &ge::mod::action_control::install},
     {&ge::mod::host::info, &ge::mod::host::install},
+    {&ge::mod::sprite2d::info, &ge::mod::sprite2d::install},
+    {&ge::mod::text2d::info, &ge::mod::text2d::install},
+    {&ge::mod::ui::info, &ge::mod::ui::install},
 }};
 
 using Files = std::map<std::string, std::string>;
@@ -432,4 +438,49 @@ TEST_CASE("scenario: a game can be checked to quit and to call the host") {
     files["g/calls.json"] = R"({"schema_version": 1, "name": "calls", "ticks": 6,
         "expect": ["host calls exprot"]})";
     CHECK(mentions(load(files), "no host command is named \"exprot\""));
+}
+
+TEST_CASE("scenario: a scenario fills a run-time list, selects a row and a host command gets it") {
+    Files files;
+    files["g/game.json"] = R"({
+        "schema_version": 1, "name": "picker",
+        "modules": ["transform2d", "sprite2d", "text2d", "ui", "host"],
+        "lists": {"runtime_list": ["games"], "menu": ["main"],
+                  "action": ["down", "choose", "play_it"], "host_command": ["play"],
+                  "tag": [], "group": []},
+        "scenes": ["main.json"], "scenarios": ["pick.json"], "start_scene": "main"
+    })";
+    files["g/main.json"] = R"({"schema_version": 1, "name": "main", "entities": [
+        {"name": "controller", "components": {"ui.Menu": {"group": "main", "down": "down",
+                                                           "accept": "choose"}}},
+        {"name": "pages", "components": {"ui.Pager": {"list": "games", "menu": "main",
+                                                      "page_size": 2}}},
+        {"name": "row0", "components": {"transform2d.Position": {"y": 0}, "sprite2d.Sprite": {},
+            "text2d.Text": {}, "text2d.Dynamic": {}, "ui.Row": {"list": "games", "row": 0},
+            "ui.Button": {"menu": "main", "order": 0, "action": "play_it"}}},
+        {"name": "row1", "components": {"transform2d.Position": {"y": 40}, "sprite2d.Sprite": {},
+            "text2d.Text": {}, "text2d.Dynamic": {}, "ui.Row": {"list": "games", "row": 1},
+            "ui.Button": {"menu": "main", "order": 1, "action": "play_it"}}},
+        {"name": "go", "components": {"host.Call": {"command": "play", "action": "play_it",
+                                                      "list": "games"}}}]})";
+    files["g/pick.json"] = R"({"schema_version": 1, "name": "pick", "ticks": 12,
+        "lists": {"games": ["Alpha", "Beta", "Gamma"]},
+        "inputs": [{"tick": 2, "action": "down", "value": 1}, {"tick": 3, "action": "down", "value": 0},
+                   {"tick": 5, "action": "choose", "value": 1}, {"tick": 6, "action": "choose", "value": 0}],
+        "expect": [{"at": 1, "check": "list games selected == 0"},
+                   {"at": 4, "check": "list games selected == 1"},
+                   {"at": 4, "check": "row1.ui.Row.item == 1"},
+                   "controller.ui.Menu.focused == 1", "host calls play"]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    const auto report = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
+    CHECK(all_failures(report).empty());
+
+    // A list the game never declared is reported, in the scenario and in its checks.
+    files["g/pick.json"] = R"({"schema_version": 1, "name": "pick", "ticks": 3,
+        "lists": {"gamez": ["Alpha"]}, "expect": ["list gamez selected == 0"]})";
+    CHECK(mentions(load(files), "no run-time list is named \"gamez\""));
 }
