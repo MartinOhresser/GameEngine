@@ -1,0 +1,26 @@
+// Gravity speeds the jumper up downwards: 1400 units per second per second,
+// so after 5 ticks (a twelfth of a second) it falls at 116.7 units per second.
+{
+  "schema_version": 1,
+  "name": "gravity_pulls",
+  "scene": "game",
+  "ticks": 5,
+  "expect": [
+    {
+      "at": 0,
+      "check": "player.transform2d.Velocity.y == 0"
+    },
+    {
+      "at": 5,
+      "check": "player.transform2d.Velocity.y > 116"
+    },
+    {
+      "at": 5,
+      "check": "player.transform2d.Velocity.y < 117"
+    },
+    {
+      "at": 5,
+      "check": "player.transform2d.Position.y > 640"
+    }
+  ]
+}

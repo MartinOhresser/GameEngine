@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "name": "test_wrap",
+  "entities": [
+    {
+      "name": "player",
+      "prefab": "player",
+      "components": {
+        "transform2d.Position": {
+          "x": 470,
+          "y": 560
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "prefab": "camera",
+      "components": {}
+    },
+    {
+      "name": "end_of_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "gameover",
+          "use_action": true,
+          "action": "died"
+        }
+      }
+    },
+    {
+      "name": "scoreboard",
+      "components": {
+        "scene_switch.Persistent": {},
+        "ui.Tag": {
+          "tag": "scoreboard"
+        },
+        "records.Record": {
+          "key": "best_height",
+          "source": "player",
+          "field": "altitude.Altitude.score"
+        }
+      }
+    }
+  ]
+}

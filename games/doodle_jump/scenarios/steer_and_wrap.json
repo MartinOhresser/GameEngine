@@ -1,0 +1,35 @@
+// Left and right steer the jumper, and a jumper that leaves by one side comes back
+// by the other: right from the right edge, then left from the left edge.
+{
+  "schema_version": 1,
+  "name": "steer_and_wrap",
+  "scene": "test_wrap",
+  "ticks": 14,
+  "inputs": [
+    {
+      "tick": 0,
+      "action": "move_x",
+      "value": 1
+    },
+    {
+      "tick": 5,
+      "action": "move_x",
+      "value": -1
+    },
+    {
+      "tick": 13,
+      "action": "move_x",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 5,
+      "check": "player.transform2d.Position.x < 100"
+    },
+    {
+      "at": 14,
+      "check": "player.transform2d.Position.x > 400"
+    }
+  ]
+}

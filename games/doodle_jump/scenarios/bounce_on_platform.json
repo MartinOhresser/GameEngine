@@ -1,0 +1,31 @@
+// Falling onto a platform throws the jumper up: no bounce before it lands (about
+// tick 11), one after, with an upward speed. It bounces again and again by itself.
+{
+  "schema_version": 1,
+  "name": "bounce_on_platform",
+  "scene": "game",
+  "ticks": 90,
+  "expect": [
+    {
+      "at": 8,
+      "check": "player.bounce2d.Bouncer.bounces == 0"
+    },
+    {
+      "at": 14,
+      "check": "player.bounce2d.Bouncer.bounces == 1"
+    },
+    {
+      "at": 14,
+      "check": "player.transform2d.Velocity.y < -500"
+    },
+    {
+      "at": 14,
+      "check": "player.transform2d.Position.y < 661"
+    },
+    {
+      "at": 90,
+      "check": "player.bounce2d.Bouncer.bounces >= 2"
+    },
+    "player alive"
+  ]
+}

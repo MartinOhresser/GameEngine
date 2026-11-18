@@ -6,6 +6,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- Doodle Jump : `games/doodle_jump` (menu, partie sans fin de plus en plus difficile, fin de partie, meilleur score sauvegardé ; 20 scénarios, dont des scènes d'essai `test_*`), `docs/DOODLE_JUMP.md`, ADR 0010.
+- Doodle Jump : modules `gravity2d`, `bounce2d` (surfaces à sens unique : plateformes, ressorts, monstres écrasés), `patrol2d`, `spawner2d` (`Generator`, `Cull`, `Shooter`), `combat2d` (`Mortal`, `Target`, `Projectile`), `altitude` et `records`.
+- Doodle Jump : `SpawnRequests` (créer un préfab en cours de partie, servi entre deux ticks), liste intégrée `prefab`, `ListNames`, `SaveData`, `geplay --save` et sauvegarde par défaut dans le dossier de données de l'utilisateur, `LoopOptions::after_frame`.
+- Doodle Jump : interrupteurs par axe pour `action_control` (`horizontal`, `vertical`), `screen_wrap` (`wrap_x`, `wrap_y`) et `camera2d` (`follow_x`, `follow_y`, `offset_y`, `only_up`).
 - M8.2 : `Viewport` et clé `window` du manifeste, position du pointeur (`mouse:x`, `mouse:y`) non bornée, `Actions::raise`, liste intégrée `field` et `FieldTable`, pivot des sprites.
 - M8.2 : module `ui` (`Anchor`, `Grid`/`Cell`, `Tag`, `Bind`, `Bar`, `Menu`/`Button`) et module `inventory` (`Slot`, `Item`, `Gatherer`, `Transfer`, `Hand`) : conteneurs, cases et règles configurables par données.
 - M8.2 : `treasure_run` avec menu, HUD et barre d'objets ; vérification `scene is NOM` dans les scénarios ; `docs/UI.md`.

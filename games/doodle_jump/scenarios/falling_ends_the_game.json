@@ -1,0 +1,38 @@
+// A jumper that steers off the first platform and falls under the screen dies:
+// the game over screen comes.
+{
+  "schema_version": 1,
+  "name": "falling_ends_the_game",
+  "scene": "game",
+  "ticks": 100,
+  "inputs": [
+    {
+      "tick": 0,
+      "action": "move_x",
+      "value": -1
+    },
+    {
+      "tick": 12,
+      "action": "move_x",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 20,
+      "check": "scene is game"
+    },
+    {
+      "at": 20,
+      "check": "player alive"
+    },
+    {
+      "at": 100,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 100,
+      "check": "player gone"
+    }
+  ]
+}

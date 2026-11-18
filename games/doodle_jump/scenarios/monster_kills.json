@@ -1,0 +1,26 @@
+// Touching a monster (here from below) ends the game: the jumper dies and the game over
+// screen comes.
+{
+  "schema_version": 1,
+  "name": "monster_kills",
+  "scene": "test_monster_touch",
+  "ticks": 40,
+  "expect": [
+    {
+      "at": 8,
+      "check": "scene is test_monster_touch"
+    },
+    {
+      "at": 8,
+      "check": "player alive"
+    },
+    {
+      "at": 30,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 30,
+      "check": "monster gone"
+    }
+  ]
+}

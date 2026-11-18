@@ -1,0 +1,41 @@
+// R at the game over screen starts a new game at once; the best score is kept.
+{
+  "schema_version": 1,
+  "name": "play_again_with_r",
+  "scene": "test_spring",
+  "ticks": 175,
+  "inputs": [
+    {
+      "tick": 160,
+      "action": "again",
+      "value": 1
+    },
+    {
+      "tick": 161,
+      "action": "again",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 160,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 170,
+      "check": "scene is game"
+    },
+    {
+      "at": 175,
+      "check": "player alive"
+    },
+    {
+      "at": 175,
+      "check": "scoreboard.records.Record.best >= 228"
+    },
+    {
+      "at": 175,
+      "check": "player.altitude.Altitude.score < 100"
+    }
+  ]
+}

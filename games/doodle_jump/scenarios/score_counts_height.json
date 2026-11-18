@@ -1,0 +1,34 @@
+// The score is the height (half of it, in units): it grows during the jump and
+// keeps its best value when the jumper falls back.
+{
+  "schema_version": 1,
+  "name": "score_counts_height",
+  "scene": "test_spring",
+  "ticks": 120,
+  "expect": [
+    {
+      "at": 0,
+      "check": "player.altitude.Altitude.score == 0"
+    },
+    {
+      "at": 40,
+      "check": "player.altitude.Altitude.score > 100"
+    },
+    {
+      "at": 80,
+      "check": "player.altitude.Altitude.score >= 228"
+    },
+    {
+      "at": 80,
+      "check": "player.altitude.Altitude.score < 240"
+    },
+    {
+      "at": 120,
+      "check": "player.altitude.Altitude.score >= 228"
+    },
+    {
+      "at": 120,
+      "check": "player.altitude.Altitude.height > 450"
+    }
+  ]
+}

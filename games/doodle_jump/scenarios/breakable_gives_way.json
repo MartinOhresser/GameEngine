@@ -1,0 +1,26 @@
+// A brown platform gives way: the jumper falls through it without a bounce, and the
+// platform drops away.
+{
+  "schema_version": 1,
+  "name": "breakable_gives_way",
+  "scene": "test_breaks",
+  "ticks": 25,
+  "expect": [
+    {
+      "at": 12,
+      "check": "brittle.transform2d.Velocity.y == 350"
+    },
+    {
+      "at": 12,
+      "check": "player.bounce2d.Bouncer.bounces == 0"
+    },
+    {
+      "at": 20,
+      "check": "player.transform2d.Position.y > 700"
+    },
+    {
+      "at": 20,
+      "check": "player.bounce2d.Bouncer.bounces == 0"
+    }
+  ]
+}

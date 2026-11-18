@@ -1,0 +1,10 @@
+// Brown: it gives way under the jumper, who keeps falling; it drops away.
+{
+  "schema_version": 1,
+  "name": "platform_breakable",
+  "extends": "platform",
+  "components": {
+    "sprite2d.Sprite": { "red": 170, "green": 110, "blue": 60 },
+    "bounce2d.Bouncy": { "breaks": true, "fall_speed": 350 }
+  }
+}

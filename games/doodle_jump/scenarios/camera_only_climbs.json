@@ -1,0 +1,30 @@
+// The camera follows the jumper up and never comes back down: when the jumper falls
+// again, the screen stays where the climb took it.
+{
+  "schema_version": 1,
+  "name": "camera_only_climbs",
+  "scene": "test_spring",
+  "ticks": 120,
+  "expect": [
+    {
+      "at": 0,
+      "check": "camera.transform2d.Position.y == 360"
+    },
+    {
+      "at": 70,
+      "check": "camera.transform2d.Position.y < 260"
+    },
+    {
+      "at": 120,
+      "check": "camera.transform2d.Position.y < 240"
+    },
+    {
+      "at": 120,
+      "check": "player.transform2d.Position.y > 400"
+    },
+    {
+      "at": 120,
+      "check": "camera.transform2d.Position.x == 240"
+    }
+  ]
+}

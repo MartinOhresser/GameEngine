@@ -1,0 +1,16 @@
+// Left and right steer; Space or Up shoots. The menus have their own actions, so any of
+// them can be rebound on its own: Enter (or a click) chooses, R starts a new game at once.
+{
+  "schema_version": 1,
+  "bindings": [
+    { "action": "move_x", "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:a": -1 } },
+    { "action": "shoot", "sources": { "key:space": 1, "key:up": 1, "key:w": 1 } },
+    { "action": "menu_up", "sources": { "key:up": 1, "key:w": 1 } },
+    { "action": "menu_down", "sources": { "key:down": 1, "key:s": 1 } },
+    { "action": "menu_accept", "sources": { "key:return": 1 } },
+    { "action": "pointer_x", "sources": { "mouse:x": 1 } },
+    { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "click", "sources": { "mouse:left": 1 } },
+    { "action": "again", "sources": { "key:r": 1 } },
+  ],
+}

@@ -1,0 +1,35 @@
+// A shot (Space) flies up and kills the monster it reaches, which is high above the
+// jumper. The monster is still there while the shot is on its way.
+{
+  "schema_version": 1,
+  "name": "shot_kills_monster",
+  "scene": "test_monster_shoot",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "shoot",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "shoot",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 2,
+      "check": "monster alive"
+    },
+    {
+      "at": 20,
+      "check": "monster alive"
+    },
+    {
+      "at": 30,
+      "check": "monster gone"
+    },
+    "player alive"
+  ]
+}

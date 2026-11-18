@@ -62,9 +62,11 @@ Pour le son, une interface `AudioDevice` (`play("nom")`), un périphérique nul 
 geplay jeux/move_sprite/game.json
 geplay games/move_sprite/game.json --size 1024x768
 geplay games/move_sprite/game.json --headless --frames 120 --screenshot image.bmp
+geplay games/doodle_jump/game.json --save mes_scores.txt
 ```
-
 `geplay` est `gerun` avec une fenêtre : mêmes fichiers, tous les modules du dépôt liés. `--headless` n'ouvre ni fenêtre ni son (les pilotes « dummy » de SDL) mais dessine quand même en mémoire, d'où `--screenshot`. C'est ce que la CI utilise pour vérifier le backend sans écran.
+
+Ce que le jeu garde d'une partie à l'autre (un meilleur score : `SaveData`, voir [DOODLE_JUMP.md](DOODLE_JUMP.md)) est lu dans un fichier texte au démarrage et réécrit dès qu'il change. Par défaut ce fichier est `save.txt` dans le dossier de données de l'utilisateur, un sous-dossier par jeu (`~/.local/share/ge/NOM/` sous Linux, `~/Library/Application Support/ge/NOM/` sous macOS, `%APPDATA%\ge\NOM\` sous Windows) ; `--save FICHIER` en choisit un autre. Avec `--headless`, rien n'est lu ni écrit sauf si `--save` est donné.
 
 ## Compiler le backend
 

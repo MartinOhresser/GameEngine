@@ -81,11 +81,12 @@ Un champ de composant déclaré avec `ref` désigne **un élément d'une liste**
 | `atlas` | `atlases`, dans l'ordre du manifeste |
 | `string` | les clés du premier fichier de `strings` |
 | `scene` | `scenes` |
+| `prefab` | `prefabs`, dans l'ordre du manifeste : de quoi créer une entité pendant la partie (un générateur de plateformes, un tir) |
 | `action` | `actions` de `input`, plus celles que le jeu déclare |
 | `field` | les champs des modules du jeu, `module.Composant.champ` : de quoi lier un texte ou une barre à une valeur |
 | autre | `lists` du manifeste (par exemple `layer`, `item_kind`, `category`, `container`, `menu`, `group`, `tag`) |
 
-Les listes `atlas`, `string` et `field` sont réservées : `lists` ne peut pas les redéfinir.
+Les listes `atlas`, `string`, `field` et `prefab` sont réservées : `lists` ne peut pas les redéfinir.
 
 ## Les textes
 

@@ -176,6 +176,7 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 7. ✅ **M6** Plateforme desktop : SDL3 derrière une interface, `input.json`, `geplay`, backend scripté.
 8. ✅ **M7** Rendu 2D : atlas, sprites, animation, caméra, collisions 2D (`games/treasure_run`).
 9. ✅ **M8** Interface : texte par langue, changement de scène, HUD, menus, inventaire configurable (fin du MVP : `games/treasure_run`).
+10. ✅ **Doodle Jump** : premier jeu demandé après le MVP (`games/doodle_jump`, [docs/DOODLE_JUMP.md](docs/DOODLE_JUMP.md)) : gravité, rebonds, monde généré, mort, score, meilleur score sauvegardé, sans C++ dans le jeu.
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 

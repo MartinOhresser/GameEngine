@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "name": "test_spring",
+  "entities": [
+    {
+      "name": "player",
+      "prefab": "player",
+      "components": {
+        "transform2d.Position": {
+          "x": 240,
+          "y": 560
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "prefab": "camera",
+      "components": {}
+    },
+    {
+      "name": "end_of_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "gameover",
+          "use_action": true,
+          "action": "died"
+        }
+      }
+    },
+    {
+      "name": "scoreboard",
+      "components": {
+        "scene_switch.Persistent": {},
+        "ui.Tag": {
+          "tag": "scoreboard"
+        },
+        "records.Record": {
+          "key": "best_height",
+          "source": "player",
+          "field": "altitude.Altitude.score"
+        }
+      }
+    },
+    {
+      "name": "ground",
+      "prefab": "platform",
+      "components": {
+        "transform2d.Position": {
+          "x": 240,
+          "y": 690
+        }
+      }
+    },
+    {
+      "name": "spring",
+      "prefab": "spring",
+      "components": {
+        "transform2d.Position": {
+          "x": 240,
+          "y": 676
+        }
+      }
+    }
+  ]
+}

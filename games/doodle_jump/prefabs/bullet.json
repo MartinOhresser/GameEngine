@@ -1,0 +1,17 @@
+// What the jumper shoots: it flies up (the Shooter gives its speed) and ends on the first
+// monster it hits, or by itself after 1.5 seconds.
+{
+  "schema_version": 1,
+  "name": "bullet",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "sprite2d.Sprite": {
+      "atlas": "doodle", "frame": 5, "width": 14, "height": 18, "layer": 6,
+      "red": 255, "green": 120, "blue": 40
+    },
+    "collision2d.Collider": { "width": 10, "height": 14, "layer": ["bullet"], "mask": 0 },
+    "combat2d.Projectile": { "damage": 1 },
+    "lifetime.Lifetime": { "ticks": 90 }
+  }
+}

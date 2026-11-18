@@ -1,0 +1,15 @@
+// A spring on a platform: it throws the jumper much higher than a platform does.
+{
+  "schema_version": 1,
+  "name": "spring",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "doodle", "frame": 3, "width": 24, "height": 20, "layer": 3,
+      "red": 255, "green": 255, "blue": 255
+    },
+    "collision2d.Collider": { "width": 24, "height": 14, "layer": ["platform"], "mask": 0 },
+    "bounce2d.Bouncy": { "strength": 1250 },
+    "spawner2d.Cull": { "margin": 120 }
+  }
+}

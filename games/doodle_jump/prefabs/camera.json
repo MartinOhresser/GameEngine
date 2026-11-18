@@ -1,0 +1,11 @@
+// The camera never goes down: it follows the jumper upwards, keeping it a third of the way
+// down the screen, and ignores sideways moves.
+{
+  "schema_version": 1,
+  "name": "camera",
+  "components": {
+    "transform2d.Position": { "x": 240, "y": 360 },
+    "camera2d.Camera": { "zoom": 1 },
+    "camera2d.CameraFollow": { "stiffness": 0.25, "follow_x": false, "offset_y": 120, "only_up": true }
+  }
+}

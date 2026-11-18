@@ -1,0 +1,11 @@
+// Blue: slides from side to side, turning at the edges of the world.
+{
+  "schema_version": 1,
+  "name": "platform_moving",
+  "extends": "platform",
+  "components": {
+    "sprite2d.Sprite": { "red": 90, "green": 160, "blue": 240 },
+    "transform2d.Velocity": { "x": 90 },
+    "patrol2d.Patrol": { "min_x": 40, "max_x": 440 }
+  }
+}
