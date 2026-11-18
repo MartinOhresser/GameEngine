@@ -49,6 +49,7 @@ enum class CheckKind : std::uint8_t {
     Alive,       ///< "hero alive"
     Gone,        ///< "spark gone"
     Fingerprint, ///< "fingerprint == 5f4962bd950cf9b3"
+    Scene,       ///< "scene is credits": the game is in that scene (`entity` holds its name)
 };
 
 /// One thing a scenario expects to be true at a given tick.
@@ -117,6 +118,9 @@ struct Manifest {
     std::vector<std::string> modules;
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
+    /// The size in pixels of the area the game draws in (`window`).
+    std::uint32_t window_width = 800;
+    std::uint32_t window_height = 600;
     std::vector<ParamSetting> params;
     /// The game's own named lists, in the order the manifest gives them: the
     /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
@@ -146,6 +150,9 @@ struct Game {
     std::vector<AtlasData> atlases;
     /// What the `input` file binds; empty when the manifest names none.
     platform::InputMap input;
+    /// "module.Component.field" of every field of the modules the manifest
+    /// lists, sorted: the game's built-in `field` list.
+    std::vector<std::string> fields;
 
     [[nodiscard]] const PrefabData* find_prefab(std::string_view name) const;
     [[nodiscard]] const SceneData* find_scene(std::string_view name) const;

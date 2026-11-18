@@ -1,9 +1,11 @@
 #include "ge/app/app.hpp"
 
 #include "ge/app/audio.hpp"
+#include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
 #include "ge/app/scene.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/core/assert.hpp"
 #include "ge/core/random.hpp"
 
@@ -227,6 +229,7 @@ App::App() {
     world_.insert_resource(EntityNames{});
     world_.insert_resource(ScriptedInput{});
     world_.insert_resource(LiveInput{});
+    world_.insert_resource(Viewport{});
     world_.insert_resource(RenderBackend{});
     world_.insert_resource(AudioBackend{});
     set_tick_rate(60);
@@ -257,7 +260,25 @@ App& App::add_module(const ModuleInfo& info) {
         }
     }
     modules_.push_back(info);
+    record_fields(info);
     return *this;
+}
+
+void App::record_fields(const ModuleInfo& info) {
+    auto* table = world_.resource<FieldTable>();
+    if (table == nullptr) {
+        table = &world_.insert_resource(FieldTable{});
+    }
+    for (const ComponentInfo& component : info.components) {
+        for (const FieldInfo& field : component.fields) {
+            table->entries.push_back(FieldEntry{std::string(info.name) + "." +
+                                                    std::string(component.name) + "." +
+                                                    std::string(field.name),
+                                                &component, std::string(field.name)});
+        }
+    }
+    std::sort(table->entries.begin(), table->entries.end(),
+              [](const FieldEntry& a, const FieldEntry& b) { return a.name < b.name; });
 }
 
 bool App::has_module(std::string_view name) const noexcept {
@@ -303,6 +324,7 @@ void App::begin_tick_input() {
     if (script != nullptr && time != nullptr) {
         script->apply(time->tick, *actions);
     }
+    actions->apply_raised();
 }
 
 void App::apply_scene_request() {

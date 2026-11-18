@@ -212,6 +212,24 @@ TEST_CASE("game: manifest problems") {
                    "relative path"));
 }
 
+TEST_CASE("game: the window size is a setting of the game, 800 by 600 by default") {
+    const auto plain = load(sample_game());
+    REQUIRE(plain.ok());
+    CHECK(plain.game.manifest.window_width == 800U);
+    CHECK(plain.game.manifest.window_height == 600U);
+    const auto sized = load_changed("g/game.json", R"("seed": 99})", R"("seed": 99},
+        "window": {"width": 320, "height": 180})");
+    REQUIRE(sized.ok());
+    CHECK(sized.game.manifest.window_width == 320U);
+    CHECK(sized.game.manifest.window_height == 180U);
+    CHECK(mentions(
+        load_changed("g/game.json", R"("seed": 99})", R"("seed": 99}, "window": {"width": 0})"),
+        "1 to 16384"));
+    CHECK(mentions(
+        load_changed("g/game.json", R"("seed": 99})", R"("seed": 99}, "window": {"w": 3})"),
+        "unknown key"));
+}
+
 TEST_CASE("game: simulation settings are checked") {
     CHECK(mentions(load_changed("g/game.json", "\"tick_rate\": 30", "\"tick_rate\": 0"),
                    "1 to 1000"));

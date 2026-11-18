@@ -6,6 +6,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- M8.2 : `Viewport` et clé `window` du manifeste, position du pointeur (`mouse:x`, `mouse:y`) non bornée, `Actions::raise`, liste intégrée `field` et `FieldTable`, pivot des sprites.
+- M8.2 : module `ui` (`Anchor`, `Grid`/`Cell`, `Tag`, `Bind`, `Bar`, `Menu`/`Button`) et module `inventory` (`Slot`, `Item`, `Gatherer`, `Transfer`, `Hand`) : conteneurs, cases et règles configurables par données.
+- M8.2 : `treasure_run` avec menu, HUD et barre d'objets ; vérification `scene is NOM` dans les scénarios ; `docs/UI.md`.
 - M8.1 : listes nommées du manifeste (`lists`), champs `ref_set` (ensembles de noms), `scene` et `action` comme listes intégrées ; les couches de `collision2d` s'écrivent par noms.
 - M8.1 : textes par langue (`strings`, `locale`), polices en atlas PNG (`glyphs`), module `text2d`, drapeau `screen` pour `Sprite` et `Text`, `scripts/make_font.py`.
 - M8.1 : changement de scène en cours de partie (`SceneRequest`, `App::set_scene_loader`, `EntityNames`), module `scene_switch` (`GoToScene`, `Persistent`) ; `treasure_run` affiche un titre et une aide, en deux langues.

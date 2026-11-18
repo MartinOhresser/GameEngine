@@ -3,6 +3,15 @@
   "locale": "en",
   "entries": {
     "title": "Treasure run",
-    "hint": "Arrows or WASD to move. Collect the coins and gems."
+    "hint": "Arrows or WASD to move. Q/E and Space or the mouse use the hotbar.",
+    "menu.title": "Treasure run",
+    "menu.play": "Play",
+    "menu.credits": "Credits",
+    "hud.score": "Score: {value}",
+    "hud.items": "Hotbar",
+    "item.count": "x{value}",
+    "credits.title": "Credits",
+    "credits.line1": "Made from JSON files only.",
+    "credits.line2": "Press Enter to go back."
   }
 }

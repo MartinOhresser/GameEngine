@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "sword",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "ui",
+      "frame": 7,
+      "width": 28,
+      "height": 28,
+      "layer": 20
+    },
+    "inventory.Item": {
+      "kind": "sword",
+      "categories": [
+        "weapon"
+      ],
+      "max_stack": 1
+    }
+  }
+}

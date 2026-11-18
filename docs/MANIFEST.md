@@ -31,6 +31,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `description` | texte libre, facultatif |
 | `modules` | modules utilisés, dépendances comprises (`screen_wrap` exige `transform2d`) |
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
+| `window` | taille en pixels de la zone où le jeu dessine : `{"width": 800, "height": 600}` par défaut ; l'interface s'ancre à ses bords (`ui`) |
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
 | `atlases` | images découpées en cellules pour les sprites, facultatif ; l'ordre donne les numéros (le premier est 0) : voir [RENDERING.md](RENDERING.md) |
 | `lists` | listes de noms propres au jeu, facultatif : `{"layer": ["player", "door"]}` (voir « Les noms » plus bas) |
@@ -81,9 +82,10 @@ Un champ de composant déclaré avec `ref` désigne **un élément d'une liste**
 | `string` | les clés du premier fichier de `strings` |
 | `scene` | `scenes` |
 | `action` | `actions` de `input`, plus celles que le jeu déclare |
-| autre | `lists` du manifeste (par exemple `layer`, `item`, `category`) |
+| `field` | les champs des modules du jeu, `module.Composant.champ` : de quoi lier un texte ou une barre à une valeur |
+| autre | `lists` du manifeste (par exemple `layer`, `item_kind`, `category`, `container`, `menu`, `group`, `tag`) |
 
-Les listes `atlas` et `string` sont réservées : `lists` ne peut pas les redéfinir.
+Les listes `atlas`, `string` et `field` sont réservées : `lists` ne peut pas les redéfinir.
 
 ## Les textes
 
@@ -99,6 +101,10 @@ Toutes les langues doivent avoir **les mêmes clés** (la validation le vérifie
 ## Changer de scène en cours de partie
 
 Le module `scene_switch` : une entité `GoToScene` nomme la scène d'arrivée et ce qui la déclenche (une action pressée, un contact avec une couche, un délai). Les entités de l'ancienne scène disparaissent, sauf celles qui ont un composant `Persistent` (le joueur, un score, un inventaire).
+
+## Interface, menus, inventaire
+
+Voir [UI.md](UI.md) : ancrage à la fenêtre, grilles, barres, boutons, conteneurs et cases à règles, tout est décrit par données.
 
 ## Erreurs
 

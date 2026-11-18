@@ -12,8 +12,9 @@ namespace ge::platform {
 /// A raw input change, as a backend reports it: which control, and its value.
 ///
 /// A source is "kind:name" in lower case: "key:space", "key:left",
-/// "mouse:left". A button is 0 (up) or 1 (down). Kinds: `key`, `mouse`; `pad`
-/// and `touch` are reserved for later backends and already accepted in files.
+/// "mouse:left". A button is 0 (up) or 1 (down). "mouse:x" and "mouse:y" are
+/// the pointer's position in pixels of the window (not clamped to [-1, 1]). Kinds: `key`, `mouse`;
+/// `pad` and `touch` are reserved for later backends and already accepted in files.
 struct RawEvent {
     std::string source;
     float value = 0.0F;

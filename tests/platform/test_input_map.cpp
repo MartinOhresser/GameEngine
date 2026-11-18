@@ -57,6 +57,21 @@ TEST_CASE("input map: raw values become actions, an axis from two keys") {
     CHECK(actions.value("move_x") == -1.0F);
 }
 
+TEST_CASE("input map: the pointer's position is in pixels, not an axis") {
+    const auto result = ge::platform::parse_input_map(R"({"schema_version": 1, "bindings": [
+        {"action": "pointer_x", "sources": {"mouse:x": 1}},
+        {"action": "pointer_y", "sources": {"mouse:y": 1}}]})",
+                                                      "input.json");
+    REQUIRE(result.ok());
+    RawState raw;
+    raw.set("mouse:x", 412.0F);
+    raw.set("mouse:y", 77.5F);
+    LiveInput actions;
+    result.map.apply(raw, actions);
+    CHECK(actions.value("pointer_x") == 412.0F); // not clamped to 1
+    CHECK(actions.value("pointer_y") == 77.5F);
+}
+
 TEST_CASE("input map: two sources of the same direction never go beyond 1") {
     const auto result = ge::platform::parse_input_map(arrows_file, "input.json");
     RawState raw;

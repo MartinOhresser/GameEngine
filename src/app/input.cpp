@@ -1,6 +1,7 @@
 #include "ge/app/input.hpp"
 
 #include <algorithm>
+#include <utility>
 
 namespace ge::app {
 
@@ -35,8 +36,25 @@ bool Actions::released(std::string_view action) const {
     return value(action) == 0.0F && find_or_zero(previous_, action) != 0.0F;
 }
 
+void Actions::raise(std::string_view action) {
+    if (std::find(queued_.begin(), queued_.end(), action) == queued_.end()) {
+        queued_.emplace_back(action);
+    }
+}
+
 void Actions::begin_tick() {
     previous_ = current_;
+    for (const std::string& action : lit_) {
+        set(action, 0.0F); // the press lasted one tick
+    }
+    lit_ = std::move(queued_);
+    queued_.clear();
+}
+
+void Actions::apply_raised() {
+    for (const std::string& action : lit_) {
+        set(action, 1.0F);
+    }
 }
 
 void Actions::hash(Hasher& hasher) const {
@@ -44,6 +62,10 @@ void Actions::hash(Hasher& hasher) const {
     for (const auto& [action, value] : current_) {
         hasher.add(std::string_view(action));
         hasher.add(value);
+    }
+    hasher.add(static_cast<std::uint64_t>(queued_.size()));
+    for (const std::string& action : queued_) {
+        hasher.add(std::string_view(action));
     }
 }
 

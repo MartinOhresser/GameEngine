@@ -26,6 +26,11 @@ float clamp_axis(float value) {
     return std::clamp(value, -1.0F, 1.0F);
 }
 
+/// The pointer's position is in pixels, not an axis: it must not be clamped.
+bool is_pointer_position(std::string_view source) {
+    return source == "mouse:x" || source == "mouse:y";
+}
+
 class Reader {
 public:
     Reader(std::string_view file, std::vector<InputProblem>* problems)
@@ -135,6 +140,7 @@ void InputMap::apply(const RawState& raw, app::LiveInput& live) const {
     // Bindings of one action are written one after the other in the file, but
     // nothing relies on it: sum per action first, then set once.
     std::map<std::string, float, std::less<>> sums;
+    std::set<std::string_view> positions;
     std::vector<const std::string*> order;
     for (const Binding& binding : bindings_) {
         const auto [slot, inserted] = sums.try_emplace(binding.action, 0.0F);
@@ -142,9 +148,13 @@ void InputMap::apply(const RawState& raw, app::LiveInput& live) const {
             order.push_back(&slot->first);
         }
         slot->second += binding.scale * raw.value(binding.source);
+        if (is_pointer_position(binding.source)) {
+            positions.insert(binding.action);
+        }
     }
     for (const std::string* action : order) {
-        live.set(*action, clamp_axis(sums.find(*action)->second));
+        const float sum = sums.find(*action)->second;
+        live.set(*action, positions.contains(*action) ? sum : clamp_axis(sum));
     }
 }
 

@@ -1,0 +1,65 @@
+// In the menu, Down moves the focus to Credits, Enter presses it: the credits scene
+// replaces the menu. Enter there goes back.
+{
+  "schema_version": 1,
+  "name": "menu_choose",
+  "scene": "menu",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 2,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 3,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 5,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "menu_accept",
+      "value": 0
+    },
+    {
+      "tick": 20,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 4,
+      "check": "menu_input.ui.Menu.focused == 1"
+    },
+    {
+      "at": 4,
+      "check": "scene is menu"
+    },
+    {
+      "at": 12,
+      "check": "scene is credits"
+    },
+    {
+      "at": 12,
+      "check": "credits_title alive"
+    },
+    {
+      "at": 12,
+      "check": "menu_title gone"
+    },
+    "scene is menu",
+    "menu_title alive",
+    "credits_title gone"
+  ]
+}

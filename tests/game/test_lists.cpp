@@ -1,6 +1,7 @@
 // The game's own named lists, and fields that name one item ("ref") or a set of
 // items ("ref_set") of them. A small module made for the test has the fields.
 #include "ge/app/app.hpp"
+#include "ge/app/fields.hpp"
 #include "ge/game/game.hpp"
 #include "ge/game/runtime.hpp"
 
@@ -126,6 +127,30 @@ TEST_CASE("lists: the game declares its own lists, in order") {
     CHECK(loaded.game.ref_names("nothing").empty());
 }
 
+TEST_CASE("lists: the field list names every field of the game's modules, sorted") {
+    const auto loaded = load(sample());
+    REQUIRE(loaded.ok());
+    const std::vector<std::string> fields = loaded.game.ref_names("field");
+    REQUIRE(fields.size() == 3U);
+    CHECK(fields[0] == "bags.Bag.accepts");
+    CHECK(fields[1] == "bags.Bag.kind");
+    CHECK(fields[2] == "bags.Bag.plain");
+    // The running app builds the same list in the same order.
+    ge::app::App app;
+    const ge::game::SetupResult setup = ge::game::setup_game(app, loaded.game, linked);
+    REQUIRE(setup.ok());
+    const auto* table = app.world().resource<ge::app::FieldTable>();
+    REQUIRE(table != nullptr);
+    REQUIRE(table->entries.size() == fields.size());
+    for (std::size_t i = 0; i < fields.size(); ++i) {
+        CHECK(table->entries[i].name == fields[i]);
+    }
+    // A game cannot declare it by hand.
+    CHECK(
+        mentions(load_changed("g/game.json", R"("item_kind":)", R"("field": ["x"], "item_kind":)"),
+                 "the field list is built by the engine"));
+}
+
 TEST_CASE("lists: a name is its index, a set of names is a bit mask") {
     const auto loaded = load(sample());
     REQUIRE(loaded.ok());
@@ -173,7 +198,7 @@ TEST_CASE("lists: the manifest's lists are checked") {
     CHECK(mentions(load_changed("g/game.json", "\"item_kind\":", "\"Item Kind\":"),
                    "lower_snake_case"));
     CHECK(mentions(load_changed("g/game.json", "\"item_kind\":", "\"atlas\":"),
-                   "made by the manifest"));
+                   "built by the engine"));
     CHECK(mentions(
         load_changed("g/game.json", "[\"potion\", \"sword\", \"key\"]", "[\"potion\", \"potion\"]"),
         "already in this list"));

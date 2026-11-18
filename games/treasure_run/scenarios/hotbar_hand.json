@@ -1,0 +1,143 @@
+// Picking up a potion and moving it along the hotbar with Q, E and Space. Slot 4 takes
+// it (the slot holds up to 2 of a kind); slot 1 refuses it (weapons only) and it stays.
+{
+  "schema_version": 1,
+  "name": "hotbar_hand",
+  "scene": "main",
+  "ticks": 83,
+  "inputs": [
+    {
+      "tick": 0,
+      "action": "move_y",
+      "value": 1
+    },
+    {
+      "tick": 32,
+      "action": "move_y",
+      "value": 0
+    },
+    {
+      "tick": 40,
+      "action": "slot_next",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "slot_next",
+      "value": 0
+    },
+    {
+      "tick": 43,
+      "action": "slot_next",
+      "value": 1
+    },
+    {
+      "tick": 44,
+      "action": "slot_next",
+      "value": 0
+    },
+    {
+      "tick": 46,
+      "action": "slot_select",
+      "value": 1
+    },
+    {
+      "tick": 47,
+      "action": "slot_select",
+      "value": 0
+    },
+    {
+      "tick": 49,
+      "action": "slot_next",
+      "value": 1
+    },
+    {
+      "tick": 50,
+      "action": "slot_next",
+      "value": 0
+    },
+    {
+      "tick": 52,
+      "action": "slot_next",
+      "value": 1
+    },
+    {
+      "tick": 53,
+      "action": "slot_next",
+      "value": 0
+    },
+    {
+      "tick": 55,
+      "action": "slot_select",
+      "value": 1
+    },
+    {
+      "tick": 56,
+      "action": "slot_select",
+      "value": 0
+    },
+    {
+      "tick": 58,
+      "action": "slot_select",
+      "value": 1
+    },
+    {
+      "tick": 59,
+      "action": "slot_select",
+      "value": 0
+    },
+    {
+      "tick": 61,
+      "action": "slot_prev",
+      "value": 1
+    },
+    {
+      "tick": 62,
+      "action": "slot_prev",
+      "value": 0
+    },
+    {
+      "tick": 64,
+      "action": "slot_prev",
+      "value": 1
+    },
+    {
+      "tick": 65,
+      "action": "slot_prev",
+      "value": 0
+    },
+    {
+      "tick": 67,
+      "action": "slot_prev",
+      "value": 1
+    },
+    {
+      "tick": 68,
+      "action": "slot_prev",
+      "value": 0
+    },
+    {
+      "tick": 70,
+      "action": "slot_select",
+      "value": 1
+    },
+    {
+      "tick": 71,
+      "action": "slot_select",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 38,
+      "check": "potion_1.inventory.Item.slot == 2"
+    },
+    {
+      "at": 70,
+      "check": "potion_1.inventory.Item.slot == 4"
+    },
+    "potion_1.inventory.Item.slot == 4",
+    "hand.inventory.Hand.holding == false",
+    "hand.inventory.Hand.cursor == 1"
+  ]
+}

@@ -43,6 +43,14 @@ Un `Button` désigne une action de la liste `action` ; le focus se déplace au c
 
 Une demande de changement (portée par une action de menu ou une règle) désigne une scène du manifeste ; la boucle l'applique entre deux ticks : les entités de la scène courante sont retirées, sauf celles marquées persistantes (le joueur, son inventaire), puis la nouvelle scène est créée. L'opération est déterministe et se rejoue dans les scénarios.
 
+## Écarts constatés à l'implémentation
+
+- **Liaison d'un nombre** : plutôt qu'un couple composant/champ écrit en chaînes, un champ `ref: "field"` désigne un élément de la liste intégrée `field` (« module.Composant.champ », faite par le moteur à partir des modules du jeu, triée). Le moteur (`FieldTable`) et le chargement du jeu construisent la même liste dans le même ordre. `ui.Bind` lit ce champ par réflexion (`ComponentInfo.read`) sur l'entité repérée par un `ui.Tag`.
+- **Boutons** : un bouton lève une action avec `Actions::raise` : elle est pressée pendant un tick entier, le tick suivant, ce qui rend le résultat indépendant de l'ordre des systèmes (un `GoToScene` écoute l'action sans avoir à passer après le menu). Un champ d'action laissé de côté vaut « aucune » (4294967295), pas la première action de la liste.
+- **Pointeur** : `mouse:x` et `mouse:y` sont des sources de `input.json` qui ne sont pas bornées à [-1, 1] ; la taille de la fenêtre est une donnée du jeu (`window`, ressource `Viewport`), ce qui garde les positions d'une interface ancrée déterministes.
+- **Inventaire** : des cases (`Slot`) et des objets (`Item`) liés par une adresse (`container`, `index`), pas par une référence d'entité ; `Gatherer`, `Transfer` et `Hand` en sont les règles. Pas de division de pile ni de transfert piloté par une règle de données : limites notées dans `docs/UI.md`.
+- **Scénarios** : une vérification `scene is NOM`, et les entités nommées de toutes les scènes sont admises dans les vérifications.
+
 ## Conséquences
 
 - Aucun type de champ chaîne dans les composants : l'ADR 0008 prévoyait ce type ; la table de chaînes le remplace, et rend la traduction possible sans coût supplémentaire.

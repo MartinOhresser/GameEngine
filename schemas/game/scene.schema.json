@@ -127,6 +127,218 @@
                 },
                 "additionalProperties": false
               },
+              "inventory.Slot": {
+                "type": "object",
+                "properties": {
+                  "container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "accepts": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "max_stack": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "locked": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "inventory.Item": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "categories": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "max_stack": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "stored": {
+                    "type": "boolean"
+                  },
+                  "container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "inventory.Gatherer": {
+                "type": "object",
+                "properties": {
+                  "container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "radius": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "inventory.Transfer": {
+                "type": "object",
+                "properties": {
+                  "from_container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from_slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "to_container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "to_slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "status": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "inventory.Hand": {
+                "type": "object",
+                "properties": {
+                  "container": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "columns": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "up": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "down": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "select": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "cancel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "use_pointer": {
+                    "type": "boolean"
+                  },
+                  "pointer_x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pointer_y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "click": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "slot_width": {
+                    "type": "number"
+                  },
+                  "slot_height": {
+                    "type": "number"
+                  },
+                  "cursor_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "holding_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "cursor": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "holding": {
+                    "type": "boolean"
+                  },
+                  "held_slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "last_x": {
+                    "type": "number"
+                  },
+                  "last_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "lifetime.Lifetime": {
                 "type": "object",
                 "properties": {
@@ -244,6 +456,12 @@
                     "type": "integer",
                     "minimum": -2147483648,
                     "maximum": 2147483647
+                  },
+                  "pivot_x": {
+                    "type": "number"
+                  },
+                  "pivot_y": {
+                    "type": "number"
                   },
                   "flip_x": {
                     "type": "boolean"
@@ -380,6 +598,211 @@
                   },
                   "y": {
                     "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Anchor": {
+                "type": "object",
+                "properties": {
+                  "anchor_x": {
+                    "type": "number"
+                  },
+                  "anchor_y": {
+                    "type": "number"
+                  },
+                  "offset_x": {
+                    "type": "number"
+                  },
+                  "offset_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Grid": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "columns": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "cell_width": {
+                    "type": "number"
+                  },
+                  "cell_height": {
+                    "type": "number"
+                  },
+                  "spacing_x": {
+                    "type": "number"
+                  },
+                  "spacing_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Cell": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Tag": {
+                "type": "object",
+                "properties": {
+                  "tag": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Bind": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Bar": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "length": {
+                    "type": "number"
+                  },
+                  "thickness": {
+                    "type": "number"
+                  },
+                  "vertical": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Menu": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "focused": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "wrap": {
+                    "type": "boolean"
+                  },
+                  "up": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "down": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "accept": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "use_pointer": {
+                    "type": "boolean"
+                  },
+                  "pointer_x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pointer_y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "click": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "last_x": {
+                    "type": "number"
+                  },
+                  "last_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ui.Button": {
+                "type": "object",
+                "properties": {
+                  "menu": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "order": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "normal_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "focus_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false

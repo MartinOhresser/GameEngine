@@ -431,6 +431,10 @@ bool SdlBackend::poll(std::vector<RawEvent>& events) {
             }
             break;
         }
+        case SDL_EVENT_MOUSE_MOTION:
+            events.push_back(RawEvent{"mouse:x", event.motion.x});
+            events.push_back(RawEvent{"mouse:y", event.motion.y});
+            break;
         default:
             break;
         }

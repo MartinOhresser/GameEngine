@@ -4,6 +4,7 @@
 #include "ge/app/input.hpp"
 #include "ge/game/game.hpp"
 #include "ge/game/runtime.hpp"
+#include "ge/game/scenario.hpp"
 #include "ge/mod/collision2d/collision2d.gen.hpp"
 #include "ge/mod/scene_switch/scene_switch.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -176,6 +177,45 @@ TEST_CASE("scenes: touching a door and a timer also change the scene") {
     CHECK(scene_of(app) == 0U); // the credits' timer (5 ticks) leads back to the menu
     CHECK(alive(app, "start_button"));
     CHECK(alive(app, "score"));
+}
+
+TEST_CASE("scenes: a scenario follows the game from scene to scene") {
+    Files files = sample();
+    std::string& manifest = files["g/game.json"];
+    manifest.replace(manifest.find(R"("start_scene": "menu",)"), 0,
+                     R"("scenarios": ["scenarios/play.json"],)");
+    files["g/scenarios/play.json"] = R"({"schema_version": 1, "name": "play", "ticks": 40,
+        "inputs": [{"tick": 2, "action": "start"}, {"tick": 3, "action": "start", "value": 0}],
+        "expect": [
+            {"at": 2, "check": "scene is menu"},
+            {"at": 4, "check": "scene is level"},
+            {"at": 4, "check": "hero alive"},
+            {"at": 23, "check": "scene is credits"},
+            {"at": 23, "check": "roll alive"},
+            "scene is menu"]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    const auto result = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
+    for (const std::string& failure : result.failures) {
+        CHECK(failure.empty());
+    }
+    CHECK(result.passed());
+
+    // A scene that does not exist is reported when the game is loaded, with a suggestion.
+    files["g/scenarios/play.json"] = R"({"schema_version": 1, "name": "play", "ticks": 5,
+        "expect": ["scene is levels"]})";
+    CHECK(mentions(load(files), "no scene is named \"levels\" (did you mean \"level\"?)"));
+    // And a scenario that ends elsewhere fails with the scene it found.
+    files["g/scenarios/play.json"] = R"({"schema_version": 1, "name": "play", "ticks": 5,
+        "expect": ["scene is credits"]})";
+    const auto wrong = load(files);
+    REQUIRE(wrong.ok());
+    const auto failed = ge::game::run_scenario(wrong.game, wrong.game.scenarios[0], linked);
+    CHECK(!failed.passed());
+    CHECK(!failed.failures.empty());
 }
 
 TEST_CASE("scenes: without a loader a request is ignored, and a bad index changes nothing") {

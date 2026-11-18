@@ -1,0 +1,28 @@
+// Enter on the first button starts the game: the room replaces the menu.
+{
+  "schema_version": 1,
+  "name": "menu_play",
+  "scene": "menu",
+  "ticks": 20,
+  "inputs": [
+    {
+      "tick": 2,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 3,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 3,
+      "check": "scene is menu"
+    },
+    "scene is main",
+    "player alive",
+    "button_play gone"
+  ]
+}

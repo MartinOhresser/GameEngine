@@ -28,6 +28,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.height = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "layer") {
             component.layer = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "pivot_x") {
+            component.pivot_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "pivot_y") {
+            component.pivot_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "flip_x") {
             component.flip_x = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "screen") {
@@ -66,6 +70,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "layer") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->layer)};
     }
+    if (field == "pivot_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->pivot_x)};
+    }
+    if (field == "pivot_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->pivot_y)};
+    }
     if (field == "flip_x") {
         return ::ge::app::Scalar{static_cast<bool>(component->flip_x)};
     }
@@ -87,7 +97,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 11> component_0_fields{{{"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "i32", "", false}, {"flip_x", "bool", "", false}, {"screen", "bool", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 13> component_0_fields{{{"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "i32", "", false}, {"pivot_x", "f32", "", false}, {"pivot_y", "f32", "", false}, {"flip_x", "bool", "", false}, {"screen", "bool", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

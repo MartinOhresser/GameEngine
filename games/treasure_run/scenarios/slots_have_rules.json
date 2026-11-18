@@ -1,0 +1,47 @@
+// The key goes to slot 0 and the sword to slot 1, whatever order they are picked up
+// in: those slots only accept a category (tool, weapon). The potion takes slot 2.
+{
+  "schema_version": 1,
+  "name": "slots_have_rules",
+  "scene": "main",
+  "ticks": 110,
+  "inputs": [
+    {
+      "tick": 0,
+      "action": "move_y",
+      "value": 1
+    },
+    {
+      "tick": 32,
+      "action": "move_y",
+      "value": 0
+    },
+    {
+      "tick": 32,
+      "action": "move_x",
+      "value": 1
+    },
+    {
+      "tick": 76,
+      "action": "move_x",
+      "value": 0
+    },
+    {
+      "tick": 76,
+      "action": "move_y",
+      "value": 1
+    },
+    {
+      "tick": 96,
+      "action": "move_y",
+      "value": 0
+    }
+  ],
+  "expect": [
+    "key_1.inventory.Item.stored == true",
+    "key_1.inventory.Item.slot == 0",
+    "sword_1.inventory.Item.stored == true",
+    "sword_1.inventory.Item.slot == 1",
+    "potion_1.inventory.Item.slot == 2"
+  ]
+}

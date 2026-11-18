@@ -65,6 +65,24 @@ TEST_CASE("sprite2d: size and mirroring reach the renderer, and colour is untint
     CHECK(command.color == 0xFFFFFFFFU);
 }
 
+TEST_CASE("sprite2d: the pivot says which point of the picture sits on the position") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    sprite.width = 40.0F;
+    sprite.height = 20.0F;
+    spawn(app, 100.0F, 50.0F, sprite); // the middle by default
+    sprite.pivot_x = 0.0F;             // left edge on the position
+    sprite.pivot_y = 1.0F;             // bottom edge on the position
+    spawn(app, 100.0F, 50.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 2U);
+    CHECK(renderer->commands()[0].x == 100.0F);
+    CHECK(renderer->commands()[0].y == 50.0F);
+    CHECK(renderer->commands()[1].x == 120.0F); // the picture is centred 20 to the right...
+    CHECK(renderer->commands()[1].y == 40.0F);  // ...and 10 up
+}
+
 TEST_CASE("sprite2d: the tint and the alpha are packed as 0xRRGGBBAA") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);

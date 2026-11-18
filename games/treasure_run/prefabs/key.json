@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "key",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "ui",
+      "frame": 6,
+      "width": 28,
+      "height": 28,
+      "layer": 20
+    },
+    "inventory.Item": {
+      "kind": "key",
+      "categories": [
+        "tool"
+      ],
+      "max_stack": 1
+    }
+  }
+}

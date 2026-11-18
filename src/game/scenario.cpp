@@ -90,7 +90,7 @@ bool parse_hex(const std::string& text, std::uint64_t& out) {
 
 constexpr const char* check_forms =
     "expected \"entity.module.Component.field > number\", \"entities == number\", "
-    "\"entity alive\", \"entity gone\" or \"fingerprint == hex\"";
+    "\"entity alive\", \"entity gone\", \"scene is name\" or \"fingerprint == hex\"";
 
 std::string parse_comparison(const std::vector<std::string>& words, Check& out) {
     const std::optional<Compare> compare = compare_from(words[1]);
@@ -145,6 +145,11 @@ std::string parse_check(const std::string& text, Check& out) {
     if (words.size() == 2 && (words[1] == "alive" || words[1] == "gone")) {
         out.kind = words[1] == "alive" ? CheckKind::Alive : CheckKind::Gone;
         out.entity = words[0];
+        return {};
+    }
+    if (words.size() == 3 && words[0] == "scene" && words[1] == "is") {
+        out.kind = CheckKind::Scene;
+        out.entity = words[2];
         return {};
     }
     if (words.size() == 3) {
@@ -313,9 +318,20 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
         checker.error("scene", "no scene is named \"" + scene_name + "\"" +
                                    suggestion(scene_name, names_of(game.scenes)));
     }
+    // The names a check may use: those of the scene it starts, then those of the other
+    // scenes, which it can reach by changing scene while it runs.
     std::vector<std::string> named;
+    std::vector<const SceneData*> scenes;
     if (start != nullptr) {
-        for (const EntityData& entity : start->entities) {
+        scenes.push_back(start);
+    }
+    for (const SceneData& other : game.scenes) {
+        if (&other != start) {
+            scenes.push_back(&other);
+        }
+    }
+    for (const SceneData* scene : scenes) {
+        for (const EntityData& entity : scene->entities) {
             if (!entity.name.empty()) {
                 named.push_back(entity.name);
             }
@@ -330,6 +346,10 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
             checker.error(path, "the scene \"" + scene_name + "\" has no entity named \"" +
                                     check.entity + "\"" + suggestion(check.entity, named));
             continue;
+        }
+        if (check.kind == CheckKind::Scene && game.find_scene(check.entity) == nullptr) {
+            checker.error(path, "no scene is named \"" + check.entity + "\"" +
+                                    suggestion(check.entity, names_of(game.scenes)));
         }
         if (check.kind == CheckKind::Field) {
             check_field(context, checker, path, check);
