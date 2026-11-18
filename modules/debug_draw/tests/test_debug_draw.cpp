@@ -33,12 +33,9 @@ TEST_CASE("debug_draw: every square is drawn at its position, once per frame") {
     app.run_frames(2);
     REQUIRE(renderer->commands().size() == 2U);
     CHECK(renderer->frames() == 2U);
-    const ge::app::DrawCommand& command = renderer->commands()[0];
-    CHECK(command.what == "square");
-    CHECK(command.x == 10.0F);
-    CHECK(command.y == 20.0F);
-    CHECK(command.size == 32.0F);
-    CHECK(command.color == 0xFF0080FFU);
+    const ge::app::DrawCommand expected{"square", 10.0F, 20.0F, 32.0F, 0xFF0080FFU};
+    CHECK(renderer->commands()[0] == expected);
+    CHECK(renderer->commands()[1] == expected);
 }
 
 TEST_CASE("debug_draw: entities without a position or without a square are not drawn") {

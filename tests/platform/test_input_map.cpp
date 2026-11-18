@@ -2,8 +2,9 @@
 
 #include "mini_test.hpp"
 
+#include <algorithm>
+
 using ge::app::LiveInput;
-using ge::platform::InputMap;
 using ge::platform::RawState;
 
 namespace {
@@ -18,12 +19,9 @@ constexpr const char* arrows_file = R"({
 })";
 
 bool mentions(const ge::platform::InputMapResult& result, const std::string& text) {
-    for (const auto& problem : result.problems) {
-        if (problem.to_string().find(text) != std::string::npos) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(result.problems, [&text](const auto& problem) {
+        return problem.to_string().find(text) != std::string::npos;
+    });
 }
 
 } // namespace
