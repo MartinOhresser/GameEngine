@@ -136,7 +136,7 @@ Le risque principal est de vouloir « n'importe quel jeu » trop tôt : l'ambiti
 | Trop de combinaisons de modules possibles, certaines cassées | Champs `conflits` et `dépendances` dans `module.json` ; matrice CI sur les jeux de référence (un par genre) |
 | Le moteur devient un monstre de généricité | Un module n'entre au catalogue que s'il sert un jeu de référence ; le cœur reste petit |
 | Itération lente (recompiler à chaque essai) | Niveaux, valeurs et préfabs lus à l'exécution ; rechargement à chaud en option plus tard |
-| Code généré ou module écrit par Claude qui plante | Modèles de dossier, test obligatoire par module, CI (sanitizers, clang-tidy) sur chaque PR |
+| Code généré ou module écrit par Claude qui plante | Modèles de dossier, test obligatoire par module, `scripts/check.sh` (sanitizers, clang-tidy) avant chaque PR, CI sur chaque PR |
 | Une décision du MVP bloque plus tard la 3D ou le réseau | Garde-fous d'architecture vérifiés par des tests et revus à la fin de chaque phase |
 | Réseau impossible à ajouter après coup | Contraintes de déterminisme et de copie du monde dès M1 |
 
