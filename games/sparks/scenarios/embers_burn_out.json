@@ -1,0 +1,14 @@
+// The embers live 90 ticks; the drifters never expire.
+{
+  "schema_version": 1,
+  "name": "embers_burn_out",
+  "ticks": 120,
+  "expect": [
+    { "at": 89, "check": "ember_a alive" },
+    { "at": 89, "check": "entities == 4" },
+    "ember_a gone",
+    "ember_b gone",
+    "slow alive",
+    "entities == 2",
+  ],
+}

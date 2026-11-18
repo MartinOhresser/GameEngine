@@ -149,6 +149,40 @@ std::string assign_fields(const std::vector<FieldSpec>& fields, const std::strin
     return out;
 }
 
+/// The C++ expression that turns `value` of a field type into an `app::Scalar`.
+std::string to_scalar_expression(FieldType type, const std::string& value) {
+    switch (type) {
+    case FieldType::Bool:
+        return "::ge::app::Scalar{static_cast<bool>(" + value + ")}";
+    case FieldType::F32:
+    case FieldType::F64:
+        return "::ge::app::Scalar{static_cast<double>(" + value + ")}";
+    case FieldType::I32:
+    case FieldType::U32:
+    case FieldType::I64:
+    case FieldType::U64:
+        break;
+    }
+    return "::ge::app::Scalar{static_cast<std::int64_t>(" + value + ")}";
+}
+
+/// A function that reads one field of a component by name.
+std::string read_function(const ComponentSpec& component, const std::string& index) {
+    std::string out = "std::optional<::ge::app::Scalar> read_component_" + index +
+                      "(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,\n"
+                      "                      [[maybe_unused]] std::string_view field) {\n"
+                      "    const " +
+                      component.name + "* component = world.get<" + component.name +
+                      ">(entity);\n"
+                      "    if (component == nullptr) {\n        return std::nullopt;\n    }\n";
+    for (const FieldSpec& field : component.fields) {
+        out += "    if (field == " + quoted(field.name) + ") {\n        return " +
+               to_scalar_expression(field.type, "component->" + field.name) + ";\n    }\n";
+    }
+    out += "    return std::nullopt;\n}\n\n";
+    return out;
+}
+
 std::vector<FieldSpec> param_fields(const ModuleSpec& module) {
     std::vector<FieldSpec> fields;
     fields.reserve(module.params.size());
@@ -222,6 +256,7 @@ std::string components_text(const ModuleSpec& module) {
                "    " +
                component.name + " component;\n" + assign_fields(component.fields, "component") +
                "    static_cast<void>(world.insert(entity, std::move(component)));\n}\n\n";
+        out += read_function(component, index);
         out += "constexpr std::array<::ge::app::FieldInfo, " +
                std::to_string(component.fields.size()) + "> component_" + index + "_fields{";
         for (std::size_t f = 0; f < component.fields.size(); ++f) {
@@ -240,6 +275,8 @@ std::string components_text(const ModuleSpec& module) {
         out += module.components[i].replicable ? ", true, component_" : ", false, component_";
         out += index;
         out += "_fields, insert_component_";
+        out += index;
+        out += ", read_component_";
         out += index;
         out += "}";
     }
@@ -310,7 +347,8 @@ std::string source_text(const ModuleSpec& module) {
     std::string out = banner(module);
     out += "#include \"ge/mod/" + module.name + "/" + module.name +
            ".gen.hpp\"\n\n"
-           "#include <array>\n#include <limits>\n#include <span>\n#include <string_view>\n"
+           "#include <array>\n#include <limits>\n#include <optional>\n#include <span>\n#include "
+           "<string_view>\n"
            "#include <utility>\n\n"
            "// NOLINTBEGIN\nnamespace ge::mod::" +
            module.name + " {\n\nnamespace {\n\n";

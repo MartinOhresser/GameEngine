@@ -4,6 +4,7 @@
 
 #include <array>
 #include <limits>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -24,9 +25,21 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
+std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Lifetime* component = world.get<Lifetime>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "ticks") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->ticks)};
+    }
+    return std::nullopt;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"ticks", "i32"}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Lifetime", true, component_0_fields, insert_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Lifetime", true, component_0_fields, insert_component_0, read_component_0}}};
 
 constexpr std::array<std::string_view, 0> system_0_reads{};
 constexpr std::array<std::string_view, 1> system_0_writes{"lifetime.Lifetime"};

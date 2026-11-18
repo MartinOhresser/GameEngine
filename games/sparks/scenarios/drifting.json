@@ -1,0 +1,13 @@
+// Movement scaled by the game's speed_scale param (1.5), and wrapping at the edge.
+{
+  "schema_version": 1,
+  "name": "drifting",
+  "ticks": 120,
+  "expect": [
+    // slow: 2 units per second * 1.5 * 2 seconds = 6 units to the right.
+    "slow.transform2d.Position.x == 406",
+    // fast starts at x=790, moves 0.225 per tick, and wraps past 800.
+    { "at": 30, "check": "fast.transform2d.Position.x > 790" },
+    "fast.transform2d.Position.x < 100",
+  ],
+}

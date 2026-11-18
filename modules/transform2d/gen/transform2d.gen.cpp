@@ -4,6 +4,7 @@
 
 #include <array>
 #include <limits>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -26,6 +27,21 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
+std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Position* component = world.get<Position>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "x") {
+        return ::ge::app::Scalar{static_cast<double>(component->x)};
+    }
+    if (field == "y") {
+        return ::ge::app::Scalar{static_cast<double>(component->y)};
+    }
+    return std::nullopt;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"x", "f32"}, {"y", "f32"}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -41,9 +57,24 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
+std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Velocity* component = world.get<Velocity>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "x") {
+        return ::ge::app::Scalar{static_cast<double>(component->x)};
+    }
+    if (field == "y") {
+        return ::ge::app::Scalar{static_cast<double>(component->y)};
+    }
+    return std::nullopt;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"x", "f32"}, {"y", "f32"}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Position", true, component_0_fields, insert_component_0}, {"Velocity", true, component_1_fields, insert_component_1}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Position", true, component_0_fields, insert_component_0, read_component_0}, {"Velocity", true, component_1_fields, insert_component_1, read_component_1}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};

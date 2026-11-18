@@ -4,7 +4,7 @@
 
 Un moteur de jeu en **C++20**, construit autour d'un **ECS** (Entity-Component-System) volontairement minimal et générique : le cœur ne sait rien d'un jeu en particulier, tout le reste s'ajoute par **composants**, **systèmes** et **plugins**.
 
-> **Statut : très tôt (v0.1).** Seul le cœur ECS et la boucle applicative existent. Il n'y a encore ni rendu, ni entrées, ni réseau. Le dépôt a d'abord été bâti pour que *chaque modification soit contrôlée* ; les fonctionnalités arrivent ensuite, une par une, derrière cette barrière.
+> **Statut : très tôt (v0.1).** Le cœur ECS, les modules, les jeux décrits en JSON et leur test sans fenêtre existent. Il n'y a encore ni fenêtre, ni rendu, ni réseau. Le dépôt a d'abord été bâti pour que *chaque modification soit contrôlée* ; les fonctionnalités arrivent ensuite, une par une, derrière cette barrière.
 
 ## Les enjeux
 
@@ -149,6 +149,16 @@ Un jeu est un dossier de fichiers JSON (manifeste, préfabs, scènes), où tout 
 
 Format et exemples : [docs/MANIFEST.md](docs/MANIFEST.md).
 
+## Tester un jeu sans fenêtre
+
+Des scénarios (entrées scriptées + vérifications) rejouent une partie et contrôlent ce que le jeu a fait ; chaque scénario est joué deux fois pour vérifier le déterminisme.
+
+```bash
+./build/dev/runner/gerun games/pilot/game.json --test
+```
+
+Détails : [docs/TESTING.md](docs/TESTING.md).
+
 ## Feuille de route
 
 La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, garde-fous) est dans [docs/ROADMAP.md](docs/ROADMAP.md). En résumé :
@@ -157,7 +167,7 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 2. ✅ **M1** Noyau de simulation : pas fixe, commandes différées, événements, hasard à graine, copie du monde.
 3. ✅ **M2** Modules et catalogue (`module.json`, `gectl`).
 4. ✅ **M3** Jeux décrits en JSON : manifeste, préfabs, scènes, validation, lanceur `gerun`.
-5. **M4** Tests sans fenêtre (headless).
+5. ✅ **M4** Tests sans fenêtre : actions d'entrée, scénarios, `gerun --test`, rendu nul et enregistreur.
 6. **M5** Skills : du prompt au jeu.
 7. **M6 à M8** Plateforme desktop, rendu 2D, interface (fin du MVP).
 
@@ -170,3 +180,4 @@ Lisez [CONTRIBUTING.md](CONTRIBUTING.md). En bref : une pull request à la fois,
 ## Licence
 
 [MIT](LICENSE).
+- M4 : fait (actions et entrée scriptée, scénarios dans les jeux, `gerun --test`, rendu nul et enregistreur, jeux de référence testés en CI). Détail dans `docs/TESTING.md`.

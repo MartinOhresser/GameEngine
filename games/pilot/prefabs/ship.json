@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "ship",
+  "components": {
+    "transform2d.Position": { "x": 100, "y": 300 },
+    "transform2d.Velocity": {},
+    "screen_wrap.WrapArea": { "width": 800, "height": 600 },
+    "action_control.Controlled": { "speed": 120 },
+  },
+}

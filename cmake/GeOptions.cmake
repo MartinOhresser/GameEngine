@@ -41,6 +41,9 @@ function(ge_target_options target)
               -Woverloaded-virtual
               -Wdouble-promotion
               -Wformat=2
+              # No fused multiply-add: the same simulation must give the same
+              # floating point results on every compiler and processor.
+              -ffp-contract=off
               # The engine runs on mobile and consoles where games disable both.
               -fno-exceptions
               -fno-rtti)

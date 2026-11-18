@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <variant>
@@ -51,6 +52,10 @@ struct ParamInfo {
 /// that are missing keep the default declared in `module.json`.
 using ComponentInsert = void (*)(ecs::World&, ecs::Entity, std::span<const FieldValue>);
 
+/// Reads one field of a component as a `Scalar`. Returns nothing when the
+/// entity does not have the component or the component has no such field.
+using ComponentRead = std::optional<Scalar> (*)(const ecs::World&, ecs::Entity, std::string_view);
+
 /// Sets the module's settings (its `Params` resource) from a game file.
 using ParamsApply = void (*)(ecs::World&, std::span<const FieldValue>);
 
@@ -59,6 +64,7 @@ struct ComponentInfo {
     bool replicable = false;
     std::span<const FieldInfo> fields;
     ComponentInsert insert = nullptr;
+    ComponentRead read = nullptr;
 };
 
 struct SystemInfo {

@@ -84,7 +84,7 @@ TEST_CASE("gectl: the repository's modules are valid, catalogued and up to date"
     const std::string modules = std::string(GE_SOURCE_DIR) + "/modules";
     const Run check = gectl({"check", "--modules", modules});
     CHECK(check.code == 0);
-    CHECK(has(check.out, "ok: 3 modules"));
+    CHECK(has(check.out, "ok: 4 modules"));
     const Run generated = gectl({"generate", "--check", "--modules", modules});
     CHECK(generated.code == 0);
     if (generated.code != 0) {
@@ -95,7 +95,7 @@ TEST_CASE("gectl: the repository's modules are valid, catalogued and up to date"
     const auto parsed = ge::json::parse(catalog.out);
     REQUIRE(parsed.ok());
     CHECK(parsed.value.find("engine")->find("stages")->items().size() == 5U);
-    CHECK(parsed.value.find("modules")->items().size() == 3U);
+    CHECK(parsed.value.find("modules")->items().size() == 4U);
 }
 
 TEST_CASE("gectl: help and usage errors") {

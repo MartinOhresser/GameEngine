@@ -17,6 +17,7 @@
       "items": {
         "type": "string",
         "enum": [
+          "action_control",
           "lifetime",
           "screen_wrap",
           "transform2d"
@@ -41,6 +42,11 @@
     "params": {
       "type": "object",
       "properties": {
+        "action_control": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "lifetime": {
           "type": "object",
           "properties": {},
@@ -72,6 +78,12 @@
       }
     },
     "scenes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scenarios": {
       "type": "array",
       "items": {
         "type": "string"

@@ -157,6 +157,7 @@ Value game_schema(const Catalog& catalog) {
     properties.set("params", params_schema(catalog));
     properties.set("prefabs", array_of(type_only("string")));
     properties.set("scenes", array_of(type_only("string")));
+    properties.set("scenarios", array_of(type_only("string")));
     properties.set("start_scene", name_schema());
     return document("Game manifest", std::move(properties),
                     required({"schema_version", "name", "modules"}));
@@ -185,6 +186,44 @@ Value scene_schema(const Catalog& catalog) {
                     required({"schema_version", "name", "entities"}));
 }
 
+/// The checks of a scenario are short sentences; the pattern only catches the
+/// shapes that can never be right, `gectl validate` does the rest.
+Value check_schema() {
+    Value text = type_only("string");
+    text.set("minLength", Value::integer(3));
+    Value timed = Value::object();
+    timed.set("at", integer_between(0, 10'000'000));
+    timed.set("check", text);
+    Value object = closed_object(std::move(timed));
+    object.set("required", required({"check"}));
+    Value either = Value::object();
+    Value options = Value::array();
+    options.push_back(text);
+    options.push_back(std::move(object));
+    either.set("oneOf", std::move(options));
+    return either;
+}
+
+Value scenario_schema() {
+    Value input = Value::object();
+    input.set("tick", integer_between(0, 10'000'000));
+    input.set("action", name_schema());
+    input.set("value", type_only("number"));
+    Value input_object = closed_object(std::move(input));
+    input_object.set("required", required({"tick", "action"}));
+
+    Value properties = Value::object();
+    properties.set("schema_version", version_schema());
+    properties.set("name", name_schema());
+    properties.set("description", type_only("string"));
+    properties.set("ticks", integer_between(1, 10'000'000));
+    properties.set("inputs", array_of(input_object));
+    const Value check = check_schema();
+    properties.set("expect", array_of(check));
+    return document("Scenario", std::move(properties),
+                    required({"schema_version", "name", "ticks"}));
+}
+
 } // namespace
 
 std::vector<SchemaFile> editor_schemas(const Catalog& catalog) {
@@ -192,6 +231,7 @@ std::vector<SchemaFile> editor_schemas(const Catalog& catalog) {
     files.push_back({"game.schema.json", game_schema(catalog)});
     files.push_back({"prefab.schema.json", prefab_schema(catalog)});
     files.push_back({"scene.schema.json", scene_schema(catalog)});
+    files.push_back({"scenario.schema.json", scenario_schema()});
     return files;
 }
 

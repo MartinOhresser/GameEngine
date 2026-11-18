@@ -5,6 +5,7 @@ add_executable(
   core/test_random.cpp
   core/test_version.cpp
   game/test_game.cpp
+  game/test_scenario.cpp
   game/test_schema.cpp
   json/test_json.cpp
   module/test_generate.cpp
@@ -18,12 +19,14 @@ add_executable(
   ecs/test_world.cpp
   app/test_app.cpp
   app/test_commands_events.cpp
+  app/test_input.cpp
+  app/test_render.cpp
   app/test_determinism.cpp
   app/test_schedule_order.cpp
   app/test_time.cpp
   app/test_plugin_flow.cpp)
 target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game ge::mod::transform2d
-                      ge::mod::lifetime ge::mod::screen_wrap)
+                      ge::mod::lifetime ge::mod::screen_wrap ge::mod::action_control)
 target_compile_definitions(ge_tests PRIVATE GE_EXPECTED_VERSION="${PROJECT_VERSION}")
 if(GE_BUILD_TOOLS)
   target_sources(ge_tests PRIVATE tools/test_gectl.cpp runner/test_runner.cpp)

@@ -174,3 +174,26 @@ TEST_CASE("generate: components get an insert function that reads field values")
                    "static_cast<void>(world.insert(entity, std::move(component)));"));
     CHECK(contains(source->content, "systems, params, nullptr};"));
 }
+
+TEST_CASE("generate: components get a read function, one return per field type") {
+    const auto files = generate_from(R"({
+      "schema_version": 1, "name": "demo", "version": "1.0.0",
+      "components": [
+        {"name": "Stats", "replicable": true, "fields": [
+          {"name": "level", "type": "u32"}, {"name": "speed", "type": "f32"},
+          {"name": "alive", "type": "bool"}]},
+        {"name": "Marker", "replicable": false}
+      ]
+    })");
+    const GeneratedFile* source = find_file(files, "demo.gen.cpp");
+    REQUIRE(source != nullptr);
+    CHECK(contains(source->content, "const Stats* component = world.get<Stats>(entity);"));
+    CHECK(contains(source->content,
+                   "return ::ge::app::Scalar{static_cast<std::int64_t>(component->level)};"));
+    CHECK(contains(source->content,
+                   "return ::ge::app::Scalar{static_cast<double>(component->speed)};"));
+    CHECK(contains(source->content,
+                   "return ::ge::app::Scalar{static_cast<bool>(component->alive)};"));
+    CHECK(contains(source->content, "insert_component_0, read_component_0}"));
+    CHECK(contains(source->content, "insert_component_1, read_component_1}"));
+}

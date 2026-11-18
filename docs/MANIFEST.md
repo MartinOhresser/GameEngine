@@ -1,5 +1,7 @@
 # Écrire un jeu en JSON
 
+Pour tester un jeu sans fenêtre, voir [TESTING.md](TESTING.md).
+
 Un jeu est un dossier de petits fichiers JSON. **Tout y est une entité** : le joueur, les ennemis, les éléments d'interface, plus tard les cinématiques ou l'histoire. Aucun code n'est écrit pour un jeu : si le catalogue de modules ne suffit pas, on écrit un nouveau module (voir [MODULES.md](MODULES.md)), puis le jeu l'utilise.
 
 ```
@@ -7,6 +9,7 @@ games/sparks/
   game.json              le manifeste
   prefabs/drifter.json   un modèle d'entité réutilisable
   scenes/main.json       une scène : la liste des entités à créer
+  scenarios/idle.json    un scénario de test : entrées scriptées et vérifications
 ```
 
 Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **virgules finales**. Chaque fichier commence par `"schema_version": 1`.
@@ -30,6 +33,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
 | `prefabs`, `scenes` | listes de fichiers, chemins relatifs au dossier du jeu |
+| `scenarios` | scénarios de test, facultatif : voir [TESTING.md](TESTING.md) |
 | `start_scene` | scène créée au démarrage |
 
 ## Préfabs

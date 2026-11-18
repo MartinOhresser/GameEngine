@@ -201,6 +201,7 @@ public:
 
 private:
     void run_startup_once();
+    void begin_tick_input();
     void run_stage(Stage stage);
     void add_stage_hook(Stage stage, System hook);
 

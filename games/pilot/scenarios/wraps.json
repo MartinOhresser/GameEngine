@@ -1,0 +1,13 @@
+// Flying up off the top of the screen comes back at the bottom.
+{
+  "schema_version": 1,
+  "name": "wraps",
+  "ticks": 200,
+  "inputs": [{ "tick": 0, "action": "move_y", "value": -1 }],
+  "expect": [
+    // 2 units per tick: the ship leaves the top after 150 ticks, and 50 ticks
+    // later it is 100 units into the bottom of the screen (600 - 100).
+    { "at": 100, "check": "ship.transform2d.Position.y == 100" },
+    "ship.transform2d.Position.y == 500",
+  ],
+}

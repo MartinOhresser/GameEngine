@@ -25,12 +25,13 @@ const ge::json::Value* schema_of(const std::vector<ge::game::SchemaFile>& files,
 
 } // namespace
 
-TEST_CASE("schema: three files, one per kind of game file") {
+TEST_CASE("schema: one file per kind of game file") {
     const auto files = ge::game::editor_schemas(ge::game::catalog_of(linked));
-    REQUIRE(files.size() == 3U);
+    REQUIRE(files.size() == 4U);
     CHECK(schema_of(files, "game.schema.json") != nullptr);
     CHECK(schema_of(files, "prefab.schema.json") != nullptr);
     CHECK(schema_of(files, "scene.schema.json") != nullptr);
+    CHECK(schema_of(files, "scenario.schema.json") != nullptr);
 }
 
 TEST_CASE("schema: the manifest offers the modules and the params with their bounds") {
@@ -75,4 +76,19 @@ TEST_CASE("schema: prefabs and scenes list every component with typed fields") {
               ->find("components")
               ->find("properties")
               ->find("lifetime.Lifetime") != nullptr);
+}
+
+TEST_CASE("schema: scenarios list their inputs and accept both forms of a check") {
+    const auto files = ge::game::editor_schemas(ge::game::catalog_of(linked));
+    const auto* scenario = schema_of(files, "scenario.schema.json");
+    REQUIRE(scenario != nullptr);
+    const auto* properties = scenario->find("properties");
+    CHECK(properties->find("ticks")->find("minimum")->as_int() == 1);
+    const auto* input = properties->find("inputs")->find("items");
+    CHECK(input->find("properties")->find("action") != nullptr);
+    CHECK(input->find("required")->items().size() == 2U);
+    CHECK(properties->find("expect")->find("items")->find("oneOf")->items().size() == 2U);
+    // The manifest lists scenario files.
+    const auto* game = schema_of(files, "game.schema.json");
+    CHECK(game->find("properties")->find("scenarios") != nullptr);
 }
