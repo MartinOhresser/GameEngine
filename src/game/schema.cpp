@@ -216,6 +216,7 @@ Value scenario_schema() {
     properties.set("schema_version", version_schema());
     properties.set("name", name_schema());
     properties.set("description", type_only("string"));
+    properties.set("scene", name_schema());
     properties.set("ticks", integer_between(1, 10'000'000));
     properties.set("inputs", array_of(input_object));
     const Value check = check_schema();

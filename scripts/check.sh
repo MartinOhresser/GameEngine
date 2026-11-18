@@ -19,6 +19,8 @@ git ls-files -co --exclude-standard '*.cpp' '*.hpp' \
 if command -v python3 > /dev/null; then
   echo "==> modules"
   python3 scripts/check_modules.py
+  echo "==> skills"
+  python3 scripts/check_skills.py
 fi
 
 for preset in dev release asan; do

@@ -25,8 +25,18 @@ add_executable(
   app/test_schedule_order.cpp
   app/test_time.cpp
   app/test_plugin_flow.cpp)
-target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game ge::mod::transform2d
-                      ge::mod::lifetime ge::mod::screen_wrap ge::mod::action_control)
+target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game)
+target_include_directories(ge_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/support")
+
+# Every module is linked, and its own tests (modules/<name>/tests/*.cpp) run
+# with the rest: a module cannot be added without a place to test it.
+get_property(all_modules GLOBAL PROPERTY GE_ALL_MODULES)
+foreach(module_name IN LISTS all_modules)
+  target_link_libraries(ge_tests PRIVATE ge::mod::${module_name})
+  file(GLOB module_tests CONFIGURE_DEPENDS
+       "${PROJECT_SOURCE_DIR}/modules/${module_name}/tests/*.cpp")
+  target_sources(ge_tests PRIVATE ${module_tests})
+endforeach()
 target_compile_definitions(ge_tests PRIVATE GE_EXPECTED_VERSION="${PROJECT_VERSION}")
 if(GE_BUILD_TOOLS)
   target_sources(ge_tests PRIVATE tools/test_gectl.cpp runner/test_runner.cpp)

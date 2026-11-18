@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "ship",
+  "components": {
+    "transform2d.Position": { "x": 400, "y": 300 },
+    "transform2d.Velocity": {},
+    "action_control.Controlled": { "speed": 120 },  // units per second: 2 per tick
+    "pickup.Collector": { "radius": 16 },
+  },
+}

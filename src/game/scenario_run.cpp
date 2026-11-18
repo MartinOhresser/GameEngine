@@ -121,7 +121,11 @@ std::optional<std::uint64_t> run_once(const Game& game, const ScenarioData& scen
                                       std::vector<std::string>* failures,
                                       std::vector<std::string>& setup_problems) {
     Run run;
-    run.setup = setup_game(run.app, game, modules);
+    Game started = game;
+    if (!scenario.scene.empty()) {
+        started.manifest.start_scene = scenario.scene;
+    }
+    run.setup = setup_game(run.app, started, modules);
     if (!run.setup.ok()) {
         setup_problems = run.setup.problems;
         return std::nullopt;

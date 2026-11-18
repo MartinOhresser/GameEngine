@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "name": "main",
+  "entities": [
+    { "name": "ship", "prefab": "ship" },
+    // Right of the ship, on its row.
+    { "name": "coin_right", "prefab": "coin", "components": { "transform2d.Position": { "x": 465, "y": 300 } } },
+    // Below the ship (y grows downward), on its column.
+    { "name": "gem_below", "prefab": "gem", "components": { "transform2d.Position": { "x": 400, "y": 391 } } },
+    // Far from everything.
+    { "name": "coin_far", "prefab": "coin", "components": { "transform2d.Position": { "x": 700, "y": 100 } } },
+  ],
+}

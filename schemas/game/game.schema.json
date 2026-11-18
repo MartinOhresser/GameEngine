@@ -19,6 +19,7 @@
         "enum": [
           "action_control",
           "lifetime",
+          "pickup",
           "screen_wrap",
           "transform2d"
         ]
@@ -48,6 +49,11 @@
           "additionalProperties": false
         },
         "lifetime": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "pickup": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

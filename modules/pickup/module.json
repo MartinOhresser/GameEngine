@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "pickup",
+  "version": "0.1.0",
+  "description": "Collectible entities: a Collector that touches a Pickup takes its value into its score and the Pickup disappears.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Collector",
+      "description": "Collects Pickups it touches; score is the sum of the values collected so far.",
+      "replicable": true,
+      "fields": [
+        { "name": "radius", "type": "f32", "default": 16 },
+        { "name": "score", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Pickup",
+      "description": "Can be collected; value is added to the score of the Collector that touches it. Touching means the distance between the two Positions is at most the sum of both radii.",
+      "replicable": true,
+      "fields": [
+        { "name": "value", "type": "i32", "default": 1 },
+        { "name": "radius", "type": "f32", "default": 8 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "collect",
+      "description": "Adds the value of every touched Pickup to the Collector's score and removes the Pickup. A Pickup touched by several Collectors goes to the first one.",
+      "stage": "FixedUpdate",
+      "reads": ["Pickup", "transform2d.Position"],
+      "writes": ["Collector"],
+      "after": ["transform2d.integrate"]
+    }
+  ]
+}

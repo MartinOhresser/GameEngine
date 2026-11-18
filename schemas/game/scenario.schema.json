@@ -12,6 +12,10 @@
     "description": {
       "type": "string"
     },
+    "scene": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
     "ticks": {
       "type": "integer",
       "minimum": 1,

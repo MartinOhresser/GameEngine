@@ -1,4 +1,4 @@
-add_library(gectl_lib STATIC gectl/gectl.cpp)
+add_library(gectl_lib STATIC gectl/gectl.cpp gectl/scaffold.cpp)
 target_include_directories(gectl_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/gectl")
 target_link_libraries(gectl_lib PUBLIC ge::module ge::game ge::core)
 ge_target_options(gectl_lib)

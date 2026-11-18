@@ -220,7 +220,7 @@ TEST_CASE("scenario: file problems are reported with their place") {
 
 TEST_CASE("scenario: the checks are validated against the game") {
     CHECK(mentions(load_changed("spark gone", "sparkle gone"),
-                   "expect[4]: the start scene \"main\" has no entity named \"sparkle\" (did you "
+                   "expect[4]: the scene \"main\" has no entity named \"sparkle\" (did you "
                    "mean \"spark\"?)"));
     CHECK(mentions(
         load_changed("hero.transform2d.Velocity.x == 0", "hero.transform2d.Velocty.x == 0"),
@@ -352,4 +352,34 @@ TEST_CASE("scenario: a game that cannot start fails the scenario") {
         ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], only_transform);
     CHECK(!report.passed());
     CHECK(has(all_failures(report), "not linked into this program"));
+}
+
+TEST_CASE("scenario: a scenario can start another scene than the game's") {
+    Files files = sample();
+    files["g/game.json"] = R"({
+        "schema_version": 1, "name": "demo",
+        "modules": ["transform2d", "lifetime", "action_control"],
+        "prefabs": ["pilot.json"], "scenes": ["main.json", "arena.json"],
+        "scenarios": ["in_arena.json"], "start_scene": "main"
+    })";
+    files["g/arena.json"] = R"({"schema_version": 1, "name": "arena", "entities": [
+        {"name": "boss", "prefab": "pilot"}]})";
+    files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "arena",
+        "ticks": 5, "expect": ["boss alive", "entities == 1"]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    CHECK(loaded.game.scenarios[0].scene == "arena");
+    CHECK(ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked).passed());
+
+    // The entities it may name are the ones of its own scene.
+    files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "arena",
+        "ticks": 5, "expect": ["hero alive"]})";
+    CHECK(mentions(load(files), "the scene \"arena\" has no entity named \"hero\""));
+    // An unknown scene is reported with a suggestion.
+    files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "aren",
+        "ticks": 5})";
+    CHECK(mentions(load(files), "scene: no scene is named \"aren\" (did you mean \"arena\"?)"));
 }

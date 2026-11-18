@@ -74,10 +74,12 @@ struct ScenarioInput {
 };
 
 /// A scripted run of the game with expectations: "after 300 ticks, hero's
-/// score is above 0". It starts the game's `start_scene`.
+/// score is above 0". It starts its `scene`, or the game's `start_scene`.
 struct ScenarioData {
     std::string name;
     std::string description;
+    /// The scene it starts; empty means the game's `start_scene`.
+    std::string scene;
     std::uint64_t ticks = 0;
     std::vector<ScenarioInput> inputs;
     std::vector<Check> checks;

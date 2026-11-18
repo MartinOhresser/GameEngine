@@ -1,0 +1,18 @@
+// Fly right at 2 units per tick. The ship (reach 16) touches the coin
+// (radius 8, at x=465) when it gets within 24 units: x >= 441, i.e. after 21 ticks.
+{
+  "schema_version": 1,
+  "name": "collect_a_coin",
+  "ticks": 60,
+  "inputs": [{ "tick": 0, "action": "move_x", "value": 1 }],
+  "expect": [
+    { "at": 20, "check": "coin_right alive" },
+    { "at": 20, "check": "ship.pickup.Collector.score == 0" },
+    { "at": 21, "check": "coin_right gone" },
+    { "at": 21, "check": "ship.pickup.Collector.score == 10" },
+    // Only that coin was on the way.
+    "gem_below alive",
+    "coin_far alive",
+    "ship.pickup.Collector.score == 10",
+  ],
+}

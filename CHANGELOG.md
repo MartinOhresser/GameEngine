@@ -27,6 +27,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 - M4 : actions d'entrée (`ge::app::Actions`, `pressed`/`released`) et entrée scriptée (`ScriptedInput`) appliquée au début de chaque tick ; module d'exemple `action_control` (`move_x`, `move_y`).
 - M4 : scénarios de test dans les jeux (`scenarios/*.json` : ticks, entrées scriptées, vérifications comme `hero.transform2d.Position.x > 100`), validés par `gectl validate` ; `gerun --test [--scenario NOM]` les exécute, chacun deux fois pour contrôler le déterminisme ; schéma éditeur des scénarios ; jeux de référence `sparks` et `pilot` testés en CI.
 - M4 : chaque composant généré a une fonction `read` (lecture d'un champ par son nom) ; rendu nul (`NullRenderer`) et enregistreur (`RecordingRenderer`) ; le moteur est compilé avec `-ffp-contract=off`. Documentation : `docs/TESTING.md`, ADR 0005.
+- M5 : cinq skills dans `.claude/skills/` (`game-from-prompt`, `engine-catalog`, `add-module`, `playtest-headless`, `add-level`) vérifiés par `scripts/check_skills.py` (commandes, options et fichiers cités) en CI et dans `check.sh`.
+- M5 : `gectl new-module NOM [--depends A,B]` crée un module qui compile et passe son test ; CMake découvre les modules (`modules/*/module.json`) et leurs tests (`modules/<nom>/tests/`), `gerun` les lie tous : ajouter un module ne modifie aucun fichier CMake.
+- M5 : module `pickup` (`Collector`, `Pickup`, système `collect`) et jeu `coin_dash`, premier jeu produit avec les skills ; un scénario peut choisir sa scène (`"scene"`) ; le catalogue annonce les ressources `Actions` et `ScriptedInput`. Documentation : `docs/AUTHORING.md`, ADR 0006.
 - M2 : vérifications en CI : schéma, inclusions limitées aux dépendances déclarées, aucun code de plateforme dans les modules, code généré à jour.
 - Exemple `hello_ecs`, README et ADR 0001–0002.
 - CI : format, builds sur Linux, macOS et Windows, sanitizers, clang-tidy, couverture, WebAssembly, Android, iOS.
