@@ -30,6 +30,67 @@
                 "properties": {
                   "speed": {
                     "type": "number"
+                  },
+                  "horizontal": {
+                    "type": "boolean"
+                  },
+                  "vertical": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "altitude.Altitude": {
+                "type": "object",
+                "properties": {
+                  "scale": {
+                    "type": "number"
+                  },
+                  "origin_y": {
+                    "type": "number"
+                  },
+                  "started": {
+                    "type": "boolean"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  }
+                },
+                "additionalProperties": false
+              },
+              "bounce2d.Bouncer": {
+                "type": "object",
+                "properties": {
+                  "bounces": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "bounce2d.Bouncy": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "number"
+                  },
+                  "vanish": {
+                    "type": "boolean"
+                  },
+                  "breaks": {
+                    "type": "boolean"
+                  },
+                  "fall_speed": {
+                    "type": "number"
+                  },
+                  "kills": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -53,6 +114,18 @@
                 "properties": {
                   "stiffness": {
                     "type": "number"
+                  },
+                  "follow_x": {
+                    "type": "boolean"
+                  },
+                  "follow_y": {
+                    "type": "boolean"
+                  },
+                  "offset_y": {
+                    "type": "number"
+                  },
+                  "only_up": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -103,6 +176,56 @@
                 },
                 "additionalProperties": false
               },
+              "combat2d.Mortal": {
+                "type": "object",
+                "properties": {
+                  "hurt_layers": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "fall_death": {
+                    "type": "boolean"
+                  },
+                  "fall_margin": {
+                    "type": "number"
+                  },
+                  "on_death": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "dead": {
+                    "type": "boolean"
+                  },
+                  "announced": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "combat2d.Target": {
+                "type": "object",
+                "properties": {
+                  "health": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  }
+                },
+                "additionalProperties": false
+              },
+              "combat2d.Projectile": {
+                "type": "object",
+                "properties": {
+                  "damage": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  }
+                },
+                "additionalProperties": false
+              },
               "debug_draw.Square": {
                 "type": "object",
                 "properties": {
@@ -123,6 +246,21 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "gravity2d.Gravity": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "terminal_speed": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false
@@ -350,6 +488,30 @@
                 },
                 "additionalProperties": false
               },
+              "patrol2d.Patrol": {
+                "type": "object",
+                "properties": {
+                  "patrol_x": {
+                    "type": "boolean"
+                  },
+                  "min_x": {
+                    "type": "number"
+                  },
+                  "max_x": {
+                    "type": "number"
+                  },
+                  "patrol_y": {
+                    "type": "boolean"
+                  },
+                  "min_y": {
+                    "type": "number"
+                  },
+                  "max_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "pickup.Collector": {
                 "type": "object",
                 "properties": {
@@ -374,6 +536,40 @@
                   },
                   "radius": {
                     "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "records.Record": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "best": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "last": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "loaded": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -429,6 +625,154 @@
                   },
                   "height": {
                     "type": "number"
+                  },
+                  "wrap_x": {
+                    "type": "boolean"
+                  },
+                  "wrap_y": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "spawner2d.Generator": {
+                "type": "object",
+                "properties": {
+                  "prefab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "alt_prefab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "alt_chance": {
+                    "type": "number"
+                  },
+                  "alt_chance_end": {
+                    "type": "number"
+                  },
+                  "alt2_prefab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "alt2_chance": {
+                    "type": "number"
+                  },
+                  "alt2_chance_end": {
+                    "type": "number"
+                  },
+                  "extra_prefab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "extra_chance": {
+                    "type": "number"
+                  },
+                  "extra_chance_end": {
+                    "type": "number"
+                  },
+                  "extra_dx": {
+                    "type": "number"
+                  },
+                  "extra_dy": {
+                    "type": "number"
+                  },
+                  "extra_on_alt": {
+                    "type": "boolean"
+                  },
+                  "x_min": {
+                    "type": "number"
+                  },
+                  "x_max": {
+                    "type": "number"
+                  },
+                  "gap_min": {
+                    "type": "number"
+                  },
+                  "gap_max": {
+                    "type": "number"
+                  },
+                  "gap_min_end": {
+                    "type": "number"
+                  },
+                  "gap_max_end": {
+                    "type": "number"
+                  },
+                  "ramp_height": {
+                    "type": "number"
+                  },
+                  "origin_y": {
+                    "type": "number"
+                  },
+                  "from_height": {
+                    "type": "number"
+                  },
+                  "row_chance": {
+                    "type": "number"
+                  },
+                  "row_chance_end": {
+                    "type": "number"
+                  },
+                  "ahead": {
+                    "type": "number"
+                  },
+                  "next_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "spawner2d.Cull": {
+                "type": "object",
+                "properties": {
+                  "margin": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "spawner2d.Shooter": {
+                "type": "object",
+                "properties": {
+                  "prefab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "cooldown": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "speed": {
+                    "type": "number"
+                  },
+                  "dir_x": {
+                    "type": "number"
+                  },
+                  "dir_y": {
+                    "type": "number"
+                  },
+                  "dx": {
+                    "type": "number"
+                  },
+                  "dy": {
+                    "type": "number"
+                  },
+                  "wait": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false

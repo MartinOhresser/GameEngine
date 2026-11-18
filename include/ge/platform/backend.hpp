@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
@@ -72,6 +73,9 @@ private:
 struct LoopOptions {
     /// Stop after this many frames; 0 means until the backend says to stop.
     std::uint64_t max_frames = 0;
+    /// Called after every frame (drawing included): a player of the game uses it
+    /// to write the save data when it changed. Nothing when empty.
+    std::function<void(app::App&)> after_frame;
 };
 
 struct LoopResult {
@@ -84,6 +88,7 @@ struct LoopResult {
 /// into actions with `map`, then advances the game by the time that really
 /// passed. The backend's renderer and audio replace the app's. Game logic is
 /// unchanged by this: ticks stay fixed (see `App::advance`).
-LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map, LoopOptions options = {});
+LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
+                    const LoopOptions& options = {});
 
 } // namespace ge::platform

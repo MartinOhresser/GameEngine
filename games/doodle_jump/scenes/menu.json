@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "name": "menu",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 247,
+          "blue": 225
+        }
+      }
+    },
+    {
+      "name": "menu_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": -230
+        },
+        "text2d.Text": {
+          "string": "menu.title",
+          "font": "font",
+          "size": 48,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 40
+        }
+      }
+    },
+    {
+      "name": "menu_best",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": -170
+        },
+        "text2d.Text": {
+          "string": "menu.best",
+          "font": "font",
+          "size": 24,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "ui.Bind": {
+          "source": "scoreboard",
+          "field": "records.Record.best"
+        }
+      }
+    },
+    {
+      "name": "menu_help1",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": 120
+        },
+        "text2d.Text": {
+          "string": "menu.help1",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        }
+      }
+    },
+    {
+      "name": "menu_help2",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": 146
+        },
+        "text2d.Text": {
+          "string": "menu.help2",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        }
+      }
+    },
+    {
+      "name": "main_menu_input",
+      "components": {
+        "ui.Menu": {
+          "group": "main_menu",
+          "up": "menu_up",
+          "down": "menu_down",
+          "accept": "menu_accept",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "menu_buttons_grid",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_y": -40
+        },
+        "ui.Grid": {
+          "group": "menu_buttons",
+          "columns": 1,
+          "cell_width": 240,
+          "cell_height": 48,
+          "spacing_y": 14
+        }
+      }
+    },
+    {
+      "name": "button_play",
+      "prefab": "button",
+      "components": {
+        "ui.Cell": {
+          "group": "menu_buttons",
+          "index": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 0,
+          "action": "start_game"
+        },
+        "text2d.Text": {
+          "string": "menu.play"
+        }
+      }
+    },
+    {
+      "name": "go_play",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "game",
+          "use_action": true,
+          "action": "start_game"
+        }
+      }
+    }
+  ]
+}

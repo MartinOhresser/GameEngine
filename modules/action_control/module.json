@@ -8,9 +8,13 @@
   "components": [
     {
       "name": "Controlled",
-      "description": "The entity's Velocity follows the actions move_x and move_y, multiplied by speed.",
+      "description": "The entity's Velocity follows the actions move_x and move_y, multiplied by speed. horizontal and vertical turn an axis off: the entity then leaves that part of its Velocity alone (a jumper steered left and right keeps vertical false, so gravity decides how it moves up and down).",
       "replicable": true,
-      "fields": [{ "name": "speed", "type": "f32", "default": 100 }]
+      "fields": [
+        { "name": "speed", "type": "f32", "default": 100 },
+        { "name": "horizontal", "type": "bool", "default": true },
+        { "name": "vertical", "type": "bool", "default": true }
+      ]
     }
   ],
   "systems": [

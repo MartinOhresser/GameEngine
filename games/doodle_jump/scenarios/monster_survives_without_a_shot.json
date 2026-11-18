@@ -1,0 +1,18 @@
+// Without a shot the same monster is untouched: the jumper never reaches it.
+{
+  "schema_version": 1,
+  "name": "monster_survives_without_a_shot",
+  "scene": "test_monster_shoot",
+  "ticks": 90,
+  "expect": [
+    {
+      "at": 30,
+      "check": "monster alive"
+    },
+    {
+      "at": 90,
+      "check": "monster alive"
+    },
+    "player alive"
+  ]
+}

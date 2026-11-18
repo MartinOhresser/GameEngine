@@ -1,5 +1,7 @@
 #include "ge/game/runtime.hpp"
 
+#include "ge/app/lists.hpp"
+#include "ge/app/spawn.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/random.hpp"
 
@@ -199,8 +201,46 @@ void change_scene(app::App& app, const Game& game, std::uint32_t scene) {
     if (auto* names = app.world().resource<app::EntityNames>(); names != nullptr) {
         names->retain([&app](ecs::Entity entity) { return app.world().is_alive(entity); });
     }
+    if (auto* requests = app.world().resource<app::SpawnRequests>(); requests != nullptr) {
+        requests->queue.clear(); // they were meant for the scene that is gone
+    }
     static_cast<void>(spawn_scene(app, game, game.scenes[scene].name));
     app.world().insert_resource(app::CurrentScene{scene});
+}
+
+namespace {
+
+/// Sets the fields of `component` ("module.Component") on `entity` when the module is installed.
+void put(app::App& app, ecs::Entity entity, std::string_view component,
+         const std::vector<app::FieldValue>& fields) {
+    const app::ComponentInfo* info = find_component_info(app, component);
+    if (info != nullptr && info->insert != nullptr) {
+        info->insert(app.world(), entity, fields);
+    }
+}
+
+} // namespace
+
+void spawn_prefab(app::App& app, const Game& game, const app::SpawnRequest& request) {
+    const std::vector<std::string> names = game.ref_names("prefab");
+    if (request.prefab >= names.size()) {
+        return; // validated games only name prefabs that exist
+    }
+    const ecs::Entity entity = app.world().spawn();
+    for (const ComponentData& component : resolve_components(game, names[request.prefab], {})) {
+        const app::ComponentInfo* info = find_component_info(app, component.name);
+        if (info != nullptr && info->insert != nullptr) {
+            info->insert(app.world(), entity, to_fields(game, *info, component.fields));
+        }
+    }
+    put(app, entity, "transform2d.Position",
+        {app::FieldValue{"x", static_cast<double>(request.x)},
+         app::FieldValue{"y", static_cast<double>(request.y)}});
+    if (request.has_velocity) {
+        put(app, entity, "transform2d.Velocity",
+            {app::FieldValue{"x", static_cast<double>(request.vx)},
+             app::FieldValue{"y", static_cast<double>(request.vy)}});
+    }
 }
 
 app::TextTable text_table_of(const Game& game) {
@@ -220,6 +260,17 @@ app::TextTable text_table_of(const Game& game) {
     return table;
 }
 
+app::ListNames list_names_of(const Game& game) {
+    app::ListNames result;
+    for (const char* built_in : {"atlas", "string", "scene", "action", "field", "prefab"}) {
+        result.lists.emplace_back(built_in, game.ref_names(built_in));
+    }
+    for (const auto& list : game.manifest.lists) {
+        result.lists.emplace_back(list.first, list.second);
+    }
+    return result;
+}
+
 SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEntry> available) {
     SetupResult result;
     const Manifest& manifest = game.manifest;
@@ -228,11 +279,15 @@ SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEn
     app.world().insert_resource(app::Viewport{manifest.window_width, manifest.window_height});
     app.world().insert_resource(text_table_of(game));
     app.world().insert_resource(app::ActionNames{game.ref_names("action")});
+    app.world().insert_resource(list_names_of(game));
     {
-        // The loader keeps its own copy of the game, so it never outlives it.
+        // The loaders keep their own copy of the game, so they never outlive it.
         auto shared = std::make_shared<const Game>(game);
         app.set_scene_loader([shared](app::App& running, std::uint32_t scene) {
             change_scene(running, *shared, scene);
+        });
+        app.set_prefab_spawner([shared](app::App& running, const app::SpawnRequest& request) {
+            spawn_prefab(running, *shared, request);
         });
     }
 

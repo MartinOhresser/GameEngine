@@ -1,0 +1,60 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "altitude",
+  "version": "0.1.0",
+  "description": "How high an entity has been: the score of a climbing game. The height is measured from where the entity started, only counts the best it reached (falling back loses nothing) and is turned into a whole score.",
+  "depends": [
+    "transform2d"
+  ],
+  "components": [
+    {
+      "name": "Altitude",
+      "description": "Measures the highest the entity has been since its first tick: height is the distance between its starting y and its smallest y so far (y grows downwards, so higher means smaller), in world units, and score is height times scale as a whole number, rounded down. started and origin_y hold where it began.",
+      "replicable": true,
+      "fields": [
+        {
+          "name": "scale",
+          "type": "f32",
+          "default": 1
+        },
+        {
+          "name": "origin_y",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "started",
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "height",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "score",
+          "type": "i32",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "measure",
+      "description": "Updates the height and the score of every Altitude entity from its Position.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Altitude"
+      ],
+      "after": [
+        "transform2d.integrate"
+      ]
+    }
+  ]
+}

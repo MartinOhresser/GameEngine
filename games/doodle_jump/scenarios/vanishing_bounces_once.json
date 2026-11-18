@@ -1,0 +1,25 @@
+// A white platform throws the jumper once and vanishes.
+{
+  "schema_version": 1,
+  "name": "vanishing_bounces_once",
+  "scene": "test_vanishes",
+  "ticks": 20,
+  "expect": [
+    {
+      "at": 6,
+      "check": "cloud alive"
+    },
+    {
+      "at": 6,
+      "check": "player.bounce2d.Bouncer.bounces == 0"
+    },
+    {
+      "at": 12,
+      "check": "player.bounce2d.Bouncer.bounces == 1"
+    },
+    {
+      "at": 12,
+      "check": "cloud gone"
+    }
+  ]
+}

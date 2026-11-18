@@ -13,8 +13,12 @@ void steer(ecs::World& world) {
     const float y = actions->value("move_y");
     world.each<const Controlled, transform2d::Velocity>(
         [x, y](ecs::Entity, const Controlled& controlled, transform2d::Velocity& velocity) {
-            velocity.x = x * controlled.speed;
-            velocity.y = y * controlled.speed;
+            if (controlled.horizontal) {
+                velocity.x = x * controlled.speed;
+            }
+            if (controlled.vertical) {
+                velocity.y = y * controlled.speed;
+            }
         });
 }
 

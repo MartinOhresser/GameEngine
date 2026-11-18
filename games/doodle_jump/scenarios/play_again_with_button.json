@@ -1,0 +1,33 @@
+// The first button of the game over screen (Play again) starts a new game.
+{
+  "schema_version": 1,
+  "name": "play_again_with_button",
+  "scene": "test_spring",
+  "ticks": 175,
+  "inputs": [
+    {
+      "tick": 160,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 161,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 160,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 170,
+      "check": "scene is game"
+    },
+    {
+      "at": 175,
+      "check": "player alive"
+    }
+  ]
+}

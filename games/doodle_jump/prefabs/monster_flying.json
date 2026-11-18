@@ -1,0 +1,11 @@
+// A monster that flies from side to side.
+{
+  "schema_version": 1,
+  "name": "monster_flying",
+  "extends": "monster",
+  "components": {
+    "sprite2d.Sprite": { "red": 220, "green": 80, "blue": 80 },
+    "transform2d.Velocity": { "x": 70 },
+    "patrol2d.Patrol": { "min_x": 40, "max_x": 440 }
+  }
+}

@@ -1,0 +1,10 @@
+// White: bounces once, then vanishes.
+{
+  "schema_version": 1,
+  "name": "platform_vanishing",
+  "extends": "platform",
+  "components": {
+    "sprite2d.Sprite": { "red": 190, "green": 215, "blue": 235 },
+    "bounce2d.Bouncy": { "vanish": true }
+  }
+}

@@ -8,11 +8,13 @@
   "components": [
     {
       "name": "WrapArea",
-      "description": "Size of the area an entity wraps around in, starting at the origin.",
+      "description": "Size of the area an entity wraps around in, starting at the origin. wrap_x and wrap_y turn an axis off: a climber that leaves by the left edge and comes back by the right one, but is free to fall or rise, keeps wrap_y false.",
       "replicable": false,
       "fields": [
         { "name": "width", "type": "f32", "default": 800 },
-        { "name": "height", "type": "f32", "default": 600 }
+        { "name": "height", "type": "f32", "default": 600 },
+        { "name": "wrap_x", "type": "bool", "default": true },
+        { "name": "wrap_y", "type": "bool", "default": true }
       ]
     }
   ],

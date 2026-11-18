@@ -1,0 +1,35 @@
+// Jumping on a monster kills it and throws the jumper higher than a platform does,
+// instead of dying.
+{
+  "schema_version": 1,
+  "name": "stomp_kills_monster",
+  "scene": "test_monster_stomp",
+  "ticks": 30,
+  "expect": [
+    {
+      "at": 14,
+      "check": "monster alive"
+    },
+    {
+      "at": 14,
+      "check": "player.bounce2d.Bouncer.bounces == 0"
+    },
+    {
+      "at": 18,
+      "check": "monster gone"
+    },
+    {
+      "at": 18,
+      "check": "player.bounce2d.Bouncer.bounces == 1"
+    },
+    {
+      "at": 18,
+      "check": "player.transform2d.Velocity.y < -800"
+    },
+    {
+      "at": 25,
+      "check": "scene is test_monster_stomp"
+    },
+    "player alive"
+  ]
+}

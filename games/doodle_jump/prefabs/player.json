@@ -1,0 +1,31 @@
+// The jumper. Gravity pulls it down; landing on a platform throws it back up (bounce2d). Left
+// and right steer it (the actions move_x), and it comes back on the other side when it leaves the
+// screen. Touching a monster or falling under the screen kills it (action `died`). Its altitude is
+// the score; Space or Up shoots (action `shoot`).
+{
+  "schema_version": 1,
+  "name": "player",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "gravity2d.Gravity": { "y": 1400, "terminal_speed": 1800 },
+    "action_control.Controlled": { "speed": 380, "vertical": false },
+    "screen_wrap.WrapArea": { "width": 480, "wrap_y": false },
+    "collision2d.Collider": { "width": 36, "height": 44, "layer": ["player"], "mask": ["monster"] },
+    "collision2d.Contacts": {},
+    "bounce2d.Bouncer": {},
+    "combat2d.Mortal": {
+      "hurt_layers": ["monster"], "fall_death": true, "fall_margin": 60, "on_death": "died"
+    },
+    "altitude.Altitude": { "scale": 0.5 },
+    "spawner2d.Shooter": {
+      "prefab": "bullet", "action": "shoot", "cooldown": 15, "speed": 900, "dir_y": -1, "dy": -24
+    },
+    "sprite2d.Sprite": {
+      "atlas": "doodle", "frame": 2, "width": 44, "height": 52, "layer": 5,
+      "red": 255, "green": 255, "blue": 255
+    },
+    "camera2d.CameraTarget": {},
+    "ui.Tag": { "tag": "player" }
+  }
+}

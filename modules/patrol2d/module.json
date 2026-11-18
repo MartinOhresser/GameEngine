@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "patrol2d",
+  "version": "0.1.0",
+  "description": "Back-and-forth movement: an entity that has a Velocity and a Patrol turns round when it reaches the end of its path. Moving platforms, guards and flying monsters need nothing else.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Patrol",
+      "description": "Keeps the entity between min_x and max_x (when patrol_x is on) and between min_y and max_y (when patrol_y is on): when its Position goes past a limit it is put back on it and the matching speed of its Velocity changes sign. The entity's own Velocity sets how fast it goes; one that starts moving the wrong way simply turns at the first limit.",
+      "replicable": true,
+      "fields": [
+        { "name": "patrol_x", "type": "bool", "default": true },
+        { "name": "min_x", "type": "f32", "default": 0 },
+        { "name": "max_x", "type": "f32", "default": 100 },
+        { "name": "patrol_y", "type": "bool", "default": false },
+        { "name": "min_y", "type": "f32", "default": 0 },
+        { "name": "max_y", "type": "f32", "default": 100 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "turn",
+      "description": "Turns every Patrol that went past a limit round, after the movement of the tick.",
+      "stage": "FixedUpdate",
+      "reads": ["Patrol"],
+      "writes": ["transform2d.Position", "transform2d.Velocity"],
+      "after": ["transform2d.integrate"]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+// At the end of a game the score of the run and the best score are shown: after
+// the jump of the spring bench the run is worth 230.
+{
+  "schema_version": 1,
+  "name": "game_over_shows_score",
+  "scene": "test_spring",
+  "ticks": 200,
+  "expect": [
+    {
+      "at": 120,
+      "check": "scene is test_spring"
+    },
+    {
+      "at": 160,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 200,
+      "check": "scoreboard.records.Record.last >= 228"
+    },
+    {
+      "at": 200,
+      "check": "scoreboard.records.Record.best >= 228"
+    },
+    {
+      "at": 200,
+      "check": "over_score.text2d.Text.value >= 228"
+    },
+    {
+      "at": 200,
+      "check": "over_best.text2d.Text.value >= 228"
+    }
+  ]
+}

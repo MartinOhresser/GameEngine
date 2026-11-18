@@ -1,0 +1,17 @@
+// A monster: it kills the jumper that touches it, but dies when jumped on (and throws the
+// jumper high) or shot.
+{
+  "schema_version": 1,
+  "name": "monster",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "doodle", "frame": 4, "width": 52, "height": 48, "layer": 4,
+      "red": 160, "green": 90, "blue": 210
+    },
+    "collision2d.Collider": { "width": 44, "height": 38, "layer": ["monster"], "mask": 0 },
+    "bounce2d.Bouncy": { "strength": 900, "kills": true },
+    "combat2d.Target": { "health": 1 },
+    "spawner2d.Cull": { "margin": 120 }
+  }
+}

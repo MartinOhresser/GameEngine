@@ -1,0 +1,43 @@
+// The second button of the game over screen goes back to the menu.
+{
+  "schema_version": 1,
+  "name": "back_to_menu",
+  "scene": "test_spring",
+  "ticks": 175,
+  "inputs": [
+    {
+      "tick": 160,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 161,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 164,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 165,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 160,
+      "check": "scene is gameover"
+    },
+    {
+      "at": 175,
+      "check": "scene is menu"
+    },
+    {
+      "at": 175,
+      "check": "menu_best alive"
+    }
+  ]
+}

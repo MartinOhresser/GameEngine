@@ -1,0 +1,16 @@
+// A platform: the jumper bounces on it when it falls onto it, and goes through it from below.
+// The others extend it. It is destroyed once it is well under the screen.
+{
+  "schema_version": 1,
+  "name": "platform",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "doodle", "frame": 1, "width": 64, "height": 16, "layer": 2,
+      "red": 110, "green": 200, "blue": 90
+    },
+    "collision2d.Collider": { "width": 64, "height": 14, "layer": ["platform"], "mask": 0 },
+    "bounce2d.Bouncy": { "strength": 760 },
+    "spawner2d.Cull": { "margin": 120 }
+  }
+}

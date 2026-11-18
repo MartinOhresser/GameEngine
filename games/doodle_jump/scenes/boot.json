@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "boot",
+  "entities": [
+    {
+      "name": "scoreboard",
+      "components": {
+        "scene_switch.Persistent": {},
+        "ui.Tag": {
+          "tag": "scoreboard"
+        },
+        "records.Record": {
+          "key": "best_height",
+          "source": "player",
+          "field": "altitude.Altitude.score"
+        }
+      }
+    },
+    {
+      "name": "go_menu",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "menu",
+          "after_ticks": 2
+        }
+      }
+    }
+  ]
+}

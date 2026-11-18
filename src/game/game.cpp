@@ -20,6 +20,9 @@ std::string built_in_source(const std::string& list) {
     if (list == "atlas") {
         return "the manifest's \"atlases\" files";
     }
+    if (list == "prefab") {
+        return "the manifest's \"prefabs\" files";
+    }
     return list == "string" ? "the manifest's \"strings\" files"
                             : "the fields of the game's modules";
 }
@@ -31,6 +34,9 @@ std::string manifest_key_of(const std::string& ref) {
     }
     if (ref == "field") {
         return "modules";
+    }
+    if (ref == "prefab") {
+        return "prefabs";
     }
     return ref == "string" ? "strings" : "lists";
 }
@@ -373,7 +379,8 @@ void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
         const std::string path = join_path("lists", member.first);
         if (!is_snake(member.first)) {
             checker.error(path, "a list name must be lower_snake_case");
-        } else if (member.first == "atlas" || member.first == "string" || member.first == "field") {
+        } else if (member.first == "atlas" || member.first == "string" || member.first == "field" ||
+                   member.first == "prefab") {
             checker.error(path, "the " + member.first + " list is built by the engine from " +
                                     built_in_source(member.first));
         }
@@ -579,11 +586,12 @@ void check_strings(const Context& context, const Game& game,
     }
 }
 
-/// The names of the scene files, read without reporting problems (the scenes
-/// are read and checked properly later).
-std::vector<std::string> scene_names_ahead(const Context& context, const Manifest& manifest) {
+/// The names in the scene or prefab files, read without reporting problems (the
+/// files are read and checked properly later).
+std::vector<std::string> names_ahead(const Context& context,
+                                     const std::vector<std::string>& files) {
     std::vector<std::string> names;
-    for (const std::string& file : manifest.scene_files) {
+    for (const std::string& file : files) {
         const std::optional<std::string> text = (*context.read)(context.directory + file);
         if (!text) {
             continue;
@@ -833,6 +841,9 @@ std::vector<std::string> Game::ref_names(std::string_view ref) const {
     if (ref == "scene") {
         return detail::names_of(scenes);
     }
+    if (ref == "prefab") {
+        return detail::names_of(prefabs);
+    }
     if (ref == "action") {
         return action_names(*this);
     }
@@ -921,7 +932,8 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
     // names are read ahead, because a prefab may lead to a scene that comes later.
     read_input_map(context, manifest_path, loaded.game);
     context.refs["action"] = loaded.game.ref_names("action");
-    context.refs["scene"] = scene_names_ahead(context, loaded.game.manifest);
+    context.refs["scene"] = names_ahead(context, loaded.game.manifest.scene_files);
+    context.refs["prefab"] = names_ahead(context, loaded.game.manifest.prefab_files);
 
     const std::vector<std::string> prefab_files = read_listed<PrefabData>(
         context, manifest_path, "prefabs", game.manifest.prefab_files, read_prefab,

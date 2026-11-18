@@ -1,0 +1,19 @@
+// The platforms of the climb are made ahead of the jumper while it plays: a few
+// ticks in, the screen and the space above it are already full.
+{
+  "schema_version": 1,
+  "name": "world_builds_itself",
+  "scene": "game",
+  "ticks": 10,
+  "expect": [
+    {
+      "at": 0,
+      "check": "entities < 12"
+    },
+    {
+      "at": 3,
+      "check": "entities > 25"
+    },
+    "player alive"
+  ]
+}

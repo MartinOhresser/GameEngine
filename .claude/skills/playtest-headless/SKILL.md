@@ -53,6 +53,7 @@ Les entités citées sont **nommées** (`"name"`) dans la scène du scénario. L
 - Vérifie la **valeur attendue calculée à la main**, pas celle que tu viens d'observer. Écris le calcul en commentaire (« 2 unités par tick × 60 ticks »). Une valeur recopiée de la sortie ne prouve rien.
 - Ajoute un **cas négatif** (ce qui ne doit pas arriver) : la pièce loin du joueur n'est pas ramassée.
 - Place les vérifications à des ticks choisis (`at`) pour couvrir un début, un milieu et une fin.
+- Une règle que le hasard ne produit pas à la demande (un ressort sous le joueur, un monstre au-dessus) se teste dans une **petite scène d'essai** `test_*` qui contient la seule situation voulue, avec les vrais préfabs (modèle : `games/doodle_jump/scenes/test_spring.json`). Casse la règle à la main (un chiffre du préfab) pour voir le scénario échouer.
 - Évite `fingerprint` : il change dès que n'importe quoi change, même voulu.
 - Les vitesses sont en unités par seconde ; un tick vaut `1 / tick_rate` seconde.
 

@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "name": "game",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 247,
+          "blue": 225
+        }
+      }
+    },
+    {
+      "name": "start",
+      "prefab": "platform",
+      "components": {
+        "transform2d.Position": {
+          "x": 240,
+          "y": 690
+        }
+      }
+    },
+    {
+      "name": "player",
+      "prefab": "player",
+      "components": {
+        "transform2d.Position": {
+          "x": 240,
+          "y": 640
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "prefab": "camera",
+      "components": {}
+    },
+    {
+      "name": "platforms",
+      "components": {
+        "spawner2d.Generator": {
+          "prefab": "platform",
+          "alt_prefab": "platform_moving",
+          "alt_chance": 0.0,
+          "alt_chance_end": 0.3,
+          "alt2_prefab": "platform_vanishing",
+          "alt2_chance": 0.0,
+          "alt2_chance_end": 0.15,
+          "extra_prefab": "spring",
+          "extra_chance": 0.12,
+          "extra_chance_end": 0.06,
+          "extra_dx": 22,
+          "extra_dy": -14,
+          "extra_on_alt": false,
+          "x_min": 40,
+          "x_max": 440,
+          "gap_min": 50,
+          "gap_max": 90,
+          "gap_min_end": 90,
+          "gap_max_end": 170,
+          "ramp_height": 12000,
+          "origin_y": 690,
+          "next_y": 560
+        }
+      }
+    },
+    {
+      "name": "breakables",
+      "components": {
+        "spawner2d.Generator": {
+          "prefab": "platform_breakable",
+          "x_min": 40,
+          "x_max": 440,
+          "gap_min": 90,
+          "gap_max": 200,
+          "row_chance": 0.5,
+          "row_chance_end": 0.8,
+          "ramp_height": 12000,
+          "origin_y": 690,
+          "from_height": 600,
+          "next_y": 400
+        }
+      }
+    },
+    {
+      "name": "monsters",
+      "components": {
+        "spawner2d.Generator": {
+          "prefab": "monster",
+          "alt_prefab": "monster_flying",
+          "alt_chance": 0.2,
+          "alt_chance_end": 0.6,
+          "x_min": 60,
+          "x_max": 420,
+          "gap_min": 500,
+          "gap_max": 900,
+          "gap_min_end": 330,
+          "gap_max_end": 500,
+          "row_chance": 0.6,
+          "row_chance_end": 0.9,
+          "ramp_height": 12000,
+          "origin_y": 690,
+          "from_height": 1800,
+          "next_y": 560
+        }
+      }
+    },
+    {
+      "name": "hud_score",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 0.0,
+          "offset_x": 14,
+          "offset_y": 8
+        },
+        "text2d.Text": {
+          "string": "hud.score",
+          "font": "font",
+          "size": 30,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.0,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "ui.Bind": {
+          "source": "player",
+          "field": "altitude.Altitude.score"
+        }
+      }
+    },
+    {
+      "name": "hud_best",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1.0,
+          "anchor_y": 0.0,
+          "offset_x": -14,
+          "offset_y": 14
+        },
+        "text2d.Text": {
+          "string": "hud.best",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 1.0,
+          "pivot_y": 0.0,
+          "red": 120,
+          "green": 120,
+          "blue": 120
+        },
+        "ui.Bind": {
+          "source": "scoreboard",
+          "field": "records.Record.best"
+        }
+      }
+    },
+    {
+      "name": "end_of_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "gameover",
+          "use_action": true,
+          "action": "died"
+        }
+      }
+    }
+  ]
+}

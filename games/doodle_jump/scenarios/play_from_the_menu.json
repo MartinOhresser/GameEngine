@@ -1,0 +1,35 @@
+// The game starts on its menu: Enter on Play starts a game.
+{
+  "schema_version": 1,
+  "name": "play_from_the_menu",
+  "scene": "boot",
+  "ticks": 14,
+  "inputs": [
+    {
+      "tick": 7,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 8,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 0,
+      "check": "scene is boot"
+    },
+    {
+      "at": 6,
+      "check": "scene is menu"
+    },
+    {
+      "at": 14,
+      "check": "scene is game"
+    },
+    "player alive",
+    "scoreboard alive"
+  ]
+}

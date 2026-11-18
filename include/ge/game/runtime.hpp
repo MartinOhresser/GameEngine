@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ge/app/app.hpp"
+#include "ge/app/lists.hpp"
 #include "ge/app/render.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/text.hpp"
@@ -44,6 +45,15 @@ struct SetupResult {
 /// `scene_switch.Persistent`. The app does this by itself, between two ticks,
 /// when a system leaves a `SceneRequest`.
 void change_scene(app::App& app, const Game& game, std::uint32_t scene);
+
+/// Creates the entity a `SpawnRequest` asks for: the components of the prefab,
+/// then the position (and velocity) of the request. The app does this by
+/// itself, between two ticks, for the requests that systems leave in
+/// `SpawnRequests`.
+void spawn_prefab(app::App& app, const Game& game, const app::SpawnRequest& request);
+
+/// The game's lists (the built-in ones and its own `lists`), by name.
+[[nodiscard]] app::ListNames list_names_of(const Game& game);
 
 /// The words of the language in use and the fonts of the game's atlases.
 [[nodiscard]] app::TextTable text_table_of(const Game& game);
