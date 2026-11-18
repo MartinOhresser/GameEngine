@@ -22,7 +22,7 @@ Un jeu déclare dans `game.json` : `"input": "input.json"`. Le fichier associe d
 ```
 
 - Une source s'écrit `genre:nom` en minuscules. Genres : `key`, `mouse` ; `pad` et `touch` sont déjà acceptés et réservés aux futurs backends.
-- Les noms de touches sont ceux de SDL en minuscules, espaces remplacés par `_` : `key:left`, `key:space`, `key:a`, `key:left_shift`, `key:return`. Souris : `mouse:left`, `mouse:middle`, `mouse:right`.
+- Les noms de touches sont ceux de SDL en minuscules, espaces remplacés par `_` : `key:left`, `key:space`, `key:a`, `key:left_shift`, `key:return`. Souris : `mouse:left`, `mouse:middle`, `mouse:right`, et la position du pointeur en pixels de la fenêtre, `mouse:x` et `mouse:y` (liées à une action, par exemple `pointer_x`, elles ne sont pas limitées à [-1, 1]). La taille de la fenêtre est la clé `window` de `game.json` (`{"width": 800, "height": 600}` par défaut) ; `--size` la remplace.
 - Une action vaut la somme `valeur × échelle` de ses sources, bornée à [-1, 1] : deux touches de même sens ne dépassent pas 1, deux touches opposées se compensent.
 - Une action ne figure qu'une fois dans le fichier ; toutes ses sources vont dans la même entrée.
 - Un jeu sans `input` n'a pas d'entrées de joueur : il tourne, mais seul un script peut le piloter.

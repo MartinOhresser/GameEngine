@@ -46,6 +46,22 @@
       },
       "additionalProperties": false
     },
+    "window": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        }
+      },
+      "additionalProperties": false
+    },
     "params": {
       "type": "object",
       "properties": {

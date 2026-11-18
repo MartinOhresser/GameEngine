@@ -1,5 +1,6 @@
 #include "ge/game/runtime.hpp"
 
+#include "ge/app/viewport.hpp"
 #include "ge/core/random.hpp"
 
 #include <algorithm>
@@ -224,6 +225,7 @@ SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEn
     const Manifest& manifest = game.manifest;
     app.set_tick_rate(manifest.tick_rate);
     app.world().insert_resource(Random{manifest.seed});
+    app.world().insert_resource(app::Viewport{manifest.window_width, manifest.window_height});
     app.world().insert_resource(text_table_of(game));
     app.world().insert_resource(app::ActionNames{game.ref_names("action")});
     {

@@ -154,6 +154,10 @@ Value game_schema(const Catalog& catalog) {
     properties.set("description", type_only("string"));
     properties.set("modules", array_of(module_name));
     properties.set("simulation", closed_object(std::move(simulation)));
+    Value window = Value::object();
+    window.set("width", integer_between(1, 16384));
+    window.set("height", integer_between(1, 16384));
+    properties.set("window", closed_object(std::move(window)));
     properties.set("params", params_schema(catalog));
     Value list = type_only("array");
     list.set("items", name_schema());

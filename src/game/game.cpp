@@ -180,6 +180,33 @@ void read_simulation(Checker& checker, const json::Value& root, Manifest& manife
     }
 }
 
+void read_window_size(Checker& checker, const json::Value& object, const char* key,
+                      std::uint32_t& out) {
+    const json::Value* size = object.find(key);
+    if (size == nullptr) {
+        return;
+    }
+    if (size->is_int() && size->as_int() >= 1 && size->as_int() <= 16384) {
+        out = static_cast<std::uint32_t>(size->as_int());
+    } else {
+        checker.error(join_path("window", key), "expected a whole number of pixels, 1 to 16384");
+    }
+}
+
+void read_window(Checker& checker, const json::Value& root, Manifest& manifest) {
+    const json::Value* window = root.find("window");
+    if (window == nullptr) {
+        return;
+    }
+    const json::Value* object = checker.object(*window, "window");
+    if (object == nullptr) {
+        return;
+    }
+    checker.reject_unknown(*object, "window", {"width", "height"});
+    read_window_size(checker, *object, "width", manifest.window_width);
+    read_window_size(checker, *object, "height", manifest.window_height);
+}
+
 void read_modules(const Context& context, Checker& checker, const json::Value& root,
                   Manifest& manifest) {
     manifest.modules = checker.texts(root, "modules", "");
@@ -366,8 +393,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "lists", "locale", "strings", "atlases",
-                            "prefabs", "scenes", "scenarios", "input", "start_scene"});
+                            "simulation", "window", "params", "lists", "locale", "strings",
+                            "atlases", "prefabs", "scenes", "scenarios", "input", "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -377,6 +404,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     static_cast<void>(checker.text(*object, "description", "", false, manifest.description));
     read_modules(context, checker, *object, manifest);
     read_simulation(checker, *object, manifest);
+    read_window(checker, *object, manifest);
     read_params(context, checker, *object, manifest);
     read_lists(checker, *object, manifest);
     manifest.strings_files = read_file_list(checker, *object, "strings");

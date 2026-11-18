@@ -1,5 +1,6 @@
 #include "ge/platform/sdl/geplay.hpp"
 
+#include "ge/app/viewport.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
 #include <algorithm>
@@ -32,8 +33,8 @@ constexpr const char* usage_text =
 struct Arguments {
     std::string game_path;
     std::uint64_t frames = 0; ///< 0: until the window closes.
-    int width = 800;
-    int height = 600;
+    int width = 0;            ///< 0: the size the game asks for (`window` in game.json).
+    int height = 0;
     bool headless = false;
     std::string screenshot;
 };
@@ -165,8 +166,13 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
 
     WindowOptions window;
     window.title = loaded.game.manifest.name;
-    window.width = arguments.width;
-    window.height = arguments.height;
+    window.width =
+        arguments.width > 0 ? arguments.width : static_cast<int>(loaded.game.manifest.window_width);
+    window.height = arguments.height > 0 ? arguments.height
+                                         : static_cast<int>(loaded.game.manifest.window_height);
+    // The interface anchors itself to the real size of the window.
+    app.world().insert_resource(app::Viewport{static_cast<std::uint32_t>(window.width),
+                                              static_cast<std::uint32_t>(window.height)});
     window.headless = arguments.headless;
     window.capture = !arguments.screenshot.empty();
     std::string error;

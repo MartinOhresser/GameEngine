@@ -4,6 +4,7 @@
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
 #include "ge/app/scene.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/core/assert.hpp"
 #include "ge/core/random.hpp"
 
@@ -227,6 +228,7 @@ App::App() {
     world_.insert_resource(EntityNames{});
     world_.insert_resource(ScriptedInput{});
     world_.insert_resource(LiveInput{});
+    world_.insert_resource(Viewport{});
     world_.insert_resource(RenderBackend{});
     world_.insert_resource(AudioBackend{});
     set_tick_rate(60);

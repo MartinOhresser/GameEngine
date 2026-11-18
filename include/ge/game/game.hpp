@@ -117,6 +117,9 @@ struct Manifest {
     std::vector<std::string> modules;
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
+    /// The size in pixels of the area the game draws in (`window`).
+    std::uint32_t window_width = 800;
+    std::uint32_t window_height = 600;
     std::vector<ParamSetting> params;
     /// The game's own named lists, in the order the manifest gives them: the
     /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
