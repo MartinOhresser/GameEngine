@@ -1,6 +1,8 @@
 #include "ge/app/host.hpp"
 
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/mod/host/host.gen.hpp"
 
@@ -34,10 +36,25 @@ void trigger(ecs::World& world) {
         });
     }
     if (auto* requests = world.resource<app::HostRequests>(); requests != nullptr) {
+        const auto* lists = world.resource<app::RuntimeLists>();
+        const auto* list_names = world.resource<app::ListNames>();
         world.each<Call>([&](ecs::Entity, Call& item) {
-            if (item.command != none && pressed(*actions, *names, item.action)) {
-                requests->pending.push_back(app::HostRequest{item.command, item.argument});
+            if (item.command == none || !pressed(*actions, *names, item.action)) {
+                return;
             }
+            std::uint32_t argument = item.argument;
+            if (item.list != none) {
+                // The selected item of a list filled at run time is the argument.
+                const std::string_view list = list_names == nullptr
+                                                  ? std::string_view{}
+                                                  : list_names->name("runtime_list", item.list);
+                argument = lists == nullptr || list.empty() ? app::RuntimeLists::none
+                                                            : lists->selected(list);
+                if (argument == app::RuntimeLists::none) {
+                    return;
+                }
+            }
+            requests->pending.push_back(app::HostRequest{item.command, argument});
         });
     }
 }

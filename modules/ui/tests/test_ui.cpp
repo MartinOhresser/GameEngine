@@ -1,6 +1,8 @@
 #include "ge/app/app.hpp"
 #include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
@@ -269,4 +271,144 @@ TEST_CASE("ui: the pointer focuses the button it moves over and a click presses 
     scene.app.run_frames(5);
     CHECK(!actions->down("play"));
     CHECK(!actions->down("quit"));
+}
+
+namespace {
+
+constexpr std::uint32_t previous_page = 8;
+constexpr std::uint32_t next_page = 9;
+
+/// A list of `count` items shown by three rows, as a Pager of page_size 3 would, with a
+/// button "play" under it that is not a row. Returns the rows' entities.
+struct PagedScene {
+    Scene scene;
+    std::vector<ge::ecs::Entity> rows;
+    ge::ecs::Entity pager;
+    ge::ecs::Entity play_button;
+
+    explicit PagedScene(std::size_t count) {
+        scene.app.world().insert_resource(
+            ge::app::ActionNames{{"up", "down", "accept", "pointer_x", "pointer_y", "click", "play",
+                                  "quit", "previous", "next"}});
+        scene.app.world().insert_resource(
+            ge::app::ListNames{{{"runtime_list", {"games"}}, {"menu", {"main"}}}});
+        std::vector<std::string> items;
+        for (std::size_t i = 0; i < count; ++i) {
+            items.push_back("game " + std::to_string(i));
+        }
+        scene.app.world().resource<ge::app::RuntimeLists>()->set("games", items);
+        scene.spawn(menu_with_keys());
+        ui::Pager paging;
+        paging.page_size = 3;
+        paging.previous = previous_page;
+        paging.next = next_page;
+        pager = scene.spawn(paging);
+        for (std::uint32_t row = 0; row < 3; ++row) {
+            ui::Row line;
+            line.row = row;
+            rows.push_back(scene.spawn(transform2d::Position{0.0F, 40.0F * static_cast<float>(row)},
+                                       sprite2d::Sprite{}, text2d::Text{}, text2d::Dynamic{}, line,
+                                       button(row, play)));
+        }
+        play_button =
+            scene.spawn(transform2d::Position{0.0F, 200.0F}, sprite2d::Sprite{}, button(3, quit));
+    }
+
+    [[nodiscard]] std::uint32_t item_of(std::size_t row) const {
+        return scene.app.world().get<ui::Row>(rows[row])->item;
+    }
+    [[nodiscard]] bool enabled(std::size_t row) const {
+        return scene.app.world().get<ui::Button>(rows[row])->enabled;
+    }
+    void press(const char* action) {
+        scene.app.world().resource<ge::app::Actions>()->raise(action);
+        scene.app.run_frames(2);
+    }
+};
+
+} // namespace
+
+TEST_CASE("ui: a pager gives each row its item, and the buttons turn the pages") {
+    PagedScene paged(5);
+    paged.scene.app.run_frames(1);
+    CHECK(paged.item_of(0) == 0U);
+    CHECK(paged.item_of(2) == 2U);
+    CHECK(paged.enabled(2));
+    const auto* dynamic = paged.scene.app.world().get<text2d::Dynamic>(paged.rows[1]);
+    CHECK(dynamic->list == 0U);
+    CHECK(dynamic->index == 1U);
+    CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->pages == 2U);
+
+    paged.press("next");
+    CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->page == 1U);
+    CHECK(paged.item_of(0) == 3U);
+    CHECK(paged.item_of(1) == 4U);
+    CHECK(paged.enabled(1));
+    CHECK(!paged.enabled(2)); // no sixth item: the row is switched off
+    paged.press("next");      // the last page is the end
+    CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->page == 1U);
+    paged.press("previous");
+    paged.press("previous");
+    CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->page == 0U);
+    CHECK(paged.enabled(2));
+}
+
+TEST_CASE("ui: a list that changes size changes the pages, and an empty list has one") {
+    PagedScene paged(7);
+    paged.scene.app.run_frames(1);
+    CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->pages == 3U);
+    paged.press("next");
+    paged.press("next");
+    CHECK(paged.item_of(0) == 6U);
+    paged.scene.app.world().resource<ge::app::RuntimeLists>()->set("games", {"only"});
+    paged.scene.app.run_frames(2);
+    const auto* pager = paged.scene.app.world().get<ui::Pager>(paged.pager);
+    CHECK(pager->pages == 1U);
+    CHECK(pager->page == 0U); // pulled back inside the list
+    CHECK(paged.enabled(0));
+    CHECK(!paged.enabled(1));
+}
+
+TEST_CASE("ui: the focus skips the rows that have no item") {
+    PagedScene paged(2); // rows 0 and 1 are shown, row 2 is off; button 3 is "quit"
+    auto* script = paged.scene.app.world().resource<ge::app::ScriptedInput>();
+    script->add(1, "down", 1.0F);
+    script->add(2, "down", 0.0F);
+    script->add(3, "down", 1.0F);
+    script->add(4, "down", 0.0F);
+    script->add(5, "down", 1.0F);
+    script->add(6, "down", 0.0F);
+    const auto* menu_of = [&paged]() {
+        const ui::Menu* found = nullptr;
+        paged.scene.app.world().each<const ui::Menu>(
+            [&found](ge::ecs::Entity, const ui::Menu& m) { found = &m; });
+        return found;
+    }();
+    REQUIRE(menu_of != nullptr);
+    paged.scene.app.run_frames(2); // after down: row 1
+    CHECK(menu_of->focused == 1U);
+    paged.scene.app.run_frames(2); // row 2 is off: the next is the button 3
+    CHECK(menu_of->focused == 3U);
+}
+
+TEST_CASE("ui: the focused row is the selection of the list, and it stays when the focus leaves") {
+    PagedScene paged(5);
+    const auto* lists = paged.scene.app.world().resource<ge::app::RuntimeLists>();
+    paged.scene.app.run_frames(1);
+    CHECK(lists->selected("games") == 0U); // the first button has the focus
+    auto* script = paged.scene.app.world().resource<ge::app::ScriptedInput>();
+    script->add(2, "down", 1.0F);
+    script->add(3, "down", 0.0F);
+    paged.scene.app.run_frames(3);
+    CHECK(lists->selected("games") == 1U);
+    paged.press("next"); // the page turns: the focused row now shows item 4
+    CHECK(lists->selected("games") == 4U);
+    script->add(8, "down", 1.0F);
+    script->add(9, "down", 0.0F);
+    paged.scene.app.run_frames(4); // the focus skips row 2 (off) and lands on the button
+    std::uint32_t focused = 99;
+    paged.scene.app.world().each<const ui::Menu>(
+        [&focused](ge::ecs::Entity, const ui::Menu& m) { focused = m.focused; });
+    CHECK(focused == 3U);
+    CHECK(lists->selected("games") == 4U); // still the last row that had it
 }

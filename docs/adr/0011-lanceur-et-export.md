@@ -73,6 +73,8 @@ Le dossier `data/` contient les fichiers du jeu tels quels (JSON, PNG, sons). Le
 
 - **E2.** Le module `host` porte `Quit` et `Call` ; les ressources `QuitRequest`, `HostRequests` et `HostInfo` sont dans le cœur (`ge/app/host.hpp`). `Backend` gagne `resize` ; l'hôte, pas le jeu, remet la fenêtre à la taille du lanceur au retour. Sur mobile, `Quit` ne fait rien (`HostInfo::mobile`), mais le **bouton** reste visible : le masquer demande à `ui` de lire `HostInfo` et viendra avec le texte dynamique (E3).
 
+- **E3.** `text2d.Dynamic` (liste, indice) est un composant à part plutôt que de nouveaux champs de `Text` : les jeux existants gardent leur empreinte. La liste affichée est paginée par `ui.Pager` + `ui.Row`, faits de boutons ordinaires (clavier et souris gratuits) ; le `Pager` éteint les boutons sans élément (`Button.enabled`). `RuntimeLists` mémorise l'élément sélectionné de chaque liste, que `host.Call` envoie comme argument de la commande.
+
 ## Limites assumées
 
 - **SmartScreen.** Un `.exe` non signé téléchargé affiche « Windows a protégé votre PC » ; le destinataire clique sur « Informations complémentaires » puis « Exécuter quand même ». Seul un certificat de signature (payant) l'évite ; une option `--sign` viendra plus tard.

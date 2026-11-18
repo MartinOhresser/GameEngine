@@ -52,6 +52,7 @@ enum class CheckKind : std::uint8_t {
     Scene,       ///< "scene is credits": the game is in that scene (`entity` holds its name)
     Quit,        ///< "game quits": the game asked to leave (a "Quit" button was pressed)
     HostCall,    ///< "host calls play": the game raised that host command (`entity` holds its name)
+    ListSelected, ///< "list games selected == 1": the selected item of a run-time list
 };
 
 /// One thing a scenario expects to be true at a given tick.
@@ -86,6 +87,8 @@ struct ScenarioData {
     std::string scene;
     std::uint64_t ticks = 0;
     std::vector<ScenarioInput> inputs;
+    /// Run-time lists (`RuntimeLists`) filled before the first tick, as a host would: name, items.
+    std::vector<std::pair<std::string, std::vector<std::string>>> lists;
     std::vector<Check> checks;
 };
 

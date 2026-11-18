@@ -99,9 +99,39 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
 
 constexpr std::array<::ge::app::FieldInfo, 13> component_0_fields{{{"string", "u32", "string", false}, {"font", "u32", "atlas", false}, {"size", "f32", "", false}, {"spacing", "f32", "", false}, {"line_spacing", "f32", "", false}, {"pivot_x", "f32", "", false}, {"pivot_y", "f32", "", false}, {"value", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"screen", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Text", false, component_0_fields, insert_component_0, read_component_0}}};
+void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Dynamic component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "list") {
+            component.list = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "index") {
+            component.index = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 2> system_0_reads{"text2d.Text", "transform2d.Position"};
+std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Dynamic* component = world.get<Dynamic>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "list") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->list)};
+    }
+    if (field == "index") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->index)};
+    }
+    return std::nullopt;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"list", "u32", "runtime_list", false}, {"index", "u32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Text", false, component_0_fields, insert_component_0, read_component_0}, {"Dynamic", false, component_1_fields, insert_component_1, read_component_1}}};
+
+constexpr std::array<std::string_view, 3> system_0_reads{"text2d.Text", "text2d.Dynamic", "transform2d.Position"};
 constexpr std::array<std::string_view, 0> system_0_writes{};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"text2d.draw", ::ge::app::Stage::PostUpdate, system_0_reads, system_0_writes}}};
 

@@ -46,6 +46,15 @@
         ]
       }
     },
+    "lists": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
     "expect": {
       "type": "array",
       "items": {

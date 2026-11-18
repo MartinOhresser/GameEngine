@@ -1,5 +1,7 @@
 #include "ge/app/app.hpp"
+#include "ge/app/lists.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/text.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -176,4 +178,52 @@ TEST_CASE("text2d: tint, screen space and the missing resources") {
     CHECK(bare.world().insert(entity, transform2d::Position{}));
     CHECK(bare.world().insert(entity, text2d::Text{}));
     bare.run_frames(1);
+}
+
+namespace {
+
+/// A text that shows item `index` of the run-time list "names" (the game's runtime_list item 0).
+void show_item(Scene& scene, std::uint32_t index) {
+    ge::app::ListNames names;
+    names.lists.emplace_back("runtime_list", std::vector<std::string>{"names"});
+    scene.app.world().insert_resource(std::move(names));
+    const ge::ecs::Entity entity = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    CHECK(scene.app.world().insert(entity, text_of(0)));
+    CHECK(scene.app.world().insert(entity, text2d::Dynamic{0, index}));
+    scene.app.run_frames(1);
+}
+
+} // namespace
+
+TEST_CASE("text2d: a Dynamic shows an item of a list filled while the game runs") {
+    Scene scene({"zz"});
+    scene.app.world().resource<ge::app::RuntimeLists>()->set("names", {"ab", "ba."});
+    show_item(scene, 1);
+    REQUIRE(scene.drawn().size() == 3U); // "ba.", not the game's "zz"
+    CHECK(scene.drawn()[0].frame == 1U);
+    CHECK(scene.drawn()[1].frame == 0U);
+    CHECK(scene.drawn()[2].frame == 13U);
+}
+
+TEST_CASE("text2d: an item that does not exist, or a list never filled, shows nothing") {
+    Scene scene({"ab"});
+    scene.app.world().resource<ge::app::RuntimeLists>()->set("names", {"ab"});
+    show_item(scene, 5);
+    CHECK(scene.drawn().empty());
+
+    Scene empty({"ab"});
+    show_item(empty, 0);
+    CHECK(empty.drawn().empty());
+}
+
+TEST_CASE("text2d: a list that is replaced is shown again at the next frame") {
+    Scene scene({"ab"});
+    auto* lists = scene.app.world().resource<ge::app::RuntimeLists>();
+    lists->set("names", {"a"});
+    show_item(scene, 0);
+    CHECK(scene.drawn().size() == 1U);
+    lists->set("names", {"abab"});
+    scene.app.run_frames(1);
+    CHECK(scene.drawn().size() == 5U); // the frame before (1 letter) plus 4 now
 }

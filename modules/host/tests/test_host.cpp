@@ -1,6 +1,8 @@
 #include "ge/app/app.hpp"
 #include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/mod/host/host.gen.hpp"
 
@@ -86,4 +88,26 @@ TEST_CASE("host: without the resources of an app the system does nothing") {
     app.world().remove_resource<ge::app::ActionNames>();
     app.run_frames(3);
     CHECK(!quit_requested(app));
+}
+
+TEST_CASE("host: a Call that names a list sends the selected item as its argument") {
+    ge::app::App app = game();
+    app.world().insert_resource(ge::app::ListNames{{{"runtime_list", {"games"}}}});
+    host::Call call;
+    call.command = 3;
+    call.action = play_action;
+    call.list = 0;
+    CHECK(app.world().insert(app.world().spawn(), call));
+    auto* lists = app.world().resource<ge::app::RuntimeLists>();
+    lists->set("games", {"a", "b", "c"});
+
+    press(app, "play_game");
+    CHECK(app.world().resource<ge::app::HostRequests>()->pending.empty()); // nothing selected
+
+    lists->select("games", 2);
+    press(app, "play_game");
+    const auto& pending = app.world().resource<ge::app::HostRequests>()->pending;
+    REQUIRE(pending.size() == 1U);
+    CHECK(pending[0].command == 3U);
+    CHECK(pending[0].argument == 2U);
 }

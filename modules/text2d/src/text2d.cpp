@@ -1,4 +1,6 @@
+#include "ge/app/lists.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/text.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -8,12 +10,16 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace ge::mod::text2d {
 
 namespace {
+
+constexpr std::uint32_t none = 4294967295U;
 
 std::uint32_t channel(std::uint32_t value) {
     return std::min<std::uint32_t>(value, 255U);
@@ -80,9 +86,32 @@ int glyph_index(const app::FontInfo& font, char32_t character) {
     return at == std::u32string::npos ? -1 : static_cast<int>(at);
 }
 
+/// The words to write: an item of a list filled at run time when the entity has a
+/// `Dynamic` that names one (nothing when the item does not exist), else the text
+/// of the game's strings.
+std::optional<std::string> words_of(ecs::World& world, ecs::Entity entity,
+                                    const app::TextTable& table, const Text& text) {
+    const Dynamic* dynamic = world.get<Dynamic>(entity);
+    if (dynamic == nullptr || dynamic->list == none) {
+        return text.string < table.texts.size() ? std::optional(table.texts[text.string])
+                                                : std::nullopt;
+    }
+    const auto* names = world.resource<app::ListNames>();
+    const auto* lists = world.resource<app::RuntimeLists>();
+    if (names == nullptr || lists == nullptr) {
+        return std::nullopt;
+    }
+    const std::string_view list = names->name("runtime_list", dynamic->list);
+    const std::vector<std::string>* items = list.empty() ? nullptr : lists->find(list);
+    if (items == nullptr || dynamic->index >= items->size()) {
+        return std::nullopt;
+    }
+    return (*items)[dynamic->index];
+}
+
 void draw_text(app::Renderer& renderer, const app::TextTable& table, const Text& text,
-               const transform2d::Position& position) {
-    if (text.string >= table.texts.size() || text.font >= table.fonts.size()) {
+               const std::string& words, const transform2d::Position& position) {
+    if (text.font >= table.fonts.size()) {
         return;
     }
     const app::FontInfo& font = table.fonts[text.font];
@@ -96,7 +125,7 @@ void draw_text(app::Renderer& renderer, const app::TextTable& table, const Text&
     const float line_height = glyph_height + text.line_spacing;
 
     const std::vector<std::u32string> lines =
-        lines_of(app::decode_utf8(with_value(table.texts[text.string], text.value)));
+        lines_of(app::decode_utf8(with_value(words, text.value)));
     float widest = 0.0F;
     for (const std::u32string& line : lines) {
         widest = std::max(widest, static_cast<float>(line.size()) * advance - text.spacing);
@@ -136,10 +165,12 @@ void draw(ecs::World& world) {
         return;
     }
     app::Renderer& renderer = backend->renderer();
-    world.each<const Text, const transform2d::Position>(
-        [&](ecs::Entity, const Text& text, const transform2d::Position& position) {
-            draw_text(renderer, *table, text, position);
-        });
+    world.each<const Text, const transform2d::Position>([&](ecs::Entity entity, const Text& text,
+                                                            const transform2d::Position& position) {
+        if (const std::optional<std::string> words = words_of(world, entity, *table, text); words) {
+            draw_text(renderer, *table, text, *words, position);
+        }
+    });
 }
 
 } // namespace ge::mod::text2d
