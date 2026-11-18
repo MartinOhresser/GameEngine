@@ -210,6 +210,7 @@ private:
     void run_startup_once();
     void apply_scene_request();
     void begin_tick_input();
+    void record_fields(const ModuleInfo& info);
     void run_stage(Stage stage);
     void add_stage_hook(Stage stage, System hook);
 

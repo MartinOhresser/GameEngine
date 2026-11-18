@@ -38,9 +38,19 @@ public:
     /// True during the tick when the action went from not 0 to 0.
     [[nodiscard]] bool released(std::string_view action) const;
 
+    /// Asks for the action to be pressed for one whole tick, starting with the
+    /// next one: every system sees it as `pressed` during that tick, whatever
+    /// the order the systems run in. A button of an interface raises its action
+    /// this way. The action goes back to 0 on the tick after.
+    void raise(std::string_view action);
+
     /// Remembers the current values as the previous ones. `App` calls it once
     /// per fixed tick, before the tick's input is applied.
     void begin_tick();
+
+    /// Presses the raised actions that are due this tick. `App` calls it once
+    /// per tick, after the tick's input is applied.
+    void apply_raised();
 
     [[nodiscard]] const std::map<std::string, float, std::less<>>& values() const noexcept {
         return current_;
@@ -51,6 +61,8 @@ public:
 private:
     std::map<std::string, float, std::less<>> current_;
     std::map<std::string, float, std::less<>> previous_;
+    std::vector<std::string> queued_; ///< Raised during this tick: pressed on the next.
+    std::vector<std::string> lit_;    ///< Pressed during this tick by a `raise`.
 };
 
 /// One change of an action, at a fixed tick.

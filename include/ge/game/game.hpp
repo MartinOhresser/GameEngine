@@ -149,6 +149,9 @@ struct Game {
     std::vector<AtlasData> atlases;
     /// What the `input` file binds; empty when the manifest names none.
     platform::InputMap input;
+    /// "module.Component.field" of every field of the modules the manifest
+    /// lists, sorted: the game's built-in `field` list.
+    std::vector<std::string> fields;
 
     [[nodiscard]] const PrefabData* find_prefab(std::string_view name) const;
     [[nodiscard]] const SceneData* find_scene(std::string_view name) const;

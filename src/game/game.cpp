@@ -15,16 +15,28 @@ using namespace detail;
 /// Most names a set field can hold: one bit of its u32 per name.
 constexpr std::size_t max_set_size = 32;
 
-/// One name given for a ref field: it must be in the game's list, and in a set
-/// it must be among the first 32 names, which are the ones a bit mask can hold.
+/// Where a built-in list comes from, as a sentence ending.
+std::string built_in_source(const std::string& list) {
+    if (list == "atlas") {
+        return "the manifest's \"atlases\" files";
+    }
+    return list == "string" ? "the manifest's \"strings\" files"
+                            : "the fields of the game's modules";
+}
+
 /// The manifest key that fills the built-in list `ref`, or "lists" for a list of the game's own.
 std::string manifest_key_of(const std::string& ref) {
     if (ref == "atlas") {
         return "atlases";
     }
+    if (ref == "field") {
+        return "modules";
+    }
     return ref == "string" ? "strings" : "lists";
 }
 
+/// One name given for a ref field: it must be in the game's list, and in a set
+/// it must be among the first 32 names, which are the ones a bit mask can hold.
 void check_ref_name(Checker& checker, const std::string& path, const FieldDef& field,
                     const std::vector<std::string>& names, const std::string& name) {
     if (names.empty()) {
@@ -361,9 +373,9 @@ void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
         const std::string path = join_path("lists", member.first);
         if (!is_snake(member.first)) {
             checker.error(path, "a list name must be lower_snake_case");
-        } else if (member.first == "atlas" || member.first == "string") {
-            checker.error(path, "the " + member.first + " list is made by the manifest's \"" +
-                                    (member.first == "atlas" ? "atlases" : "strings") + "\" files");
+        } else if (member.first == "atlas" || member.first == "string" || member.first == "field") {
+            checker.error(path, "the " + member.first + " list is built by the engine from " +
+                                    built_in_source(member.first));
         }
         std::vector<std::string> names;
         if (!member.second.is_array()) {
@@ -764,6 +776,26 @@ const StringsData* Game::active_strings() const {
 
 namespace {
 
+/// "module.Component.field" for every field of the listed modules, sorted.
+/// `app::FieldTable` has the same names in the same order.
+std::vector<std::string> field_names(const Catalog& catalog,
+                                     const std::vector<std::string>& modules) {
+    std::vector<std::string> names;
+    for (const std::string& module : modules) {
+        const ModuleDef* def = catalog.find_module(module);
+        if (def == nullptr) {
+            continue;
+        }
+        for (const ComponentDef& component : def->components) {
+            for (const FieldDef& field : component.fields) {
+                names.push_back(module + "." + component.name + "." + field.name);
+            }
+        }
+    }
+    std::sort(names.begin(), names.end());
+    return names;
+}
+
 /// The actions of the manifest's own list, then those the input file binds.
 std::vector<std::string> action_names(const Game& game) {
     std::vector<std::string> names;
@@ -806,6 +838,9 @@ std::vector<std::string> Game::ref_names(std::string_view ref) const {
     }
     if (ref == "string") {
         return string_keys(*this);
+    }
+    if (ref == "field") {
+        return fields;
     }
     for (const auto& list : manifest.lists) {
         if (list.first == ref) {
@@ -856,6 +891,7 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         return loaded;
     }
     context.modules = loaded.game.manifest.modules;
+    loaded.game.fields = field_names(catalog, loaded.game.manifest.modules);
 
     Game& game = loaded.game;
     read_listed<AtlasData>(
@@ -876,6 +912,7 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
     check_strings(context, loaded.game, strings_files);
     context.refs["atlas"] = loaded.game.ref_names("atlas");
     context.refs["string"] = loaded.game.ref_names("string");
+    context.refs["field"] = loaded.game.fields;
     for (const auto& list : loaded.game.manifest.lists) {
         context.refs[list.first] = list.second;
     }

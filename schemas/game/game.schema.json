@@ -27,7 +27,8 @@
           "screen_wrap",
           "sprite2d",
           "text2d",
-          "transform2d"
+          "transform2d",
+          "ui"
         ]
       }
     },
@@ -124,6 +125,11 @@
               "maximum": 10
             }
           },
+          "additionalProperties": false
+        },
+        "ui": {
+          "type": "object",
+          "properties": {},
           "additionalProperties": false
         }
       },

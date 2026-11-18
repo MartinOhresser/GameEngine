@@ -163,5 +163,5 @@ TEST_CASE("strings: the files and the locale are checked") {
 TEST_CASE("strings: the lists the manifest builds cannot also be declared by hand") {
     CHECK(mentions(load_changed("g/game.json", R"("locale": "fr",)",
                                 "\"locale\": \"fr\", \"lists\": {\"string\": [\"x\"]},"),
-                   "the string list is made by"));
+                   "the string list is built by"));
 }

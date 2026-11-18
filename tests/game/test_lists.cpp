@@ -173,7 +173,7 @@ TEST_CASE("lists: the manifest's lists are checked") {
     CHECK(mentions(load_changed("g/game.json", "\"item_kind\":", "\"Item Kind\":"),
                    "lower_snake_case"));
     CHECK(mentions(load_changed("g/game.json", "\"item_kind\":", "\"atlas\":"),
-                   "made by the manifest"));
+                   "built by the engine"));
     CHECK(mentions(
         load_changed("g/game.json", "[\"potion\", \"sword\", \"key\"]", "[\"potion\", \"potion\"]"),
         "already in this list"));

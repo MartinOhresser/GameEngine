@@ -49,7 +49,11 @@ void draw(ecs::World& world) {
     std::vector<Queued> queue;
     world.each<const Sprite, const transform2d::Position>(
         [&queue](ecs::Entity, const Sprite& sprite, const transform2d::Position& position) {
-            app::DrawCommand command{"sprite", position.x, position.y, 0.0F, pack(sprite)};
+            // The pivot says which point of the picture sits on the Position (0.5:
+            // the middle). It needs a size in world units to move anything.
+            const float x = position.x + (0.5F - sprite.pivot_x) * sprite.width;
+            const float y = position.y + (0.5F - sprite.pivot_y) * sprite.height;
+            app::DrawCommand command{"sprite", x, y, 0.0F, pack(sprite)};
             command.atlas = static_cast<int>(std::min<std::uint32_t>(sprite.atlas, 0x7FFFFFFFU));
             command.frame = sprite.frame;
             command.width = sprite.width;

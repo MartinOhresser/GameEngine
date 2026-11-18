@@ -11,13 +11,15 @@
 
 namespace ge::mod::sprite2d {
 
-/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.
+/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.
 struct Sprite {
     std::uint32_t atlas = 0U;
     std::uint32_t frame = 0U;
     float width = 0.0F;
     float height = 0.0F;
     std::int32_t layer = 0;
+    float pivot_x = 0.5F;
+    float pivot_y = 0.5F;
     bool flip_x = false;
     bool screen = false;
     std::uint32_t red = 255U;
@@ -31,6 +33,8 @@ struct Sprite {
         hasher.add(width);
         hasher.add(height);
         hasher.add(layer);
+        hasher.add(pivot_x);
+        hasher.add(pivot_y);
         hasher.add(flip_x);
         hasher.add(screen);
         hasher.add(red);

@@ -1,0 +1,143 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "ui",
+  "version": "0.1.0",
+  "description": "Interfaces made of entities: things that stay where the window's edges put them, rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
+  "depends": ["transform2d", "sprite2d", "text2d"],
+  "components": [
+    {
+      "name": "Anchor",
+      "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts.",
+      "replicable": false,
+      "fields": [
+        { "name": "anchor_x", "type": "f32", "default": 0 },
+        { "name": "anchor_y", "type": "f32", "default": 0 },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Grid",
+      "description": "Lays out the entities that have a Cell of the same group: cell number n goes in column n % columns and row n / columns, cell_width + spacing_x and cell_height + spacing_y apart, the first cell being centred on the Grid's own Position. columns 1 makes a column, a large number a row. A hotbar, an inventory, a list of buttons and a table are all grids with other numbers. group names an item of the game's \"group\" list (game.json lists).",
+      "replicable": false,
+      "fields": [
+        { "name": "group", "type": "u32", "default": 0, "ref": "group" },
+        { "name": "columns", "type": "u32", "default": 1 },
+        { "name": "cell_width", "type": "f32", "default": 32 },
+        { "name": "cell_height", "type": "f32", "default": 32 },
+        { "name": "spacing_x", "type": "f32", "default": 0 },
+        { "name": "spacing_y", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Cell",
+      "description": "An entity that a Grid of the same group places: index is its number in the grid, counted from 0.",
+      "replicable": false,
+      "fields": [
+        { "name": "group", "type": "u32", "default": 0, "ref": "group" },
+        { "name": "index", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Tag",
+      "description": "A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's \"tag\" list. When several entities share a tag, the oldest one is found.",
+      "replicable": false,
+      "fields": [{ "name": "tag", "type": "u32", "default": 0, "ref": "tag" }]
+    },
+    {
+      "name": "Bind",
+      "description": "Shows a number of the game: every tick, the value of field (written \"module.Component.field\", for example \"pickup.Collector.score\") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. A missing source or component leaves the value at 0.",
+      "replicable": false,
+      "fields": [
+        { "name": "source", "type": "u32", "default": 0, "ref": "tag" },
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" }
+      ]
+    },
+    {
+      "name": "Bar",
+      "description": "A bar that fills as value goes from 0 to max: the entity's Sprite is made length * value / max long and thickness thick (the other way round when vertical). Give the Sprite a pivot_x of 0 (pivot_y of 1 when vertical) and the bar grows from its left (bottom) end, which sits on the Position. Put a Bind on the entity to show a number of the game.",
+      "replicable": false,
+      "fields": [
+        { "name": "value", "type": "f32", "default": 0 },
+        { "name": "max", "type": "f32", "default": 1 },
+        { "name": "length", "type": "f32", "default": 100 },
+        { "name": "thickness", "type": "f32", "default": 10 },
+        { "name": "vertical", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Menu",
+      "description": "The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. group names an item of the game's \"menu\" list; wrap makes the focus go round. focused is the number of the focused button.",
+      "replicable": false,
+      "fields": [
+        { "name": "group", "type": "u32", "default": 0, "ref": "menu" },
+        { "name": "focused", "type": "u32", "default": 0 },
+        { "name": "wrap", "type": "bool", "default": true },
+        { "name": "up", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "down", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "accept", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "use_pointer", "type": "bool", "default": false },
+        { "name": "pointer_x", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "pointer_y", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "click", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "last_x", "type": "f32", "default": 0 },
+        { "name": "last_y", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Button",
+      "description": "A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action, which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.",
+      "replicable": false,
+      "fields": [
+        { "name": "menu", "type": "u32", "default": 0, "ref": "menu" },
+        { "name": "order", "type": "u32", "default": 0 },
+        { "name": "action", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "width", "type": "f32", "default": 100 },
+        { "name": "height", "type": "f32", "default": 30 },
+        { "name": "normal_frame", "type": "u32", "default": 0 },
+        { "name": "focus_frame", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "anchor",
+      "description": "Puts every anchored entity where the window's size says.",
+      "stage": "FixedUpdate",
+      "reads": ["Anchor"],
+      "writes": ["transform2d.Position"]
+    },
+    {
+      "name": "layout",
+      "description": "Places the cells of every grid.",
+      "stage": "FixedUpdate",
+      "reads": ["Grid", "Cell"],
+      "writes": ["transform2d.Position"],
+      "after": ["anchor"]
+    },
+    {
+      "name": "bind",
+      "description": "Copies the bound numbers into the texts and bars that show them.",
+      "stage": "FixedUpdate",
+      "reads": ["Bind", "Tag"],
+      "writes": ["text2d.Text", "Bar"]
+    },
+    {
+      "name": "fill",
+      "description": "Sizes the sprite of every bar from its value.",
+      "stage": "FixedUpdate",
+      "reads": ["Bar"],
+      "writes": ["sprite2d.Sprite"],
+      "after": ["bind"]
+    },
+    {
+      "name": "menu",
+      "description": "Moves the focus of every menu and raises the action of the button that is pressed.",
+      "stage": "FixedUpdate",
+      "reads": ["Button", "transform2d.Position"],
+      "writes": ["Menu", "sprite2d.Sprite"],
+      "after": ["layout"]
+    }
+  ]
+}

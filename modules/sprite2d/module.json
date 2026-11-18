@@ -8,7 +8,7 @@
   "components": [
     {
       "name": "Sprite",
-      "description": "Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json \"atlases\"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.",
+      "description": "Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json \"atlases\"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.",
       "replicable": false,
       "fields": [
         { "name": "atlas", "type": "u32", "default": 0, "ref": "atlas" },
@@ -16,6 +16,8 @@
         { "name": "width", "type": "f32", "default": 0 },
         { "name": "height", "type": "f32", "default": 0 },
         { "name": "layer", "type": "i32", "default": 0 },
+        { "name": "pivot_x", "type": "f32", "default": 0.5 },
+        { "name": "pivot_y", "type": "f32", "default": 0.5 },
         { "name": "flip_x", "type": "bool", "default": false },
         { "name": "screen", "type": "bool", "default": false },
         { "name": "red", "type": "u32", "default": 255 },
