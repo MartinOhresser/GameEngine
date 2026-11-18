@@ -105,18 +105,18 @@ struct Bar {
     [[nodiscard]] friend bool operator==(const Bar&, const Bar&) = default;
 };
 
-/// The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. group names an item of the game's "menu" list; wrap makes the focus go round. focused is the number of the focused button.
+/// The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's "menu" list; wrap makes the focus go round. focused is the number of the focused button.
 struct Menu {
     std::uint32_t group = 0U;
     std::uint32_t focused = 0U;
     bool wrap = true;
-    std::uint32_t up = 0U;
-    std::uint32_t down = 0U;
-    std::uint32_t accept = 0U;
+    std::uint32_t up = 4294967295U;
+    std::uint32_t down = 4294967295U;
+    std::uint32_t accept = 4294967295U;
     bool use_pointer = false;
-    std::uint32_t pointer_x = 0U;
-    std::uint32_t pointer_y = 0U;
-    std::uint32_t click = 0U;
+    std::uint32_t pointer_x = 4294967295U;
+    std::uint32_t pointer_y = 4294967295U;
+    std::uint32_t click = 4294967295U;
     float last_x = 0.0F;
     float last_y = 0.0F;
 
@@ -138,11 +138,11 @@ struct Menu {
     [[nodiscard]] friend bool operator==(const Menu&, const Menu&) = default;
 };
 
-/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action, which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.
+/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.
 struct Button {
     std::uint32_t menu = 0U;
     std::uint32_t order = 0U;
-    std::uint32_t action = 0U;
+    std::uint32_t action = 4294967295U;
     float width = 100.0F;
     float height = 30.0F;
     std::uint32_t normal_frame = 0U;

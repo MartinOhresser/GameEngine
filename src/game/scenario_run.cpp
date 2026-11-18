@@ -55,6 +55,7 @@ std::string show(double number) {
 struct Run {
     app::App app;
     SetupResult setup;
+    const Game* game = nullptr; ///< The game being played, for the names of its scenes.
 };
 
 /// The entity a scenario names: looked up in the running world, so that a
@@ -116,6 +117,16 @@ void evaluate(const Run& run, const Check& check, std::vector<std::string>& fail
         }
         break;
     }
+    case CheckKind::Scene: {
+        const auto* current = run.app.world().resource<app::CurrentScene>();
+        const std::string actual = current != nullptr && current->index < run.game->scenes.size()
+                                       ? run.game->scenes[current->index].name
+                                       : std::string("(none)");
+        if (actual != check.entity) {
+            failures.push_back(failure(check, "the game is in the scene \"" + actual + "\""));
+        }
+        break;
+    }
     case CheckKind::Fingerprint: {
         const std::uint64_t actual = run.app.world().fingerprint();
         if ((actual == check.fingerprint) != (check.compare == Compare::Eq)) {
@@ -137,6 +148,7 @@ std::optional<std::uint64_t> run_once(const Game& game, const ScenarioData& scen
     if (!scenario.scene.empty()) {
         started.manifest.start_scene = scenario.scene;
     }
+    run.game = &started;
     run.setup = setup_game(run.app, started, modules);
     if (!run.setup.ok()) {
         setup_problems = run.setup.problems;

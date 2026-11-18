@@ -139,6 +139,9 @@ TEST_CASE("check: the forms of a check are understood") {
     CHECK(check.kind == CheckKind::Alive);
     CHECK(ge::game::parse_check("spark gone", check).empty());
     CHECK(check.kind == CheckKind::Gone);
+    CHECK(ge::game::parse_check("scene is credits", check).empty());
+    CHECK(check.kind == CheckKind::Scene);
+    CHECK(check.entity == "credits");
     CHECK(ge::game::parse_check("fingerprint == 5f4962bd950cf9b3", check).empty());
     CHECK(check.kind == CheckKind::Fingerprint);
     CHECK(check.fingerprint == 0x5f4962bd950cf9b3ULL);
@@ -374,10 +377,10 @@ TEST_CASE("scenario: a scenario can start another scene than the game's") {
     CHECK(loaded.game.scenarios[0].scene == "arena");
     CHECK(ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked).passed());
 
-    // The entities it may name are the ones of its own scene.
+    // The entities it may name are the ones of the game's scenes; others are unknown.
     files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "arena",
-        "ticks": 5, "expect": ["hero alive"]})";
-    CHECK(mentions(load(files), "the scene \"arena\" has no entity named \"hero\""));
+        "ticks": 5, "expect": ["nobody alive"]})";
+    CHECK(mentions(load(files), "the scene \"arena\" has no entity named \"nobody\""));
     // An unknown scene is reported with a suggestion.
     files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "aren",
         "ticks": 5})";

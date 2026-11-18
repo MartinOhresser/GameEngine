@@ -1,15 +1,20 @@
 // Arrow keys or WASD walk the hero; a gamepad or a touch screen will add
-// sources here without touching the game.
+// sources here without touching the game. The menu and the hotbar have their
+// own actions, so any of them can be rebound on its own.
 {
   "schema_version": 1,
   "bindings": [
-    {
-      "action": "move_x",
-      "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:a": -1 },
-    },
-    {
-      "action": "move_y",
-      "sources": { "key:down": 1, "key:s": 1, "key:up": -1, "key:w": -1 },
-    },
+    { "action": "move_x", "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:a": -1 } },
+    { "action": "move_y", "sources": { "key:down": 1, "key:s": 1, "key:up": -1, "key:w": -1 } },
+    { "action": "menu_up", "sources": { "key:up": 1, "key:w": 1 } },
+    { "action": "menu_down", "sources": { "key:down": 1, "key:s": 1 } },
+    { "action": "menu_accept", "sources": { "key:return": 1, "key:space": 1 } },
+    { "action": "slot_prev", "sources": { "key:q": 1 } },
+    { "action": "slot_next", "sources": { "key:e": 1 } },
+    { "action": "slot_select", "sources": { "key:space": 1 } },
+    { "action": "slot_cancel", "sources": { "key:x": 1 } },
+    { "action": "pointer_x", "sources": { "mouse:x": 1 } },
+    { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "click", "sources": { "mouse:left": 1 } },
   ],
 }

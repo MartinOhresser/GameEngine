@@ -28,6 +28,13 @@
       "frame_count": 4,
       "ticks_per_frame": 8
     },
-    "camera2d.CameraTarget": {}
+    "camera2d.CameraTarget": {},
+    "inventory.Gatherer": {
+      "container": "backpack",
+      "radius": 16
+    },
+    "ui.Tag": {
+      "tag": "player"
+    }
   }
 }

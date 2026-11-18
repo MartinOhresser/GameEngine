@@ -1,0 +1,38 @@
+// The pointer over a button focuses it and a click presses it. The credits button is
+// centred at (400, 352) in a window of 800 by 600.
+{
+  "schema_version": 1,
+  "name": "menu_pointer",
+  "scene": "menu",
+  "ticks": 20,
+  "inputs": [
+    {
+      "tick": 0,
+      "action": "pointer_x",
+      "value": 400
+    },
+    {
+      "tick": 0,
+      "action": "pointer_y",
+      "value": 352
+    },
+    {
+      "tick": 3,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 2,
+      "check": "menu_input.ui.Menu.focused == 1"
+    },
+    "scene is credits",
+    "menu_title gone"
+  ]
+}

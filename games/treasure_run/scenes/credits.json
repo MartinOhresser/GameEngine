@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "name": "credits",
+  "entities": [
+    {
+      "name": "credits_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": -120
+        },
+        "text2d.Text": {
+          "string": "credits.title",
+          "font": "font",
+          "size": 44,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5
+        }
+      }
+    },
+    {
+      "name": "credits_one",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": -20
+        },
+        "text2d.Text": {
+          "string": "credits.line1",
+          "font": "font",
+          "size": 20,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5
+        }
+      }
+    },
+    {
+      "name": "credits_two",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5,
+          "offset_x": 0,
+          "offset_y": 30
+        },
+        "text2d.Text": {
+          "string": "credits.line2",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 200,
+          "green": 200,
+          "blue": 200
+        }
+      }
+    },
+    {
+      "name": "back",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "menu",
+          "use_action": true,
+          "action": "menu_accept",
+          "after_ticks": 360
+        }
+      }
+    }
+  ]
+}

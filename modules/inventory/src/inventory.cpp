@@ -347,6 +347,7 @@ void show(ecs::World& world) {
         }
         if (auto* text = world.get<text2d::Text>(entity); text != nullptr) {
             text->screen = item.stored;
+            text->alpha = item.stored ? 255U : 0U; // the count is for the interface only
             text->value = static_cast<float>(item.quantity);
         }
         if (!item.stored) {

@@ -3,6 +3,15 @@
   "locale": "fr",
   "entries": {
     "title": "La chasse au trésor",
-    "hint": "Flèches ou ZQSD pour bouger. Ramassez les pièces et les gemmes."
+    "hint": "Flèches ou ZQSD pour bouger. Q/E et Espace ou la souris pour la barre d'objets.",
+    "menu.title": "La chasse au trésor",
+    "menu.play": "Jouer",
+    "menu.credits": "Crédits",
+    "hud.score": "Score : {value}",
+    "hud.items": "Barre d'objets",
+    "item.count": "x{value}",
+    "credits.title": "Crédits",
+    "credits.line1": "Fait uniquement avec des fichiers JSON.",
+    "credits.line2": "Entrée pour revenir."
   }
 }

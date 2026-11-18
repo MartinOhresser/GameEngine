@@ -1209,6 +1209,16 @@
       }
     },
     {
+      "name": "potion_1",
+      "prefab": "potion",
+      "components": {
+        "transform2d.Position": {
+          "x": 80,
+          "y": 144
+        }
+      }
+    },
+    {
       "prefab": "floor_b",
       "components": {
         "transform2d.Position": {
@@ -1228,6 +1238,16 @@
     },
     {
       "prefab": "floor_b",
+      "components": {
+        "transform2d.Position": {
+          "x": 176,
+          "y": 144
+        }
+      }
+    },
+    {
+      "name": "key_1",
+      "prefab": "key",
       "components": {
         "transform2d.Position": {
           "x": 176,
@@ -1497,6 +1517,16 @@
       }
     },
     {
+      "name": "potion_2",
+      "prefab": "potion",
+      "components": {
+        "transform2d.Position": {
+          "x": 80,
+          "y": 176
+        }
+      }
+    },
+    {
       "prefab": "floor_a",
       "components": {
         "transform2d.Position": {
@@ -1516,6 +1546,16 @@
     },
     {
       "prefab": "floor_a",
+      "components": {
+        "transform2d.Position": {
+          "x": 176,
+          "y": 176
+        }
+      }
+    },
+    {
+      "name": "sword_1",
+      "prefab": "sword",
       "components": {
         "transform2d.Position": {
           "x": 176,
@@ -7036,33 +7076,254 @@
     {
       "name": "title",
       "components": {
-        "transform2d.Position": {
-          "x": 12,
-          "y": 10
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 0.0,
+          "offset_x": 12,
+          "offset_y": 10
         },
         "text2d.Text": {
           "string": "title",
           "font": "font",
           "size": 20,
-          "screen": true
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.0
         }
       }
     },
     {
       "name": "hint",
       "components": {
-        "transform2d.Position": {
-          "x": 12,
-          "y": 34
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 0.0,
+          "offset_x": 12,
+          "offset_y": 34
         },
         "text2d.Text": {
           "string": "hint",
           "font": "font",
-          "size": 14,
+          "size": 12,
           "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.0,
           "red": 200,
           "green": 200,
           "blue": 200
+        }
+      }
+    },
+    {
+      "name": "score",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 0.0,
+          "offset_x": 12,
+          "offset_y": 56
+        },
+        "text2d.Text": {
+          "string": "hud.score",
+          "font": "font",
+          "size": 18,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.0
+        },
+        "ui.Bind": {
+          "source": "player",
+          "field": "pickup.Collector.score"
+        }
+      }
+    },
+    {
+      "name": "progress_back",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "offset_x": 12,
+          "offset_y": 86
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "screen": true,
+          "layer": 11,
+          "width": 200,
+          "height": 10,
+          "pivot_x": 0,
+          "red": 40,
+          "green": 40,
+          "blue": 60
+        }
+      }
+    },
+    {
+      "name": "progress",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "offset_x": 12,
+          "offset_y": 86
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "screen": true,
+          "layer": 12,
+          "pivot_x": 0,
+          "red": 90,
+          "green": 220,
+          "blue": 110
+        },
+        "ui.Bar": {
+          "max": 140,
+          "length": 200,
+          "thickness": 10
+        },
+        "ui.Bind": {
+          "source": "player",
+          "field": "pickup.Collector.score"
+        }
+      }
+    },
+    {
+      "name": "hotbar",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": -88,
+          "offset_y": -34
+        },
+        "ui.Grid": {
+          "group": "hotbar",
+          "columns": 5,
+          "cell_width": 40,
+          "cell_height": 40,
+          "spacing_x": 4
+        }
+      }
+    },
+    {
+      "name": "slot_0",
+      "prefab": "slot",
+      "components": {
+        "inventory.Slot": {
+          "index": 0,
+          "accepts": [
+            "tool"
+          ]
+        },
+        "ui.Cell": {
+          "index": 0
+        }
+      }
+    },
+    {
+      "name": "slot_1",
+      "prefab": "slot",
+      "components": {
+        "inventory.Slot": {
+          "index": 1,
+          "accepts": [
+            "weapon"
+          ]
+        },
+        "ui.Cell": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "name": "slot_2",
+      "prefab": "slot",
+      "components": {
+        "inventory.Slot": {
+          "index": 2
+        },
+        "ui.Cell": {
+          "index": 2
+        }
+      }
+    },
+    {
+      "name": "slot_3",
+      "prefab": "slot",
+      "components": {
+        "inventory.Slot": {
+          "index": 3
+        },
+        "ui.Cell": {
+          "index": 3
+        }
+      }
+    },
+    {
+      "name": "slot_4",
+      "prefab": "slot",
+      "components": {
+        "inventory.Slot": {
+          "index": 4,
+          "max_stack": 2
+        },
+        "ui.Cell": {
+          "index": 4
+        }
+      }
+    },
+    {
+      "name": "hand",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 2,
+          "width": 44,
+          "height": 44,
+          "screen": true,
+          "layer": 30
+        },
+        "inventory.Hand": {
+          "container": "backpack",
+          "columns": 5,
+          "left": "slot_prev",
+          "right": "slot_next",
+          "select": "slot_select",
+          "cancel": "slot_cancel",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click",
+          "slot_width": 40,
+          "slot_height": 40,
+          "cursor_frame": 2,
+          "holding_frame": 3
+        }
+      }
+    },
+    {
+      "name": "hotbar_label",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -62
+        },
+        "text2d.Text": {
+          "string": "hud.items",
+          "font": "font",
+          "size": 12,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.0
         }
       }
     }

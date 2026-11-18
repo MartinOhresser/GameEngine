@@ -30,7 +30,7 @@ struct Slot {
     [[nodiscard]] friend bool operator==(const Slot&, const Slot&) = default;
 };
 
-/// Something that can be carried. kind names an item of the game's "item_kind" list; categories is the set of categories it belongs to; quantity is the size of the stack and max_stack the most that one stack of this kind holds (1 for things that do not stack). While stored is false the item lies in the world and a Gatherer can pick it up; once stored it is in the slot at the address container and slot, and is shown there (as part of the interface, not of the world): its Position follows the slot's, its Sprite and its Text become screen ones, and a Text on the item shows the quantity (put {value} in the text). Slot indexes of a container are 0, 1, 2... without gaps.
+/// Something that can be carried. kind names an item of the game's "item_kind" list; categories is the set of categories it belongs to; quantity is the size of the stack and max_stack the most that one stack of this kind holds (1 for things that do not stack). While stored is false the item lies in the world and a Gatherer can pick it up; once stored it is in the slot at the address container and slot, and is shown there (as part of the interface, not of the world): its Position follows the slot's, its Sprite and its Text become screen ones, and a Text on the item shows the quantity (put {value} in the text) while stored and is invisible while the item lies in the world. Slot indexes of a container are 0, 1, 2... without gaps.
 struct Item {
     std::uint32_t kind = 0U;
     std::uint32_t categories = 0U;
@@ -85,20 +85,20 @@ struct Transfer {
     [[nodiscard]] friend bool operator==(const Transfer&, const Transfer&) = default;
 };
 
-/// The cursor of a player over one container: left, right, up and down (actions of the game) move it over the slots, columns slots to a row; select picks up the item under it, then puts it down on the next slot it is pressed on (the Transfer rules apply: it merges, swaps or is refused); cancel lets go. With use_pointer the pointer (the actions pointer_x and pointer_y, in pixels) moves it to the slot it is over, in slots slot_width by slot_height big, and click acts as select. The Hand's own Position follows the slot under it (give it a Sprite as a frame) and its Sprite shows cell cursor_frame, or holding_frame while an item is held.
+/// The cursor of a player over one container: left, right, up and down (actions of the game) move it over the slots, columns slots to a row; select picks up the item under it, then puts it down on the next slot it is pressed on (the Transfer rules apply: it merges, swaps or is refused); cancel lets go. With use_pointer the pointer (the actions pointer_x and pointer_y, in pixels) moves it to the slot it is over, in slots slot_width by slot_height big, and click acts as select. An action left out is none: it does nothing. The Hand's own Position follows the slot under it (give it a Sprite as a frame) and its Sprite shows cell cursor_frame, or holding_frame while an item is held.
 struct Hand {
     std::uint32_t container = 0U;
     std::uint32_t columns = 1U;
-    std::uint32_t left = 0U;
-    std::uint32_t right = 0U;
-    std::uint32_t up = 0U;
-    std::uint32_t down = 0U;
-    std::uint32_t select = 0U;
-    std::uint32_t cancel = 0U;
+    std::uint32_t left = 4294967295U;
+    std::uint32_t right = 4294967295U;
+    std::uint32_t up = 4294967295U;
+    std::uint32_t down = 4294967295U;
+    std::uint32_t select = 4294967295U;
+    std::uint32_t cancel = 4294967295U;
     bool use_pointer = false;
-    std::uint32_t pointer_x = 0U;
-    std::uint32_t pointer_y = 0U;
-    std::uint32_t click = 0U;
+    std::uint32_t pointer_x = 4294967295U;
+    std::uint32_t pointer_y = 4294967295U;
+    std::uint32_t click = 4294967295U;
     float slot_width = 32.0F;
     float slot_height = 32.0F;
     std::uint32_t cursor_frame = 0U;

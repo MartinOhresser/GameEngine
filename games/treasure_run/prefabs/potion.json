@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "name": "potion",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "ui",
+      "frame": 8,
+      "width": 28,
+      "height": 28,
+      "layer": 20
+    },
+    "text2d.Text": {
+      "string": "item.count",
+      "font": "font",
+      "size": 12,
+      "pivot_x": 1,
+      "pivot_y": 1
+    },
+    "inventory.Item": {
+      "kind": "potion",
+      "categories": [
+        "consumable"
+      ],
+      "max_stack": 5
+    }
+  }
+}

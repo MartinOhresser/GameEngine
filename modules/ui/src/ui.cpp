@@ -209,7 +209,9 @@ void fill(ecs::World& world) {
     world.each<const Bar, sprite2d::Sprite>(
         [](ecs::Entity, const Bar& bar, sprite2d::Sprite& sprite) {
             const float ratio = bar.max > 0.0F ? std::clamp(bar.value / bar.max, 0.0F, 1.0F) : 0.0F;
-            const float along = bar.length * ratio;
+            // A sprite of size 0 would be drawn at its picture's own size, so an empty bar is
+            // made vanishingly thin instead.
+            const float along = std::max(bar.length * ratio, 0.001F);
             sprite.width = bar.vertical ? bar.thickness : along;
             sprite.height = bar.vertical ? along : bar.thickness;
         });

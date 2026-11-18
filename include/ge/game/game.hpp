@@ -49,6 +49,7 @@ enum class CheckKind : std::uint8_t {
     Alive,       ///< "hero alive"
     Gone,        ///< "spark gone"
     Fingerprint, ///< "fingerprint == 5f4962bd950cf9b3"
+    Scene,       ///< "scene is credits": the game is in that scene (`entity` holds its name)
 };
 
 /// One thing a scenario expects to be true at a given tick.

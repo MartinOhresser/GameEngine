@@ -3,6 +3,7 @@
 {
   "schema_version": 1,
   "name": "camera_follows",
+  "scene": "main",
   "ticks": 150,
   "inputs": [{ "tick": 0, "action": "move_x", "value": 1 }],
   "expect": [
