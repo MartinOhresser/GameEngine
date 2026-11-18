@@ -49,6 +49,10 @@ Le module `collision2d` ne dépend pas du dessin : il travaille sur les position
 
 La détection trie les boîtes par bord gauche et balaie : le coût suit le nombre de contacts, pas le carré du nombre de boîtes.
 
+## Le texte
+
+Une entité avec `text2d.Text` affiche l'un des textes du jeu, lettre par lettre, avec une police (un atlas qui a `glyphs`) : voir [MANIFEST.md](MANIFEST.md) pour les fichiers de langue. Avec `screen: true` (aussi pour `Sprite`), la position et la taille sont en pixels de la fenêtre et la caméra n'agit pas : c'est ainsi qu'une interface reste en place pendant que le monde défile. `{value}` dans un texte écrit le nombre du champ `value`.
+
 ## Voir un jeu
 
 ```
@@ -60,7 +64,7 @@ Voir [PLATFORM.md](PLATFORM.md). Le choix de `SDL_Renderer` et ce qui n'a pas é
 
 ## Pas encore
 
-- **Texte** : il faut un type de champ chaîne, prévu avec l'interface (M8).
-- **Cartes de tuiles en tableau** : même raison.
+- **Polices TrueType** : le texte se dessine avec des polices en atlas PNG ; lire un `.ttf` directement viendra plus tard.
+- **Cartes de tuiles en tableau** : une tuile reste une entité.
 - Rotation, ordre de dessin par la position verticale, particules, lumière.
 - Interpolation entre deux ticks (le dessin montre l'état du dernier tick).

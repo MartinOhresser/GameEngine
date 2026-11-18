@@ -7032,6 +7032,39 @@
           "y": 80
         }
       }
+    },
+    {
+      "name": "title",
+      "components": {
+        "transform2d.Position": {
+          "x": 12,
+          "y": 10
+        },
+        "text2d.Text": {
+          "string": "title",
+          "font": "font",
+          "size": 20,
+          "screen": true
+        }
+      }
+    },
+    {
+      "name": "hint",
+      "components": {
+        "transform2d.Position": {
+          "x": 12,
+          "y": 34
+        },
+        "text2d.Text": {
+          "string": "hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "red": 200,
+          "green": 200,
+          "blue": 200
+        }
+      }
     }
   ]
 }
