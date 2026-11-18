@@ -54,11 +54,12 @@ Les scénarios sont des fichiers de `scenarios/`, listés dans le manifeste (`"s
 | un champ d'une entité nommée | `hero.transform2d.Position.x > 100` |
 | le nombre d'entités | `entities == 3` |
 | une entité existe / n'existe plus | `hero alive`, `spark gone` |
+| la scène courante | `scene is credits` |
 | l'empreinte de l'état | `fingerprint == 5f4962bd950cf9b3` |
 
 Comparaisons : `==`, `!=`, `<`, `<=`, `>`, `>=`. Un champ booléen se compare à `true` ou `false` avec `==` ou `!=`. Les nombres sont comparés à 0,01 % près (relatif) : les valeurs de jeu sont des flottants, `== 0.1` ne doit pas dépendre du dernier bit.
 
-Les entités citées sont celles **nommées dans la scène du scénario**. `gectl validate` signale une entité, un composant ou un champ inconnu, avec « vouliez-vous dire … ? », avant même de lancer quoi que ce soit.
+Les entités citées sont celles **nommées dans les scènes du jeu** ; la vérification les cherche dans la scène où le jeu se trouve alors (« n'existe plus » si elle n'y est pas), ce qui permet de suivre un changement de scène. `gectl validate` signale une entité, un composant ou un champ inconnu, avec « vouliez-vous dire … ? », avant même de lancer quoi que ce soit.
 
 ### L'empreinte : à manier avec précaution
 

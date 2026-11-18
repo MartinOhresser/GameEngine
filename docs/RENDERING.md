@@ -53,6 +53,8 @@ La détection trie les boîtes par bord gauche et balaie : le coût suit le nomb
 
 Une entité avec `text2d.Text` affiche l'un des textes du jeu, lettre par lettre, avec une police (un atlas qui a `glyphs`) : voir [MANIFEST.md](MANIFEST.md) pour les fichiers de langue. Avec `screen: true` (aussi pour `Sprite`), la position et la taille sont en pixels de la fenêtre et la caméra n'agit pas : c'est ainsi qu'une interface reste en place pendant que le monde défile. `{value}` dans un texte écrit le nombre du champ `value`.
 
+Un `Sprite` a un `pivot_x` et un `pivot_y` (0,5 par défaut : le milieu de l'image sur la `Position`) ; 0 met le bord gauche ou haut sur la `Position`, 1 le bord droit ou bas. Il faut une taille (`width`, `height`) pour que le pivot ait un effet. Les barres de `ui` s'en servent pour grandir depuis un bord. L'interface complète (ancrage, grilles, menus, inventaire) est décrite dans [UI.md](UI.md).
+
 ## Voir un jeu
 
 ```

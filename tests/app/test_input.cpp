@@ -123,3 +123,20 @@ TEST_CASE("app: live input sets actions at the start of each tick, like a script
     app.run_frames(1);
     CHECK(!app.world().resource<Actions>()->down("jump"));
 }
+
+TEST_CASE("actions: a raised action is pressed for the whole next tick, whatever the order") {
+    Actions actions;
+    actions.begin_tick();
+    actions.raise("start"); // during tick 0, by a system that ran late
+    CHECK(!actions.pressed("start"));
+    actions.apply_raised();
+    CHECK(!actions.pressed("start")); // nothing for tick 0
+    actions.begin_tick();             // tick 1
+    actions.apply_raised();
+    CHECK(actions.pressed("start")); // every system of tick 1 sees it
+    CHECK(actions.down("start"));
+    actions.begin_tick(); // tick 2: it lasted one tick
+    actions.apply_raised();
+    CHECK(!actions.down("start"));
+    CHECK(actions.released("start"));
+}

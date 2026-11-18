@@ -175,7 +175,7 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 6. ✅ **M5** Skills : du prompt au jeu (cinq skills vérifiés en CI, `gectl new-module`, modules découverts automatiquement).
 7. ✅ **M6** Plateforme desktop : SDL3 derrière une interface, `input.json`, `geplay`, backend scripté.
 8. ✅ **M7** Rendu 2D : atlas, sprites, animation, caméra, collisions 2D (`games/treasure_run`).
-9. **M8** Interface : HUD, menus, inventaire, texte (fin du MVP).
+9. ✅ **M8** Interface : texte par langue, changement de scène, HUD, menus, inventaire configurable (fin du MVP : `games/treasure_run`).
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 

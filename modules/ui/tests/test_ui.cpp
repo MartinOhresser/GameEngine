@@ -3,7 +3,6 @@
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
-#include "ge/mod/pickup/pickup.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -17,7 +16,6 @@
 
 namespace {
 
-namespace pickup = ge::mod::pickup;
 namespace sprite2d = ge::mod::sprite2d;
 namespace text2d = ge::mod::text2d;
 namespace transform2d = ge::mod::transform2d;
@@ -157,17 +155,13 @@ TEST_CASE("ui: a bar fills with its value, from its pivot") {
 
 TEST_CASE("ui: a text and a bar show a number of the game through a tag") {
     Scene scene;
-    pickup::install(scene.app); // gives something to show: Collector.score
-    pickup::Collector collector;
-    collector.score = 12;
-    const auto hero = scene.spawn(transform2d::Position{}, collector, ui::Tag{1});
-    scene.spawn(transform2d::Position{}, collector, ui::Tag{2}); // another tag, other score
-    scene.app.world().get<pickup::Collector>(scene.app.world().entities().back())->score = 99;
-    (void)hero;
+    // Any numeric field can be shown; the x of a Position is at hand in every game.
+    const auto hero = scene.spawn(transform2d::Position{12.0F, 0.0F}, ui::Tag{1});
+    scene.spawn(transform2d::Position{99.0F, 0.0F}, ui::Tag{2}); // another tag, another number
 
     ui::Bind bind;
     bind.source = 1;
-    bind.field = field_index(scene.app, "pickup.Collector.score");
+    bind.field = field_index(scene.app, "transform2d.Position.x");
     ui::Bar bar;
     bar.max = 24.0F;
     bar.length = 48.0F;
@@ -178,7 +172,7 @@ TEST_CASE("ui: a text and a bar show a number of the game through a tag") {
     CHECK(scene.app.world().get<ui::Bar>(gauge)->value == 12.0F);
     CHECK(scene.app.world().get<sprite2d::Sprite>(gauge)->width == 24.0F); // half of 48
 
-    scene.app.world().get<pickup::Collector>(hero)->score = 24;
+    scene.app.world().get<transform2d::Position>(hero)->x = 24.0F;
     scene.app.run_frames(1);
     CHECK(scene.app.world().get<text2d::Text>(label)->value == 24.0F);
 
