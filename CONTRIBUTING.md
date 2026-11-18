@@ -10,7 +10,7 @@ cd game-engine
 ./scripts/check.sh
 ```
 
-Le script exécute en local les contrôles de la CI : format, builds Debug et Release avec tests, sanitizers (AddressSanitizer et UBSan), clang-tidy. Pour un cycle rapide :
+Le script exécute en local les contrôles que la CI ne répète pas : builds Debug et Release avec tests, **sanitizers (AddressSanitizer et UBSan) et clang-tidy**. Il refait aussi le format, les modules et la validité des jeux, que la CI vérifie aussi. **Il doit passer avant chaque pull request** : la CI ne lance plus tidy ni les sanitizers. Pour un cycle rapide :
 
 ```sh
 cmake --preset dev
@@ -28,11 +28,11 @@ Une pull request ne peut être fusionnée que si le contrôle **CI success** est
 | --- | --- |
 | Lint des workflows | Les fichiers `.github/workflows` sont valides (actionlint) |
 | Format | Le code suit `.clang-format` (clang-format 18) |
-| Build et tests | Linux (GCC 13 Debug et Release, Clang 18), macOS (AppleClang), Windows (MSVC), avertissements traités comme des erreurs |
-| Sanitizers | Aucune erreur mémoire ni comportement indéfini détecté par AddressSanitizer et UBSan |
-| clang-tidy | Le code respecte `.clang-tidy` (bugs probables, règles C++ Core Guidelines, nommage) |
+| Build et tests | Linux (GCC 13 Release, Clang 18 Debug), macOS (AppleClang), Windows (MSVC), avertissements traités comme des erreurs |
 | Couverture | Au moins 90 % des lignes de `include/` et `src/` sont exécutées par les tests |
 | WebAssembly, Android, iOS | Le cœur compile pour ces plateformes ; les tests tournent sur le build WebAssembly |
+
+**Pas en CI, seulement dans `check.sh`** : AddressSanitizer et UBSan (erreurs mémoire, comportements indéfinis), clang-tidy (`.clang-tidy`) et le build Debug avec GCC. Ils coûtaient la moitié du temps de la CI pour refaire ce que le script fait déjà en local. Une contribution extérieure qui les enfreint passe donc la CI : à relire en revue.
 
 CodeQL analyse en plus le code chaque semaine et sur chaque pull request qui touche `include/`, `src/` ou le build.
 

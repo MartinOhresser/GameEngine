@@ -114,8 +114,7 @@ Toute pull request doit passer le job agrégé **`ci-success`** :
 | Lint des workflows (actionlint) | une CI cassée ne protège rien |
 | clang-format 18 | style uniforme, zéro débat en revue |
 | Build + tests : GCC 13, Clang 18, AppleClang, MSVC | portabilité réelle, pas supposée |
-| ASan + UBSan | détecte les erreurs mémoire et comportements indéfinis |
-| clang-tidy 18 (avertissements = erreurs) | bugs probables et règles de conception |
+| `scripts/check.sh` (local, avant chaque PR) | ASan + UBSan, clang-tidy 18 (avertissements = erreurs), build Debug : ils ne tournent plus en CI |
 | Couverture ≥ 90 % (gcovr) | un seuil, pour que les tests ne s'érodent pas |
 | WebAssembly (Emscripten), Android (NDK), iOS | le cœur reste portable vers le web et le mobile |
 | CodeQL | analyse de sécurité |
