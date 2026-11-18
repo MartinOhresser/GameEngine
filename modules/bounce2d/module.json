@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "bounce2d",
   "version": "0.1.0",
-  "description": "Landing on things and being thrown back: a Bouncer that falls onto a Bouncy surface from above leaves it with an upward speed, as a jumper does on platforms, springs and trampolines. Surfaces are one-way (the Bouncer passes through them going up and from the side) and can be single-use, break instead of bouncing, or be destroyed by the landing (a monster stomped on). The y axis points down, as on screen.",
+  "description": "Landing on things and being thrown back: a Bouncer that falls onto a Bouncy surface from above leaves it with an upward speed, as a jumper does on platforms, springs and trampolines. Surfaces are one-way (the Bouncer passes through them going up and from the side) and can be single-use, break instead of bouncing, or be destroyed by the landing (a monster stomped on). A surface that breaks never costs the bounce: a Bouncer that crosses a brittle surface and a solid one in the same tick breaks the first and bounces on the second. The y axis points down, as on screen.",
   "depends": ["transform2d", "collision2d"],
   "components": [
     {

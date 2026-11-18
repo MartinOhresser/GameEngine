@@ -194,6 +194,29 @@ TEST_CASE("spawner2d: a row can bring an extra prefab next to it") {
     }
 }
 
+TEST_CASE("spawner2d: an extra can be kept off the alternative prefabs") {
+    Setup setup;
+    spawner2d::Generator generator = rows_of(10.0F);
+    generator.alt_prefab = 4;
+    generator.alt_chance = 0.5F;
+    generator.extra_prefab = 7;
+    generator.extra_chance = 1.0F;
+    generator.extra_on_alt = false;
+    add(setup, generator);
+    setup.move_camera_to(-1000.0F);
+    setup.app.run_frames(4);
+    std::size_t rows_of_4 = 0;
+    std::size_t rows_of_3 = 0;
+    std::size_t extras = 0;
+    for (const SpawnRequest& request : *setup.seen) {
+        rows_of_4 += request.prefab == 4U ? 1U : 0U;
+        rows_of_3 += request.prefab == 3U ? 1U : 0U;
+        extras += request.prefab == 7U ? 1U : 0U;
+    }
+    CHECK(rows_of_4 > 0);
+    CHECK(extras == rows_of_3); // one extra per usual row, none for the others
+}
+
 TEST_CASE("spawner2d: the same seed builds the same world, another seed another one") {
     Setup first(5);
     Setup second(5);

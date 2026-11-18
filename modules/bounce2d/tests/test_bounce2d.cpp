@@ -171,3 +171,30 @@ TEST_CASE("bounce2d: a body thrown up keeps rising and bounces again on the way 
     CHECK(y_of(app, jumper) < 90.0F);
     CHECK(app.world().get<bounce2d::Bouncer>(jumper)->bounces == 1U);
 }
+
+TEST_CASE("bounce2d: a brittle plank over a solid surface breaks and the body still bounces") {
+    auto app = game();
+    bounce2d::Bouncy brittle = plain();
+    brittle.breaks = true;
+    const Entity plank = spawn_surface(app, 0.0F, 98.0F, brittle); // 2 units higher
+    const Entity solid = spawn_surface(app, 0.0F, 100.0F, plain(300.0F));
+    const Entity jumper = spawn_jumper(app, 0.0F, 85.0F, 100.0F);
+    app.run_frames(1);
+    CHECK(vy_of(app, jumper) == -300.0F);
+    CHECK(app.world().get<bounce2d::Bouncer>(jumper)->bounces == 1U);
+    CHECK(app.world().get<bounce2d::Bouncy>(plank) == nullptr); // it gave way
+    CHECK(app.world().get<bounce2d::Bouncy>(solid) != nullptr);
+}
+
+TEST_CASE("bounce2d: a brittle plank under the surface the body bounces on is left alone") {
+    auto app = game();
+    bounce2d::Bouncy brittle = plain();
+    brittle.breaks = true;
+    const Entity solid = spawn_surface(app, 0.0F, 100.0F, plain(300.0F));
+    const Entity plank = spawn_surface(app, 0.0F, 105.0F, brittle); // lower: not reached
+    const Entity jumper = spawn_jumper(app, 0.0F, 85.0F, 100.0F);
+    app.run_frames(1);
+    CHECK(vy_of(app, jumper) == -300.0F);
+    CHECK(app.world().get<bounce2d::Bouncy>(plank) != nullptr);
+    CHECK(app.world().get<bounce2d::Bouncy>(solid) != nullptr);
+}

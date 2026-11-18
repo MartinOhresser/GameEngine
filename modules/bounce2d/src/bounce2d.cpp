@@ -38,18 +38,37 @@ std::vector<Surface> surfaces_of(ecs::World& world) {
     return surfaces;
 }
 
-/// The highest surface that a body with these sides and these bottom edges lands on, if any.
-const Surface* landing_on(const std::vector<Surface>& surfaces, float left, float right,
-                          float last_bottom, float bottom) {
-    const Surface* best = nullptr;
+/// What a body that falls from `last_bottom` to `bottom` between `left` and `right` comes down on.
+struct Landing {
+    /// The highest surface that throws the body back, if any.
+    const Surface* bounce = nullptr;
+    /// The surfaces that give way under it: the ones that break, from the top down to where it
+    /// bounces (a brittle plank over a solid one breaks, and the body still bounces on the solid
+    /// one).
+    std::vector<const Surface*> broken;
+};
+
+Landing landing_on(const std::vector<Surface>& surfaces, float left, float right, float last_bottom,
+                   float bottom) {
+    std::vector<const Surface*> crossed;
+    Landing landing;
     for (const Surface& surface : surfaces) {
         const bool beside = surface.right <= left || surface.left >= right;
-        const bool crossed = last_bottom <= surface.top + landing_slack && bottom >= surface.top;
-        if (!beside && crossed && (best == nullptr || surface.top < best->top)) {
-            best = &surface;
+        if (!beside && last_bottom <= surface.top + landing_slack && bottom >= surface.top) {
+            crossed.push_back(&surface);
+            const bool throws = !surface.bouncy.breaks;
+            if (throws && (landing.bounce == nullptr || surface.top < landing.bounce->top)) {
+                landing.bounce = &surface;
+            }
         }
     }
-    return best;
+    for (const Surface* surface : crossed) {
+        if (surface->bouncy.breaks &&
+            (landing.bounce == nullptr || surface->top <= landing.bounce->top)) {
+            landing.broken.push_back(surface);
+        }
+    }
+    return landing;
 }
 
 /// What the landing does to the surface: it may give way, vanish or die.
@@ -79,15 +98,14 @@ void bounce(ecs::World& world) {
                 const float bottom = position.y + half_height;
                 const float last_bottom = bottom - velocity.y * step;
                 const float half_width = box.width / 2.0F;
-                const Surface* surface = landing_on(surfaces, position.x - half_width,
-                                                    position.x + half_width, last_bottom, bottom);
-                if (surface != nullptr) {
-                    landed.push_back(surface);
-                    if (!surface->bouncy.breaks) {
-                        velocity.y = -surface->bouncy.strength;
-                        position.y = surface->top - half_height;
-                        ++bouncer.bounces;
-                    }
+                const Landing landing = landing_on(surfaces, position.x - half_width,
+                                                   position.x + half_width, last_bottom, bottom);
+                landed.insert(landed.end(), landing.broken.begin(), landing.broken.end());
+                if (landing.bounce != nullptr) {
+                    landed.push_back(landing.bounce);
+                    velocity.y = -landing.bounce->bouncy.strength;
+                    position.y = landing.bounce->top - half_height;
+                    ++bouncer.bounces;
                 }
             }
         });

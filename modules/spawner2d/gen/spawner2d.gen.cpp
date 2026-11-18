@@ -42,6 +42,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.extra_dx = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "extra_dy") {
             component.extra_dy = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "extra_on_alt") {
+            component.extra_on_alt = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "x_min") {
             component.x_min = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "x_max") {
@@ -115,6 +117,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "extra_dy") {
         return ::ge::app::Scalar{static_cast<double>(component->extra_dy)};
     }
+    if (field == "extra_on_alt") {
+        return ::ge::app::Scalar{static_cast<bool>(component->extra_on_alt)};
+    }
     if (field == "x_min") {
         return ::ge::app::Scalar{static_cast<double>(component->x_min)};
     }
@@ -157,7 +162,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 25> component_0_fields{{{"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_chance", "f32", "", false}, {"alt_chance_end", "f32", "", false}, {"alt2_prefab", "u32", "prefab", false}, {"alt2_chance", "f32", "", false}, {"alt2_chance_end", "f32", "", false}, {"extra_prefab", "u32", "prefab", false}, {"extra_chance", "f32", "", false}, {"extra_chance_end", "f32", "", false}, {"extra_dx", "f32", "", false}, {"extra_dy", "f32", "", false}, {"x_min", "f32", "", false}, {"x_max", "f32", "", false}, {"gap_min", "f32", "", false}, {"gap_max", "f32", "", false}, {"gap_min_end", "f32", "", false}, {"gap_max_end", "f32", "", false}, {"ramp_height", "f32", "", false}, {"origin_y", "f32", "", false}, {"from_height", "f32", "", false}, {"row_chance", "f32", "", false}, {"row_chance_end", "f32", "", false}, {"ahead", "f32", "", false}, {"next_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 26> component_0_fields{{{"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_chance", "f32", "", false}, {"alt_chance_end", "f32", "", false}, {"alt2_prefab", "u32", "prefab", false}, {"alt2_chance", "f32", "", false}, {"alt2_chance_end", "f32", "", false}, {"extra_prefab", "u32", "prefab", false}, {"extra_chance", "f32", "", false}, {"extra_chance_end", "f32", "", false}, {"extra_dx", "f32", "", false}, {"extra_dy", "f32", "", false}, {"extra_on_alt", "bool", "", false}, {"x_min", "f32", "", false}, {"x_max", "f32", "", false}, {"gap_min", "f32", "", false}, {"gap_max", "f32", "", false}, {"gap_min_end", "f32", "", false}, {"gap_max_end", "f32", "", false}, {"ramp_height", "f32", "", false}, {"origin_y", "f32", "", false}, {"from_height", "f32", "", false}, {"row_chance", "f32", "", false}, {"row_chance_end", "f32", "", false}, {"ahead", "f32", "", false}, {"next_y", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

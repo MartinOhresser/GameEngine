@@ -81,8 +81,10 @@ float between(Random& random, float low, float high) {
 void build_row(const Generator& generator, float y, float progress, Random& random,
                app::SpawnRequests& requests) {
     const float x = between(random, generator.x_min, generator.x_max);
-    requests.spawn(pick_prefab(generator, progress, random), x, y);
-    if (generator.extra_prefab == no_prefab) {
+    const std::uint32_t prefab = pick_prefab(generator, progress, random);
+    requests.spawn(prefab, x, y);
+    if (generator.extra_prefab == no_prefab ||
+        (!generator.extra_on_alt && prefab != generator.prefab)) {
         return;
     }
     const float chance = ramped(generator.extra_chance, generator.extra_chance_end, progress);

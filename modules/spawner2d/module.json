@@ -11,7 +11,7 @@
   "components": [
     {
       "name": "Generator",
-      "description": "Lays rows of a prefab above the top of the screen, as far as `ahead` units above it: the first row is at next_y, and each row is `gap` units higher than the previous one, with gap drawn between gap_min and gap_max. The row's x is drawn between x_min and x_max. Difficulty grows with height (origin_y minus y, in units): over ramp_height units every setting that has an `_end` goes from its first value to its `_end` value (an `_end` left at -1 means no change; a ramp_height of 0 uses the `_end` values at once). A row may be a different prefab: alt2_prefab with alt2_chance, else alt_prefab with alt_chance, else prefab. A row may bring an extra prefab (a spring on a platform, a coin above it) with extra_chance, placed at the row's x plus or minus extra_dx and extra_dy lower. row_chance is the chance that a row is built at all (a row that is not built still uses its gap); rows lower than from_height units above origin_y are never built. The game places the prefabs' Position; nothing the prefabs say about it matters. Needs a Camera.",
+      "description": "Lays rows of a prefab above the top of the screen, as far as `ahead` units above it: the first row is at next_y, and each row is `gap` units higher than the previous one, with gap drawn between gap_min and gap_max. The row's x is drawn between x_min and x_max. Difficulty grows with height (origin_y minus y, in units): over ramp_height units every setting that has an `_end` goes from its first value to its `_end` value (an `_end` left at -1 means no change; a ramp_height of 0 uses the `_end` values at once). A row may be a different prefab: alt2_prefab with alt2_chance, else alt_prefab with alt_chance, else prefab. A row may bring an extra prefab (a spring on a platform, a coin above it) with extra_chance, placed at the row's x plus or minus extra_dx and extra_dy lower; with extra_on_alt off only the usual prefab brings it (a spring does not stay in the air above a platform that moves away). row_chance is the chance that a row is built at all (a row that is not built still uses its gap); rows lower than from_height units above origin_y are never built. The game places the prefabs' Position; nothing the prefabs say about it matters. Needs a Camera.",
       "replicable": false,
       "fields": [
         {
@@ -77,6 +77,11 @@
           "name": "extra_dy",
           "type": "f32",
           "default": 0
+        },
+        {
+          "name": "extra_on_alt",
+          "type": "bool",
+          "default": true
         },
         {
           "name": "x_min",

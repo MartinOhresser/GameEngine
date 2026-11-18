@@ -450,4 +450,78 @@ TEST_CASE("geplay: the sounds of a game's directory are loaded") {
     fs::remove_all(directory, ignored);
 }
 
+namespace {
+
+/// A game of one entity with a score of 42 and a record that follows it, saved as "best".
+fs::path write_scoring_game(const char* name) {
+    const fs::path directory = temp_file(name);
+    std::error_code ignored;
+    fs::remove_all(directory, ignored);
+    fs::create_directories(directory, ignored);
+    std::ofstream game(directory / "game.json");
+    game << R"({"schema_version": 1, "name": "scoring",
+                "modules": ["transform2d", "sprite2d", "text2d", "ui", "records"],
+                "lists": {"tag": ["player", "board"], "record": ["best"]},
+                "scenes": ["main.json"], "start_scene": "main"})";
+    std::ofstream scene(directory / "main.json");
+    scene << R"({"schema_version": 1, "name": "main", "entities": [
+        {"components": {"ui.Tag": {"tag": "player"}, "ui.Bar": {"value": 42, "max": 100}}},
+        {"components": {"ui.Tag": {"tag": "board"}, "records.Record": {
+            "key": "best", "source": "player", "field": "ui.Bar.value"}}}]})";
+    return directory;
+}
+
+std::string read_text(const fs::path& path) {
+    std::ifstream stream(path);
+    std::ostringstream text;
+    text << stream.rdbuf();
+    return text.str();
+}
+
+} // namespace
+
+TEST_CASE("geplay: a new best score is written to the save file") {
+    const fs::path directory = write_scoring_game("scoring_new");
+    const fs::path save = directory / "save.txt";
+    std::string out;
+    std::string err;
+    const int code = geplay({(directory / "game.json").string(), "--headless", "--frames", "3",
+                             "--save", save.string()},
+                            out, err);
+    CHECK(err.empty());
+    CHECK(code == 0);
+    CHECK(read_text(save) == "best 42\n");
+    std::error_code ignored;
+    fs::remove_all(directory, ignored);
+}
+
+TEST_CASE("geplay: the save file is read first, and a lower score does not replace it") {
+    const fs::path directory = write_scoring_game("scoring_kept");
+    const fs::path save = directory / "save.txt";
+    {
+        std::ofstream previous(save);
+        previous << "best 100\nother 7\n";
+    }
+    std::string out;
+    std::string err;
+    const int code = geplay({(directory / "game.json").string(), "--headless", "--frames", "3",
+                             "--save", save.string()},
+                            out, err);
+    CHECK(code == 0);
+    CHECK(read_text(save) == "best 100\nother 7\n"); // read, found higher, left alone
+    std::error_code ignored;
+    fs::remove_all(directory, ignored);
+}
+
+TEST_CASE("geplay: a headless run without --save writes nothing") {
+    const fs::path directory = write_scoring_game("scoring_none");
+    std::string out;
+    std::string err;
+    CHECK(geplay({(directory / "game.json").string(), "--headless", "--frames", "3"}, out, err) ==
+          0);
+    CHECK(!fs::exists(directory / "save.txt"));
+    std::error_code ignored;
+    fs::remove_all(directory, ignored);
+}
+
 #endif

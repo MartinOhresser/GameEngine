@@ -673,6 +673,9 @@
             "extra_dy": {
               "type": "number"
             },
+            "extra_on_alt": {
+              "type": "boolean"
+            },
             "x_min": {
               "type": "number"
             },
