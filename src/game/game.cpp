@@ -404,16 +404,98 @@ void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
     }
 }
 
+/// "1.2.3": three numbers separated by dots.
+bool is_version(std::string_view text) {
+    int dots = 0;
+    bool digit_before = false;
+    for (const char c : text) {
+        if (c >= '0' && c <= '9') {
+            digit_before = true;
+        } else if (c == '.' && digit_before && dots < 2) {
+            ++dots;
+            digit_before = false;
+        } else {
+            return false;
+        }
+    }
+    return dots == 2 && digit_before;
+}
+
+/// "ge.games.doodle_jump": at least two lowercase snake_case segments joined by dots.
+bool is_package_id(std::string_view text) {
+    int segments = 0;
+    bool segment_start = true;
+    for (const char c : text) {
+        if (c == '.') {
+            if (segment_start) {
+                return false;
+            }
+            segment_start = true;
+        } else if (segment_start) {
+            if (c < 'a' || c > 'z') {
+                return false;
+            }
+            segment_start = false;
+            ++segments;
+        } else {
+            const bool allowed = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+            if (!allowed) {
+                return false;
+            }
+        }
+    }
+    return segments >= 2 && !segment_start;
+}
+
+/// The optional `title`, `version`, `id` and `icon`: how the game presents itself.
+void read_identity(const Context& context, Checker& checker, const json::Value& root,
+                   Manifest& manifest) {
+    static_cast<void>(checker.text(root, "title", "", false, manifest.title));
+    std::string version;
+    if (checker.text(root, "version", "", false, version) && !version.empty()) {
+        if (is_version(version)) {
+            manifest.version = version;
+        } else {
+            checker.error("version", "\"" + version + "\" must be three numbers like 1.2.3");
+        }
+    }
+    if (checker.text(root, "id", "", false, manifest.id) && !manifest.id.empty() &&
+        !is_package_id(manifest.id)) {
+        checker.error("id", "\"" + manifest.id +
+                                "\" must be lowercase names joined by dots, like ge.games.my_game");
+        manifest.id.clear();
+    }
+    std::string icon;
+    if (!checker.text(root, "icon", "", false, icon) || icon.empty()) {
+        return;
+    }
+    if (!is_safe_relative(icon)) {
+        checker.error("icon",
+                      "\"" + icon + "\" must be a relative path inside the game's directory");
+        return;
+    }
+    const std::optional<std::string> image = (*context.read)(context.directory + icon);
+    if (!image) {
+        checker.error("icon", "cannot read the image \"" + context.directory + icon + "\"");
+    } else if (!image->starts_with("\x89PNG\r\n\x1a\n")) {
+        checker.error("icon", "\"" + icon + "\" is not a PNG image");
+    } else {
+        manifest.icon_file = icon;
+    }
+}
+
 bool read_manifest(const Context& context, Checker& checker, const json::Value& root,
                    Manifest& manifest) {
     const json::Value* object = checker.object(root, "");
     if (object == nullptr) {
         return false;
     }
-    checker.reject_unknown(*object, "",
-                           {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "window", "params", "lists", "locale", "strings",
-                            "atlases", "prefabs", "scenes", "scenarios", "input", "start_scene"});
+    checker.reject_unknown(*object, "", {"$schema",    "schema_version", "name",      "description",
+                                         "title",      "version",        "id",        "icon",
+                                         "modules",    "simulation",     "window",    "params",
+                                         "lists",      "locale",         "strings",   "atlases",
+                                         "prefabs",    "scenes",         "scenarios", "input",
+                                         "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -421,6 +503,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     static_cast<void>(checker.name(*object, "name", "", true, manifest.name));
     static_cast<void>(checker.text(*object, "description", "", false, manifest.description));
+    read_identity(context, checker, *object, manifest);
     read_modules(context, checker, *object, manifest);
     read_simulation(checker, *object, manifest);
     read_window(checker, *object, manifest);
