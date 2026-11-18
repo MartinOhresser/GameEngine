@@ -74,7 +74,7 @@ cmake --build --preset platform
 ctest --preset platform
 ```
 
-SDL3 (3.2) est pris sur le système s'il est installé, et compilé depuis les sources sinon (`FetchContent`), donc un poste neuf n'a besoin que d'un compilateur et d'un accès à GitHub. Sans l'option, ni SDL ni `geplay` ne sont compilés et tout le reste est identique.
+SDL3 (3.2) est pris sur le système s'il est installé, et compilé depuis les sources sinon (`FetchContent`), donc un poste neuf n'a besoin que d'un compilateur et d'un accès à GitHub. Sur Linux, SDL3 demande les en-têtes de développement d'un système de fenêtres (X11 ou Wayland) ; la liste des paquets Debian/Ubuntu est dans le job `Platform` de `.github/workflows/ci.yml`. Sans l'option, ni SDL ni `geplay` ne sont compilés et tout le reste est identique.
 
 Une seule règle de dépendance, vérifiée en CI par `scripts/check_modules.py` : **aucun fichier hors de `platform/sdl/` n'inclut un en-tête SDL**. Le moteur, les modules et les jeux ne savent pas que SDL existe, et les en-têtes publics du backend n'en exposent aucun type.
 
