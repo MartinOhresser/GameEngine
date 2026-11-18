@@ -4,5 +4,6 @@
   "extends": "drifter",
   "components": {
     "lifetime.Lifetime": { "ticks": 90 },
+    "debug_draw.Square": { "size": 5, "red": 239, "green": 68, "blue": 68 },
   },
 }

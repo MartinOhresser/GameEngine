@@ -10,6 +10,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 - M7 : atlas déclarés dans le manifeste (`atlases`), champs `u32` à `"ref"` qui acceptent un nom dans les fichiers de jeu, `game::load_atlases`.
 - M7 : modules `sprite2d` (`Sprite`, `SpriteAnimation`, tri par couche), `camera2d` (`Camera`, `CameraTarget`, `CameraFollow`) et `collision2d` (`Collider`, `Body`, `Contacts`, détection par balayage trié) ; le générateur gère les composants sans champ.
 - M7 : jeu de référence `games/treasure_run` (images et scène générées par un script versionné), `scripts/make_png.py`, `docs/RENDERING.md`, ADR 0008.
+- `coin_dash`, `pilot` et `sparks` se voient dans une fenêtre (carrés `debug_draw`) ; `coin_dash` et `pilot` ont un `input.json`. `geplay` signale quand un jeu n'a aucun module de dessin au lieu d'ouvrir une fenêtre noire sans explication.
 - Système de build CMake (C++20) avec presets `dev`, `release`, `asan`, `tidy`, `coverage`.
 - Bibliothèque `ge_core` : version du moteur, macro `GE_ASSERT`.
 - Bibliothèque `ge_ecs` : entités à génération, stockage sparse set, `World` (composants, requêtes `each`, ressources).
