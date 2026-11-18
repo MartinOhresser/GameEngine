@@ -31,7 +31,7 @@ add_library(ge::platform ALIAS ge_platform)
 target_link_libraries(ge_platform PUBLIC ge::app ge::json)
 ge_target_options(ge_platform)
 
-add_library(ge_game STATIC game/catalog.cpp game/game.cpp game/runtime.cpp game/scenario.cpp game/scenario_run.cpp game/schema.cpp)
+add_library(ge_game STATIC game/catalog.cpp game/game.cpp game/runtime.cpp game/scenario.cpp game/scenario_run.cpp game/schema.cpp game/summary.cpp)
 add_library(ge::game ALIAS ge_game)
 target_link_libraries(ge_game PUBLIC ge::app ge::module ge::platform)
 ge_target_options(ge_game)

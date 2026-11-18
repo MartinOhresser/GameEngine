@@ -10,6 +10,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- E1 : champs facultatifs `title`, `version`, `id` et `icon` dans `game.json` (validés, présents dans le schéma JSON), `gectl list [--games DIR] [--json]` qui décrit chaque jeu, et `ge::game::summarize` / `GameSummary` ; les six jeux du dépôt ont un `title`.
+
 - Doodle Jump : `games/doodle_jump` (menu, partie sans fin de plus en plus difficile, fin de partie, meilleur score sauvegardé ; 20 scénarios, dont des scènes d'essai `test_*`), `docs/DOODLE_JUMP.md`, ADR 0010.
 - Doodle Jump : modules `gravity2d`, `bounce2d` (surfaces à sens unique : plateformes, ressorts, monstres écrasés), `patrol2d`, `spawner2d` (`Generator`, `Cull`, `Shooter`), `combat2d` (`Mortal`, `Target`, `Projectile`), `altitude` et `records`.
 - Doodle Jump : `SpawnRequests` (créer un préfab en cours de partie, servi entre deux ticks), liste intégrée `prefab`, `ListNames`, `SaveData`, `geplay --save` et sauvegarde par défaut dans le dossier de données de l'utilisateur, `LoopOptions::after_frame`.

@@ -3,6 +3,7 @@
 {
   "schema_version": 1,
   "name": "coin_dash",
+  "title": "Coin Dash",
   "description": "Steer a ship and collect coins and gems. The score is the total value collected.",
   "modules": ["transform2d", "action_control", "pickup", "debug_draw"],
   "input": "input.json",

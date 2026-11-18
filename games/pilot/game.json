@@ -3,6 +3,7 @@
 {
   "schema_version": 1,
   "name": "pilot",
+  "title": "Pilot",
   "description": "One ship the player steers with the move actions.",
   "modules": ["transform2d", "screen_wrap", "action_control", "debug_draw"],
   "input": "input.json",

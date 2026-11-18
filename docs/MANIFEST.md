@@ -21,6 +21,8 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 ./build/dev/runner/gerun games/sparks/game.json --ticks 120  # lance 120 ticks, sans fenêtre
 ```
 
+`gectl list` parcourt `games/` (ou `--games DIR`) et donne pour chaque jeu son titre, sa version, la taille de sa fenêtre, ses modules et s'il est valide ; `--json` en fait une liste lisible par un programme (c'est ce que lira le lanceur). Un jeu invalide est listé avec ses problèmes, sans empêcher les autres.
+
 `gerun` affiche le nombre d'entités et une empreinte de l'état final : le même jeu donne toujours la même empreinte. C'est le lanceur de développement, qui contient **tous** les modules du dépôt. L'export d'un jeu avec seulement ses modules viendra plus tard.
 
 ## `game.json`
@@ -29,6 +31,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | --- | --- |
 | `name` | nom du jeu (`snake_case`) |
 | `description` | texte libre, facultatif |
+| `title`, `version`, `id`, `icon` | comment le jeu se présente, tout facultatif : `title` est le nom affiché (par défaut le nom, rendu lisible), `version` est `1.2.3` (0.1.0 par défaut), `id` est l'identité dans un paquet, `ge.games.mon_jeu` (par défaut `ge.games.` + le nom), `icon` est un PNG du dossier du jeu |
 | `modules` | modules utilisés, dépendances comprises (`screen_wrap` exige `transform2d`) |
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
 | `window` | taille en pixels de la zone où le jeu dessine : `{"width": 800, "height": 600}` par défaut ; l'interface s'ancre à ses bords (`ui`) |

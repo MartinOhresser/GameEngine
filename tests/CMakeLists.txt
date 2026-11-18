@@ -10,6 +10,7 @@ add_executable(
   game/test_scene_switch.cpp
   game/test_spawn.cpp
   game/test_strings.cpp
+  game/test_summary.cpp
   game/test_scenario.cpp
   game/test_schema.cpp
   json/test_json.cpp

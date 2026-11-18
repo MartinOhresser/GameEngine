@@ -115,6 +115,14 @@ struct StringsData {
 struct Manifest {
     std::string name;
     std::string description;
+    /// What a launcher shows instead of `name` (empty: the name, made readable).
+    std::string title;
+    /// "major.minor.patch" of the game itself, written into packages.
+    std::string version = "0.1.0";
+    /// The identity of the game in a package, "ge.games.doodle_jump" (empty: made from `name`).
+    std::string id;
+    /// A PNG next to the manifest, used as the icon of a package; empty when there is none.
+    std::string icon_file;
     std::vector<std::string> modules;
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
