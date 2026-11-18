@@ -1,0 +1,11 @@
+// Nobody touches anything: nothing moves.
+{
+  "schema_version": 1,
+  "name": "idle",
+  "ticks": 120,
+  "expect": [
+    "player.transform2d.Position.x == 400",
+    "player.transform2d.Position.y == 300",
+    "entities == 5",
+  ],
+}

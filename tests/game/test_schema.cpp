@@ -27,11 +27,12 @@ const ge::json::Value* schema_of(const std::vector<ge::game::SchemaFile>& files,
 
 TEST_CASE("schema: one file per kind of game file") {
     const auto files = ge::game::editor_schemas(ge::game::catalog_of(linked));
-    REQUIRE(files.size() == 4U);
+    REQUIRE(files.size() == 5U);
     CHECK(schema_of(files, "game.schema.json") != nullptr);
     CHECK(schema_of(files, "prefab.schema.json") != nullptr);
     CHECK(schema_of(files, "scene.schema.json") != nullptr);
     CHECK(schema_of(files, "scenario.schema.json") != nullptr);
+    CHECK(schema_of(files, "input.schema.json") != nullptr);
 }
 
 TEST_CASE("schema: the manifest offers the modules and the params with their bounds") {
@@ -91,4 +92,19 @@ TEST_CASE("schema: scenarios list their inputs and accept both forms of a check"
     // The manifest lists scenario files.
     const auto* game = schema_of(files, "game.schema.json");
     CHECK(game->find("properties")->find("scenarios") != nullptr);
+}
+
+TEST_CASE("schema: the input file only accepts kind:name sources with numeric scales") {
+    const auto files = ge::game::editor_schemas(ge::game::catalog_of(linked));
+    const auto* input = schema_of(files, "input.schema.json");
+    REQUIRE(input != nullptr);
+    const auto* sources = input->find("properties")
+                              ->find("bindings")
+                              ->find("items")
+                              ->find("properties")
+                              ->find("sources");
+    REQUIRE(sources != nullptr);
+    CHECK(sources->find("propertyNames")->find("pattern")->as_string().find("key|mouse") !=
+          std::string::npos);
+    CHECK(sources->find("additionalProperties")->find("type")->as_string() == "number");
 }

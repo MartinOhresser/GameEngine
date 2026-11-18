@@ -4,7 +4,8 @@
     { "fileMatch": ["games/*/game.json"], "url": "./schemas/game/game.schema.json" },
     { "fileMatch": ["games/*/prefabs/*.json"], "url": "./schemas/game/prefab.schema.json" },
     { "fileMatch": ["games/*/scenes/*.json"], "url": "./schemas/game/scene.schema.json" },
-    { "fileMatch": ["games/*/scenarios/*.json"], "url": "./schemas/game/scenario.schema.json" }
+    { "fileMatch": ["games/*/scenarios/*.json"], "url": "./schemas/game/scenario.schema.json" },
+    { "fileMatch": ["games/*/input.json"], "url": "./schemas/game/input.schema.json" }
   ],
   // Game files may contain comments and trailing commas.
   "files.associations": { "games/**/*.json": "jsonc" }

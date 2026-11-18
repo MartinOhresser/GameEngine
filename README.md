@@ -173,7 +173,8 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 4. ✅ **M3** Jeux décrits en JSON : manifeste, préfabs, scènes, validation, lanceur `gerun`.
 5. ✅ **M4** Tests sans fenêtre : actions d'entrée, scénarios, `gerun --test`, rendu nul et enregistreur.
 6. ✅ **M5** Skills : du prompt au jeu (cinq skills vérifiés en CI, `gectl new-module`, modules découverts automatiquement).
-7. **M6 à M8** Plateforme desktop, rendu 2D, interface (fin du MVP).
+7. ✅ **M6** Plateforme desktop : SDL3 derrière une interface, `input.json`, `geplay`, backend scripté.
+8. **M7 et M8** Rendu 2D, interface (fin du MVP).
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 
@@ -186,3 +187,4 @@ Lisez [CONTRIBUTING.md](CONTRIBUTING.md). En bref : une pull request à la fois,
 [MIT](LICENSE).
 - M4 : fait (actions et entrée scriptée, scénarios dans les jeux, `gerun --test`, rendu nul et enregistreur, jeux de référence testés en CI). Détail dans `docs/TESTING.md`.
 - M5 : fait (skills `game-from-prompt`, `engine-catalog`, `add-module`, `playtest-headless`, `add-level` ; `gectl new-module` ; modules et leurs tests découverts automatiquement ; module `pickup` et jeu `coin_dash` en exemple). Détail dans `docs/AUTHORING.md`.
+- M6 : fait (interface `Backend`, `input.json`, boucle temps réel, backend SDL3 optionnel et `geplay`, module `debug_draw`, jeu `move_sprite`). Détail dans `docs/PLATFORM.md`.

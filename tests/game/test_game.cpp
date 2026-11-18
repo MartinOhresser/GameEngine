@@ -458,3 +458,45 @@ TEST_CASE("setup: a module whose dependency is not part of the game is reported"
     const auto result = ge::game::setup_game(app, game, linked);
     CHECK(!result.ok());
 }
+
+TEST_CASE("game: the input file binds keys to actions") {
+    Files files = sample_game();
+    files["g/game.json"].replace(files["g/game.json"].find("\"start_scene\""), 0,
+                                 "\"input\": \"keys.json\",\n            ");
+    files["g/keys.json"] = R"({
+        "schema_version": 1,
+        "bindings": [{ "action": "move_x", "sources": { "key:right": 1, "key:left": -1 } }]
+    })";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    CHECK(loaded.game.manifest.input_file == "keys.json");
+    CHECK(loaded.game.input.bindings().size() == 2U);
+}
+
+TEST_CASE("game: a game without an input file has no bindings") {
+    const auto loaded = load(sample_game());
+    REQUIRE(loaded.ok());
+    CHECK(loaded.game.manifest.input_file.empty());
+    CHECK(loaded.game.input.bindings().empty());
+}
+
+TEST_CASE("game: input file problems are reported with the file and the place") {
+    Files files = sample_game();
+    files["g/game.json"].replace(files["g/game.json"].find("\"start_scene\""), 0,
+                                 "\"input\": \"keys.json\",\n            ");
+    // The file is missing.
+    CHECK(mentions(load(files), "game.json: input: cannot read the file \"g/keys.json\""));
+    // The file has a wrong source.
+    files["g/keys.json"] =
+        R"({"schema_version": 1, "bindings": [{"action": "jump", "sources": {"keyboard:x": 1}}]})";
+    CHECK(mentions(load(files), "g/keys.json: bindings[0].sources.keyboard:x"));
+    // The path leaves the game's directory, or is not a string.
+    CHECK(mentions(load_changed("g/game.json", "\"start_scene\"",
+                                "\"input\": \"../keys.json\", \"start_scene\""),
+                   "relative path inside the game's directory"));
+    CHECK(mentions(load_changed("g/game.json", "\"start_scene\"", "\"input\": 3, \"start_scene\""),
+                   "expected a string"));
+}

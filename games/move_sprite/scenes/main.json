@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "main",
+  "entities": [
+    { "name": "player", "prefab": "player" },
+    // Landmarks, so that movement can be seen.
+    { "prefab": "marker", "components": { "transform2d.Position": { "x": 100, "y": 100 } } },
+    { "prefab": "marker", "components": { "transform2d.Position": { "x": 700, "y": 100 } } },
+    { "prefab": "marker", "components": { "transform2d.Position": { "x": 100, "y": 500 } } },
+    { "prefab": "marker", "components": { "transform2d.Position": { "x": 700, "y": 500 } } },
+  ],
+}

@@ -3,6 +3,7 @@
 #include "ge/core/hash.hpp"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -16,9 +17,11 @@ namespace ge::app {
 /// separate system turns that into draw commands, and a `Renderer` is the only
 /// thing that knows what a screen is.
 struct DrawCommand {
-    std::string what; ///< Name of the thing drawn, e.g. an image or a shape.
-    float x = 0.0F;
+    std::string what; ///< Name of the thing drawn, e.g. an image or a shape ("square").
+    float x = 0.0F;   ///< Centre, in world units.
     float y = 0.0F;
+    float size = 0.0F; ///< Side or diameter, in world units; 0 when the thing has its own size.
+    std::uint32_t color = 0xFFFFFFFFU; ///< 0xRRGGBBAA.
 
     friend bool operator==(const DrawCommand&, const DrawCommand&) = default;
 };

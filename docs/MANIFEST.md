@@ -34,6 +34,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
 | `prefabs`, `scenes` | listes de fichiers, chemins relatifs au dossier du jeu |
 | `scenarios` | scénarios de test, facultatif : voir [TESTING.md](TESTING.md) |
+| `input` | fichier qui associe touches et boutons aux actions, facultatif : voir [PLATFORM.md](PLATFORM.md) |
 | `start_scene` | scène créée au démarrage |
 
 ## Préfabs

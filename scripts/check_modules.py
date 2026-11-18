@@ -7,6 +7,8 @@
 2. A module only includes what it declares: engine headers (`ge/...`), its own
    headers and the headers of modules listed in its `depends`.
 3. A module contains no platform code: no OS, windowing or graphics headers.
+4. SDL is used only inside platform/sdl: no other directory includes an SDL
+   header, so the engine never depends on the window library.
 
 Usage: scripts/check_modules.py [--require-schema]
 """
@@ -78,10 +80,32 @@ def check_includes(modules):
     return problems
 
 
+SDL_INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]SDL', re.MULTILINE)
+SDL_ALLOWED = ROOT / "platform" / "sdl"
+SDL_SCANNED = ["include", "src", "modules", "runner", "tools", "tests", "examples", "games"]
+
+
+def check_sdl_confined():
+    problems = []
+    for name in SDL_SCANNED:
+        base = ROOT / name
+        if not base.is_dir():
+            continue
+        for path in sorted(base.rglob("*")):
+            if path.suffix not in SOURCE_SUFFIXES or not path.is_file():
+                continue
+            if SDL_INCLUDE.search(path.read_text()):
+                problems.append(
+                    f"{path.relative_to(ROOT)}: includes an SDL header; SDL may only be used "
+                    "inside platform/sdl"
+                )
+    return problems
+
+
 def main():
     required = "--require-schema" in sys.argv[1:]
     modules = load_modules()
-    problems = check_schema(modules, required) + check_includes(modules)
+    problems = check_schema(modules, required) + check_includes(modules) + check_sdl_confined()
     for problem in problems:
         print(problem, file=sys.stderr)
     if problems:

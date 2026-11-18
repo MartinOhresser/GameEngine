@@ -24,8 +24,10 @@ add_executable(
   app/test_determinism.cpp
   app/test_schedule_order.cpp
   app/test_time.cpp
-  app/test_plugin_flow.cpp)
-target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game)
+  app/test_plugin_flow.cpp
+  platform/test_backend.cpp
+  platform/test_input_map.cpp)
+target_link_libraries(ge_tests PRIVATE ge::app ge::json ge::module ge::game ge::platform)
 target_include_directories(ge_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/support")
 
 # Every module is linked, and its own tests (modules/<name>/tests/*.cpp) run

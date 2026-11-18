@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "debug_draw",
+  "version": "0.1.0",
+  "description": "Draws a coloured square for every entity that has a Square and a position: the simplest way to see a game before it has art.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Square",
+      "description": "A square centred on the entity's Position. size is its side in world units; red, green and blue are 0 to 255.",
+      "replicable": false,
+      "fields": [
+        { "name": "size", "type": "f32", "default": 16 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "draw",
+      "description": "Asks the renderer to draw every Square, then ends the frame. Presentation only: it never changes the simulation.",
+      "stage": "PostUpdate",
+      "reads": ["Square", "transform2d.Position"]
+    }
+  ]
+}

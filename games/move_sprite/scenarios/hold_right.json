@@ -1,0 +1,17 @@
+// Hold right for 30 ticks (3 units per tick), then let go: the square goes
+// 90 units and stays there.
+{
+  "schema_version": 1,
+  "name": "hold_right",
+  "ticks": 60,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 30, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    { "at": 10, "check": "player.transform2d.Position.x == 430" },
+    { "at": 30, "check": "player.transform2d.Position.x == 490" },
+    "player.transform2d.Position.x == 490",
+    "player.transform2d.Position.y == 300",
+  ],
+}

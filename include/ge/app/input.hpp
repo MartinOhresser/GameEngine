@@ -82,4 +82,28 @@ private:
     std::size_t next_ = 0;
 };
 
+/// The input of a live backend (a window, a pad): what the player holds right
+/// now, as action values. `App` sets these actions at the start of every tick,
+/// after `begin_tick` and before the script of `ScriptedInput`, so `pressed`
+/// and `released` see a key on the tick it changed, exactly as with a script.
+class LiveInput {
+public:
+    /// The value the player is giving to this action.
+    void set(std::string_view action, float value);
+
+    /// The value of the action, 0 if it was never set.
+    [[nodiscard]] float value(std::string_view action) const;
+
+    [[nodiscard]] const std::map<std::string, float, std::less<>>& values() const noexcept {
+        return values_;
+    }
+
+    /// Live input is not simulation state: its effect is in `Actions`, which
+    /// is hashed, so nothing is added here.
+    void hash(Hasher& /*hasher*/) const noexcept {}
+
+private:
+    std::map<std::string, float, std::less<>> values_;
+};
+
 } // namespace ge::app

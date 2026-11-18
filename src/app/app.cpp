@@ -1,5 +1,6 @@
 #include "ge/app/app.hpp"
 
+#include "ge/app/audio.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
 #include "ge/core/assert.hpp"
@@ -222,7 +223,9 @@ App::App() {
     world_.insert_resource(ecs::Commands{});
     world_.insert_resource(Actions{});
     world_.insert_resource(ScriptedInput{});
+    world_.insert_resource(LiveInput{});
     world_.insert_resource(RenderBackend{});
+    world_.insert_resource(AudioBackend{});
     set_tick_rate(60);
 }
 
@@ -289,6 +292,11 @@ void App::begin_tick_input() {
         return;
     }
     actions->begin_tick();
+    if (const auto* live = world_.resource<LiveInput>(); live != nullptr) {
+        for (const auto& [action, value] : live->values()) {
+            actions->set(action, value);
+        }
+    }
     if (script != nullptr && time != nullptr) {
         script->apply(time->tick, *actions);
     }
