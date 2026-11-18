@@ -18,6 +18,21 @@ bool pressed(const app::Actions& actions, const app::ActionNames& names, std::ui
     return action != none && action < names.names.size() && actions.pressed(names.names[action]);
 }
 
+/// The number a Call sends: its own, or the selected item of the list it names. `none` when it
+/// names a list that has no selection yet (nothing is then sent).
+std::uint32_t argument_of(const ecs::World& world, const Call& call) {
+    if (call.list == none) {
+        return call.argument;
+    }
+    const auto* lists = world.resource<app::RuntimeLists>();
+    const auto* list_names = world.resource<app::ListNames>();
+    if (lists == nullptr || list_names == nullptr) {
+        return app::RuntimeLists::none;
+    }
+    const std::string_view list = list_names->name("runtime_list", call.list);
+    return list.empty() ? app::RuntimeLists::none : lists->selected(list);
+}
+
 } // namespace
 
 void trigger(ecs::World& world) {
@@ -36,25 +51,14 @@ void trigger(ecs::World& world) {
         });
     }
     if (auto* requests = world.resource<app::HostRequests>(); requests != nullptr) {
-        const auto* lists = world.resource<app::RuntimeLists>();
-        const auto* list_names = world.resource<app::ListNames>();
         world.each<Call>([&](ecs::Entity, Call& item) {
             if (item.command == none || !pressed(*actions, *names, item.action)) {
                 return;
             }
-            std::uint32_t argument = item.argument;
-            if (item.list != none) {
-                // The selected item of a list filled at run time is the argument.
-                const std::string_view list = list_names == nullptr
-                                                  ? std::string_view{}
-                                                  : list_names->name("runtime_list", item.list);
-                argument = lists == nullptr || list.empty() ? app::RuntimeLists::none
-                                                            : lists->selected(list);
-                if (argument == app::RuntimeLists::none) {
-                    return;
-                }
+            if (const std::uint32_t argument = argument_of(world, item);
+                argument != app::RuntimeLists::none || item.list == none) {
+                requests->pending.push_back(app::HostRequest{item.command, argument});
             }
-            requests->pending.push_back(app::HostRequest{item.command, argument});
         });
     }
 }
