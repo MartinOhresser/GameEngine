@@ -152,6 +152,10 @@ private:
 class SdlAudio final : public app::AudioDevice {
 public:
     explicit SdlAudio(std::shared_ptr<Session> session) : session_(std::move(session)) {}
+    SdlAudio(const SdlAudio&) = delete;
+    SdlAudio& operator=(const SdlAudio&) = delete;
+    SdlAudio(SdlAudio&&) = delete;
+    SdlAudio& operator=(SdlAudio&&) = delete;
     ~SdlAudio() override {
         for (auto& [name, sound] : sounds_) {
             SDL_DestroyAudioStream(sound.stream);

@@ -76,7 +76,7 @@ TEST_CASE("sdl: key names become sources of the input file") {
     CHECK(sdl::key_source("Space") == "key:space");
     CHECK(sdl::key_source("A") == "key:a");
     CHECK(sdl::key_source("Left Shift") == "key:left_shift");
-    CHECK(sdl::key_source("") == "");
+    CHECK(sdl::key_source("").empty());
     CHECK(ge::platform::is_valid_source(sdl::key_source("Return")));
 }
 
@@ -216,7 +216,7 @@ TEST_CASE("sdl: a frame is drawn, captured and saved") {
     const fs::path path = temp_file("frame.bmp");
     std::string error;
     CHECK(backend->save_frame_bmp(path.string(), error));
-    CHECK(fs::file_size(path) > 800U * 600U * 3U);
+    CHECK(fs::file_size(path) > std::uintmax_t{800} * 600 * 3);
     std::error_code ignored;
     fs::remove(path, ignored);
     CHECK(!backend->save_frame_bmp("/nonexistent-dir/frame.bmp", error));
@@ -256,10 +256,10 @@ TEST_CASE("geplay: a held key moves the square on screen") {
     // The whole path: key -> SDL event -> raw input -> input.json -> action ->
     // simulation -> draw command -> pixels.
     const std::string path = game_path("move_sprite");
-    ge::game::LoadedGame loaded = ge::game::load_game(
+    const ge::game::LoadedGame loaded = ge::game::load_game(
         path,
         [](const std::string& file) -> std::optional<std::string> {
-            std::ifstream stream(file, std::ios::binary);
+            const std::ifstream stream(file, std::ios::binary);
             if (!stream) {
                 return std::nullopt;
             }

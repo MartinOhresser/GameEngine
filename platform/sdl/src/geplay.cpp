@@ -43,46 +43,61 @@ bool parse_number(const std::string& text, int& out) {
     return error == std::errc{} && end == text.data() + text.size() && out > 0;
 }
 
+/// The value after an option, or an error message in `error`.
+const std::string* value_of(const std::vector<std::string>& args, std::size_t& i,
+                            const std::string& what, std::string& error) {
+    if (i + 1 >= args.size()) {
+        error = args[i] + " needs " + what;
+        return nullptr;
+    }
+    return &args[++i];
+}
+
+std::string parse_frames(const std::string& text, std::uint64_t& out) {
+    const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), out);
+    if (error != std::errc{} || end != text.data() + text.size()) {
+        return "--frames needs a whole number, not \"" + text + "\"";
+    }
+    return {};
+}
+
+std::string parse_size(const std::string& text, Arguments& out) {
+    const std::size_t x = text.find('x');
+    if (x == std::string::npos || !parse_number(text.substr(0, x), out.width) ||
+        !parse_number(text.substr(x + 1), out.height)) {
+        return "--size needs WIDTHxHEIGHT, for example 800x600, not \"" + text + "\"";
+    }
+    return {};
+}
+
 /// Returns an error message, or empty.
 std::string parse(const std::vector<std::string>& args, Arguments& out) {
-    for (std::size_t i = 0; i < args.size(); ++i) {
+    std::string error;
+    for (std::size_t i = 0; i < args.size() && error.empty(); ++i) {
         const std::string& arg = args[i];
         if (arg == "--frames") {
-            if (i + 1 >= args.size()) {
-                return "--frames needs a number";
-            }
-            const std::string& text = args[++i];
-            const auto [end, error] =
-                std::from_chars(text.data(), text.data() + text.size(), out.frames);
-            if (error != std::errc{} || end != text.data() + text.size()) {
-                return "--frames needs a whole number, not \"" + text + "\"";
-            }
+            const std::string* text = value_of(args, i, "a number", error);
+            error = text != nullptr ? parse_frames(*text, out.frames) : error;
         } else if (arg == "--size") {
-            if (i + 1 >= args.size()) {
-                return "--size needs WIDTHxHEIGHT, for example 800x600";
-            }
-            const std::string& text = args[++i];
-            const std::size_t x = text.find('x');
-            if (x == std::string::npos || !parse_number(text.substr(0, x), out.width) ||
-                !parse_number(text.substr(x + 1), out.height)) {
-                return "--size needs WIDTHxHEIGHT, for example 800x600, not \"" + text + "\"";
-            }
+            const std::string* text = value_of(args, i, "WIDTHxHEIGHT, for example 800x600", error);
+            error = text != nullptr ? parse_size(*text, out) : error;
+        } else if (arg == "--screenshot") {
+            const std::string* text = value_of(args, i, "a file name", error);
+            out.screenshot = text != nullptr ? *text : out.screenshot;
         } else if (arg == "--headless") {
             out.headless = true;
-        } else if (arg == "--screenshot") {
-            if (i + 1 >= args.size()) {
-                return "--screenshot needs a file name";
-            }
-            out.screenshot = args[++i];
         } else if (arg.starts_with("--")) {
-            return "unknown option " + arg;
+            error = "unknown option " + arg;
         } else if (out.game_path.empty()) {
             out.game_path = arg;
         } else {
-            return "only one game file can be given";
+            error = "only one game file can be given";
         }
     }
-    return out.game_path.empty() ? "no game file given" : "";
+    if (error.empty() && out.game_path.empty()) {
+        error = "no game file given";
+    }
+    return error;
 }
 
 std::optional<std::string> read_file(const std::string& path) {
