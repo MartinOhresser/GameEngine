@@ -33,11 +33,10 @@ Run run_launcher_on(ge::platform::ScriptedBackend& backend) {
     CHECK(loaded.ok());
     sdl::LauncherOptions options;
     options.games_dir = root + "/games";
-    std::ostringstream out;
     std::ostringstream err;
     Run done;
     done.result = sdl::run_launcher(backend, loaded, launcher_path, ge::runner::linked_modules(),
-                                    options, out, err);
+                                    options, err);
     done.err = err.str();
     return done;
 }
@@ -132,13 +131,12 @@ TEST_CASE("launcher: Escape in the launcher leaves it, and nothing is played") {
 
 TEST_CASE("launcher: a launcher that is not a game of this program does not start") {
     ge::platform::ScriptedBackend backend(60, 10);
-    ge::game::LoadedGame empty;
+    const ge::game::LoadedGame empty;
     sdl::LauncherOptions options;
     options.games_dir = root + "/games";
-    std::ostringstream out;
     std::ostringstream err;
     const auto result = sdl::run_launcher(backend, empty, "nowhere/game.json",
-                                          ge::runner::linked_modules(), options, out, err);
+                                          ge::runner::linked_modules(), options, err);
     CHECK(!result.started);
     CHECK(!err.str().empty());
 }

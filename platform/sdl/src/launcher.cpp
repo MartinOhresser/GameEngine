@@ -36,9 +36,13 @@ std::vector<std::string> wrap(const std::string& text) {
     std::string line;
     bool truncated = false;
     while (words >> word) {
-        const std::string joined = line.empty() ? word : line + " " + word;
+        std::string joined = line;
+        if (!joined.empty()) {
+            joined += ' ';
+        }
+        joined += word;
         if (length_of(joined) <= panel_width || line.empty()) {
-            line = joined;
+            line = std::move(joined);
             continue;
         }
         lines.push_back(line);
@@ -87,9 +91,9 @@ class Session {
 public:
     Session(Backend& backend, const game::LoadedGame& launcher, const std::string& manifest,
             std::span<const game::ModuleEntry> modules, const LauncherOptions& options,
-            std::vector<game::GameSummary> games, std::ostream& out, std::ostream& err)
-        : backend_(backend), launcher_(launcher), manifest_(manifest), modules_(modules),
-          options_(options), games_(std::move(games)), out_(out), err_(err) {}
+            std::vector<game::GameSummary> games, std::ostream& err)
+        : backend_(&backend), launcher_(&launcher), manifest_(&manifest), modules_(modules),
+          options_(&options), games_(std::move(games)), err_(&err) {}
 
     /// Sets the launcher up (false when it cannot start), then runs it.
     LauncherResult run();
@@ -102,14 +106,13 @@ private:
     /// Plays game number `index`; false when the window was closed meanwhile.
     bool play(std::uint32_t index);
 
-    Backend& backend_;
-    const game::LoadedGame& launcher_;
-    const std::string& manifest_;
+    Backend* backend_;
+    const game::LoadedGame* launcher_;
+    const std::string* manifest_;
     std::span<const game::ModuleEntry> modules_;
-    const LauncherOptions& options_;
+    const LauncherOptions* options_;
     std::vector<game::GameSummary> games_;
-    std::ostream& out_;
-    std::ostream& err_;
+    std::ostream* err_;
     app::App app_;
     std::uint32_t shown_ = none; ///< The game whose lines are in "details".
     std::uint32_t chosen_ = none;
@@ -117,15 +120,15 @@ private:
 };
 
 bool Session::start() {
-    const game::SetupResult setup = game::setup_game(app_, launcher_.game, modules_);
+    const game::SetupResult setup = game::setup_game(app_, launcher_->game, modules_);
     for (const std::string& problem : setup.problems) {
-        err_ << manifest_ << ": " << problem << '\n';
+        *err_ << *manifest_ << ": " << problem << '\n';
     }
     if (!setup.ok()) {
         return false;
     }
-    app_.world().insert_resource(
-        app::Viewport{launcher_.game.manifest.window_width, launcher_.game.manifest.window_height});
+    app_.world().insert_resource(app::Viewport{launcher_->game.manifest.window_width,
+                                               launcher_->game.manifest.window_height});
     std::vector<std::string> titles;
     titles.reserve(games_.size());
     for (const game::GameSummary& summary : games_) {
@@ -138,11 +141,11 @@ bool Session::start() {
 
 /// The window and the assets of the launcher: at the start and each time it comes back.
 void Session::show_launcher() {
-    backend_.reset_assets();
-    backend_.resize(static_cast<int>(launcher_.game.manifest.window_width),
-                    static_cast<int>(launcher_.game.manifest.window_height));
-    for (const std::string& problem : game::load_atlases(launcher_.game, *backend_.renderer())) {
-        err_ << manifest_ << ": " << problem << '\n';
+    backend_->reset_assets();
+    backend_->resize(static_cast<int>(launcher_->game.manifest.window_width),
+                     static_cast<int>(launcher_->game.manifest.window_height));
+    for (const std::string& problem : game::load_atlases(launcher_->game, *backend_->renderer())) {
+        *err_ << *manifest_ << ": " << problem << '\n';
     }
 }
 
@@ -164,7 +167,7 @@ void Session::on_frame(app::App& running) {
             continue;
         }
         if (!games_[command.argument].valid) {
-            err_ << games_[command.argument].directory << ": the game is not valid, not played\n";
+            *err_ << games_[command.argument].directory << ": the game is not valid, not played\n";
             continue;
         }
         chosen_ = command.argument;
@@ -178,17 +181,18 @@ bool Session::play(std::uint32_t index) {
     const game::LoadedGame loaded =
         game::load_game(manifest, game::disk_reader(), game::catalog_of(modules_));
     for (const module::Diagnostic& diagnostic : loaded.diagnostics) {
-        err_ << diagnostic.to_string() << '\n';
+        *err_ << diagnostic.to_string() << '\n';
     }
     if (!loaded.ok()) {
         return true;
     }
     PlayOptions play_options;
-    if (options_.save_path_of) {
-        play_options.save_path = options_.save_path_of(loaded.game.manifest.name);
+    if (options_->save_path_of) {
+        play_options.save_path = options_->save_path_of(loaded.game.manifest.name);
     }
     result_.played.push_back(summary.name);
-    const PlayResult played = play_loaded(backend_, loaded, manifest, modules_, play_options, err_);
+    const PlayResult played =
+        play_loaded(*backend_, loaded, manifest, modules_, play_options, *err_);
     return !played.loop.backend_stopped;
 }
 
@@ -198,14 +202,14 @@ LauncherResult Session::run() {
     }
     result_.started = true;
     LoopOptions loop;
-    loop.max_frames = options_.max_frames;
+    loop.max_frames = options_->max_frames;
     loop.back_sources = {"key:escape"};
     loop.after_frame = [this](app::App& running) { on_frame(running); };
     while (true) {
         show_launcher();
         chosen_ = none;
         app_.world().resource<app::QuitRequest>()->requested = false;
-        const LoopResult left = run_loop(app_, backend_, launcher_.game.input, loop);
+        const LoopResult left = run_loop(app_, *backend_, launcher_->game.input, loop);
         if (left.backend_stopped || chosen_ == none) {
             break; // the window was closed, or the player left the launcher
         }
@@ -222,10 +226,11 @@ std::vector<std::string> detail_lines(const game::GameSummary& summary) {
     std::vector<std::string> lines(detail_line_count);
     lines[0] = summary.title;
     lines[1] = "Version " + summary.version;
-    const std::string description =
-        summary.valid ? summary.description
-                      : (summary.problems.empty() ? std::string("This game is not valid.")
-                                                  : summary.problems.front());
+    std::string description = summary.description;
+    if (!summary.valid) {
+        description =
+            summary.problems.empty() ? "This game is not valid." : summary.problems.front();
+    }
     std::size_t row = 2;
     for (const std::string& line : wrap(description)) {
         lines[row++] = line;
@@ -239,7 +244,7 @@ std::vector<std::string> detail_lines(const game::GameSummary& summary) {
 LauncherResult run_launcher(Backend& backend, const game::LoadedGame& launcher,
                             const std::string& launcher_manifest,
                             std::span<const game::ModuleEntry> modules,
-                            const LauncherOptions& options, std::ostream& out, std::ostream& err) {
+                            const LauncherOptions& options, std::ostream& err) {
     std::vector<game::GameSummary> games;
     std::string error;
     if (!game::discover_games(options.games_dir, game::disk_reader(), game::catalog_of(modules),
@@ -247,8 +252,7 @@ LauncherResult run_launcher(Backend& backend, const game::LoadedGame& launcher,
         err << error << '\n';
         return {};
     }
-    Session session(backend, launcher, launcher_manifest, modules, options, std::move(games), out,
-                    err);
+    Session session(backend, launcher, launcher_manifest, modules, options, std::move(games), err);
     return session.run();
 }
 
@@ -314,7 +318,7 @@ std::string parse(const std::vector<std::string>& args, Arguments& out) {
 } // namespace
 
 int run_gelauncher(const std::vector<std::string>& args, std::span<const game::ModuleEntry> modules,
-                   std::ostream& out, std::ostream& err) {
+                   std::ostream& /*out*/, std::ostream& err) {
     Arguments arguments;
     if (const std::string problem = parse(args, arguments); !problem.empty()) {
         err << problem << "\n\n" << usage_text;
@@ -350,7 +354,7 @@ int run_gelauncher(const std::vector<std::string>& args, std::span<const game::M
         };
     }
     const LauncherResult result =
-        run_launcher(*backend, launcher, arguments.launcher, modules, options, out, err);
+        run_launcher(*backend, launcher, arguments.launcher, modules, options, err);
     if (result.started && !arguments.screenshot.empty() &&
         !backend->save_frame_bmp(arguments.screenshot, error)) {
         err << "gelauncher: " << error << '\n';

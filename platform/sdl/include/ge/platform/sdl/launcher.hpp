@@ -47,7 +47,7 @@ inline constexpr std::size_t detail_line_count = 10;
 LauncherResult run_launcher(Backend& backend, const game::LoadedGame& launcher,
                             const std::string& launcher_manifest,
                             std::span<const game::ModuleEntry> modules,
-                            const LauncherOptions& options, std::ostream& out, std::ostream& err);
+                            const LauncherOptions& options, std::ostream& err);
 
 /// gelauncher: the launcher in a window.
 ///
