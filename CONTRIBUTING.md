@@ -46,7 +46,22 @@ CodeQL analyse en plus le code chaque semaine et sur chaque pull request qui tou
 
 ## Commits et pull requests
 
-Le titre de la pull request suit [Conventional Commits](https://www.conventionalcommits.org/) : `feat(ecs): ...`, `fix(app): ...`, `docs: ...`, `chore(ci): ...`. Les pull requests sont fusionnées par squash, donc ce titre devient le message de commit.
+## Branches
+
+- **`main`** est la dernière grosse étape validée (aujourd'hui le MVP avec le Doodle Jump). On n'y commite jamais directement.
+- **`dev`** reçoit toutes les pull requests. La CI passe sur chaque pull request, puis sur `dev` après la fusion. C'est là qu'on essaie les changements à la main.
+- Une branche et une pull request par changement, de la forme `feat/...`, `fix/...`, `chore/...`, avec `dev` pour base. Une PR empilée sur une autre vise la branche de la première.
+- Quand `dev` convient, on le **promeut** : onglet Actions, workflow « Promote dev to main », avec le numéro de version. Le workflow vérifie que le dernier commit de `dev` a passé la CI, avance `main` sur ce même commit (sans commit de fusion, donc rien de nouveau à tester), pose l'étiquette et lance la release. La toute première promotion se fait à la main (`git push origin dev:main`), parce que GitHub n'affiche un workflow que s'il existe déjà sur la branche par défaut.
+
+## Commits et pull requests
+
+Le titre de la pull request suit [Conventional Commits](https://www.conventionalcommits.org/) : `feat(ecs): ...`, `fix(app): ...`, `docs: ...`, `chore(ci): ...`. Les pull requests vers `dev` sont fusionnées par squash, donc ce titre devient le message de commit.
+
+## Issues
+
+- **Un manque dans le catalogue** (module, composant, système ou crochet moteur qu'un jeu demande) s'ouvre avec le formulaire « Module gap », avant d'écrire le code. La pull request qui le comble écrit `Closes #12` : l'issue est fermée à la fusion dans `dev`.
+- **Un échec de CI** là où personne ne regarde (une poussée sur `dev`, l'analyse hebdomadaire, une release) ouvre tout seul une issue `ci-failure`, qui se ferme quand le workflow repasse au vert. Une pull request rouge n'ouvre pas d'issue.
+- Ces workflows (`workflow_run`, `workflow_dispatch`) ne fonctionnent qu'une fois présents sur `main`, donc après la première promotion.
 
 Les changements visibles par les utilisateurs du moteur s'ajoutent à la section « Unreleased » de `CHANGELOG.md`.
 
@@ -56,14 +71,15 @@ Un choix structurant (dépendance majeure, API publique, règle de portabilité)
 
 ## Publier une version
 
-1. Mettre à jour la version dans `project(...)` de `CMakeLists.txt` et le journal des changements.
-2. Fusionner sur `main`.
-3. Créer et pousser le tag `vX.Y.Z` (exactement la version de `CMakeLists.txt`).
+1. Sur `dev`, mettre à jour la version dans `project(...)` de `CMakeLists.txt` et le journal des changements.
+2. Lancer « Promote dev to main » avec `vX.Y.Z` (exactement la version de `CMakeLists.txt`).
 
-Le workflow `release.yml` vérifie la correspondance, relance build et tests, et publie la release GitHub. Un tag contenant un tiret (`v0.2.0-rc.1`) est publié comme pré-version.
+Le workflow de promotion pose l'étiquette et lance `release.yml`, qui vérifie la correspondance, relance build et tests, et publie la release GitHub. Pousser soi-même une étiquette `vX.Y.Z` marche aussi. Un tag contenant un tiret (`v0.2.0-rc.1`) est publié comme pré-version.
 
 ## Réglages GitHub à activer une fois
 
-- Protection de `main` : exiger une pull request et le contrôle `CI success`, interdire les poussées directes.
-- Fusion par squash uniquement.
+- Branche par défaut : `main` (la dernière étape validée).
+- Suppression automatique des branches fusionnées (« Automatically delete head branches »).
+- Protection de `main` et de `dev` : exiger le contrôle `CI success`. GitHub ne la propose pas sur un dépôt privé avec l'offre gratuite ; sans elle, c'est la discipline (et le workflow de promotion) qui garde `main` propre.
+- Fusion par squash pour les pull requests vers `dev`.
 - Code scanning (nécessaire à CodeQL ; sur un dépôt privé, il dépend de l'offre GitHub).

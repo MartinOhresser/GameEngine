@@ -4,6 +4,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ## [Unreleased]
 
+### Changed
+
+- Branches : `main` reste la dernière étape validée, les pull requests visent `dev`. La CI passe sur `dev` ; le workflow « Promote dev to main » avance `main` sur un commit de `dev` déjà vert et pose l'étiquette de version. Les issues « Module gap » et `ci-failure` (ouverte et fermée par un workflow) sont décrites dans `CONTRIBUTING.md`.
+
 ### Added
 
 - Doodle Jump : `games/doodle_jump` (menu, partie sans fin de plus en plus difficile, fin de partie, meilleur score sauvegardé ; 20 scénarios, dont des scènes d'essai `test_*`), `docs/DOODLE_JUMP.md`, ADR 0010.

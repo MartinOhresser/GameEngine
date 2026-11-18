@@ -1,0 +1,58 @@
+name: CI failure issue
+
+# Opens one issue when a run fails where nobody is watching (a push to dev, the
+# weekly scheduled run, a release) and closes it when the same workflow on the
+# same branch is green again. A pull request that fails is not reported here:
+# its own red check is enough.
+on:
+  workflow_run:
+    workflows: [CI, Security, Release]
+    types: [completed]
+
+permissions:
+  issues: write
+  actions: read
+
+jobs:
+  report:
+    name: Report or close
+    if: contains(fromJSON('["push","schedule","workflow_dispatch"]'), github.event.workflow_run.event)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Open, update or close the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ github.event.workflow_run.name }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          title="CI failure: ${NAME} on ${BRANCH}"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label ci-failure --state open \
+            --limit 100 --json number,title \
+            | jq -r --arg title "$title" 'map(select(.title == $title)) | .[0].number // empty')
+          if [[ "$CONCLUSION" == "success" ]]; then
+            if [[ -n "$existing" ]]; then
+              gh issue close "$existing" --repo "$GITHUB_REPOSITORY" \
+                --comment "Green again in ${RUN_URL} (${SHA})."
+            fi
+            exit 0
+          fi
+          if [[ "$CONCLUSION" != "failure" && "$CONCLUSION" != "timed_out" ]]; then
+            exit 0
+          fi
+          jobs=$(gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json jobs \
+            --jq '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")')
+          body="The workflow **${NAME}** failed on \`${BRANCH}\` at \`${SHA}\`.
+
+          Failing jobs: ${jobs:-none reported}
+          Run: ${RUN_URL}"
+          if [[ -n "$existing" ]]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh label create ci-failure --repo "$GITHUB_REPOSITORY" --color B60205 \
+              --description "A run failed on dev, main or on schedule" --force || true
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --label ci-failure --body "$body"
+          fi
