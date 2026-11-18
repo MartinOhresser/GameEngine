@@ -1,0 +1,118 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "inventory",
+  "version": "0.1.0",
+  "description": "Things the player carries, with rules the game chooses. There is no inventory built in: a game declares as many containers as it wants (backpack, hotbar, equipment, chest), makes as many slots as it wants in each, and decides what each slot accepts, how big a stack it holds and whether it is locked. Items go into slots by gathering them, or by a Hand that picks one up and puts it down. How it looks is up to ui grids and sprites.",
+  "depends": ["transform2d", "sprite2d", "text2d"],
+  "components": [
+    {
+      "name": "Slot",
+      "description": "One place in a container. container names an item of the game's \"container\" list and index is the slot's number in it, from 0; together they are the slot's address. accepts is the set of categories (the game's \"category\" list) the slot takes: an item is taken when it has one of them, and an empty set takes everything: a slot that only holds weapons accepts [\"weapon\"]. max_stack caps the stack the slot holds (0: no cap beyond the item's own). A locked slot neither receives nor gives. The slot's Position is where its item is shown.",
+      "replicable": false,
+      "fields": [
+        { "name": "container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "index", "type": "u32", "default": 0 },
+        { "name": "accepts", "type": "u32", "default": 0, "ref_set": "category" },
+        { "name": "max_stack", "type": "u32", "default": 0 },
+        { "name": "locked", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Item",
+      "description": "Something that can be carried. kind names an item of the game's \"item_kind\" list; categories is the set of categories it belongs to; quantity is the size of the stack and max_stack the most that one stack of this kind holds (1 for things that do not stack). While stored is false the item lies in the world and a Gatherer can pick it up; once stored it is in the slot at the address container and slot, and is shown there (as part of the interface, not of the world): its Position follows the slot's, its Sprite and its Text become screen ones, and a Text on the item shows the quantity (put {value} in the text). Slot indexes of a container are 0, 1, 2... without gaps.",
+      "replicable": false,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "item_kind" },
+        { "name": "categories", "type": "u32", "default": 0, "ref_set": "category" },
+        { "name": "quantity", "type": "u32", "default": 1 },
+        { "name": "max_stack", "type": "u32", "default": 99 },
+        { "name": "stored", "type": "bool", "default": false },
+        { "name": "container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "slot", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Gatherer",
+      "description": "Picks up the items that lie within radius of its Position into the container: each goes onto a stack of the same kind that has room, else into the first empty slot that accepts it. An item no slot can take stays where it is.",
+      "replicable": false,
+      "fields": [
+        { "name": "container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "radius", "type": "f32", "default": 16 }
+      ]
+    },
+    {
+      "name": "Transfer",
+      "description": "A request to move the item of one slot to another, possibly in another container. Spawn an entity with one; the next tick it is carried out and status becomes 1 (done) or 2 (refused: no item, a locked or unsuitable slot, a stack that is full, an item that does not fit back when swapping). Onto an empty slot the whole stack moves; onto the same kind the stacks merge as far as the room goes; onto another kind the two items swap places if both slots take the other's item. The request disappears a tick later.",
+      "replicable": false,
+      "fields": [
+        { "name": "from_container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "from_slot", "type": "u32", "default": 0 },
+        { "name": "to_container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "to_slot", "type": "u32", "default": 0 },
+        { "name": "status", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Hand",
+      "description": "The cursor of a player over one container: left, right, up and down (actions of the game) move it over the slots, columns slots to a row; select picks up the item under it, then puts it down on the next slot it is pressed on (the Transfer rules apply: it merges, swaps or is refused); cancel lets go. With use_pointer the pointer (the actions pointer_x and pointer_y, in pixels) moves it to the slot it is over, in slots slot_width by slot_height big, and click acts as select. The Hand's own Position follows the slot under it (give it a Sprite as a frame) and its Sprite shows cell cursor_frame, or holding_frame while an item is held.",
+      "replicable": false,
+      "fields": [
+        { "name": "container", "type": "u32", "default": 0, "ref": "container" },
+        { "name": "columns", "type": "u32", "default": 1 },
+        { "name": "left", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "up", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "down", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "select", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "cancel", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "use_pointer", "type": "bool", "default": false },
+        { "name": "pointer_x", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "pointer_y", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "click", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "slot_width", "type": "f32", "default": 32 },
+        { "name": "slot_height", "type": "f32", "default": 32 },
+        { "name": "cursor_frame", "type": "u32", "default": 0 },
+        { "name": "holding_frame", "type": "u32", "default": 0 },
+        { "name": "cursor", "type": "u32", "default": 0 },
+        { "name": "holding", "type": "bool", "default": false },
+        { "name": "held_slot", "type": "u32", "default": 0 },
+        { "name": "last_x", "type": "f32", "default": 0 },
+        { "name": "last_y", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "hand",
+      "description": "Moves every Hand, and picks up or puts down the item under it.",
+      "stage": "FixedUpdate",
+      "reads": ["Slot", "transform2d.Position"],
+      "writes": ["Hand", "Item", "sprite2d.Sprite", "transform2d.Position"]
+    },
+    {
+      "name": "transfer",
+      "description": "Carries out the Transfer requests and removes the ones that were answered a tick ago.",
+      "stage": "FixedUpdate",
+      "reads": ["Slot"],
+      "writes": ["Transfer", "Item"],
+      "after": ["hand"]
+    },
+    {
+      "name": "gather",
+      "description": "Puts the items near a Gatherer into its container.",
+      "stage": "FixedUpdate",
+      "reads": ["Gatherer", "Slot", "transform2d.Position"],
+      "writes": ["Item"],
+      "after": ["transfer"]
+    },
+    {
+      "name": "show",
+      "description": "Shows each stored item on its slot, as part of the interface, and each loose item in the world.",
+      "stage": "FixedUpdate",
+      "reads": ["Slot"],
+      "writes": ["transform2d.Position", "sprite2d.Sprite", "text2d.Text"],
+      "after": ["gather"]
+    }
+  ]
+}

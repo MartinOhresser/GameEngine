@@ -21,6 +21,7 @@
           "camera2d",
           "collision2d",
           "debug_draw",
+          "inventory",
           "lifetime",
           "pickup",
           "scene_switch",
@@ -82,6 +83,11 @@
           "additionalProperties": false
         },
         "debug_draw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "inventory": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
