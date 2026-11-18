@@ -6,5 +6,6 @@
     "transform2d.Velocity": {},
     "action_control.Controlled": { "speed": 120 },  // units per second: 2 per tick
     "pickup.Collector": { "radius": 16 },
+    "debug_draw.Square": { "size": 24, "red": 96, "green": 165, "blue": 250 },
   },
 }

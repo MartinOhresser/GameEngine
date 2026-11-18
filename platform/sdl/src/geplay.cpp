@@ -176,6 +176,15 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
         return exit_invalid;
     }
     load_sounds(*backend, arguments.game_path, err);
+    // A window that stays black is baffling, so say why when nothing can draw.
+    const auto& used_modules = loaded.game.manifest.modules;
+    const bool can_draw = std::ranges::any_of(used_modules, [](const std::string& name) {
+        return name == "debug_draw" || name == "sprite2d";
+    });
+    if (!can_draw) {
+        err << arguments.game_path << ": note: the game uses no drawing module (debug_draw or "
+            << "sprite2d), so the window will stay empty\n";
+    }
     const std::vector<std::string> atlas_problems =
         game::load_atlases(loaded.game, *backend->renderer());
     for (const std::string& problem : atlas_problems) {

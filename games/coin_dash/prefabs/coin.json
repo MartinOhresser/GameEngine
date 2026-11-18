@@ -4,5 +4,6 @@
   "components": {
     "transform2d.Position": {},
     "pickup.Pickup": { "value": 10, "radius": 8 },
+    "debug_draw.Square": { "size": 14, "red": 250, "green": 204, "blue": 21 },
   },
 }

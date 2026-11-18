@@ -4,5 +4,6 @@
   "extends": "coin",
   "components": {
     "pickup.Pickup": { "value": 50 },   // worth more; the radius stays the coin's
+    "debug_draw.Square": { "red": 34, "green": 211, "blue": 238 },
   },
 }

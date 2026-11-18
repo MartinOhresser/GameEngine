@@ -1,10 +1,11 @@
-// A game steered by actions. It has no window and no keyboard: scenarios play
-// the part of the player by scripting the move_x and move_y actions.
+// A game steered by actions. Scenarios play the part of the player by scripting
+// the move_x and move_y actions; in a window (geplay) the arrow keys or WASD do.
 {
   "schema_version": 1,
   "name": "pilot",
   "description": "One ship the player steers with the move actions.",
-  "modules": ["transform2d", "screen_wrap", "action_control"],
+  "modules": ["transform2d", "screen_wrap", "action_control", "debug_draw"],
+  "input": "input.json",
   "simulation": { "tick_rate": 60, "seed": 1 },
   "prefabs": ["prefabs/ship.json"],
   "scenes": ["scenes/main.json"],
