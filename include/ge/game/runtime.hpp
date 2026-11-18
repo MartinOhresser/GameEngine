@@ -2,6 +2,7 @@
 
 #include "ge/app/app.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/text.hpp"
 #include "ge/game/game.hpp"
 
 #include <span>
@@ -36,6 +37,9 @@ struct SetupResult {
     /// The entity with this name in the scene, or a null entity.
     [[nodiscard]] ecs::Entity find(std::string_view name) const;
 };
+
+/// The words of the language in use and the fonts of the game's atlases.
+[[nodiscard]] app::TextTable text_table_of(const Game& game);
 
 /// Prepares `app` to run a validated game: sets the tick rate and the seed,
 /// installs the modules the manifest lists (dependencies first, whatever order

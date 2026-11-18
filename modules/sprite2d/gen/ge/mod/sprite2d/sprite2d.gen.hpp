@@ -11,7 +11,7 @@
 
 namespace ge::mod::sprite2d {
 
-/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is.
+/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.
 struct Sprite {
     std::uint32_t atlas = 0U;
     std::uint32_t frame = 0U;
@@ -19,6 +19,7 @@ struct Sprite {
     float height = 0.0F;
     std::int32_t layer = 0;
     bool flip_x = false;
+    bool screen = false;
     std::uint32_t red = 255U;
     std::uint32_t green = 255U;
     std::uint32_t blue = 255U;
@@ -31,6 +32,7 @@ struct Sprite {
         hasher.add(height);
         hasher.add(layer);
         hasher.add(flip_x);
+        hasher.add(screen);
         hasher.add(red);
         hasher.add(green);
         hasher.add(blue);

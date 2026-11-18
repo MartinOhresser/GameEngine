@@ -22,7 +22,10 @@ void check_ref_name(Checker& checker, const std::string& path, const FieldDef& f
     if (names.empty()) {
         checker.error(path, "this field names an item of the game's " + field.ref +
                                 " list, but the game declares none (see the manifest's " +
-                                (field.ref == "atlas" ? "atlases" : "lists") + ")");
+                                (field.ref == "atlas"    ? "atlases"
+                                 : field.ref == "string" ? "strings"
+                                                         : "lists") +
+                                ")");
         return;
     }
     const auto found = std::find(names.begin(), names.end(), name);
@@ -326,8 +329,9 @@ void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
         const std::string path = join_path("lists", member.first);
         if (!is_snake(member.first)) {
             checker.error(path, "a list name must be lower_snake_case");
-        } else if (member.first == "atlas") {
-            checker.error(path, "the atlas list is made by the manifest's \"atlases\" files");
+        } else if (member.first == "atlas" || member.first == "string") {
+            checker.error(path, "the " + member.first + " list is made by the manifest's \"" +
+                                    (member.first == "atlas" ? "atlases" : "strings") + "\" files");
         }
         std::vector<std::string> names;
         if (!member.second.is_array()) {
@@ -357,8 +361,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "lists", "atlases", "prefabs", "scenes",
-                            "scenarios", "input", "start_scene"});
+                            "simulation", "params", "lists", "locale", "strings", "atlases",
+                            "prefabs", "scenes", "scenarios", "input", "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -370,6 +374,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     read_simulation(checker, *object, manifest);
     read_params(context, checker, *object, manifest);
     read_lists(checker, *object, manifest);
+    manifest.strings_files = read_file_list(checker, *object, "strings");
+    static_cast<void>(checker.name(*object, "locale", "", false, manifest.locale));
     manifest.atlas_files = read_file_list(checker, *object, "atlases");
     manifest.prefab_files = read_file_list(checker, *object, "prefabs");
     manifest.scene_files = read_file_list(checker, *object, "scenes");
@@ -406,7 +412,8 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
         return std::nullopt;
     }
     checker.reject_unknown(
-        *object, "", {"$schema", "schema_version", "name", "image", "cell_width", "cell_height"});
+        *object, "",
+        {"$schema", "schema_version", "name", "image", "cell_width", "cell_height", "glyphs"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -428,7 +435,101 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
     }
     static_cast<void>(read_cell_size(checker, *object, "cell_width", atlas.cell_width));
     static_cast<void>(read_cell_size(checker, *object, "cell_height", atlas.cell_height));
+    static_cast<void>(checker.text(*object, "glyphs", "", false, atlas.glyphs));
     return atlas;
+}
+
+/// A key of the words table: lowercase letters, digits, underscores and dots
+/// ("menu.start"), so that it reads well in a game file.
+bool is_string_key(std::string_view key) {
+    return !key.empty() && std::all_of(key.begin(), key.end(), [](char c) {
+        return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '.';
+    });
+}
+
+std::optional<StringsData> read_strings(const Context& context, const std::string& file,
+                                        const json::Value& root) {
+    Checker checker(file, *context.diagnostics);
+    const json::Value* object = checker.object(root, "");
+    if (object == nullptr) {
+        return std::nullopt;
+    }
+    checker.reject_unknown(*object, "", {"$schema", "schema_version", "locale", "entries"});
+    if (const json::Value* version = object->find("schema_version"); version == nullptr) {
+        checker.error("", "missing required key \"schema_version\"");
+    } else if (!version->is_int() || version->as_int() != 1) {
+        checker.error("schema_version", "only schema version 1 is supported");
+    }
+    StringsData data;
+    static_cast<void>(checker.name(*object, "locale", "", true, data.locale));
+    const json::Value* entries = object->find("entries");
+    if (entries == nullptr) {
+        checker.error("", "missing required key \"entries\"");
+        return data;
+    }
+    if (checker.object(*entries, "entries") == nullptr) {
+        return data;
+    }
+    for (const auto& member : entries->members()) {
+        const std::string path = join_path("entries", member.first);
+        if (!is_string_key(member.first)) {
+            checker.error(path, "a key must be lowercase letters, digits, underscores and dots");
+        } else if (!member.second.is_string()) {
+            checker.error(path, "expected text, found " + describe(member.second));
+        } else {
+            data.entries.emplace_back(member.first, member.second.as_string());
+        }
+    }
+    return data;
+}
+
+/// Every language must have the same keys as the first one, so that a text
+/// never goes missing when the language changes; the locale must exist.
+void check_strings(const Context& context, const Game& game,
+                   const std::vector<std::string>& files) {
+    if (game.strings.empty()) {
+        return;
+    }
+    const StringsData& first = game.strings.front();
+    for (std::size_t i = 1; i < game.strings.size(); ++i) {
+        Checker checker(files[i], *context.diagnostics);
+        const StringsData& other = game.strings[i];
+        if (other.locale == first.locale) {
+            checker.error("locale",
+                          "another file already is the language \"" + other.locale + "\"");
+        }
+        std::vector<std::string> keys;
+        for (const auto& entry : other.entries) {
+            keys.push_back(entry.first);
+        }
+        for (const auto& entry : first.entries) {
+            if (std::find(keys.begin(), keys.end(), entry.first) == keys.end()) {
+                checker.error("entries", "missing the key \"" + entry.first + "\" that " +
+                                             first.locale + " has");
+            }
+        }
+        const std::vector<std::string> expected = game.ref_names("string");
+        for (const std::string& key : keys) {
+            if (std::find(expected.begin(), expected.end(), key) == expected.end()) {
+                checker.error(join_path("entries", key),
+                              "this key is not in " + first.locale + suggestion(key, expected));
+            }
+        }
+    }
+    const Manifest& manifest = game.manifest;
+    if (!manifest.locale.empty() && std::none_of(game.strings.begin(), game.strings.end(),
+                                                 [&manifest](const StringsData& data) {
+                                                     return data.locale == manifest.locale;
+                                                 })) {
+        std::vector<std::string> locales;
+        for (const StringsData& data : game.strings) {
+            locales.push_back(data.locale);
+        }
+        Checker checker("game.json", *context.diagnostics);
+        checker.error("locale", "no strings file is the language \"" + manifest.locale + "\"" +
+                                    suggestion(manifest.locale, locales) +
+                                    " (expected one of: " + join(locales) + ")");
+    }
 }
 
 std::optional<PrefabData> read_prefab(const Context& context, const std::string& file,
@@ -598,11 +699,29 @@ const ScenarioData* Game::find_scenario(std::string_view name) const {
     return found == scenarios.end() ? nullptr : &*found;
 }
 
+const StringsData* Game::active_strings() const {
+    if (strings.empty()) {
+        return nullptr;
+    }
+    const auto found =
+        std::find_if(strings.begin(), strings.end(),
+                     [this](const StringsData& data) { return data.locale == manifest.locale; });
+    return found == strings.end() ? &strings.front() : &*found;
+}
+
 std::vector<std::string> Game::ref_names(std::string_view ref) const {
     std::vector<std::string> names;
     if (ref == "atlas") {
         for (const AtlasData& atlas : atlases) {
             names.push_back(atlas.name);
+        }
+        return names;
+    }
+    if (ref == "string") {
+        if (!strings.empty()) {
+            for (const auto& entry : strings.front().entries) {
+                names.push_back(entry.first);
+            }
         }
         return names;
     }
@@ -649,7 +768,22 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         }
         loaded.game.atlases.push_back(std::move(*atlas));
     }
+    std::vector<std::string> strings_files;
+    for (std::size_t i = 0; i < loaded.game.manifest.strings_files.size(); ++i) {
+        const std::string path = context.directory + loaded.game.manifest.strings_files[i];
+        const std::optional<json::Value> data =
+            read_json(context, path, manifest_path, index_path("strings", i));
+        if (!data) {
+            continue;
+        }
+        if (std::optional<StringsData> strings = read_strings(context, path, *data)) {
+            loaded.game.strings.push_back(std::move(*strings));
+            strings_files.push_back(path);
+        }
+    }
+    check_strings(context, loaded.game, strings_files);
     context.refs["atlas"] = loaded.game.ref_names("atlas");
+    context.refs["string"] = loaded.game.ref_names("string");
     for (const auto& list : loaded.game.manifest.lists) {
         context.refs[list.first] = list.second;
     }

@@ -7,6 +7,7 @@ add_executable(
   game/test_atlas.cpp
   game/test_game.cpp
   game/test_lists.cpp
+  game/test_strings.cpp
   game/test_scenario.cpp
   game/test_schema.cpp
   json/test_json.cpp
@@ -22,6 +23,7 @@ add_executable(
   app/test_app.cpp
   app/test_commands_events.cpp
   app/test_input.cpp
+  app/test_text.cpp
   app/test_render.cpp
   app/test_determinism.cpp
   app/test_schedule_order.cpp

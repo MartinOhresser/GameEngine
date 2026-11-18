@@ -167,11 +167,29 @@ SetupResult spawn_scene(app::App& app, const Game& game, std::string_view scene_
     return result;
 }
 
+app::TextTable text_table_of(const Game& game) {
+    app::TextTable table;
+    if (const StringsData* words = game.active_strings(); words != nullptr) {
+        for (const std::string& key : game.ref_names("string")) {
+            const auto found =
+                std::find_if(words->entries.begin(), words->entries.end(),
+                             [&key](const auto& entry) { return entry.first == key; });
+            table.texts.push_back(found == words->entries.end() ? std::string() : found->second);
+        }
+    }
+    for (const AtlasData& atlas : game.atlases) {
+        table.fonts.push_back(
+            app::FontInfo{app::decode_utf8(atlas.glyphs), atlas.cell_width, atlas.cell_height});
+    }
+    return table;
+}
+
 SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEntry> available) {
     SetupResult result;
     const Manifest& manifest = game.manifest;
     app.set_tick_rate(manifest.tick_rate);
     app.world().insert_resource(Random{manifest.seed});
+    app.world().insert_resource(text_table_of(game));
 
     for (const ModuleEntry* entry : install_order(manifest, available, result.problems)) {
         entry->install(app);

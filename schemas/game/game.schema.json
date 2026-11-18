@@ -25,6 +25,7 @@
           "pickup",
           "screen_wrap",
           "sprite2d",
+          "text2d",
           "transform2d"
         ]
       }
@@ -83,6 +84,11 @@
           "additionalProperties": false
         },
         "sprite2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "text2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
