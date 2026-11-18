@@ -227,8 +227,7 @@ void spawn_prefab(app::App& app, const Game& game, const app::SpawnRequest& requ
         return; // validated games only name prefabs that exist
     }
     const ecs::Entity entity = app.world().spawn();
-    for (const ComponentData& component :
-         resolve_components(game, names[request.prefab], {})) {
+    for (const ComponentData& component : resolve_components(game, names[request.prefab], {})) {
         const app::ComponentInfo* info = find_component_info(app, component.name);
         if (info != nullptr && info->insert != nullptr) {
             info->insert(app.world(), entity, to_fields(game, *info, component.fields));

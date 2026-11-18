@@ -1,5 +1,6 @@
 #include "ge/platform/sdl/geplay.hpp"
 
+#include "ge/app/save.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
@@ -23,11 +24,15 @@ constexpr const char* usage_text =
     "geplay - play a game described by JSON files, in a window\n"
     "\n"
     "Usage: geplay GAME.json [--frames N] [--size WxH] [--headless] [--screenshot FILE.bmp]\n"
+    "                        [--save FILE]\n"
     "\n"
     "Keys and buttons act on the game through the game's input file. The\n"
     "game's sounds are the .wav files of its sounds/ directory. The window\n"
     "closes when you close it, or after N frames. --headless opens no window\n"
     "and plays no sound; --screenshot saves the last frame as a .bmp file.\n"
+    "What the game keeps between two runs (high scores) is read from and written\n"
+    "to FILE; by default a file in your application-data folder, except with\n"
+    "--headless, which keeps nothing unless --save is given.\n"
     "Exit codes: 0 success, 1 invalid game or cannot start, 2 usage.\n";
 
 struct Arguments {
@@ -37,6 +42,7 @@ struct Arguments {
     int height = 0;
     bool headless = false;
     std::string screenshot;
+    std::string save; ///< Empty: the application-data folder (a window) or nothing (headless).
 };
 
 bool parse_number(const std::string& text, int& out) {
@@ -85,6 +91,9 @@ std::string parse(const std::vector<std::string>& args, Arguments& out) {
         } else if (arg == "--screenshot") {
             const std::string* text = value_of(args, i, "a file name", error);
             out.screenshot = text != nullptr ? *text : out.screenshot;
+        } else if (arg == "--save") {
+            const std::string* text = value_of(args, i, "a file name", error);
+            out.save = text != nullptr ? *text : out.save;
         } else if (arg == "--headless") {
             out.headless = true;
         } else if (arg.starts_with("--")) {
@@ -134,6 +143,24 @@ std::size_t load_sounds(SdlBackend& backend, const std::string& manifest_path, s
         }
     }
     return loaded;
+}
+
+/// Where the save data lives: the file asked for, else the user's application-data folder
+/// (not for a headless run, which must leave nothing behind), else nowhere.
+std::string save_path_of(const Arguments& arguments, const std::string& game_name) {
+    if (!arguments.save.empty() || arguments.headless) {
+        return arguments.save;
+    }
+    const std::string directory = user_data_directory(game_name);
+    return directory.empty() ? std::string() : directory + "save.txt";
+}
+
+void write_text(const std::string& path, const std::string& text, std::ostream& err) {
+    std::ofstream stream(path, std::ios::binary | std::ios::trunc);
+    stream << text;
+    if (!stream) {
+        err << "geplay: cannot write the save file " << path << '\n';
+    }
 }
 
 } // namespace
@@ -202,6 +229,19 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
 
     LoopOptions options;
     options.max_frames = arguments.frames;
+    const std::string save_path = save_path_of(arguments, loaded.game.manifest.name);
+    if (!save_path.empty()) {
+        if (const std::optional<std::string> text = read_file(save_path); text) {
+            app.world().resource<app::SaveData>()->from_text(*text);
+        }
+        options.after_frame = [&save_path, &err](app::App& running) {
+            auto* save = running.world().resource<app::SaveData>();
+            if (save != nullptr && save->dirty()) {
+                write_text(save_path, save->to_text(), err);
+                save->mark_clean();
+            }
+        };
+    }
     const LoopResult result = run_loop(app, *backend, loaded.game.input, options);
     out << loaded.game.manifest.name << ": " << result.frames << " frames, " << app.tick_count()
         << " ticks\n";

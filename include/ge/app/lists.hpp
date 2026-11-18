@@ -17,8 +17,8 @@ struct ListNames {
 
     /// The name at `index` of the list, or an empty text when there is none.
     [[nodiscard]] std::string_view name(std::string_view list, std::size_t index) const {
-        const auto found = std::ranges::find_if(
-            lists, [list](const auto& item) { return item.first == list; });
+        const auto found =
+            std::ranges::find_if(lists, [list](const auto& item) { return item.first == list; });
         if (found == lists.end() || index >= found->second.size()) {
             return {};
         }

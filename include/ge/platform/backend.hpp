@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
@@ -72,6 +73,9 @@ private:
 struct LoopOptions {
     /// Stop after this many frames; 0 means until the backend says to stop.
     std::uint64_t max_frames = 0;
+    /// Called after every frame (drawing included): a player of the game uses it
+    /// to write the save data when it changed. Nothing when empty.
+    std::function<void(app::App&)> after_frame;
 };
 
 struct LoopResult {

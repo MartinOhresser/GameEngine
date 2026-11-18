@@ -1,0 +1,258 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "spawner2d",
+  "version": "0.1.0",
+  "description": "Worlds that build themselves as the camera moves: a Generator lays out rows of things from prefabs ahead of the camera, going up (platforms, monsters, coins of an endless climb), the things that fell far behind it are removed (Cull), and a Shooter fires prefabs on an action (bullets, arrows). It all comes from the game's prefabs, the Random of the game and the camera, so the same seed always builds the same world. The y axis points down; going up means y gets smaller.",
+  "depends": [
+    "transform2d",
+    "camera2d"
+  ],
+  "components": [
+    {
+      "name": "Generator",
+      "description": "Lays rows of a prefab above the top of the screen, as far as `ahead` units above it: the first row is at next_y, and each row is `gap` units higher than the previous one, with gap drawn between gap_min and gap_max. The row's x is drawn between x_min and x_max. Difficulty grows with height (origin_y minus y, in units): over ramp_height units every setting that has an `_end` goes from its first value to its `_end` value (an `_end` left at -1 means no change; a ramp_height of 0 uses the `_end` values at once). A row may be a different prefab: alt2_prefab with alt2_chance, else alt_prefab with alt_chance, else prefab. A row may bring an extra prefab (a spring on a platform, a coin above it) with extra_chance, placed at the row's x plus or minus extra_dx and extra_dy lower. row_chance is the chance that a row is built at all (a row that is not built still uses its gap); rows lower than from_height units above origin_y are never built. The game places the prefabs' Position; nothing the prefabs say about it matters. Needs a Camera.",
+      "replicable": false,
+      "fields": [
+        {
+          "name": "prefab",
+          "type": "u32",
+          "default": 0,
+          "ref": "prefab"
+        },
+        {
+          "name": "alt_prefab",
+          "type": "u32",
+          "default": 4294967295,
+          "ref": "prefab"
+        },
+        {
+          "name": "alt_chance",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "alt_chance_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "alt2_prefab",
+          "type": "u32",
+          "default": 4294967295,
+          "ref": "prefab"
+        },
+        {
+          "name": "alt2_chance",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "alt2_chance_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "extra_prefab",
+          "type": "u32",
+          "default": 4294967295,
+          "ref": "prefab"
+        },
+        {
+          "name": "extra_chance",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "extra_chance_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "extra_dx",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "extra_dy",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "x_min",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "x_max",
+          "type": "f32",
+          "default": 480
+        },
+        {
+          "name": "gap_min",
+          "type": "f32",
+          "default": 50
+        },
+        {
+          "name": "gap_max",
+          "type": "f32",
+          "default": 100
+        },
+        {
+          "name": "gap_min_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "gap_max_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "ramp_height",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "origin_y",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "from_height",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "row_chance",
+          "type": "f32",
+          "default": 1
+        },
+        {
+          "name": "row_chance_end",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "ahead",
+          "type": "f32",
+          "default": 200
+        },
+        {
+          "name": "next_y",
+          "type": "f32",
+          "default": 0
+        }
+      ]
+    },
+    {
+      "name": "Cull",
+      "description": "The entity is destroyed when it is more than margin units below the bottom edge of the screen: a platform the climber left behind. Needs a Position and a Camera.",
+      "replicable": false,
+      "fields": [
+        {
+          "name": "margin",
+          "type": "f32",
+          "default": 100
+        }
+      ]
+    },
+    {
+      "name": "Shooter",
+      "description": "Fires prefab each time the action is pressed, at most once every cooldown ticks, from the entity's Position moved by (dx, dy), with the Velocity (dir_x, dir_y) times speed (units per second; y points down, so dir_y -1 fires upwards). Needs a Position.",
+      "replicable": false,
+      "fields": [
+        {
+          "name": "prefab",
+          "type": "u32",
+          "default": 0,
+          "ref": "prefab"
+        },
+        {
+          "name": "action",
+          "type": "u32",
+          "default": 4294967295,
+          "ref": "action"
+        },
+        {
+          "name": "cooldown",
+          "type": "u32",
+          "default": 10
+        },
+        {
+          "name": "speed",
+          "type": "f32",
+          "default": 600
+        },
+        {
+          "name": "dir_x",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "dir_y",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "dx",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "dy",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "wait",
+          "type": "u32",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "generate",
+      "description": "Builds the rows of every Generator that the camera has not yet gone past, and asks the app to create them (they appear between two ticks).",
+      "stage": "FixedUpdate",
+      "reads": [
+        "Generator",
+        "camera2d.Camera",
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Generator"
+      ],
+      "after": [
+        "camera2d.follow"
+      ]
+    },
+    {
+      "name": "cull",
+      "description": "Destroys every Cull entity that fell below the screen.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "Cull",
+        "camera2d.Camera",
+        "transform2d.Position"
+      ],
+      "after": [
+        "camera2d.follow"
+      ]
+    },
+    {
+      "name": "shoot",
+      "description": "Fires the prefab of every Shooter whose action is pressed and whose cooldown is over.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "Shooter",
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Shooter"
+      ]
+    }
+  ]
+}

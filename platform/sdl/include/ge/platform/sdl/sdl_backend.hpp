@@ -35,6 +35,11 @@ struct Frame {
     [[nodiscard]] std::uint32_t at(int x, int y) const;
 };
 
+/// A folder where the program may keep files of its own for `game` (high
+/// scores, settings), created if needed and ending with a separator: the
+/// user's application-data folder. Empty when the machine has none.
+[[nodiscard]] std::string user_data_directory(const std::string& game);
+
 /// What a key is called in an input file: "key:" plus SDL's name for it in
 /// lower case, spaces turned into underscores ("Left Shift" -> "key:left_shift").
 [[nodiscard]] std::string key_source(std::string_view sdl_key_name);

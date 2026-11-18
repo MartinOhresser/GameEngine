@@ -1,0 +1,129 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "combat2d",
+  "version": "0.1.0",
+  "description": "Dying and killing, in the simplest form: a Mortal dies when it touches a harmful layer or falls off the bottom of the screen, and then says so to the game (an action, which a scene change or a rule can listen to); a Projectile destroys what it hits, or hurts a Target that has several lives.",
+  "depends": [
+    "transform2d",
+    "collision2d",
+    "camera2d"
+  ],
+  "components": [
+    {
+      "name": "Mortal",
+      "description": "The entity can die. It dies when its Contacts touch a collider of one of hurt_layers (it needs a Collider and a Contacts), or, if fall_death is on, when it is more than fall_margin units under the bottom edge of the screen (y grows downwards). `dead` then stays true and, once, the action on_death is raised (a field of the game's `action` list), which a GoToScene can use to show a game over. Nothing else happens to the entity itself: the game decides what a death means.",
+      "replicable": true,
+      "fields": [
+        {
+          "name": "hurt_layers",
+          "type": "u32",
+          "default": 0,
+          "ref_set": "layer"
+        },
+        {
+          "name": "fall_death",
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "fall_margin",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "on_death",
+          "type": "u32",
+          "default": 4294967295,
+          "ref": "action"
+        },
+        {
+          "name": "dead",
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "announced",
+          "type": "bool",
+          "default": false
+        }
+      ]
+    },
+    {
+      "name": "Target",
+      "description": "The entity can be shot: it loses `health` points for the damage of each Projectile that touches it (it needs a Collider), and is destroyed when none are left.",
+      "replicable": true,
+      "fields": [
+        {
+          "name": "health",
+          "type": "i32",
+          "default": 1
+        }
+      ]
+    },
+    {
+      "name": "Projectile",
+      "description": "The entity hurts the first Target whose Collider it overlaps, by damage points, and is destroyed by the hit. It needs a Collider and moves by its own Velocity (and a Lifetime lets it end by itself).",
+      "replicable": true,
+      "fields": [
+        {
+          "name": "damage",
+          "type": "i32",
+          "default": 1
+        }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "shots",
+      "description": "Lets every Projectile hit the Targets it overlaps: the Target loses health and is destroyed at 0, the Projectile is destroyed.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "Projectile",
+        "collision2d.Collider",
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Target"
+      ],
+      "after": [
+        "transform2d.integrate"
+      ],
+      "before": [
+        "collision2d.detect"
+      ]
+    },
+    {
+      "name": "hurt",
+      "description": "Kills every Mortal whose Contacts touch one of its hurt_layers, or that fell under the screen.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "collision2d.Contacts",
+        "camera2d.Camera",
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Mortal"
+      ],
+      "after": [
+        "collision2d.detect",
+        "camera2d.follow"
+      ]
+    },
+    {
+      "name": "announce",
+      "description": "Raises the on_death action of every Mortal that has just died, once.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "Mortal"
+      ],
+      "writes": [
+        "Mortal"
+      ],
+      "after": [
+        "hurt"
+      ]
+    }
+  ]
+}

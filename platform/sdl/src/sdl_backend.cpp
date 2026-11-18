@@ -374,6 +374,16 @@ SdlBackend::SdlBackend(std::unique_ptr<Impl> impl) : impl_(std::move(impl)) {}
 // device, which a game may keep longer than the backend.
 SdlBackend::~SdlBackend() = default;
 
+std::string user_data_directory(const std::string& game) {
+    char* path = SDL_GetPrefPath("ge", game.c_str());
+    if (path == nullptr) {
+        return {};
+    }
+    std::string directory = path;
+    SDL_free(path);
+    return directory;
+}
+
 std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std::string& error) {
     if (options.headless) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");

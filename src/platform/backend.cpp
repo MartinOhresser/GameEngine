@@ -54,6 +54,9 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map, LoopOp
         app.world().resource<app::RenderBackend>()->renderer().end_frame();
         last = now;
         ++result.frames;
+        if (options.after_frame) {
+            options.after_frame(app);
+        }
     }
     return result;
 }

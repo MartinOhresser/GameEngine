@@ -48,7 +48,8 @@ void SaveData::from_text(std::string_view text) {
         }
         const std::string_view number = line.substr(space + 1);
         std::int64_t value = 0;
-        const auto [stop, error] = std::from_chars(number.data(), number.data() + number.size(), value);
+        const auto [stop, error] =
+            std::from_chars(number.data(), number.data() + number.size(), value);
         if (error == std::errc{} && stop == number.data() + number.size()) {
             values_[std::string(line.substr(0, space))] = value;
         }
