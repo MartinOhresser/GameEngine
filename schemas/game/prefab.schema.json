@@ -157,6 +157,49 @@
           },
           "additionalProperties": false
         },
+        "scene_switch.GoToScene": {
+          "type": "object",
+          "properties": {
+            "scene": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "use_action": {
+              "type": "boolean"
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "touch_layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "after_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "elapsed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "scene_switch.Persistent": {
+          "type": "object",
+          "properties": {
+            "keep": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "screen_wrap.WrapArea": {
           "type": "object",
           "properties": {

@@ -7,6 +7,7 @@ add_executable(
   game/test_atlas.cpp
   game/test_game.cpp
   game/test_lists.cpp
+  game/test_scene_switch.cpp
   game/test_strings.cpp
   game/test_scenario.cpp
   game/test_schema.cpp

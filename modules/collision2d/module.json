@@ -8,13 +8,13 @@
   "components": [
     {
       "name": "Collider",
-      "description": "An axis-aligned box of the given width and height centred on the entity's Position. layer says what the entity is, mask says which layers it reacts to; both are bit sets (1 is bit 0, 2 is bit 1, 4 is bit 2...), so layer 2 with mask 5 is an entity of the second kind that reacts to the first and third kinds. solid makes it a wall that stops every Body whose mask includes its layer.",
+      "description": "An axis-aligned box of the given width and height centred on the entity's Position. layer says what the entity is, mask says which layers it reacts to. Both are sets of names from the game's layer list (for example [\"wall\"], or [\"player\", \"enemy\"] for a mask) or plain bit sets (1 is the first name, 2 the second, 4 the third...). solid makes it a wall that stops every Body whose mask includes its layer.",
       "replicable": true,
       "fields": [
         { "name": "width", "type": "f32", "default": 16 },
         { "name": "height", "type": "f32", "default": 16 },
-        { "name": "layer", "type": "u32", "default": 1 },
-        { "name": "mask", "type": "u32", "default": 4294967295 },
+        { "name": "layer", "type": "u32", "default": 1, "ref_set": "layer" },
+        { "name": "mask", "type": "u32", "default": 4294967295, "ref_set": "layer" },
         { "name": "solid", "type": "bool", "default": false }
       ]
     },
@@ -30,7 +30,7 @@
       "replicable": true,
       "fields": [
         { "name": "count", "type": "u32", "default": 0 },
-        { "name": "layers", "type": "u32", "default": 0 }
+        { "name": "layers", "type": "u32", "default": 0, "ref_set": "layer" }
       ]
     }
   ],

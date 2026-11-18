@@ -3,6 +3,7 @@
 #include "ge/app/audio.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/scene.hpp"
 #include "ge/core/assert.hpp"
 #include "ge/core/random.hpp"
 
@@ -222,6 +223,8 @@ App::App() {
     world_.insert_resource(Random{});
     world_.insert_resource(ecs::Commands{});
     world_.insert_resource(Actions{});
+    world_.insert_resource(SceneRequest{});
+    world_.insert_resource(EntityNames{});
     world_.insert_resource(ScriptedInput{});
     world_.insert_resource(LiveInput{});
     world_.insert_resource(RenderBackend{});
@@ -302,6 +305,16 @@ void App::begin_tick_input() {
     }
 }
 
+void App::apply_scene_request() {
+    auto* request = world_.resource<SceneRequest>();
+    if (request == nullptr || !request->scene || !scene_loader_) {
+        return;
+    }
+    const std::uint32_t scene = *request->scene;
+    request->scene.reset();
+    scene_loader_(*this, scene);
+}
+
 void App::run_startup_once() {
     if (!started_) {
         run_stage(Stage::Startup);
@@ -330,6 +343,7 @@ void App::advance(std::chrono::nanoseconds real_delta) {
         if (Time* time = world_.resource<Time>(); time != nullptr) {
             ++time->tick;
         }
+        apply_scene_request();
     }
     // Time the cap left over is dropped; only the fraction of a tick is kept.
     accumulator_ns_ %= step_ns_;
@@ -338,6 +352,7 @@ void App::advance(std::chrono::nanoseconds real_delta) {
     }
 
     run_stage(Stage::Update);
+    apply_scene_request();
     run_stage(Stage::PostUpdate);
     ++frames_;
 }

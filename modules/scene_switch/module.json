@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "scene_switch",
+  "version": "0.1.0",
+  "description": "Moves the game from one scene to another while it runs: from a menu to a level, from a level to the next, from a game over back to the menu. A door, a button or a timer is an entity that says where to go and what makes it go.",
+  "depends": ["collision2d"],
+  "components": [
+    {
+      "name": "GoToScene",
+      "description": "When one of its triggers fires, the game changes to the scene named by scene (a scene of the game's manifest). The triggers: use_action, when the action named by action is pressed (a menu button, a key bound in input.json); touch_layers, when the entity's Contacts touch a collider of one of these layers (a door, an exit: the entity needs a Collider and a Contacts); after_ticks, that many ticks after the entity appeared (a splash screen). A trigger left at its default is off. The entities of the old scene are removed, except those with a Persistent; elapsed is the entity's own tick count.",
+      "replicable": false,
+      "fields": [
+        { "name": "scene", "type": "u32", "default": 0, "ref": "scene" },
+        { "name": "use_action", "type": "bool", "default": false },
+        { "name": "action", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "touch_layers", "type": "u32", "default": 0, "ref_set": "layer" },
+        { "name": "after_ticks", "type": "u32", "default": 0 },
+        { "name": "elapsed", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Persistent",
+      "description": "The entity stays when the scene changes: the player, their inventory, a score. keep false has the same effect as not having the component.",
+      "replicable": false,
+      "fields": [{ "name": "keep", "type": "bool", "default": true }]
+    }
+  ],
+  "systems": [
+    {
+      "name": "trigger",
+      "description": "Checks the triggers of every GoToScene each tick and asks for the scene change of the first one that fires; the app makes the change between two ticks.",
+      "stage": "FixedUpdate",
+      "reads": ["GoToScene", "collision2d.Contacts"],
+      "writes": ["GoToScene"],
+      "after": ["collision2d.detect"]
+    }
+  ]
+}

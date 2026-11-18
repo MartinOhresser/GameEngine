@@ -190,6 +190,13 @@ public:
     /// Runs one frame with exactly one fixed tick.
     void update();
 
+    /// What changes the scene when a system leaves a `SceneRequest`: it is
+    /// called between two ticks (and at the end of a frame) with the index of
+    /// the scene asked for. The game runtime installs it; without one, requests
+    /// are ignored.
+    using SceneLoader = std::function<void(App&, std::uint32_t)>;
+    void set_scene_loader(SceneLoader loader) { scene_loader_ = std::move(loader); }
+
     /// Runs `frames` frames in a row, one fixed tick each.
     void run_frames(std::uint32_t frames);
 
@@ -201,6 +208,7 @@ public:
 
 private:
     void run_startup_once();
+    void apply_scene_request();
     void begin_tick_input();
     void run_stage(Stage stage);
     void add_stage_hook(Stage stage, System hook);
@@ -215,6 +223,7 @@ private:
     std::uint64_t accumulator_ns_ = 0;
     std::uint32_t max_catch_up_ticks_ = 8;
     bool started_ = false;
+    SceneLoader scene_loader_;
 };
 
 } // namespace ge::app

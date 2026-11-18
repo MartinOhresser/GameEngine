@@ -23,6 +23,7 @@
           "debug_draw",
           "lifetime",
           "pickup",
+          "scene_switch",
           "screen_wrap",
           "sprite2d",
           "text2d",
@@ -74,6 +75,11 @@
           "additionalProperties": false
         },
         "pickup": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "scene_switch": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

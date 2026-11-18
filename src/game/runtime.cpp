@@ -3,6 +3,7 @@
 #include "ge/core/random.hpp"
 
 #include <algorithm>
+#include <memory>
 
 namespace ge::game {
 
@@ -162,9 +163,43 @@ SetupResult spawn_scene(app::App& app, const Game& game, std::string_view scene_
         }
         if (!data.name.empty()) {
             result.named.emplace_back(data.name, entity);
+            if (auto* names = app.world().resource<app::EntityNames>(); names != nullptr) {
+                names->set(data.name, entity);
+            }
         }
     }
     return result;
+}
+
+namespace {
+
+/// Whether the entity asked to stay when the scene changes: it has a
+/// `scene_switch.Persistent` whose `keep` is on.
+bool stays_between_scenes(const app::App& app, ecs::Entity entity) {
+    const app::ComponentInfo* info = find_component_info(app, "scene_switch.Persistent");
+    if (info == nullptr || info->read == nullptr) {
+        return false;
+    }
+    const std::optional<app::Scalar> keep = info->read(app.world(), entity, "keep");
+    return keep && app::scalar_as<bool>(*keep);
+}
+
+} // namespace
+
+void change_scene(app::App& app, const Game& game, std::uint32_t scene) {
+    if (scene >= game.scenes.size()) {
+        return; // validated games never ask for a scene that does not exist
+    }
+    for (const ecs::Entity entity : app.world().entities()) {
+        if (!stays_between_scenes(app, entity)) {
+            static_cast<void>(app.world().despawn(entity));
+        }
+    }
+    if (auto* names = app.world().resource<app::EntityNames>(); names != nullptr) {
+        names->retain([&app](ecs::Entity entity) { return app.world().is_alive(entity); });
+    }
+    static_cast<void>(spawn_scene(app, game, game.scenes[scene].name));
+    app.world().insert_resource(app::CurrentScene{scene});
 }
 
 app::TextTable text_table_of(const Game& game) {
@@ -190,6 +225,14 @@ SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEn
     app.set_tick_rate(manifest.tick_rate);
     app.world().insert_resource(Random{manifest.seed});
     app.world().insert_resource(text_table_of(game));
+    app.world().insert_resource(app::ActionNames{game.ref_names("action")});
+    {
+        // The loader keeps its own copy of the game, so it never outlives it.
+        auto shared = std::make_shared<const Game>(game);
+        app.set_scene_loader([shared](app::App& running, std::uint32_t scene) {
+            change_scene(running, *shared, scene);
+        });
+    }
 
     for (const ModuleEntry* entry : install_order(manifest, available, result.problems)) {
         entry->install(app);
@@ -212,6 +255,11 @@ SetupResult setup_game(app::App& app, const Game& game, std::span<const ModuleEn
         return result;
     }
     SetupResult scene = spawn_scene(app, game, manifest.start_scene);
+    for (std::size_t i = 0; i < game.scenes.size(); ++i) {
+        if (game.scenes[i].name == manifest.start_scene) {
+            app.world().insert_resource(app::CurrentScene{static_cast<std::uint32_t>(i)});
+        }
+    }
     for (std::string& problem : scene.problems) {
         result.problems.push_back(std::move(problem));
     }

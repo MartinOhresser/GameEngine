@@ -11,7 +11,7 @@
 
 namespace ge::mod::collision2d {
 
-/// An axis-aligned box of the given width and height centred on the entity's Position. layer says what the entity is, mask says which layers it reacts to; both are bit sets (1 is bit 0, 2 is bit 1, 4 is bit 2...), so layer 2 with mask 5 is an entity of the second kind that reacts to the first and third kinds. solid makes it a wall that stops every Body whose mask includes its layer.
+/// An axis-aligned box of the given width and height centred on the entity's Position. layer says what the entity is, mask says which layers it reacts to. Both are sets of names from the game's layer list (for example ["wall"], or ["player", "enemy"] for a mask) or plain bit sets (1 is the first name, 2 the second, 4 the third...). solid makes it a wall that stops every Body whose mask includes its layer.
 struct Collider {
     float width = 16.0F;
     float height = 16.0F;

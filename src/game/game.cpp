@@ -532,6 +532,24 @@ void check_strings(const Context& context, const Game& game,
     }
 }
 
+/// The names of the scene files, read without reporting problems (the scenes
+/// are read and checked properly later).
+std::vector<std::string> scene_names_ahead(const Context& context, const Manifest& manifest) {
+    std::vector<std::string> names;
+    for (const std::string& file : manifest.scene_files) {
+        const std::optional<std::string> text = (*context.read)(context.directory + file);
+        if (!text) {
+            continue;
+        }
+        const json::ParseResult parsed = json::parse(*text, json::relaxed);
+        const json::Value* name = parsed.ok() ? parsed.value.find("name") : nullptr;
+        if (name != nullptr && name->is_string()) {
+            names.push_back(name->as_string());
+        }
+    }
+    return names;
+}
+
 std::optional<PrefabData> read_prefab(const Context& context, const std::string& file,
                                       const json::Value& root) {
     Checker checker(file, *context.diagnostics);
@@ -717,6 +735,26 @@ std::vector<std::string> Game::ref_names(std::string_view ref) const {
         }
         return names;
     }
+    if (ref == "scene") {
+        for (const SceneData& scene : scenes) {
+            names.push_back(scene.name);
+        }
+        return names;
+    }
+    if (ref == "action") {
+        // The manifest's own list first, then the actions the input file binds.
+        for (const auto& list : manifest.lists) {
+            if (list.first == "action") {
+                names = list.second;
+            }
+        }
+        for (const platform::Binding& binding : input.bindings()) {
+            if (std::find(names.begin(), names.end(), binding.action) == names.end()) {
+                names.push_back(binding.action);
+            }
+        }
+        return names;
+    }
     if (ref == "string") {
         if (!strings.empty()) {
             for (const auto& entry : strings.front().entries) {
@@ -788,6 +826,12 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         context.refs[list.first] = list.second;
     }
 
+    // The actions come from the input file and the manifest's lists; the scenes'
+    // names are read ahead, because a prefab may lead to a scene that comes later.
+    read_input_map(context, manifest_path, loaded.game);
+    context.refs["action"] = loaded.game.ref_names("action");
+    context.refs["scene"] = scene_names_ahead(context, loaded.game.manifest);
+
     std::vector<std::string> prefab_files;
     for (std::size_t i = 0; i < loaded.game.manifest.prefab_files.size(); ++i) {
         const std::string path = context.directory + loaded.game.manifest.prefab_files[i];
@@ -830,7 +874,6 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         }
     }
     check_scenario_links(context, loaded.game, scenario_files);
-    read_input_map(context, manifest_path, loaded.game);
     return loaded;
 }
 
