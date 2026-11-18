@@ -99,7 +99,7 @@ TEST_CASE("summary: what a game leaves out gets a default") {
     CHECK(summary.icon.empty());
     CHECK(summary.window_width == 800U);
     CHECK(ge::game::default_title("a") == "A");
-    CHECK(ge::game::default_title("") == "");
+    CHECK(ge::game::default_title("").empty());
     CHECK(ge::game::default_id("a") == "ge.games.a");
 }
 
