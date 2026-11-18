@@ -1,0 +1,22 @@
+// Enter on Play starts the game and does not ask to quit.
+{
+  "schema_version": 1,
+  "name": "play_does_not_quit",
+  "scene": "menu",
+  "ticks": 20,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    "scene is game"
+  ]
+}

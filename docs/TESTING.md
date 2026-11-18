@@ -55,6 +55,8 @@ Les scénarios sont des fichiers de `scenarios/`, listés dans le manifeste (`"s
 | le nombre d'entités | `entities == 3` |
 | une entité existe / n'existe plus | `hero alive`, `spark gone` |
 | la scène courante | `scene is credits` |
+| le jeu demande à quitter | `game quits` |
+| le jeu a appelé une commande de l'hôte | `host calls play` (liste `host_command`) |
 | l'empreinte de l'état | `fingerprint == 5f4962bd950cf9b3` |
 
 Comparaisons : `==`, `!=`, `<`, `<=`, `>`, `>=`. Un champ booléen se compare à `true` ou `false` avec `==` ou `!=`. Les nombres sont comparés à 0,01 % près (relatif) : les valeurs de jeu sont des flottants, `== 0.1` ne doit pas dépendre du dernier bit.

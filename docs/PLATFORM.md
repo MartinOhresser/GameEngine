@@ -41,6 +41,18 @@ Les valeurs de `LiveInput` sont posées sur `Actions` **au début de chaque tick
 
 La simulation ne change pas : pas fixe, déterministe, et la logique de jeu ne lit que des actions.
 
+### Sortir de la boucle
+
+La boucle rend un `LoopResult` qui dit pourquoi elle s'est arrêtée :
+
+- `backend_stopped` : le joueur a fermé la fenêtre ;
+- `quit_requested` : le **jeu** a demandé à partir (la ressource `QuitRequest`, levée par un composant `host.Quit` quand son action est pressée, typiquement un bouton « Quitter ») ;
+- `back_requested` : le joueur a pressé une source de `LoopOptions::back_sources` (`key:escape` pour `geplay`). Ces sources appartiennent à l'**hôte** : le jeu ne les voit pas, donc on peut toujours revenir au lanceur, même d'un jeu sans menu.
+
+Un jeu reste un fichier de données : le module `host` (composants `Quit` et `Call`) lève des demandes, la boucle ou l'hôte décide quoi en faire. `Call` met une commande nommée (liste `host_command`) dans la file `HostRequests`, que le lanceur lit entre deux ticks. Les scénarios testent ces demandes sans fenêtre : `game quits` et `host calls NOM`.
+
+`Backend::resize(largeur, hauteur)` donne à la fenêtre la taille demandée par le jeu (clé `window` du manifeste) ; `ScriptedBackend` la mémorise pour les tests. `HostInfo::mobile` dit au jeu si l'hôte est un téléphone : `host.Quit` n'y fait rien par défaut (iOS interdit de quitter), sauf avec `on_mobile`.
+
 ## Les backends
 
 | Backend | Rôle |

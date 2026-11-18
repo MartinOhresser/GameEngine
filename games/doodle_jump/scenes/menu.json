@@ -171,12 +171,38 @@
       }
     },
     {
+      "name": "button_quit",
+      "prefab": "button",
+      "components": {
+        "ui.Cell": {
+          "group": "menu_buttons",
+          "index": 1
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 1,
+          "action": "quit_game"
+        },
+        "text2d.Text": {
+          "string": "menu.quit"
+        }
+      }
+    },
+    {
       "name": "go_play",
       "components": {
         "scene_switch.GoToScene": {
           "scene": "game",
           "use_action": true,
           "action": "start_game"
+        }
+      }
+    },
+    {
+      "name": "quit_game",
+      "components": {
+        "host.Quit": {
+          "action": "quit_game"
         }
       }
     }

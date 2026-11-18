@@ -1,0 +1,46 @@
+// Two Downs reach Quit, Enter presses it: the game asks the host to close it.
+{
+  "schema_version": 1,
+  "name": "quit_from_the_menu",
+  "scene": "menu",
+  "ticks": 30,
+  "inputs": [
+    {
+      "tick": 2,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 3,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 4,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 5,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 7,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 8,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 6,
+      "check": "menu_input.ui.Menu.focused == 2"
+    },
+    "game quits"
+  ]
+}

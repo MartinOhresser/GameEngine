@@ -128,6 +128,20 @@ TEST_CASE("sdl: closing the window stops the loop") {
     CHECK(result.frames == 0U);
 }
 
+TEST_CASE("sdl: the window can take another size, and the frame follows it") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    CHECK(!backend->resize(0, 100));
+    REQUIRE(backend->resize(480, 800));
+    auto renderer = backend->renderer();
+    renderer->draw({"square", 240.0F, 400.0F, 20.0F, 0xFF8000FFU});
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    REQUIRE(frame.width == 480);
+    REQUIRE(frame.height == 800);
+    CHECK(frame.at(240, 400) == 0xFF8000FFU);
+}
+
 TEST_CASE("sdl: a mouse click reaches the game as an action") {
     auto backend = open();
     REQUIRE(backend != nullptr);

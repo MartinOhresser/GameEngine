@@ -39,6 +39,7 @@
           "combat2d",
           "debug_draw",
           "gravity2d",
+          "host",
           "inventory",
           "lifetime",
           "patrol2d",
@@ -124,6 +125,11 @@
           "additionalProperties": false
         },
         "gravity2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "host": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

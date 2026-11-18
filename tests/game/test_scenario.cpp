@@ -2,6 +2,7 @@
 #include "ge/game/runtime.hpp"
 #include "ge/game/scenario.hpp"
 #include "ge/mod/action_control/action_control.gen.hpp"
+#include "ge/mod/host/host.gen.hpp"
 #include "ge/mod/lifetime/lifetime.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -20,10 +21,11 @@ using ge::game::ModuleEntry;
 
 namespace {
 
-const std::array<ModuleEntry, 3> linked = {{
+const std::array<ModuleEntry, 4> linked = {{
     {&ge::mod::transform2d::info, &ge::mod::transform2d::install},
     {&ge::mod::lifetime::info, &ge::mod::lifetime::install},
     {&ge::mod::action_control::info, &ge::mod::action_control::install},
+    {&ge::mod::host::info, &ge::mod::host::install},
 }};
 
 using Files = std::map<std::string, std::string>;
@@ -142,6 +144,11 @@ TEST_CASE("check: the forms of a check are understood") {
     CHECK(ge::game::parse_check("scene is credits", check).empty());
     CHECK(check.kind == CheckKind::Scene);
     CHECK(check.entity == "credits");
+    CHECK(ge::game::parse_check("game quits", check).empty());
+    CHECK(check.kind == CheckKind::Quit);
+    CHECK(ge::game::parse_check("host calls play", check).empty());
+    CHECK(check.kind == CheckKind::HostCall);
+    CHECK(check.entity == "play");
     CHECK(ge::game::parse_check("fingerprint == 5f4962bd950cf9b3", check).empty());
     CHECK(check.kind == CheckKind::Fingerprint);
     CHECK(check.fingerprint == 0x5f4962bd950cf9b3ULL);
@@ -385,4 +392,44 @@ TEST_CASE("scenario: a scenario can start another scene than the game's") {
     files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "aren",
         "ticks": 5})";
     CHECK(mentions(load(files), "scene: no scene is named \"aren\" (did you mean \"arena\"?)"));
+}
+
+TEST_CASE("scenario: a game can be checked to quit and to call the host") {
+    Files files = sample();
+    files["g/game.json"] = R"({
+        "schema_version": 1, "name": "demo",
+        "modules": ["transform2d", "host"],
+        "lists": {"action": ["leave", "go"], "host_command": ["play", "export"]},
+        "scenes": ["main.json"], "scenarios": ["leaves.json", "stays.json", "calls.json"],
+        "start_scene": "main"
+    })";
+    files["g/main.json"] = R"({"schema_version": 1, "name": "main", "entities": [
+        {"name": "quit", "components": {"host.Quit": {"action": "leave"}}},
+        {"name": "button", "components": {"host.Call": {"command": "export", "action": "go",
+                                                          "argument": 3}}}]})";
+    files["g/leaves.json"] = R"({"schema_version": 1, "name": "leaves", "ticks": 6,
+        "inputs": [{"tick": 2, "action": "leave", "value": 1}],
+        "expect": [{"at": 2, "check": "game quits"}, "game quits"]})";
+    files["g/stays.json"] = R"({"schema_version": 1, "name": "stays", "ticks": 6,
+        "expect": ["game quits"]})";
+    files["g/calls.json"] = R"({"schema_version": 1, "name": "calls", "ticks": 6,
+        "inputs": [{"tick": 2, "action": "go", "value": 1}],
+        "expect": ["host calls export", {"at": 1, "check": "host calls export"}]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    const auto leaves = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
+    CHECK(has(all_failures(leaves), "tick 2")); // not yet at tick 2: pressed after it
+    const auto stays = ge::game::run_scenario(loaded.game, loaded.game.scenarios[1], linked);
+    CHECK(has(all_failures(stays), "the game did not ask to quit"));
+    const auto calls = ge::game::run_scenario(loaded.game, loaded.game.scenarios[2], linked);
+    CHECK(has(all_failures(calls), "tick 1"));
+    CHECK(!has(all_failures(calls), "tick 6"));
+
+    // A command that is not in the list is reported, with a suggestion.
+    files["g/calls.json"] = R"({"schema_version": 1, "name": "calls", "ticks": 6,
+        "expect": ["host calls exprot"]})";
+    CHECK(mentions(load(files), "no host command is named \"exprot\""));
 }
