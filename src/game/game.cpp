@@ -4,9 +4,22 @@
 #include "scenario_read.hpp"
 
 #include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <set>
 
 namespace ge::game {
+
+FileReader disk_reader() {
+    return [](const std::string& path) -> std::optional<std::string> {
+        std::ifstream stream(path, std::ios::binary);
+        if (!stream) {
+            return std::nullopt;
+        }
+        return std::string(std::istreambuf_iterator<char>(stream),
+                           std::istreambuf_iterator<char>());
+    };
+}
 
 namespace {
 

@@ -372,6 +372,8 @@ struct SdlBackend::Impl {
     bool headless = false;
     bool capture = false;
     bool quit = false;
+    int width = 0; ///< The view of the window (what the renderer draws in).
+    int height = 0;
 };
 
 SdlBackend::SdlBackend(std::unique_ptr<Impl> impl) : impl_(std::move(impl)) {}
@@ -414,6 +416,8 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     }
     SDL_SetRenderLogicalPresentation(impl->session->renderer, options.width, options.height,
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl->width = options.width;
+    impl->height = options.height;
     impl->renderer = std::make_shared<SdlRenderer>(impl->session, options.capture, options.width,
                                                    options.height);
     impl->audio = std::make_shared<SdlAudio>(impl->session);
@@ -481,7 +485,15 @@ bool SdlBackend::resize(int width, int height) {
     SDL_SetRenderLogicalPresentation(impl_->session->renderer, width, height,
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
     impl_->renderer->set_view(width, height);
+    impl_->width = width;
+    impl_->height = height;
     return true;
+}
+
+void SdlBackend::reset_assets() {
+    impl_->renderer =
+        std::make_shared<SdlRenderer>(impl_->session, impl_->capture, impl_->width, impl_->height);
+    impl_->audio = std::make_shared<SdlAudio>(impl_->session);
 }
 
 bool SdlBackend::load_sound(const std::string& name, const std::string& path, std::string& error) {

@@ -1,0 +1,78 @@
+// Ten games make two pages of eight. Next shows the last two; the focused row then
+// stands for another game. Previous comes back.
+{
+  "schema_version": 1,
+  "name": "turns_the_pages",
+  "ticks": 40,
+  "lists": {
+    "games": [
+      "g0",
+      "g1",
+      "g2",
+      "g3",
+      "g4",
+      "g5",
+      "g6",
+      "g7",
+      "g8",
+      "g9"
+    ]
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "page_next",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "page_next",
+      "value": 0
+    },
+    {
+      "tick": 12,
+      "action": "page_prev",
+      "value": 1
+    },
+    {
+      "tick": 13,
+      "action": "page_prev",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 2,
+      "check": "pages.ui.Pager.pages == 2"
+    },
+    {
+      "at": 2,
+      "check": "list games selected == 0"
+    },
+    {
+      "at": 8,
+      "check": "pages.ui.Pager.page == 1"
+    },
+    {
+      "at": 8,
+      "check": "row0.ui.Row.item == 8"
+    },
+    {
+      "at": 8,
+      "check": "row1.ui.Button.enabled == true"
+    },
+    {
+      "at": 8,
+      "check": "row2.ui.Button.enabled == false"
+    },
+    {
+      "at": 8,
+      "check": "list games selected == 8"
+    },
+    {
+      "at": 20,
+      "check": "pages.ui.Pager.page == 0"
+    },
+    "list games selected == 0"
+  ]
+}

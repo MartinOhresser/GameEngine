@@ -50,6 +50,22 @@ public:
         (void)height;
         return false;
     }
+
+    /// Starts again with an empty renderer and an empty sound bank, on the same
+    /// window: what belongs to the window (and stays) is separated from what
+    /// belongs to a game (atlases, sounds). A launcher calls it before each
+    /// game and when it comes back. The previous renderer and audio keep
+    /// working for whoever still holds them.
+    virtual void reset_assets() {}
+
+    /// Loads a .wav file so that `AudioDevice::play(name)` plays it. False, with
+    /// `error` filled, when the backend has no sound or the file cannot be read.
+    virtual bool load_sound(const std::string& name, const std::string& path, std::string& error) {
+        (void)name;
+        (void)path;
+        error = "this backend plays no sound";
+        return false;
+    }
 };
 
 /// A backend driven by a script, with a clock that advances by exactly one
@@ -73,12 +89,20 @@ public:
 
     /// Remembers the size asked for (0 x 0 until a call), so tests can see it.
     bool resize(int width, int height) override;
+    void reset_assets() override;
+    /// Remembers the names it was asked to load (it plays nothing, but accepts them).
+    bool load_sound(const std::string& name, const std::string& path, std::string& error) override;
+    [[nodiscard]] const std::vector<std::string>& sounds() const noexcept { return sounds_; }
+    /// How many times `reset_assets` was called.
+    [[nodiscard]] int resets() const noexcept { return resets_; }
     [[nodiscard]] int width() const noexcept { return width_; }
     [[nodiscard]] int height() const noexcept { return height_; }
 
 private:
     int width_ = 0;
     int height_ = 0;
+    int resets_ = 0;
+    std::vector<std::string> sounds_;
     std::int64_t step_ns_;
     std::uint64_t frames_;
     std::uint64_t frame_ = 0;

@@ -42,24 +42,34 @@ target_include_directories(ge_platform_sdl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/i
 target_link_libraries(ge_platform_sdl PUBLIC ge::platform PRIVATE ${GE_SDL_TARGET} ge_stb_image)
 ge_target_options(ge_platform_sdl)
 
-# geplay: the universal runner with a window. Needs the runner library.
+# What plays whole games on a window: one game on the backend (play.cpp, shared by geplay and the
+# launcher), geplay itself and the launcher. Needs the runner library (the modules).
 if(TARGET ge_runner)
-  add_executable(geplay src/geplay.cpp src/geplay_main.cpp)
-  target_include_directories(geplay PRIVATE "${PROJECT_SOURCE_DIR}/runner")
-  target_link_libraries(geplay PRIVATE ge_runner ge::platform_sdl)
+  add_library(ge_play STATIC src/play.cpp src/geplay.cpp src/launcher.cpp)
+  target_include_directories(ge_play PUBLIC "${PROJECT_SOURCE_DIR}/runner")
+  target_link_libraries(ge_play PUBLIC ge_runner ge::platform_sdl)
+  ge_target_options(ge_play)
+
+  add_executable(geplay src/geplay_main.cpp)
+  target_link_libraries(geplay PRIVATE ge_play)
   ge_target_options(geplay)
+
+  add_executable(gelauncher src/gelauncher_main.cpp)
+  target_link_libraries(gelauncher PRIVATE ge_play)
+  ge_target_options(gelauncher)
 endif()
 
 if(GE_BUILD_TESTS)
   add_executable(ge_platform_tests "${PROJECT_SOURCE_DIR}/tests/support/main.cpp"
                                    "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_sdl_backend.cpp")
+  if(TARGET ge_runner)
+    target_sources(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_launcher.cpp")
+  endif()
   target_include_directories(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/tests/support")
   target_link_libraries(ge_platform_tests PRIVATE ge::platform_sdl ge::game)
   target_compile_definitions(ge_platform_tests PRIVATE GE_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
   if(TARGET ge_runner)
-    target_link_libraries(ge_platform_tests PRIVATE ge_runner)
-    target_sources(ge_platform_tests PRIVATE src/geplay.cpp)
-    target_include_directories(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/runner")
+    target_link_libraries(ge_platform_tests PRIVATE ge_play)
     target_compile_definitions(ge_platform_tests PRIVATE GE_HAS_GEPLAY=1)
   endif()
   ge_target_options(ge_platform_tests)

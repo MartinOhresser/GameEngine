@@ -1,0 +1,23 @@
+// Three games fill three rows; the others have nothing to show and go off. The first row is
+// focused, so the first game is selected.
+{
+  "schema_version": 1,
+  "name": "lists_the_games",
+  "ticks": 5,
+  "lists": {
+    "games": [
+      "Alpha",
+      "Beta",
+      "Gamma"
+    ]
+  },
+  "expect": [
+    "row0.ui.Button.enabled == true",
+    "row2.ui.Button.enabled == true",
+    "row3.ui.Button.enabled == false",
+    "row7.ui.Button.enabled == false",
+    "pages.ui.Pager.pages == 1",
+    "list games selected == 0",
+    "row2.ui.Row.item == 2"
+  ]
+}

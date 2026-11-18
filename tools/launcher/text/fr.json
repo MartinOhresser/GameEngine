@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "locale": "fr",
+  "entries": {
+    "launcher.title": "Game Engine",
+    "launcher.hint": "Haut/Bas : choisir   Entrée : jouer   Gauche/Droite : pages   Échap : quitter",
+    "button.prev": "<",
+    "button.next": ">",
+    "button.quit": "Quitter"
+  }
+}

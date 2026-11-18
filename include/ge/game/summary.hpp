@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ge/game/catalog.hpp"
 #include "ge/game/game.hpp"
 #include "ge/json/json.hpp"
 
@@ -47,6 +48,13 @@ struct GameSummary {
 /// manifest could be read; `fallback_name` stands for a name that could not be.
 [[nodiscard]] GameSummary summarize(const LoadedGame& loaded, std::string_view directory,
                                     std::string_view fallback_name);
+
+/// Describes every game of a directory: each subdirectory that has a `game.json`, sorted by
+/// name. An invalid game is described too (`valid` is false). Returns false, with `error`
+/// filled, when the directory cannot be read.
+[[nodiscard]] bool discover_games(const std::string& directory, const FileReader& read,
+                                  const Catalog& catalog, std::vector<GameSummary>& games,
+                                  std::string& error);
 
 /// The summary as JSON, in the shape `gectl list --json` prints.
 [[nodiscard]] json::Value to_json(const GameSummary& summary);

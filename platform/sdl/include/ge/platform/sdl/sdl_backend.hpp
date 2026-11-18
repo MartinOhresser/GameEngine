@@ -61,10 +61,8 @@ public:
     [[nodiscard]] std::shared_ptr<app::Renderer> renderer() override;
     [[nodiscard]] std::shared_ptr<app::AudioDevice> audio() override;
     bool resize(int width, int height) override;
-
-    /// Loads a .wav file so that `AudioDevice::play(name)` plays it. False,
-    /// with `error` filled, if the file cannot be read.
-    bool load_sound(const std::string& name, const std::string& path, std::string& error);
+    void reset_assets() override;
+    bool load_sound(const std::string& name, const std::string& path, std::string& error) override;
 
     /// Pushes a key press or release into SDL's event queue, as if the player
     /// had done it, so tests exercise the real event path. `key_name` is SDL's

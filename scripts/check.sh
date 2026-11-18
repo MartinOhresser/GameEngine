@@ -35,7 +35,7 @@ echo "==> generated code is up to date"
 ./build/dev/tools/gectl schema --check
 
 echo "==> games are valid"
-for game in games/*/game.json; do
+for game in games/*/game.json tools/launcher/game.json; do
   ./build/dev/tools/gectl validate "$game"
 done
 

@@ -75,6 +75,8 @@ Le dossier `data/` contient les fichiers du jeu tels quels (JSON, PNG, sons). Le
 
 - **E3.** `text2d.Dynamic` (liste, indice) est un composant à part plutôt que de nouveaux champs de `Text` : les jeux existants gardent leur empreinte. La liste affichée est paginée par `ui.Pager` + `ui.Row`, faits de boutons ordinaires (clavier et souris gratuits) ; le `Pager` éteint les boutons sans élément (`Button.enabled`). `RuntimeLists` mémorise l'élément sélectionné de chaque liste, que `host.Call` envoie comme argument de la commande.
 
+- **E4.** `gelauncher` joue le jeu choisi avec la même fonction que `geplay` (`play_loaded`). Les atlas et les sons d'un jeu sont séparés de la fenêtre par `Backend::reset_assets` : le lanceur recharge les siens à son retour. Le lanceur est en pause pendant le jeu parce que sa boucle s'arrête (`QuitRequest` posée par l'hôte) puis reprend avec la même `App`. Détails du jeu : l'hôte écrit la liste d'exécution `details` quand la sélection change. Voir `docs/LAUNCHER.md`.
+
 ## Limites assumées
 
 - **SmartScreen.** Un `.exe` non signé téléchargé affiche « Windows a protégé votre PC » ; le destinataire clique sur « Informations complémentaires » puis « Exécuter quand même ». Seul un certificat de signature (payant) l'évite ; une option `--sign` viendra plus tard.
