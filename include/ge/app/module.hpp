@@ -39,6 +39,7 @@ struct FieldInfo {
     std::string_view name;
     std::string_view type; ///< "i32", "f32", "bool"...
     std::string_view ref;  ///< Name of the list a u32 field indexes (see `FieldSpec::ref`), or "".
+    bool ref_set = false;  ///< The field is a set of items of that list (a bit mask).
 };
 
 /// A setting of a module (`params` in `module.json`), with its bounds.

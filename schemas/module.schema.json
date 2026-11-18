@@ -71,6 +71,10 @@
         "ref": {
           "$ref": "#/$defs/snake_name",
           "description": "Only for u32 fields: an index into a list the game declares (e.g. atlas); game files may write the item's name."
+        },
+        "ref_set": {
+          "$ref": "#/$defs/snake_name",
+          "description": "Only for u32 fields: a set of items of a list the game declares (at most 32), stored as a bit mask; game files may write an array of names."
         }
       }
     },

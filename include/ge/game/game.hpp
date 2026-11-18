@@ -110,6 +110,9 @@ struct Manifest {
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
     std::vector<ParamSetting> params;
+    /// The game's own named lists, in the order the manifest gives them: the
+    /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
+    std::vector<std::pair<std::string, std::vector<std::string>>> lists;
     std::vector<std::string> atlas_files;
     std::vector<std::string> prefab_files;
     std::vector<std::string> scene_files;

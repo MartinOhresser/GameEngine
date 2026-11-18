@@ -57,7 +57,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"width", "f32", ""}, {"height", "f32", ""}, {"layer", "u32", ""}, {"mask", "u32", ""}, {"solid", "bool", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "u32", "", false}, {"mask", "u32", "", false}, {"solid", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -104,7 +104,7 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"count", "u32", ""}, {"layers", "u32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"count", "u32", "", false}, {"layers", "u32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2}}};
 

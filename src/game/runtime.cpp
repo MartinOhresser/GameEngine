@@ -19,10 +19,24 @@ app::Scalar to_scalar(const json::Value& value) {
 }
 
 /// The index of the item a game file names for a field with a `ref`.
-app::Scalar ref_index(const Game& game, std::string_view ref, const std::string& name) {
+std::int64_t ref_index(const Game& game, std::string_view ref, const std::string& name) {
     const std::vector<std::string> names = game.ref_names(ref);
     const auto found = std::find(names.begin(), names.end(), name);
     return static_cast<std::int64_t>(found - names.begin());
+}
+
+/// What a game file writes for a field with a `ref` or `ref_set`, as a number:
+/// a name is its index (a set: its bit), an array of names is the set of them.
+app::Scalar ref_value(const Game& game, const app::FieldInfo& field, const json::Value& value) {
+    if (value.is_string()) {
+        const std::int64_t index = ref_index(game, field.ref, value.as_string());
+        return field.ref_set ? std::int64_t{1} << index : index;
+    }
+    std::int64_t mask = 0;
+    for (const json::Value& item : value.items()) {
+        mask |= std::int64_t{1} << ref_index(game, field.ref, item.as_string());
+    }
+    return mask;
 }
 
 /// The values of a JSON object as the fields generated code understands. A
@@ -32,14 +46,14 @@ std::vector<app::FieldValue> to_fields(const Game& game, const app::ComponentInf
     std::vector<app::FieldValue> fields;
     fields.reserve(object.members().size());
     for (const auto& member : object.members()) {
-        if (member.second.is_string()) {
+        if (member.second.is_string() || member.second.is_array()) {
             const auto field = std::find_if(info.fields.begin(), info.fields.end(),
                                             [&member](const app::FieldInfo& candidate) {
                                                 return candidate.name == member.first;
                                             });
             if (field != info.fields.end() && !field->ref.empty()) {
-                fields.push_back(app::FieldValue{
-                    member.first, ref_index(game, field->ref, member.second.as_string())});
+                fields.push_back(
+                    app::FieldValue{member.first, ref_value(game, *field, member.second)});
             }
             continue;
         }

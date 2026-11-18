@@ -265,7 +265,8 @@ std::string components_text(const ModuleSpec& module) {
         for (std::size_t f = 0; f < component.fields.size(); ++f) {
             const FieldSpec& field = component.fields[f];
             out += (f == 0 ? "{{" : ", {") + quoted(field.name) + ", " +
-                   quoted(std::string(to_string(field.type))) + ", " + quoted(field.ref) + "}";
+                   quoted(std::string(to_string(field.type))) + ", " + quoted(field.ref) + ", " +
+                   (field.ref_set ? "true" : "false") + "}";
         }
         out += component.fields.empty() ? "};\n\n" : "}};\n\n";
     }

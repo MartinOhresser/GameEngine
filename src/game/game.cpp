@@ -12,27 +12,56 @@ namespace {
 
 using namespace detail;
 
+/// Most names a set field can hold: one bit of its u32 per name.
+constexpr std::size_t max_set_size = 32;
+
+/// One name given for a ref field: it must be in the game's list, and in a set
+/// it must be among the first 32 names, which are the ones a bit mask can hold.
+void check_ref_name(Checker& checker, const std::string& path, const FieldDef& field,
+                    const std::vector<std::string>& names, const std::string& name) {
+    if (names.empty()) {
+        checker.error(path, "this field names an item of the game's " + field.ref +
+                                " list, but the game declares none (see the manifest's " +
+                                (field.ref == "atlas" ? "atlases" : "lists") + ")");
+        return;
+    }
+    const auto found = std::find(names.begin(), names.end(), name);
+    if (found == names.end()) {
+        checker.error(path, "no " + field.ref + " is named \"" + name + "\"" +
+                                suggestion(name, names) + " (expected one of: " + join(names) +
+                                ")");
+    } else if (field.ref_set && static_cast<std::size_t>(found - names.begin()) >= max_set_size) {
+        checker.error(path, "\"" + name + "\" is past the first " + std::to_string(max_set_size) +
+                                " " + field.ref + " names: a set holds no more");
+    }
+}
+
 /// A u32 field that refers to a list of the game (an atlas, say) may name the
-/// item instead of giving its index; a number must be a valid index.
+/// item instead of giving its index; a number must be a valid index. A set
+/// field takes an array of names, or a single name, or a bit mask.
 void check_ref_value(const Context& context, Checker& checker, const std::string& path,
                      const FieldDef& field, const json::Value& value) {
     const auto table = context.refs.find(field.ref);
     const std::vector<std::string> none;
     const std::vector<std::string>& names = table == context.refs.end() ? none : table->second;
     if (value.is_string()) {
-        if (names.empty()) {
-            checker.error(path, "this field names an item of the game's " + field.ref +
-                                    " list, but the game declares none (see the manifest's " +
-                                    field.ref + "s)");
-        } else if (std::find(names.begin(), names.end(), value.as_string()) == names.end()) {
-            checker.error(path, "no " + field.ref + " is named \"" + value.as_string() + "\"" +
-                                    suggestion(value.as_string(), names) +
-                                    " (expected one of: " + join(names) + ")");
+        check_ref_name(checker, path, field, names, value.as_string());
+        return;
+    }
+    if (field.ref_set && value.is_array()) {
+        for (std::size_t i = 0; i < value.items().size(); ++i) {
+            const json::Value& item = value.items()[i];
+            if (item.is_string()) {
+                check_ref_name(checker, index_path(path, i), field, names, item.as_string());
+            } else {
+                checker.error(index_path(path, i),
+                              "expected a " + field.ref + " name, found " + describe(item));
+            }
         }
         return;
     }
     check_value(checker, path, field.type, value);
-    if (value.is_int() && !names.empty() &&
+    if (!field.ref_set && value.is_int() && !names.empty() &&
         value.as_int() >= static_cast<std::int64_t>(names.size())) {
         checker.error(path, "there is no " + field.ref + " number " +
                                 std::to_string(value.as_int()) + " (the game has " +
@@ -286,6 +315,40 @@ void read_input_map(const Context& context, const std::string& manifest_path, Ga
     game.input = std::move(result.map);
 }
 
+/// The optional "lists": named lists of names that components refer to
+/// ("ref" and "ref_set" fields), such as item kinds, categories or actions.
+void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
+    const json::Value* lists = root.find("lists");
+    if (lists == nullptr || checker.object(*lists, "lists") == nullptr) {
+        return;
+    }
+    for (const auto& member : lists->members()) {
+        const std::string path = join_path("lists", member.first);
+        if (!is_snake(member.first)) {
+            checker.error(path, "a list name must be lower_snake_case");
+        } else if (member.first == "atlas") {
+            checker.error(path, "the atlas list is made by the manifest's \"atlases\" files");
+        }
+        std::vector<std::string> names;
+        if (!member.second.is_array()) {
+            checker.error(path, "expected an array of names, found " + describe(member.second));
+            continue;
+        }
+        for (std::size_t i = 0; i < member.second.items().size(); ++i) {
+            const json::Value& item = member.second.items()[i];
+            const std::string item_path = index_path(path, i);
+            if (!item.is_string() || !is_snake(item.as_string())) {
+                checker.error(item_path, "a name must be a lower_snake_case string");
+            } else if (std::find(names.begin(), names.end(), item.as_string()) != names.end()) {
+                checker.error(item_path, "\"" + item.as_string() + "\" is already in this list");
+            } else {
+                names.push_back(item.as_string());
+            }
+        }
+        manifest.lists.emplace_back(member.first, std::move(names));
+    }
+}
+
 bool read_manifest(const Context& context, Checker& checker, const json::Value& root,
                    Manifest& manifest) {
     const json::Value* object = checker.object(root, "");
@@ -294,8 +357,8 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "params", "atlases", "prefabs", "scenes", "scenarios",
-                            "input", "start_scene"});
+                            "simulation", "params", "lists", "atlases", "prefabs", "scenes",
+                            "scenarios", "input", "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -306,6 +369,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     read_modules(context, checker, *object, manifest);
     read_simulation(checker, *object, manifest);
     read_params(context, checker, *object, manifest);
+    read_lists(checker, *object, manifest);
     manifest.atlas_files = read_file_list(checker, *object, "atlases");
     manifest.prefab_files = read_file_list(checker, *object, "prefabs");
     manifest.scene_files = read_file_list(checker, *object, "scenes");
@@ -540,6 +604,12 @@ std::vector<std::string> Game::ref_names(std::string_view ref) const {
         for (const AtlasData& atlas : atlases) {
             names.push_back(atlas.name);
         }
+        return names;
+    }
+    for (const auto& list : manifest.lists) {
+        if (list.first == ref) {
+            return list.second;
+        }
     }
     return names;
 }
@@ -580,6 +650,9 @@ LoadedGame load_game(const std::string& manifest_path, const FileReader& read,
         loaded.game.atlases.push_back(std::move(*atlas));
     }
     context.refs["atlas"] = loaded.game.ref_names("atlas");
+    for (const auto& list : loaded.game.manifest.lists) {
+        context.refs[list.first] = list.second;
+    }
 
     std::vector<std::string> prefab_files;
     for (std::size_t i = 0; i < loaded.game.manifest.prefab_files.size(); ++i) {

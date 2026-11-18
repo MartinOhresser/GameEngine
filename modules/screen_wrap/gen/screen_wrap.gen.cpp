@@ -42,7 +42,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"width", "f32", ""}, {"height", "f32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0, read_component_0}}};
 

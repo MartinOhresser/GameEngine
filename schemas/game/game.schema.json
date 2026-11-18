@@ -101,6 +101,22 @@
       },
       "additionalProperties": false
     },
+    "lists": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        }
+      }
+    },
+    "atlases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "prefabs": {
       "type": "array",
       "items": {

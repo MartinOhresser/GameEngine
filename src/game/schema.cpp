@@ -155,6 +155,12 @@ Value game_schema(const Catalog& catalog) {
     properties.set("modules", array_of(module_name));
     properties.set("simulation", closed_object(std::move(simulation)));
     properties.set("params", params_schema(catalog));
+    Value list = type_only("array");
+    list.set("items", name_schema());
+    Value lists = type_only("object");
+    lists.set("additionalProperties", std::move(list));
+    properties.set("lists", std::move(lists));
+    properties.set("atlases", array_of(type_only("string")));
     properties.set("prefabs", array_of(type_only("string")));
     properties.set("scenes", array_of(type_only("string")));
     properties.set("scenarios", array_of(type_only("string")));

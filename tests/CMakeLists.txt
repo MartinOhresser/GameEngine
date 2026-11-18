@@ -6,6 +6,7 @@ add_executable(
   core/test_version.cpp
   game/test_atlas.cpp
   game/test_game.cpp
+  game/test_lists.cpp
   game/test_scenario.cpp
   game/test_schema.cpp
   json/test_json.cpp
