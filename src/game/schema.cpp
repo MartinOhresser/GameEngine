@@ -152,6 +152,14 @@ Value game_schema(const Catalog& catalog) {
     properties.set("schema_version", version_schema());
     properties.set("name", name_schema());
     properties.set("description", type_only("string"));
+    properties.set("title", type_only("string"));
+    Value version = type_only("string");
+    version.set("pattern", text("^[0-9]+\\.[0-9]+\\.[0-9]+$"));
+    properties.set("version", std::move(version));
+    Value id = type_only("string");
+    id.set("pattern", text("^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"));
+    properties.set("id", std::move(id));
+    properties.set("icon", type_only("string"));
     properties.set("modules", array_of(module_name));
     properties.set("simulation", closed_object(std::move(simulation)));
     Value window = Value::object();

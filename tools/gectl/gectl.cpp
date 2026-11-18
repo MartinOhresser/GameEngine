@@ -3,6 +3,7 @@
 #include "ge/core/version.hpp"
 #include "ge/game/game.hpp"
 #include "ge/game/schema.hpp"
+#include "ge/game/summary.hpp"
 #include "ge/json/json.hpp"
 #include "ge/module/generate.hpp"
 #include "ge/module/spec.hpp"
@@ -17,6 +18,8 @@
 #include <ostream>
 #include <sstream>
 #include <system_error>
+#include <utility>
+#include <vector>
 
 namespace ge::tools {
 
@@ -41,6 +44,9 @@ constexpr const char* usage_text =
     "      With --check, write nothing and fail if the files are out of date.\n"
     "  gectl validate [--modules DIR] GAME.json\n"
     "      Check a game's manifest, prefabs and scenes against the modules.\n"
+    "  gectl list     [--modules DIR] [--games DIR] [--json]\n"
+    "      List the games of DIR (default ./games) with their title, window size,\n"
+    "      modules and whether they are valid. An invalid game is listed, not fatal.\n"
     "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
     "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
@@ -52,6 +58,8 @@ constexpr const char* usage_text =
 struct Options {
     std::string modules_dir = "modules";
     std::string out_dir = "schemas/game";
+    std::string games_dir = "games";
+    bool json = false;
     bool compact = false;
     bool check_only = false;
     std::vector<std::string> names;
@@ -83,6 +91,13 @@ std::string parse_options(const std::vector<std::string>& args, Options& options
                 return "--modules needs a directory";
             }
             options.modules_dir = args[++i];
+        } else if (arg == "--games") {
+            if (i + 1 >= args.size()) {
+                return "--games needs a directory";
+            }
+            options.games_dir = args[++i];
+        } else if (arg == "--json") {
+            options.json = true;
         } else if (arg == "--out") {
             if (i + 1 >= args.size()) {
                 return "--out needs a directory";
@@ -379,6 +394,71 @@ int command_new_module(const Options& options, std::ostream& out, std::ostream& 
     return exit_ok;
 }
 
+game::FileReader file_reader() {
+    return [](const std::string& path) -> std::optional<std::string> {
+        std::string text;
+        if (!read_file(path, text)) {
+            return std::nullopt;
+        }
+        return text;
+    };
+}
+
+int command_list(const Options& options, std::ostream& out, std::ostream& err) {
+    if (!options.names.empty()) {
+        err << "list takes no argument (use --games DIR to name the directory)\n\n" << usage_text;
+        return exit_usage;
+    }
+    const Loaded loaded = load_all(options.modules_dir);
+    if (!loaded.problems.empty()) {
+        return report(loaded, err);
+    }
+    std::vector<fs::path> directories;
+    std::error_code error;
+    for (fs::directory_iterator it(options.games_dir, error), end; !error && it != end;
+         it.increment(error)) {
+        if (it->is_directory(error) && fs::exists(it->path() / "game.json", error)) {
+            directories.push_back(it->path());
+        }
+    }
+    if (error) {
+        err << options.games_dir << ": cannot read the games directory\n";
+        return exit_invalid;
+    }
+    std::sort(directories.begin(), directories.end());
+
+    const game::Catalog catalog = game::Catalog::from_specs(loaded.modules);
+    const game::FileReader read = file_reader();
+    std::vector<game::GameSummary> summaries;
+    for (const fs::path& directory : directories) {
+        const std::string manifest = (directory / "game.json").generic_string();
+        const game::LoadedGame game = game::load_game(manifest, read, catalog);
+        summaries.push_back(
+            game::summarize(game, directory.generic_string(), directory.filename().string()));
+    }
+
+    if (options.json) {
+        json::Value games = json::Value::array();
+        for (const game::GameSummary& summary : summaries) {
+            games.push_back(game::to_json(summary));
+        }
+        json::Value root = json::Value::object();
+        root.set("games", std::move(games));
+        out << json::dump(root) << '\n';
+        return exit_ok;
+    }
+    for (const game::GameSummary& summary : summaries) {
+        out << summary.name << "  \"" << summary.title << "\"  " << summary.version << "  "
+            << summary.window_width << 'x' << summary.window_height << "  "
+            << summary.modules.size() << " modules  " << (summary.valid ? "valid" : "INVALID")
+            << '\n';
+        for (const std::string& problem : summary.problems) {
+            out << "    " << problem << '\n';
+        }
+    }
+    return exit_ok;
+}
+
 int command_validate(const Options& options, std::ostream& out, std::ostream& err) {
     if (options.names.size() != 1) {
         err << "validate needs exactly one game file\n\n" << usage_text;
@@ -388,13 +468,7 @@ int command_validate(const Options& options, std::ostream& out, std::ostream& er
     if (!loaded.problems.empty()) {
         return report(loaded, err);
     }
-    const game::FileReader read = [](const std::string& path) -> std::optional<std::string> {
-        std::string text;
-        if (!read_file(path, text)) {
-            return std::nullopt;
-        }
-        return text;
-    };
+    const game::FileReader read = file_reader();
     const game::LoadedGame game =
         game::load_game(options.names.front(), read, game::Catalog::from_specs(loaded.modules));
     for (const module::Diagnostic& problem : game.diagnostics) {
@@ -421,7 +495,8 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
         return exit_ok;
     }
     if (command != "check" && command != "catalog" && command != "generate" &&
-        command != "validate" && command != "schema" && command != "new-module") {
+        command != "validate" && command != "schema" && command != "new-module" &&
+        command != "list") {
         err << "unknown command \"" << command << "\"\n\n" << usage_text;
         return exit_usage;
     }
@@ -444,6 +519,9 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command == "validate") {
         return command_validate(options, out, err);
+    }
+    if (command == "list") {
+        return command_list(options, out, err);
     }
     return command_generate(options, out, err);
 }

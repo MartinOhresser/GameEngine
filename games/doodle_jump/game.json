@@ -6,6 +6,7 @@
 {
   "schema_version": 1,
   "name": "doodle_jump",
+  "title": "Doodle Jump",
   "description": "Left and right (arrows or A and D) steer the jumper, which bounces by itself on every platform it lands on. Space or Up shoots upwards. The score is the height; the best one is kept between two runs.",
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
