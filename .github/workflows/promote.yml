@@ -1,0 +1,79 @@
+name: Promote dev to main
+
+# Moves main to the tip of dev and tags it. It is a fast-forward: main gets the
+# exact commit that already passed CI on dev, so there is nothing new to test.
+# Run it from the Actions tab once dev has been tried by hand.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to create, for example v0.2.0 (the CMake project version, with a v)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: write # to start the Release workflow on the new tag
+  checks: read
+
+concurrency:
+  group: promote
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote dev to main
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+      - name: Check the version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::'$VERSION' is not a version tag like v0.2.0"
+            exit 1
+          fi
+          project=$(sed -n 's/^project(game_engine VERSION \([0-9][0-9.]*\).*/\1/p' CMakeLists.txt)
+          if [[ "${VERSION%%-*}" != "v${project}" ]]; then
+            echo "::error::$VERSION does not match the CMake project version ${project}; update CMakeLists.txt on dev first"
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null; then
+            echo "::error::The tag $VERSION already exists"
+            exit 1
+          fi
+      - name: Check that the tip of dev passed CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          result=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${sha}/check-runs?check_name=CI%20success&filter=latest" \
+            --jq '.check_runs[0].conclusion // "none"')
+          echo "CI success on ${sha}: ${result}"
+          if [[ "$result" != "success" ]]; then
+            echo "::error::The tip of dev (${sha}) has no green 'CI success' check yet"
+            exit 1
+          fi
+      - name: Check that main can fast-forward
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "::error::main has commits that dev does not have. Bring them into dev first."
+            exit 1
+          fi
+      - name: Move main and tag it
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          git push origin HEAD:refs/heads/main
+          git tag -a "$VERSION" -m "$VERSION"
+          git push origin "refs/tags/$VERSION"
+      - name: Start the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: gh workflow run release.yml --ref "$VERSION"
