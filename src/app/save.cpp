@@ -40,7 +40,10 @@ void SaveData::from_text(std::string_view text) {
     values_.clear();
     while (!text.empty()) {
         const std::size_t end = text.find('\n');
-        const std::string_view line = text.substr(0, end);
+        std::string_view line = text.substr(0, end);
+        if (!line.empty() && line.back() == '\r') {
+            line.remove_suffix(1); // a file saved on Windows or edited in Notepad
+        }
         text = end == std::string_view::npos ? std::string_view() : text.substr(end + 1);
         const std::size_t space = line.rfind(' ');
         if (space == std::string_view::npos || space == 0) {

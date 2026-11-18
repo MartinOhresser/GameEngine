@@ -162,3 +162,12 @@ TEST_CASE("save: the text form round-trips and ignores nonsense lines") {
     CHECK(!loaded.has("bad"));
     CHECK(!loaded.has("coins")); // replaced, not merged
 }
+
+TEST_CASE("save: lines that end with a carriage return are read like the others") {
+    ge::app::SaveData loaded;
+    loaded.from_text("best 100\r\nother 7\r\nlast 9\r");
+    CHECK(loaded.get("best") == 100);
+    CHECK(loaded.get("other") == 7);
+    CHECK(loaded.get("last") == 9);
+    CHECK(!loaded.dirty());
+}
