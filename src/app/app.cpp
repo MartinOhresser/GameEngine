@@ -1,5 +1,7 @@
 #include "ge/app/app.hpp"
 
+#include "ge/app/input.hpp"
+#include "ge/app/render.hpp"
 #include "ge/core/assert.hpp"
 #include "ge/core/random.hpp"
 
@@ -218,6 +220,9 @@ App::App() {
     world_.insert_resource(Time{});
     world_.insert_resource(Random{});
     world_.insert_resource(ecs::Commands{});
+    world_.insert_resource(Actions{});
+    world_.insert_resource(ScriptedInput{});
+    world_.insert_resource(RenderBackend{});
     set_tick_rate(60);
 }
 
@@ -276,6 +281,19 @@ void App::run_stage(Stage stage) {
 }
 // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 
+void App::begin_tick_input() {
+    auto* actions = world_.resource<Actions>();
+    auto* script = world_.resource<ScriptedInput>();
+    const Time* time = world_.resource<Time>();
+    if (actions == nullptr) {
+        return;
+    }
+    actions->begin_tick();
+    if (script != nullptr && time != nullptr) {
+        script->apply(time->tick, *actions);
+    }
+}
+
 void App::run_startup_once() {
     if (!started_) {
         run_stage(Stage::Startup);
@@ -297,6 +315,7 @@ void App::advance(std::chrono::nanoseconds real_delta) {
 
     std::uint32_t ticks_run = 0;
     while (accumulator_ns_ >= step_ns_ && ticks_run < max_catch_up_ticks_) {
+        begin_tick_input();
         run_stage(Stage::FixedUpdate);
         accumulator_ns_ -= step_ns_;
         ++ticks_run;

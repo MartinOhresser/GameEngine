@@ -40,6 +40,49 @@ struct SceneData {
     std::vector<EntityData> entities;
 };
 
+enum class Compare : std::uint8_t { Eq, Ne, Lt, Le, Gt, Ge };
+
+enum class CheckKind : std::uint8_t {
+    Field,       ///< "hero.transform2d.Position.x > 100"
+    EntityCount, ///< "entities == 3"
+    Alive,       ///< "hero alive"
+    Gone,        ///< "spark gone"
+    Fingerprint, ///< "fingerprint == 5f4962bd950cf9b3"
+};
+
+/// One thing a scenario expects to be true at a given tick.
+struct Check {
+    /// The number of ticks that have run when the check is made.
+    std::uint64_t at = 0;
+    CheckKind kind = CheckKind::Field;
+    /// The check as it was written, for reports.
+    std::string text;
+    std::string entity;
+    std::string component; ///< "module.Component"
+    std::string field;
+    Compare compare = Compare::Eq;
+    /// The number or boolean a field is compared to, or the count.
+    json::Value value;
+    std::uint64_t fingerprint = 0;
+};
+
+/// A change of an action at a tick: the scripted "player".
+struct ScenarioInput {
+    std::uint64_t tick = 0;
+    std::string action;
+    float value = 1.0F;
+};
+
+/// A scripted run of the game with expectations: "after 300 ticks, hero's
+/// score is above 0". It starts the game's `start_scene`.
+struct ScenarioData {
+    std::string name;
+    std::string description;
+    std::uint64_t ticks = 0;
+    std::vector<ScenarioInput> inputs;
+    std::vector<Check> checks;
+};
+
 struct ParamSetting {
     std::string module;
     std::string name;
@@ -56,17 +99,20 @@ struct Manifest {
     std::vector<ParamSetting> params;
     std::vector<std::string> prefab_files;
     std::vector<std::string> scene_files;
+    std::vector<std::string> scenario_files;
     std::string start_scene;
 };
 
-/// A whole game: its manifest and the prefabs and scenes the manifest lists.
+/// A whole game: its manifest and the prefabs, scenes and scenarios the manifest lists.
 struct Game {
     Manifest manifest;
     std::vector<PrefabData> prefabs;
     std::vector<SceneData> scenes;
+    std::vector<ScenarioData> scenarios;
 
     [[nodiscard]] const PrefabData* find_prefab(std::string_view name) const;
     [[nodiscard]] const SceneData* find_scene(std::string_view name) const;
+    [[nodiscard]] const ScenarioData* find_scenario(std::string_view name) const;
 };
 
 /// Returns the text of a file, or nothing when it cannot be read. Paths are

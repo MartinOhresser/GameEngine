@@ -11,5 +11,6 @@
   },
   "prefabs": ["prefabs/drifter.json", "prefabs/fast_drifter.json", "prefabs/ember.json"],
   "scenes": ["scenes/main.json"],
+  "scenarios": ["scenarios/embers_burn_out.json", "scenarios/drifting.json"],
   "start_scene": "main",
 }

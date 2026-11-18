@@ -1,6 +1,8 @@
 // The example modules, installed into an app the way a generated game would.
 
 #include "ge/app/app.hpp"
+#include "ge/app/input.hpp"
+#include "ge/mod/action_control/action_control.gen.hpp"
 #include "ge/mod/lifetime/lifetime.gen.hpp"
 #include "ge/mod/screen_wrap/screen_wrap.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -158,6 +160,27 @@ TEST_CASE("modules: the game can build a component from field values") {
     CHECK(app.world().get<transform2d::Position>(other)->x == 0.0F);
 }
 
+TEST_CASE("modules: the game can read a field back, as the right kind of number") {
+    App app;
+    transform2d::install(app);
+    lifetime::install(app);
+    const auto& position = transform2d::info().components[0];
+    const auto& life = lifetime::info().components[0];
+    REQUIRE(position.read != nullptr);
+    const Entity entity = app.world().spawn();
+    const std::vector<ge::app::FieldValue> values = {{"x", 2.5}};
+    position.insert(app.world(), entity, values);
+    const auto x = position.read(app.world(), entity, "x");
+    REQUIRE(x.has_value());
+    CHECK(std::get<double>(*x) == 2.5);
+    CHECK(!position.read(app.world(), entity, "z").has_value()); // no such field
+    CHECK(!life.read(app.world(), entity, "ticks").has_value()); // no such component here
+    life.insert(app.world(), entity, {});
+    const auto ticks = life.read(app.world(), entity, "ticks");
+    REQUIRE(ticks.has_value());
+    CHECK(std::get<std::int64_t>(*ticks) == 60);
+}
+
 TEST_CASE("modules: settings are a resource the game can change") {
     App app;
     transform2d::install(app);
@@ -191,4 +214,31 @@ TEST_CASE("modules: scalars convert to the field's type") {
     CHECK(scalar_as<bool>(Scalar{true}));
     CHECK(scalar_as<std::uint32_t>(Scalar{true}) == 1U);
     CHECK(scalar_as<double>(Scalar{std::int64_t{3}}) == 3.0);
+}
+
+TEST_CASE("modules: action_control steers by the move actions, before the movement") {
+    ge::app::App app;
+    transform2d::install(app);
+    ge::mod::action_control::install(app);
+    CHECK(app.module_problems().empty());
+    auto& world = app.world();
+    const Entity pilot = world.spawn();
+    const Entity rock = world.spawn();
+    for (const Entity entity : {pilot, rock}) {
+        CHECK(world.insert(entity, transform2d::Position{}));
+        CHECK(world.insert(entity, transform2d::Velocity{}));
+    }
+    CHECK(world.insert(pilot, ge::mod::action_control::Controlled{60.0F}));
+
+    auto* script = world.resource<ge::app::ScriptedInput>();
+    script->add(0, "move_x", 1.0F);
+    script->add(2, "move_x", 0.0F);
+    script->add(2, "move_y", -0.5F);
+    app.run_frames(1);
+    // The velocity was set before the movement ran, so the first tick already moves.
+    CHECK(world.get<transform2d::Position>(pilot)->x == 1.0F); // 60 units per second, 60 ticks
+    app.run_frames(2);
+    CHECK(world.get<transform2d::Velocity>(pilot)->x == 0.0F);
+    CHECK(world.get<transform2d::Velocity>(pilot)->y == -30.0F);
+    CHECK(world.get<transform2d::Position>(rock)->x == 0.0F); // not Controlled
 }

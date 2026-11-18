@@ -20,6 +20,10 @@ struct ModuleEntry {
 /// The catalog of the linked modules, for validating a game inside the program.
 [[nodiscard]] Catalog catalog_of(std::span<const ModuleEntry> modules);
 
+/// The installed component named "module.Component", or null.
+[[nodiscard]] const app::ComponentInfo* find_component_info(const app::App& app,
+                                                            std::string_view qualified);
+
 struct SetupResult {
     /// The named entities of the scene, in file order.
     std::vector<std::pair<std::string, ecs::Entity>> named;

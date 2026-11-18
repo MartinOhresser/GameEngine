@@ -71,7 +71,9 @@ std::vector<const ModuleEntry*> install_order(const Manifest& manifest,
     return ordered;
 }
 
-const app::ComponentInfo* find_component(const app::App& app, std::string_view qualified) {
+} // namespace
+
+const app::ComponentInfo* find_component_info(const app::App& app, std::string_view qualified) {
     const std::size_t dot = qualified.find('.');
     if (dot == std::string_view::npos) {
         return nullptr;
@@ -88,8 +90,6 @@ const app::ComponentInfo* find_component(const app::App& app, std::string_view q
     }
     return nullptr;
 }
-
-} // namespace
 
 Catalog catalog_of(std::span<const ModuleEntry> modules) {
     std::vector<const app::ModuleInfo*> infos;
@@ -117,7 +117,7 @@ SetupResult spawn_scene(app::App& app, const Game& game, std::string_view scene_
         const ecs::Entity entity = app.world().spawn();
         for (const ComponentData& component :
              resolve_components(game, data.prefab, data.components)) {
-            const app::ComponentInfo* info = find_component(app, component.name);
+            const app::ComponentInfo* info = find_component_info(app, component.name);
             if (info == nullptr || info->insert == nullptr) {
                 result.problems.push_back("component '" + component.name +
                                           "' is not available: its module is not installed");

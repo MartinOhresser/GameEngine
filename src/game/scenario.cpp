@@ -1,0 +1,349 @@
+#include "ge/game/scenario.hpp"
+
+#include "scenario_read.hpp"
+
+#include <cstdlib>
+#include <set>
+
+namespace ge::game {
+
+namespace {
+
+using namespace detail;
+
+constexpr std::uint64_t max_ticks = 10'000'000;
+
+std::vector<std::string> split_words(const std::string& text) {
+    std::vector<std::string> words;
+    std::string word;
+    for (const char c : text) {
+        if (c == ' ' || c == '\t') {
+            if (!word.empty()) {
+                words.push_back(std::move(word));
+                word.clear();
+            }
+        } else {
+            word += c;
+        }
+    }
+    if (!word.empty()) {
+        words.push_back(std::move(word));
+    }
+    return words;
+}
+
+std::optional<Compare> compare_from(const std::string& word) {
+    if (word == "==") {
+        return Compare::Eq;
+    }
+    if (word == "!=") {
+        return Compare::Ne;
+    }
+    if (word == "<") {
+        return Compare::Lt;
+    }
+    if (word == "<=") {
+        return Compare::Le;
+    }
+    if (word == ">") {
+        return Compare::Gt;
+    }
+    if (word == ">=") {
+        return Compare::Ge;
+    }
+    return std::nullopt;
+}
+
+std::vector<std::string> split_dots(const std::string& text) {
+    std::vector<std::string> parts;
+    std::size_t start = 0;
+    while (start <= text.size()) {
+        std::size_t end = text.find('.', start);
+        if (end == std::string::npos) {
+            end = text.size();
+        }
+        parts.push_back(text.substr(start, end - start));
+        start = end + 1;
+    }
+    return parts;
+}
+
+/// Hexadecimal digits only, 1 to 16 of them.
+bool parse_hex(const std::string& text, std::uint64_t& out) {
+    if (text.empty() || text.size() > 16) {
+        return false;
+    }
+    out = 0;
+    for (const char c : text) {
+        std::uint64_t digit = 0;
+        if (c >= '0' && c <= '9') {
+            digit = static_cast<std::uint64_t>(c - '0');
+        } else if (c >= 'a' && c <= 'f') {
+            digit = static_cast<std::uint64_t>(c - 'a') + 10U;
+        } else {
+            return false;
+        }
+        out = (out << 4U) | digit;
+    }
+    return true;
+}
+
+constexpr const char* check_forms =
+    "expected \"entity.module.Component.field > number\", \"entities == number\", "
+    "\"entity alive\", \"entity gone\" or \"fingerprint == hex\"";
+
+std::string parse_comparison(const std::vector<std::string>& words, Check& out) {
+    const std::optional<Compare> compare = compare_from(words[1]);
+    if (!compare) {
+        return "unknown comparison \"" + words[1] + "\" (use ==, !=, <, <=, > or >=)";
+    }
+    out.compare = *compare;
+    if (words[0] == "fingerprint") {
+        out.kind = CheckKind::Fingerprint;
+        if ((*compare != Compare::Eq && *compare != Compare::Ne) ||
+            !parse_hex(words[2], out.fingerprint)) {
+            return "a fingerprint check is \"fingerprint == \" or \"!=\" followed by up to 16 "
+                   "lowercase hexadecimal digits";
+        }
+        return {};
+    }
+    const json::ParseResult value = json::parse(words[2]);
+    if (!value.ok() || !(value.value.is_number() || value.value.is_bool())) {
+        return "\"" + words[2] + "\" is not a number or a boolean";
+    }
+    out.value = value.value;
+    if (words[0] == "entities") {
+        out.kind = CheckKind::EntityCount;
+        return value.value.is_int() ? std::string() : "the entity count is compared to an integer";
+    }
+    const std::vector<std::string> parts = split_dots(words[0]);
+    if (parts.size() != 4 || parts[0].empty() || parts[1].empty() || parts[2].empty() ||
+        parts[3].empty()) {
+        return '"' + words[0] + R"(" is not "entity.module.Component.field")";
+    }
+    out.kind = CheckKind::Field;
+    out.entity = parts[0];
+    out.component = parts[1] + "." + parts[2];
+    out.field = parts[3];
+    return {};
+}
+
+} // namespace
+
+std::string format_fingerprint(std::uint64_t fingerprint) {
+    constexpr std::string_view digits = "0123456789abcdef";
+    std::string text(16, '0');
+    for (std::size_t i = 0; i < text.size(); ++i) {
+        text[text.size() - 1 - i] = digits[(fingerprint >> (4U * i)) & 0xFU];
+    }
+    return text;
+}
+
+std::string parse_check(const std::string& text, Check& out) {
+    const std::vector<std::string> words = split_words(text);
+    out.text = text;
+    if (words.size() == 2 && (words[1] == "alive" || words[1] == "gone")) {
+        out.kind = words[1] == "alive" ? CheckKind::Alive : CheckKind::Gone;
+        out.entity = words[0];
+        return {};
+    }
+    if (words.size() == 3) {
+        return parse_comparison(words, out);
+    }
+    return check_forms;
+}
+
+} // namespace ge::game
+
+namespace ge::game::detail {
+
+namespace {
+
+void read_inputs(Checker& checker, const json::Value& root, ScenarioData& scenario) {
+    const json::Value* inputs = checker.array(root, "inputs", "");
+    if (inputs == nullptr) {
+        return;
+    }
+    for (std::size_t i = 0; i < inputs->items().size(); ++i) {
+        const std::string path = index_path("inputs", i);
+        const json::Value* object = checker.object(inputs->items()[i], path);
+        if (object == nullptr) {
+            continue;
+        }
+        checker.reject_unknown(*object, path, {"tick", "action", "value"});
+        ScenarioInput input;
+        const json::Value* tick = object->find("tick");
+        if (tick == nullptr || !tick->is_int() || tick->as_int() < 0) {
+            checker.error(join_path(path, "tick"),
+                          "expected a whole number of ticks, zero or more");
+        } else {
+            input.tick = static_cast<std::uint64_t>(tick->as_int());
+        }
+        static_cast<void>(checker.name(*object, "action", path, true, input.action));
+        if (const json::Value* value = object->find("value"); value != nullptr) {
+            if (value->is_number()) {
+                input.value = static_cast<float>(value->as_real());
+            } else {
+                checker.error(join_path(path, "value"),
+                              "expected a number, found " + describe(*value));
+            }
+        }
+        if (scenario.ticks > 0 && input.tick >= scenario.ticks) {
+            checker.error(join_path(path, "tick"), "the scenario ends at tick " +
+                                                       std::to_string(scenario.ticks) +
+                                                       ", before this input");
+        }
+        scenario.inputs.push_back(std::move(input));
+    }
+}
+
+void read_check(Checker& checker, const json::Value& value, const std::string& path,
+                ScenarioData& scenario) {
+    Check check;
+    std::string text;
+    check.at = scenario.ticks;
+    if (value.is_string()) {
+        text = value.as_string();
+    } else if (const json::Value* object = checker.object(value, path); object != nullptr) {
+        checker.reject_unknown(*object, path, {"at", "check"});
+        if (!checker.text(*object, "check", path, true, text)) {
+            return;
+        }
+        if (const json::Value* at = object->find("at"); at != nullptr) {
+            if (!at->is_int() || at->as_int() < 0 ||
+                static_cast<std::uint64_t>(at->as_int()) > scenario.ticks) {
+                checker.error(join_path(path, "at"),
+                              "expected a tick between 0 and " + std::to_string(scenario.ticks));
+                return;
+            }
+            check.at = static_cast<std::uint64_t>(at->as_int());
+        }
+    } else {
+        return;
+    }
+    if (const std::string problem = parse_check(text, check); !problem.empty()) {
+        checker.error(path, "cannot read the check \"" + text + "\": " + problem);
+        return;
+    }
+    scenario.checks.push_back(std::move(check));
+}
+
+} // namespace
+
+std::optional<ScenarioData> read_scenario(const Context& context, const std::string& file,
+                                          const json::Value& root) {
+    Checker checker(file, *context.diagnostics);
+    const json::Value* object = checker.object(root, "");
+    if (object == nullptr) {
+        return std::nullopt;
+    }
+    checker.reject_unknown(
+        *object, "",
+        {"$schema", "schema_version", "name", "description", "ticks", "inputs", "expect"});
+    if (const json::Value* version = object->find("schema_version"); version == nullptr) {
+        checker.error("", "missing required key \"schema_version\"");
+    } else if (!version->is_int() || version->as_int() != 1) {
+        checker.error("schema_version", "only schema version 1 is supported");
+    }
+    ScenarioData scenario;
+    static_cast<void>(checker.name(*object, "name", "", true, scenario.name));
+    static_cast<void>(checker.text(*object, "description", "", false, scenario.description));
+    const json::Value* ticks = object->find("ticks");
+    if (ticks == nullptr || !ticks->is_int() || ticks->as_int() < 1 ||
+        static_cast<std::uint64_t>(ticks->as_int()) > max_ticks) {
+        checker.error("ticks",
+                      "expected a number of ticks between 1 and " + std::to_string(max_ticks));
+    } else {
+        scenario.ticks = static_cast<std::uint64_t>(ticks->as_int());
+    }
+    read_inputs(checker, *object, scenario);
+    if (const json::Value* expect = checker.array(*object, "expect", ""); expect != nullptr) {
+        for (std::size_t i = 0; i < expect->items().size(); ++i) {
+            read_check(checker, expect->items()[i], index_path("expect", i), scenario);
+        }
+    }
+    return scenario;
+}
+
+namespace {
+
+/// Does `value` make sense for a field of this type, and the comparison for the value?
+std::string field_check_problem(const Check& check, module::FieldType type) {
+    const bool boolean = type == module::FieldType::Bool;
+    if (boolean != check.value.is_bool()) {
+        return boolean ? "a boolean field is compared to true or false"
+                       : "a numeric field is compared to a number";
+    }
+    if (boolean && check.compare != Compare::Eq && check.compare != Compare::Ne) {
+        return "a boolean field can only be compared with == or !=";
+    }
+    return {};
+}
+
+void check_field(const Context& context, Checker& checker, const std::string& path,
+                 const Check& check) {
+    const ComponentDef* component = context.catalog->find_component(check.component);
+    const std::string module_name = check.component.substr(0, check.component.find('.'));
+    const bool listed = std::find(context.modules.begin(), context.modules.end(), module_name) !=
+                        context.modules.end();
+    if (component == nullptr || !listed) {
+        checker.error(path, "unknown component \"" + check.component + "\" in the check \"" +
+                                check.text + "\"");
+        return;
+    }
+    const FieldDef* field = component->find_field(check.field);
+    if (field == nullptr) {
+        checker.error(path, "component \"" + check.component + "\" has no field \"" + check.field +
+                                "\" (expected one of: " + join(names_of(component->fields)) + ")");
+        return;
+    }
+    if (const std::string problem = field_check_problem(check, field->type); !problem.empty()) {
+        checker.error(path, "in the check \"" + check.text + "\": " + problem);
+    }
+}
+
+void check_one_scenario(const Context& context, const Game& game, const ScenarioData& scenario,
+                        const std::string& file) {
+    Checker checker(file, *context.diagnostics);
+    const SceneData* start = game.find_scene(game.manifest.start_scene);
+    std::vector<std::string> named;
+    if (start != nullptr) {
+        for (const EntityData& entity : start->entities) {
+            if (!entity.name.empty()) {
+                named.push_back(entity.name);
+            }
+        }
+    }
+    for (std::size_t i = 0; i < scenario.checks.size(); ++i) {
+        const Check& check = scenario.checks[i];
+        const std::string path = index_path("expect", i);
+        const bool needs_entity = check.kind == CheckKind::Field ||
+                                  check.kind == CheckKind::Alive || check.kind == CheckKind::Gone;
+        if (needs_entity && std::find(named.begin(), named.end(), check.entity) == named.end()) {
+            checker.error(path, "the start scene \"" + game.manifest.start_scene +
+                                    "\" has no entity named \"" + check.entity + "\"" +
+                                    suggestion(check.entity, named));
+            continue;
+        }
+        if (check.kind == CheckKind::Field) {
+            check_field(context, checker, path, check);
+        }
+    }
+}
+
+} // namespace
+
+void check_scenario_links(const Context& context, const Game& game,
+                          const std::vector<std::string>& files) {
+    std::set<std::string> seen;
+    for (std::size_t i = 0; i < game.scenarios.size(); ++i) {
+        const ScenarioData& scenario = game.scenarios[i];
+        if (!seen.insert(scenario.name).second) {
+            Checker checker(files[i], *context.diagnostics);
+            checker.error("name", "another scenario is already named \"" + scenario.name + "\"");
+        }
+        check_one_scenario(context, game, scenario, files[i]);
+    }
+}
+
+} // namespace ge::game::detail

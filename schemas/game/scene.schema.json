@@ -25,6 +25,15 @@
           "components": {
             "type": "object",
             "properties": {
+              "action_control.Controlled": {
+                "type": "object",
+                "properties": {
+                  "speed": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "lifetime.Lifetime": {
                 "type": "object",
                 "properties": {

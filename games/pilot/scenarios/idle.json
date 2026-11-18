@@ -1,0 +1,11 @@
+// With no input, nothing moves.
+{
+  "schema_version": 1,
+  "name": "idle",
+  "ticks": 100,
+  "expect": [
+    "ship.transform2d.Position.x == 100",
+    "ship.transform2d.Position.y == 300",
+    "entities == 2",
+  ],
+}

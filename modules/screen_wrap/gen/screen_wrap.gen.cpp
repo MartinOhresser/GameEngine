@@ -4,6 +4,7 @@
 
 #include <array>
 #include <limits>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -26,9 +27,24 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
+std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const WrapArea* component = world.get<WrapArea>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "width") {
+        return ::ge::app::Scalar{static_cast<double>(component->width)};
+    }
+    if (field == "height") {
+        return ::ge::app::Scalar{static_cast<double>(component->height)};
+    }
+    return std::nullopt;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"width", "f32"}, {"height", "f32"}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0, read_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"screen_wrap.WrapArea"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};

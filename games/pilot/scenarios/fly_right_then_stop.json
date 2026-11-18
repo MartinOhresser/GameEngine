@@ -1,0 +1,18 @@
+// Hold "right" for one second, then let go: 120 units per second, so 120 units.
+{
+  "schema_version": 1,
+  "name": "fly_right_then_stop",
+  "ticks": 180,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 60, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    { "at": 30, "check": "ship.transform2d.Velocity.x == 120" },
+    { "at": 60, "check": "ship.transform2d.Position.x == 220" },
+    "ship.transform2d.Velocity.x == 0",
+    "ship.transform2d.Position.x == 220",
+    "ship.transform2d.Position.y == 300",
+    "rock.transform2d.Position.x == 400",
+  ],
+}
