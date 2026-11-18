@@ -338,7 +338,11 @@ TEST_CASE("ui: a pager gives each row its item, and the buttons turn the pages")
     CHECK(dynamic->list == 0U);
     CHECK(dynamic->index == 1U);
     CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->pages == 2U);
+}
 
+TEST_CASE("ui: the buttons of a pager turn the pages, and rows without an item go off") {
+    PagedScene paged(5);
+    paged.scene.app.run_frames(1);
     paged.press("next");
     CHECK(paged.scene.app.world().get<ui::Pager>(paged.pager)->page == 1U);
     CHECK(paged.item_of(0) == 3U);
