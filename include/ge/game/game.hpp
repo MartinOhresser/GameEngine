@@ -183,6 +183,9 @@ struct Game {
 /// what the manifest says, joined to the manifest's directory with `/`.
 using FileReader = std::function<std::optional<std::string>(const std::string& path)>;
 
+/// A reader of the real files of the disk (null result when one cannot be read).
+[[nodiscard]] FileReader disk_reader();
+
 struct LoadedGame {
     Game game;
     std::vector<module::Diagnostic> diagnostics;

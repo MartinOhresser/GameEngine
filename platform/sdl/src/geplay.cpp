@@ -1,7 +1,6 @@
 #include "ge/platform/sdl/geplay.hpp"
 
-#include "ge/app/save.hpp"
-#include "ge/app/viewport.hpp"
+#include "ge/platform/sdl/play.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
 #include <algorithm>
@@ -110,41 +109,6 @@ std::string parse(const std::vector<std::string>& args, Arguments& out) {
     return error;
 }
 
-std::optional<std::string> read_file(const std::string& path) {
-    std::ifstream stream(path, std::ios::binary);
-    if (!stream) {
-        return std::nullopt;
-    }
-    return std::string(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
-}
-
-/// The .wav files of `<game directory>/sounds`, each named by its file name without extension.
-std::size_t load_sounds(SdlBackend& backend, const std::string& manifest_path, std::ostream& err) {
-    namespace fs = std::filesystem;
-    const fs::path directory = fs::path(manifest_path).parent_path() / "sounds";
-    std::error_code ignored;
-    if (!fs::is_directory(directory, ignored)) {
-        return 0;
-    }
-    std::vector<fs::path> files;
-    for (const fs::directory_entry& entry : fs::directory_iterator(directory, ignored)) {
-        if (entry.path().extension() == ".wav") {
-            files.push_back(entry.path());
-        }
-    }
-    std::sort(files.begin(), files.end());
-    std::size_t loaded = 0;
-    for (const fs::path& file : files) {
-        std::string error;
-        if (backend.load_sound(file.stem().string(), file.string(), error)) {
-            ++loaded;
-        } else {
-            err << manifest_path << ": " << error << '\n';
-        }
-    }
-    return loaded;
-}
-
 /// Where the save data lives: the file asked for, else the user's application-data folder
 /// (not for a headless run, which must leave nothing behind), else nowhere.
 std::string save_path_of(const Arguments& arguments, const std::string& game_name) {
@@ -153,14 +117,6 @@ std::string save_path_of(const Arguments& arguments, const std::string& game_nam
     }
     const std::string directory = user_data_directory(game_name);
     return directory.empty() ? std::string() : directory + "save.txt";
-}
-
-void write_text(const std::string& path, const std::string& text, std::ostream& err) {
-    std::ofstream stream(path, std::ios::binary | std::ios::trunc);
-    stream << text;
-    if (!stream) {
-        err << "geplay: cannot write the save file " << path << '\n';
-    }
 }
 
 } // namespace
@@ -174,7 +130,7 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
     }
 
     const game::LoadedGame loaded =
-        game::load_game(arguments.game_path, read_file, game::catalog_of(modules));
+        game::load_game(arguments.game_path, game::disk_reader(), game::catalog_of(modules));
     for (const module::Diagnostic& diagnostic : loaded.diagnostics) {
         err << diagnostic.to_string() << '\n';
     }
@@ -182,24 +138,17 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
         return exit_invalid;
     }
 
-    app::App app;
-    const game::SetupResult setup = game::setup_game(app, loaded.game, modules);
-    for (const std::string& problem : setup.problems) {
-        err << arguments.game_path << ": " << problem << '\n';
-    }
-    if (!setup.ok()) {
-        return exit_invalid;
-    }
+    PlayOptions play;
+    play.max_frames = arguments.frames;
+    play.width = arguments.width;
+    play.height = arguments.height;
+    play.save_path = save_path_of(arguments, loaded.game.manifest.name);
+    const auto [width, height] = window_size_of(loaded, play);
 
     WindowOptions window;
     window.title = loaded.game.manifest.name;
-    window.width =
-        arguments.width > 0 ? arguments.width : static_cast<int>(loaded.game.manifest.window_width);
-    window.height = arguments.height > 0 ? arguments.height
-                                         : static_cast<int>(loaded.game.manifest.window_height);
-    // The interface anchors itself to the real size of the window.
-    app.world().insert_resource(app::Viewport{static_cast<std::uint32_t>(window.width),
-                                              static_cast<std::uint32_t>(window.height)});
+    window.width = width;
+    window.height = height;
     window.headless = arguments.headless;
     window.capture = !arguments.screenshot.empty();
     std::string error;
@@ -208,43 +157,12 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
         err << "geplay: " << error << '\n';
         return exit_invalid;
     }
-    load_sounds(*backend, arguments.game_path, err);
-    // A window that stays black is baffling, so say why when nothing can draw.
-    const auto& used_modules = loaded.game.manifest.modules;
-    const bool can_draw = std::ranges::any_of(used_modules, [](const std::string& name) {
-        return name == "debug_draw" || name == "sprite2d";
-    });
-    if (!can_draw) {
-        err << arguments.game_path << ": note: the game uses no drawing module (debug_draw or "
-            << "sprite2d), so the window will stay empty\n";
-    }
-    const std::vector<std::string> atlas_problems =
-        game::load_atlases(loaded.game, *backend->renderer());
-    for (const std::string& problem : atlas_problems) {
-        err << arguments.game_path << ": " << problem << '\n';
-    }
-    if (!atlas_problems.empty()) {
+    const PlayResult result =
+        play_loaded(*backend, loaded, arguments.game_path, modules, play, err);
+    if (!result.started) {
         return exit_invalid;
     }
-
-    LoopOptions options;
-    options.max_frames = arguments.frames;
-    options.back_sources = {"key:escape"}; // Escape leaves, as in the launcher
-    const std::string save_path = save_path_of(arguments, loaded.game.manifest.name);
-    if (!save_path.empty()) {
-        if (const std::optional<std::string> text = read_file(save_path); text) {
-            app.world().resource<app::SaveData>()->from_text(*text);
-        }
-        options.after_frame = [&save_path, &err](app::App& running) {
-            auto* save = running.world().resource<app::SaveData>();
-            if (save != nullptr && save->dirty()) {
-                write_text(save_path, save->to_text(), err);
-                save->mark_clean();
-            }
-        };
-    }
-    const LoopResult result = run_loop(app, *backend, loaded.game.input, options);
-    out << loaded.game.manifest.name << ": " << result.frames << " frames, " << app.tick_count()
+    out << loaded.game.manifest.name << ": " << result.loop.frames << " frames, " << result.ticks
         << " ticks\n";
 
     if (!arguments.screenshot.empty() && !backend->save_frame_bmp(arguments.screenshot, error)) {

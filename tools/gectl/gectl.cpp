@@ -413,28 +413,13 @@ int command_list(const Options& options, std::ostream& out, std::ostream& err) {
     if (!loaded.problems.empty()) {
         return report(loaded, err);
     }
-    std::vector<fs::path> directories;
-    std::error_code error;
-    for (fs::directory_iterator it(options.games_dir, error), end; !error && it != end;
-         it.increment(error)) {
-        if (it->is_directory(error) && fs::exists(it->path() / "game.json", error)) {
-            directories.push_back(it->path());
-        }
-    }
-    if (error) {
-        err << options.games_dir << ": cannot read the games directory\n";
-        return exit_invalid;
-    }
-    std::sort(directories.begin(), directories.end());
-
     const game::Catalog catalog = game::Catalog::from_specs(loaded.modules);
-    const game::FileReader read = file_reader();
     std::vector<game::GameSummary> summaries;
-    for (const fs::path& directory : directories) {
-        const std::string manifest = (directory / "game.json").generic_string();
-        const game::LoadedGame game = game::load_game(manifest, read, catalog);
-        summaries.push_back(
-            game::summarize(game, directory.generic_string(), directory.filename().string()));
+    std::string discover_error;
+    if (!game::discover_games(options.games_dir, file_reader(), catalog, summaries,
+                              discover_error)) {
+        err << discover_error << '\n';
+        return exit_invalid;
     }
 
     if (options.json) {

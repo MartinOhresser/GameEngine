@@ -37,6 +37,19 @@ bool ScriptedBackend::resize(int width, int height) {
     return true;
 }
 
+void ScriptedBackend::reset_assets() {
+    ++resets_;
+    renderer_ = std::make_shared<app::RecordingRenderer>();
+    audio_ = std::make_shared<app::RecordingAudio>();
+    sounds_.clear();
+}
+
+bool ScriptedBackend::load_sound(const std::string& name, const std::string& /*path*/,
+                                 std::string& /*error*/) {
+    sounds_.push_back(name);
+    return true;
+}
+
 namespace {
 
 /// True when one of the back sources just went from released to pressed.

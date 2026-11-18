@@ -1,0 +1,46 @@
+// Down moves to the second game, Enter asks the host to play it.
+{
+  "schema_version": 1,
+  "name": "choose_and_play",
+  "ticks": 20,
+  "lists": {
+    "games": [
+      "Alpha",
+      "Beta",
+      "Gamma"
+    ]
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 8,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 9,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 6,
+      "check": "list games selected == 1"
+    },
+    {
+      "at": 6,
+      "check": "controller.ui.Menu.focused == 1"
+    },
+    "host calls play"
+  ]
+}

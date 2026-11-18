@@ -1,5 +1,7 @@
 #include "ge/game/summary.hpp"
 
+#include <algorithm>
+#include <filesystem>
 #include <utility>
 
 namespace ge::game {
@@ -74,6 +76,29 @@ json::Value to_json(const GameSummary& summary) {
     object.set("valid", Value::boolean(summary.valid));
     object.set("problems", std::move(problems));
     return object;
+}
+
+bool discover_games(const std::string& directory, const FileReader& read, const Catalog& catalog,
+                    std::vector<GameSummary>& games, std::string& error) {
+    namespace fs = std::filesystem;
+    std::vector<fs::path> directories;
+    std::error_code failure;
+    for (fs::directory_iterator it(directory, failure), end; !failure && it != end;
+         it.increment(failure)) {
+        if (it->is_directory(failure) && fs::exists(it->path() / "game.json", failure)) {
+            directories.push_back(it->path());
+        }
+    }
+    if (failure) {
+        error = directory + ": cannot read the games directory";
+        return false;
+    }
+    std::sort(directories.begin(), directories.end());
+    for (const fs::path& path : directories) {
+        const LoadedGame loaded = load_game((path / "game.json").generic_string(), read, catalog);
+        games.push_back(summarize(loaded, path.generic_string(), path.filename().string()));
+    }
+    return true;
 }
 
 } // namespace ge::game
