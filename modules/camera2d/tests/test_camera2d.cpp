@@ -1,0 +1,97 @@
+#include "ge/app/app.hpp"
+#include "ge/app/render.hpp"
+#include "ge/mod/camera2d/camera2d.gen.hpp"
+#include "ge/mod/transform2d/transform2d.gen.hpp"
+
+#include "mini_test.hpp"
+
+#include <memory>
+
+namespace {
+
+namespace camera2d = ge::mod::camera2d;
+namespace transform2d = ge::mod::transform2d;
+
+ge::app::App game(const std::shared_ptr<ge::app::RecordingRenderer>& renderer) {
+    ge::app::App app;
+    transform2d::install(app);
+    camera2d::install(app);
+    CHECK(app.module_problems().empty());
+    CHECK(app.schedule().problems().empty());
+    app.world().insert_resource(ge::app::RenderBackend{renderer});
+    return app;
+}
+
+ge::ecs::Entity spawn_camera(ge::app::App& app, float x, float y, float zoom) {
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{x, y}));
+    CHECK(app.world().insert(entity, camera2d::Camera{zoom}));
+    return entity;
+}
+
+} // namespace
+
+TEST_CASE("camera2d: without a camera the renderer keeps its default view") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    app.run_frames(2);
+    CHECK(!renderer->camera().has_value());
+}
+
+TEST_CASE("camera2d: the camera's position and zoom reach the renderer") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    spawn_camera(app, 120.0F, -30.0F, 2.5F);
+    app.run_frames(1);
+    REQUIRE(renderer->camera().has_value());
+    CHECK(renderer->camera()->x == 120.0F);
+    CHECK(renderer->camera()->y == -30.0F);
+    CHECK(renderer->camera()->zoom == 2.5F);
+}
+
+TEST_CASE("camera2d: with several cameras the oldest one is used") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    spawn_camera(app, 1.0F, 1.0F, 1.0F);
+    spawn_camera(app, 9.0F, 9.0F, 9.0F);
+    app.run_frames(1);
+    REQUIRE(renderer->camera().has_value());
+    CHECK(renderer->camera()->x == 1.0F);
+}
+
+TEST_CASE("camera2d: a following camera sticks to its target or trails it") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity sticky = spawn_camera(app, 0.0F, 0.0F, 1.0F);
+    CHECK(app.world().insert(sticky, camera2d::CameraFollow{1.0F}));
+    const ge::ecs::Entity target = app.world().spawn();
+    CHECK(app.world().insert(target, transform2d::Position{100.0F, 40.0F}));
+    CHECK(app.world().insert(target, camera2d::CameraTarget{}));
+    app.run_frames(1);
+    const auto* position = app.world().get<transform2d::Position>(sticky);
+    REQUIRE(position != nullptr);
+    CHECK(position->x == 100.0F);
+    CHECK(position->y == 40.0F);
+
+    const ge::ecs::Entity smooth = spawn_camera(app, 0.0F, 0.0F, 1.0F);
+    CHECK(app.world().insert(smooth, camera2d::CameraFollow{0.5F}));
+    app.run_frames(1);
+    CHECK(app.world().get<transform2d::Position>(smooth)->x == 50.0F);
+    app.run_frames(1);
+    CHECK(app.world().get<transform2d::Position>(smooth)->x == 75.0F);
+}
+
+TEST_CASE("camera2d: without a target, or with a stiffness of 0, the camera stays") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity camera = spawn_camera(app, 5.0F, 5.0F, 1.0F);
+    CHECK(app.world().insert(camera, camera2d::CameraFollow{1.0F}));
+    app.run_frames(3); // no target yet
+    CHECK(app.world().get<transform2d::Position>(camera)->x == 5.0F);
+    const ge::ecs::Entity target = app.world().spawn();
+    CHECK(app.world().insert(target, transform2d::Position{50.0F, 50.0F}));
+    CHECK(app.world().insert(target, camera2d::CameraTarget{}));
+    CHECK(app.world().insert(camera, camera2d::CameraFollow{0.0F}));
+    app.run_frames(3);
+    CHECK(app.world().get<transform2d::Position>(camera)->x == 5.0F);
+}

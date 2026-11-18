@@ -18,10 +18,13 @@
         "type": "string",
         "enum": [
           "action_control",
+          "camera2d",
+          "collision2d",
           "debug_draw",
           "lifetime",
           "pickup",
           "screen_wrap",
+          "sprite2d",
           "transform2d"
         ]
       }
@@ -49,6 +52,16 @@
           "properties": {},
           "additionalProperties": false
         },
+        "camera2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "collision2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "debug_draw": {
           "type": "object",
           "properties": {},
@@ -65,6 +78,11 @@
           "additionalProperties": false
         },
         "screen_wrap": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "sprite2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "camera2d",
+  "version": "0.1.0",
+  "description": "The view onto the world: a camera is an entity with a Position that the screen is centred on, a zoom, and optionally a target it follows. Without a camera, the world is drawn as is, one world unit per pixel.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Camera",
+      "description": "Marks the entity whose Position is at the centre of the screen. zoom 2 shows everything twice as big. If several entities have a Camera, the oldest one is used.",
+      "replicable": false,
+      "fields": [{ "name": "zoom", "type": "f32", "default": 1 }]
+    },
+    {
+      "name": "CameraTarget",
+      "description": "Marks the entity that the Camera follows. If several entities have it, the oldest one is followed.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "CameraFollow",
+      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow.",
+      "replicable": false,
+      "fields": [{ "name": "stiffness", "type": "f32", "default": 1 }]
+    }
+  ],
+  "systems": [
+    {
+      "name": "follow",
+      "description": "Moves every Camera that has a CameraFollow towards the CameraTarget's Position.",
+      "stage": "FixedUpdate",
+      "reads": ["CameraFollow", "CameraTarget"],
+      "writes": ["transform2d.Position"],
+      "after": ["transform2d.integrate"]
+    },
+    {
+      "name": "apply",
+      "description": "Tells the renderer where the camera is and how far it is zoomed, before the frame's drawing systems run. Presentation only: it never changes the simulation.",
+      "stage": "Update",
+      "reads": ["Camera", "transform2d.Position"]
+    }
+  ]
+}

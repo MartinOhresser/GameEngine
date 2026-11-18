@@ -134,6 +134,9 @@ std::string struct_text(const std::string& name, const std::vector<FieldSpec>& f
 
 /// The loop that copies the fields a game file gave into `target`.
 std::string assign_fields(const std::vector<FieldSpec>& fields, const std::string& target) {
+    if (fields.empty()) {
+        return ""; // a marker component has nothing to copy
+    }
     std::string out = "    for (const ::ge::app::FieldValue& field : values) {\n";
     bool first = true;
     for (const FieldSpec& field : fields) {
