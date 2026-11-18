@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "text2d",
+  "version": "0.1.0",
+  "description": "Words on screen: an entity with a Text shows one of the game's texts, letter by letter, from a font (an atlas whose cells are letters). The text comes from the game's strings files, so it can be translated, and may show a number.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Text",
+      "description": "Shows the game's text named by string, in the font named by font (an atlas that has \"glyphs\"). size is the height of a line in world units, 0 meaning the font's own cell height; spacing adds room between letters and line_spacing between lines. pivot_x and pivot_y say which point of the text sits on the entity's Position: 0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge. Where the text contains {value}, the number in value is written (whole numbers without decimals). red, green, blue and alpha (0 to 255) tint the letters. With screen, the Position and the size are pixels of the window and the camera does not apply, for an interface. Text is drawn over the sprites, in the order of the entities.",
+      "replicable": false,
+      "fields": [
+        { "name": "string", "type": "u32", "default": 0, "ref": "string" },
+        { "name": "font", "type": "u32", "default": 0, "ref": "atlas" },
+        { "name": "size", "type": "f32", "default": 0 },
+        { "name": "spacing", "type": "f32", "default": 0 },
+        { "name": "line_spacing", "type": "f32", "default": 0 },
+        { "name": "pivot_x", "type": "f32", "default": 0 },
+        { "name": "pivot_y", "type": "f32", "default": 0 },
+        { "name": "value", "type": "f32", "default": 0 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "screen", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "draw",
+      "description": "Asks the renderer to draw every Text, one letter at a time. Presentation only: it never changes the simulation.",
+      "stage": "PostUpdate",
+      "reads": ["Text", "transform2d.Position"]
+    }
+  ]
+}

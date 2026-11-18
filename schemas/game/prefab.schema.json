@@ -157,6 +157,49 @@
           },
           "additionalProperties": false
         },
+        "scene_switch.GoToScene": {
+          "type": "object",
+          "properties": {
+            "scene": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "use_action": {
+              "type": "boolean"
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "touch_layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "after_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "elapsed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "scene_switch.Persistent": {
+          "type": "object",
+          "properties": {
+            "keep": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "screen_wrap.WrapArea": {
           "type": "object",
           "properties": {
@@ -194,6 +237,9 @@
               "maximum": 2147483647
             },
             "flip_x": {
+              "type": "boolean"
+            },
+            "screen": {
               "type": "boolean"
             },
             "red": {
@@ -244,6 +290,63 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "text2d.Text": {
+          "type": "object",
+          "properties": {
+            "string": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "font": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "size": {
+              "type": "number"
+            },
+            "spacing": {
+              "type": "number"
+            },
+            "line_spacing": {
+              "type": "number"
+            },
+            "pivot_x": {
+              "type": "number"
+            },
+            "pivot_y": {
+              "type": "number"
+            },
+            "value": {
+              "type": "number"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alpha": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

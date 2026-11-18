@@ -172,8 +172,10 @@ private:
     };
 
     /// The world point seen through the camera, as pixels of the screen.
-    void to_screen(float world_x, float world_y, float& screen_x, float& screen_y) const {
-        if (!camera_) {
+    void to_screen(const app::DrawCommand& command, float& screen_x, float& screen_y) const {
+        const float world_x = command.x;
+        const float world_y = command.y;
+        if (!camera_ || command.screen) {
             screen_x = world_x;
             screen_y = world_y;
             return;
@@ -182,7 +184,9 @@ private:
         screen_y = (world_y - camera_->y) * camera_->zoom + half_height_;
     }
 
-    [[nodiscard]] float zoom() const { return camera_ ? camera_->zoom : 1.0F; }
+    [[nodiscard]] float zoom(const app::DrawCommand& command) const {
+        return camera_ && !command.screen ? camera_->zoom : 1.0F;
+    }
 
     void draw_square(const app::DrawCommand& command) {
         const std::uint32_t c = command.color;
@@ -190,10 +194,10 @@ private:
                                static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 8U) & 0xFFU),
                                static_cast<std::uint8_t>(c & 0xFFU));
-        const float size = (command.size > 0.0F ? command.size : default_size) * zoom();
+        const float size = (command.size > 0.0F ? command.size : default_size) * zoom(command);
         float x = 0.0F;
         float y = 0.0F;
-        to_screen(command.x, command.y, x, y);
+        to_screen(command, x, y);
         const SDL_FRect rect{x - size / 2.0F, y - size / 2.0F, size, size};
         SDL_RenderFillRect(renderer_, &rect);
     }
@@ -214,13 +218,14 @@ private:
                                static_cast<float>(atlas.cell_width),
                                static_cast<float>(atlas.cell_height)};
         const float width =
-            (command.width > 0.0F ? command.width : static_cast<float>(atlas.cell_width)) * zoom();
+            (command.width > 0.0F ? command.width : static_cast<float>(atlas.cell_width)) *
+            zoom(command);
         const float height =
             (command.height > 0.0F ? command.height : static_cast<float>(atlas.cell_height)) *
-            zoom();
+            zoom(command);
         float x = 0.0F;
         float y = 0.0F;
-        to_screen(command.x, command.y, x, y);
+        to_screen(command, x, y);
         const SDL_FRect target{x - width / 2.0F, y - height / 2.0F, width, height};
         const std::uint32_t c = command.color;
         SDL_SetTextureColorMod(atlas.texture, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),

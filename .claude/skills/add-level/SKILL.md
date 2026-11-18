@@ -34,6 +34,6 @@ Un niveau est une **scène** : un fichier `games/<nom>/scenes/<scène>.json` qui
 
 ## Limites actuelles
 
-- Une partie démarre sur **une** scène (`start_scene`). Passer d'une scène à une autre en cours de partie n'existe pas encore : si le jeu en a besoin (« à la fin du niveau 1, charger le niveau 2 »), c'est un module à écrire (skill `add-module`).
+- Une partie démarre sur `start_scene`. Pour passer d'une scène à une autre en cours de partie (« à la fin du niveau 1, charger le niveau 2 »), mets le module `scene_switch` : une entité `GoToScene` (déclencheur : action pressée, contact avec une couche, délai) nomme la scène d'arrivée, et ce qui doit rester (score, joueur) porte `scene_switch.Persistent`. Les entités persistantes restent dans la nouvelle scène : ne les recrée pas dans les autres scènes.
 - Une entité ne peut pas désigner une autre entité dans les fichiers.
 - Beaucoup d'entités identiques : un préfab et plusieurs lignes `{ "prefab": "…" }` plutôt que des copies de composants.

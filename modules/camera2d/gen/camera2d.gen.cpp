@@ -37,7 +37,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"zoom", "f32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"zoom", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -79,7 +79,7 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_2_fields{{{"stiffness", "f32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 1> component_2_fields{{{"stiffness", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2}}};
 

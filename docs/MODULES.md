@@ -51,7 +51,7 @@ Le dossier porte le même nom que le module. Les modules sont des bibliothèques
 | `depends` | Modules utilisés. Ils doivent être installés avant celui-ci. |
 | `params[]` | Réglages que le manifeste d'un jeu peut changer : `name`, `type`, `default` (obligatoire), `min` et `max` optionnels (types numériques). |
 | `components[].replicable` | Obligatoire : le composant fait-il partie de l'état qu'un jeu en réseau répliquerait ? |
-| `components[].fields[]` | `name`, `type` (`i32 u32 i64 u64 f32 f64 bool`), `default` optionnel (zéro sinon), `ref` optionnel (champ `u32` seulement, `snake_case`) : le champ désigne un élément d'une liste du jeu (`"ref": "atlas"` pour un atlas) ; les fichiers de jeu peuvent écrire son nom au lieu de son numéro. |
+| `components[].fields[]` | `name`, `type` (`i32 u32 i64 u64 f32 f64 bool`), `default` optionnel (zéro sinon), `ref` optionnel (champ `u32` seulement, `snake_case`) : le champ désigne un élément d'une liste du jeu (`"ref": "atlas"` pour un atlas) ; les fichiers de jeu peuvent écrire son nom au lieu de son numéro ; `ref_set` est le même principe pour un ensemble de noms (un masque de 32 bits au plus : des couches, des catégories), écrit comme un tableau de noms. |
 | `systems[].stage` | `Startup`, `PreUpdate`, `FixedUpdate`, `Update` ou `PostUpdate`. La logique de jeu va dans `FixedUpdate`. |
 | `systems[].reads`, `writes` | Composants touchés : `Nom` pour le module, `module.Nom` pour une dépendance. |
 | `systems[].after`, `before` | Ordre par rapport à d'autres systèmes, même notation. |

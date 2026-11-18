@@ -30,6 +30,9 @@ struct DrawCommand {
     float width = 0.0F;
     float height = 0.0F;
     bool flip_x = false;
+    /// The position and size are pixels of the window and the camera does not
+    /// apply: for the interface, which stays put while the world scrolls.
+    bool screen = false;
 
     friend bool operator==(const DrawCommand&, const DrawCommand&) = default;
 };

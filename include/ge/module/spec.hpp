@@ -30,6 +30,9 @@ struct FieldSpec {
     /// Only for u32 fields: the field is an index into a list the game declares
     /// (for example "atlas"), and a game file may write the item's name instead.
     std::string ref;
+    /// With `ref`: the field is a set of items (a bit mask, bit n for item n of the
+    /// list), and a game file may write several names. At most 32 items.
+    bool ref_set = false;
 };
 
 /// Whether a JSON value is acceptable for a field of this type: right kind and

@@ -55,6 +55,7 @@ void draw(ecs::World& world) {
             command.width = sprite.width;
             command.height = sprite.height;
             command.flip_x = sprite.flip_x;
+            command.screen = sprite.screen;
             queue.push_back({sprite.layer, command});
         });
     // Stable: sprites of one layer keep the order the world visits them in.

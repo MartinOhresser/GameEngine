@@ -30,6 +30,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.layer = ::ge::app::scalar_as<std::int32_t>(field.value);
         } else if (field.name == "flip_x") {
             component.flip_x = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "screen") {
+            component.screen = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "red") {
             component.red = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "green") {
@@ -67,6 +69,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "flip_x") {
         return ::ge::app::Scalar{static_cast<bool>(component->flip_x)};
     }
+    if (field == "screen") {
+        return ::ge::app::Scalar{static_cast<bool>(component->screen)};
+    }
     if (field == "red") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->red)};
     }
@@ -82,7 +87,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 10> component_0_fields{{{"atlas", "u32", "atlas"}, {"frame", "u32", ""}, {"width", "f32", ""}, {"height", "f32", ""}, {"layer", "i32", ""}, {"flip_x", "bool", ""}, {"red", "u32", ""}, {"green", "u32", ""}, {"blue", "u32", ""}, {"alpha", "u32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 11> component_0_fields{{{"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "i32", "", false}, {"flip_x", "bool", "", false}, {"screen", "bool", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -127,7 +132,7 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_1_fields{{{"first_frame", "u32", ""}, {"frame_count", "u32", ""}, {"ticks_per_frame", "u32", ""}, {"looping", "bool", ""}, {"elapsed", "u32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 5> component_1_fields{{{"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"elapsed", "u32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Sprite", false, component_0_fields, insert_component_0, read_component_0}, {"SpriteAnimation", true, component_1_fields, insert_component_1, read_component_1}}};
 

@@ -16,6 +16,8 @@ struct FieldDef {
     module::FieldType type = module::FieldType::I32;
     /// The list this u32 field indexes ("atlas"), or empty; see `FieldSpec::ref`.
     std::string ref;
+    /// The field is a set of items of that list (a bit mask).
+    bool ref_set = false;
 };
 
 struct ComponentDef {

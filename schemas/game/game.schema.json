@@ -23,8 +23,10 @@
           "debug_draw",
           "lifetime",
           "pickup",
+          "scene_switch",
           "screen_wrap",
           "sprite2d",
+          "text2d",
           "transform2d"
         ]
       }
@@ -77,12 +79,22 @@
           "properties": {},
           "additionalProperties": false
         },
+        "scene_switch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "screen_wrap": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
         "sprite2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "text2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -100,6 +112,22 @@
         }
       },
       "additionalProperties": false
+    },
+    "lists": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        }
+      }
+    },
+    "atlases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "prefabs": {
       "type": "array",

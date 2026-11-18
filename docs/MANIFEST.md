@@ -33,6 +33,8 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
 | `atlases` | images découpées en cellules pour les sprites, facultatif ; l'ordre donne les numéros (le premier est 0) : voir [RENDERING.md](RENDERING.md) |
+| `lists` | listes de noms propres au jeu, facultatif : `{"layer": ["player", "door"]}` (voir « Les noms » plus bas) |
+| `strings`, `locale` | un fichier de textes par langue, et la langue utilisée (la première par défaut) : voir « Les textes » plus bas |
 | `prefabs`, `scenes` | listes de fichiers, chemins relatifs au dossier du jeu |
 | `scenarios` | scénarios de test, facultatif : voir [TESTING.md](TESTING.md) |
 | `input` | fichier qui associe touches et boutons aux actions, facultatif : voir [PLATFORM.md](PLATFORM.md) |
@@ -68,6 +70,35 @@ Un composant s'écrit `module.Composant`. Les champs omis prennent la valeur par
 ```
 
 Une entité a un `prefab`, des `components`, ou les deux (les composants de l'entité l'emportent). Son `name` est facultatif.
+
+## Les noms
+
+Un champ de composant déclaré avec `ref` désigne **un élément d'une liste** ; un champ avec `ref_set` désigne **plusieurs éléments** (un ensemble, d'au plus 32). Dans un fichier de jeu on écrit les noms, jamais les numéros : `"layer": ["player"]`, `"scene": "credits"`, `"font": "font"`. Une faute de frappe est signalée avec les noms qui existent.
+
+| Liste | D'où viennent ses noms |
+| --- | --- |
+| `atlas` | `atlases`, dans l'ordre du manifeste |
+| `string` | les clés du premier fichier de `strings` |
+| `scene` | `scenes` |
+| `action` | `actions` de `input`, plus celles que le jeu déclare |
+| autre | `lists` du manifeste (par exemple `layer`, `item`, `category`) |
+
+Les listes `atlas` et `string` sont réservées : `lists` ne peut pas les redéfinir.
+
+## Les textes
+
+Un texte n'est pas un champ chaîne : c'est une **clé** d'un fichier de langue, et le champ qui la désigne est un `ref: "string"`. Les mots vivent dans un fichier par langue :
+
+```jsonc
+// text/fr.json
+{ "schema_version": 1, "locale": "fr", "entries": { "title": "La chasse au trésor" } }
+```
+
+Toutes les langues doivent avoir **les mêmes clés** (la validation le vérifie) ; `locale` choisit celle qui est jouée, donc changer de langue ne change aucune scène. Les clés sont en minuscules, chiffres, `_` et `.`. Une police est un atlas qui a un `glyphs` (les lettres, dans l'ordre des cellules) ; `scripts/make_font.py` en fabrique une à partir d'une police TrueType. Voir le module `text2d`.
+
+## Changer de scène en cours de partie
+
+Le module `scene_switch` : une entité `GoToScene` nomme la scène d'arrivée et ce qui la déclenche (une action pressée, un contact avec une couche, un délai). Les entités de l'ancienne scène disparaissent, sauf celles qui ont un composant `Persistent` (le joueur, un score, un inventaire).
 
 ## Erreurs
 

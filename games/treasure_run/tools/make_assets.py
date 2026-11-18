@@ -177,6 +177,15 @@ def main():
     assert player is not None
     entities.append({"name": "player", "prefab": "player", "components": player})
     entities.append({"name": "camera", "prefab": "camera", "components": player})
+    # The interface: texts in window pixels (screen) that the camera never moves.
+    # The words come from text/<language>.json; font and string are named there.
+    entities.append({"name": "title", "components": {
+        "transform2d.Position": {"x": 12, "y": 10},
+        "text2d.Text": {"string": "title", "font": "font", "size": 20, "screen": True}}})
+    entities.append({"name": "hint", "components": {
+        "transform2d.Position": {"x": 12, "y": 34},
+        "text2d.Text": {"string": "hint", "font": "font", "size": 14, "screen": True,
+                        "red": 200, "green": 200, "blue": 200}}})
     write_json(os.path.join(game, "scenes", "main.json"),
                {"schema_version": 1, "name": "main", "entities": entities})
     print("wrote %d entities" % len(entities))

@@ -57,13 +57,25 @@ struct Run {
     SetupResult setup;
 };
 
+/// The entity a scenario names: looked up in the running world, so that a
+/// scene change is followed, with the start scene's names as a fallback.
+ecs::Entity find_named(const Run& run, std::string_view name) {
+    if (const auto* names = run.app.world().resource<app::EntityNames>(); names != nullptr) {
+        const ecs::Entity found = names->find(name);
+        if (run.app.world().is_alive(found)) {
+            return found;
+        }
+    }
+    return run.setup.find(name);
+}
+
 std::string failure(const Check& check, const std::string& detail) {
     return "tick " + std::to_string(check.at) + ": \"" + check.text + "\" is false (" + detail +
            ")";
 }
 
 void check_field(const Run& run, const Check& check, std::vector<std::string>& failures) {
-    const ecs::Entity entity = run.setup.find(check.entity);
+    const ecs::Entity entity = find_named(run, check.entity);
     if (!run.app.world().is_alive(entity)) {
         failures.push_back(failure(check, "\"" + check.entity + "\" no longer exists"));
         return;
@@ -97,7 +109,7 @@ void evaluate(const Run& run, const Check& check, std::vector<std::string>& fail
     }
     case CheckKind::Alive:
     case CheckKind::Gone: {
-        const bool alive = run.app.world().is_alive(run.setup.find(check.entity));
+        const bool alive = run.app.world().is_alive(find_named(run, check.entity));
         if (alive != (check.kind == CheckKind::Alive)) {
             failures.push_back(failure(
                 check, "\"" + check.entity + (alive ? "\" still exists" : "\" no longer exists")));

@@ -6,6 +6,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- M8.1 : listes nommées du manifeste (`lists`), champs `ref_set` (ensembles de noms), `scene` et `action` comme listes intégrées ; les couches de `collision2d` s'écrivent par noms.
+- M8.1 : textes par langue (`strings`, `locale`), polices en atlas PNG (`glyphs`), module `text2d`, drapeau `screen` pour `Sprite` et `Text`, `scripts/make_font.py`.
+- M8.1 : changement de scène en cours de partie (`SceneRequest`, `App::set_scene_loader`, `EntityNames`), module `scene_switch` (`GoToScene`, `Persistent`) ; `treasure_run` affiche un titre et une aide, en deux langues.
 - M7 : rendu 2D. `Renderer` étendu (`load_atlas`, `set_camera`, commandes de sprite avec cellule, taille, miroir et teinte) ; `end_frame` est appelé une fois par image par la boucle. Le backend SDL charge les PNG (`stb_image`) et dessine sprites et carrés selon la caméra, sans lissage.
 - M7 : atlas déclarés dans le manifeste (`atlases`), champs `u32` à `"ref"` qui acceptent un nom dans les fichiers de jeu, `game::load_atlases`.
 - M7 : modules `sprite2d` (`Sprite`, `SpriteAnimation`, tri par couche), `camera2d` (`Camera`, `CameraTarget`, `CameraFollow`) et `collision2d` (`Collider`, `Body`, `Contacts`, détection par balayage trié) ; le générateur gère les composants sans champ.

@@ -260,14 +260,23 @@ bool default_fits(FieldType type, const json::Value& value) {
 
 void read_field_ref(Reader& reader, const json::Value& object, const std::string& path,
                     FieldSpec& field) {
-    const std::string ref_path = Reader::join_path(path, "ref");
-    if (!reader.string_at(object, "ref", path, false, field.ref)) {
+    const bool is_set = object.find("ref_set") != nullptr;
+    const char* key = is_set ? "ref_set" : "ref";
+    const std::string ref_path = Reader::join_path(path, key);
+    if (is_set && object.find("ref") != nullptr) {
+        reader.error(ref_path, "a field has either \"ref\" (one item) or \"ref_set\" (several), "
+                               "not both");
         return;
     }
+    if (!reader.string_at(object, key, path, false, field.ref)) {
+        return;
+    }
+    field.ref_set = is_set;
     check_name(reader, ref_path, field.ref, false);
     if (field.type != FieldType::U32) {
-        reader.error(ref_path, "only a u32 field can have a ref: its value is an index into a "
-                               "list the game declares");
+        reader.error(ref_path, std::string("only a u32 field can have a ") + key +
+                                   ": its value is " + (is_set ? "a set of items" : "an index") +
+                                   " of a list the game declares");
     }
 }
 
@@ -277,7 +286,7 @@ void read_field(Reader& reader, const json::Value& value, const std::string& pat
     if (object == nullptr) {
         return;
     }
-    reader.reject_unknown(*object, path, {"name", "type", "default", "ref"});
+    reader.reject_unknown(*object, path, {"name", "type", "default", "ref", "ref_set"});
     FieldSpec field;
     const bool has_name = reader.string_at(*object, "name", path, true, field.name);
     if (has_name) {
@@ -309,7 +318,7 @@ void read_field(Reader& reader, const json::Value& value, const std::string& pat
             }
         }
     }
-    if (object->find("ref") != nullptr) {
+    if (object->find("ref") != nullptr || object->find("ref_set") != nullptr) {
         read_field_ref(reader, *object, path, field);
     }
     component.fields.push_back(std::move(field));
@@ -771,7 +780,7 @@ json::Value catalog_entry(const ModuleSpec& module) {
                 entry.set("default", field.default_value);
             }
             if (!field.ref.empty()) {
-                entry.set("ref", json::Value::string(field.ref));
+                entry.set(field.ref_set ? "ref_set" : "ref", json::Value::string(field.ref));
             }
             fields.push_back(std::move(entry));
         }

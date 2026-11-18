@@ -37,7 +37,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"ticks", "i32", ""}}};
+constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"ticks", "i32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Lifetime", true, component_0_fields, insert_component_0, read_component_0}}};
 

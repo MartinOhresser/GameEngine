@@ -100,6 +100,14 @@ struct AtlasData {
     std::string image;
     int cell_width = 0;
     int cell_height = 0;
+    /// For a font: the characters the cells show, in cell order (UTF-8).
+    std::string glyphs;
+};
+
+/// The words of one language: `entries` in file order, key then text.
+struct StringsData {
+    std::string locale;
+    std::vector<std::pair<std::string, std::string>> entries;
 };
 
 /// The game's `game.json`.
@@ -110,6 +118,13 @@ struct Manifest {
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
     std::vector<ParamSetting> params;
+    /// The game's own named lists, in the order the manifest gives them: the
+    /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
+    std::vector<std::pair<std::string, std::vector<std::string>>> lists;
+    /// Files of words, one per language; the first one's keys make the game's
+    /// `string` list. `locale` picks the one in use (the first when empty).
+    std::vector<std::string> strings_files;
+    std::string locale;
     std::vector<std::string> atlas_files;
     std::vector<std::string> prefab_files;
     std::vector<std::string> scene_files;
@@ -127,6 +142,7 @@ struct Game {
     std::vector<ScenarioData> scenarios;
     /// In the order of the manifest: an atlas's position is the index a u32
     /// field with `"ref": "atlas"` holds.
+    std::vector<StringsData> strings;
     std::vector<AtlasData> atlases;
     /// What the `input` file binds; empty when the manifest names none.
     platform::InputMap input;
@@ -138,6 +154,9 @@ struct Game {
     /// The names that a u32 field with `"ref": <ref>` can use, in index order;
     /// empty when the game has no such list.
     [[nodiscard]] std::vector<std::string> ref_names(std::string_view ref) const;
+
+    /// The words of the language the manifest picks, or null when the game has none.
+    [[nodiscard]] const StringsData* active_strings() const;
 };
 
 /// Returns the text of a file, or nothing when it cannot be read. Paths are
