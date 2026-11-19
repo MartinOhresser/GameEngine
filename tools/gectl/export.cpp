@@ -343,22 +343,24 @@ std::string package_name(const game::GameSummary& summary, const ExportTarget& t
 
 namespace {
 
-/// The command as one line for the system's shell.
-std::string command_line(const std::vector<std::string>& command) {
+/// The command as one line for the system's shell, with `suffix` (a redirection) after it.
+std::string command_line(const std::vector<std::string>& command, const std::string& suffix) {
     std::string line;
     for (const std::string& argument : command) {
         line += line.empty() ? quote_argument(argument) : " " + quote_argument(argument);
     }
+    line += suffix;
+#ifdef _WIN32
+    return "\"" + line + "\""; // cmd.exe drops the outer pair of quotes
+#else
     return line;
+#endif
 }
 
 } // namespace
 
 int run_process(const std::vector<std::string>& command) {
-    std::string line = command_line(command);
-#ifdef _WIN32
-    line = "\"" + line + "\""; // cmd.exe drops the outer pair of quotes
-#endif
+    const std::string line = command_line(command, "");
     // gectl is a single-threaded command: nothing else touches the environment meanwhile.
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     return std::system(line.c_str()) == 0 ? 0 : 1;
@@ -366,9 +368,8 @@ int run_process(const std::vector<std::string>& command) {
 
 int run_process_lines(const std::vector<std::string>& command,
                       const std::function<void(const std::string&)>& on_line) {
-    std::string line = command_line(command) + " 2>&1";
+    const std::string line = command_line(command, " 2>&1");
 #ifdef _WIN32
-    line = "\"" + line + "\"";
     FILE* pipe = _popen(line.c_str(), "r");
 #else
     FILE* pipe = popen(line.c_str(), "r");
