@@ -6,6 +6,8 @@ La cible `android` est offerte comme Windows : `gectl export --targets` la montr
 
 ## Ce qu'il faut sur la machine
 
+**Sous Linux (Debian, Ubuntu, WSL)**, un script installe tout : `scripts/setup_linux.sh --android` (paquets `apt`, puis SDK et NDK Android téléchargés chez Google dans `~/Android/Sdk`, sans droits root). Il écrit `ANDROID_HOME` et `JAVA_HOME` dans `~/.bashrc` / `~/.zshrc` (`--no-env` pour s'en passer ; `--sdk-dir DIR` pour choisir le dossier), se relance sans rien casser, et `--dry-run` montre le plan. Ouvrir ensuite un nouveau terminal, puis `gectl export --targets` doit dire que Android est prêt. Sur macOS et Windows, installer à la main ce que dit le tableau.
+
 | Outil | Où le trouver |
 | --- | --- |
 | SDK Android (une plateforme récente et les Build-Tools) | Android Studio l'installe ; sinon `ANDROID_HOME` désigne le dossier du SDK |

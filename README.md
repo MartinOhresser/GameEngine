@@ -49,6 +49,17 @@ gameEngine.cmd                  :: Windows (invite de commandes ordinaire) : la 
 gameEngine.cmd --build-only
 ```
 
+Sous Linux (Debian, Ubuntu, WSL), un script installe tout ce qu'il faut (compilateur, CMake, Ninja, bibliothèques de SDL ; `sudo` demandé pour `apt`) :
+
+```bash
+scripts/setup_linux.sh              # compiler et jouer
+scripts/setup_linux.sh --android    # + exporter pour Android : JDK, SDK et NDK Android (dans ~/Android/Sdk)
+scripts/setup_linux.sh --dev        # + clang-format et clang-tidy, pour contribuer
+scripts/setup_linux.sh --dry-run    # dit ce qui serait installé, n'installe rien
+```
+
+Il peut être relancé : ce qui est déjà là n'est pas touché. Ailleurs (macOS, Windows), voir ci-dessous.
+
 Pour développer, prérequis : un compilateur C++20 (GCC 13+, Clang 16+, MSVC 2022), CMake ≥ 3.25, Ninja.
 
 ```bash
