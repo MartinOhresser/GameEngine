@@ -10,6 +10,7 @@
 #include "ge/mod/ui/ui.gen.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -106,9 +107,15 @@ std::vector<std::vector<std::size_t>> rows_of(const std::vector<Candidate>& butt
 /// `wrap`, else where it already is.
 std::size_t stepped(std::size_t at, std::size_t count, int step, bool wrap) {
     if (step < 0) {
-        return at > 0 ? at - 1 : (wrap ? count - 1 : at);
+        if (at > 0) {
+            return at - 1;
+        }
+        return wrap ? count - 1 : at;
     }
-    return at + 1 < count ? at + 1 : (wrap ? 0 : at);
+    if (at + 1 < count) {
+        return at + 1;
+    }
+    return wrap ? 0 : at;
 }
 
 /// Where the focus goes after a key: left and right move along the row, up and down go to the
@@ -168,10 +175,11 @@ void run_menu(ecs::World& world, Menu& menu, app::Actions& actions, const app::A
     });
     std::size_t current =
         by_order == buttons.end() ? 0U : static_cast<std::size_t>(by_order - buttons.begin());
-    const std::pair<std::uint32_t, Direction> keys[] = {{menu.up, Direction::Up},
-                                                        {menu.down, Direction::Down},
-                                                        {menu.left, Direction::Left},
-                                                        {menu.right, Direction::Right}};
+    const std::array<std::pair<std::uint32_t, Direction>, 4> keys = {
+        {{menu.up, Direction::Up},
+         {menu.down, Direction::Down},
+         {menu.left, Direction::Left},
+         {menu.right, Direction::Right}}};
     for (const auto& [action, direction] : keys) {
         if (pressed(actions, names, action)) {
             current = moved_focus(buttons, current, direction, menu.wrap);
