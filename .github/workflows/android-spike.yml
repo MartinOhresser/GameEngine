@@ -1,0 +1,77 @@
+name: Android APK (spike)
+
+# A0 of the Android export (ADR 0012): builds the smallest program that answers the plan's
+# questions into an APK, installs it in an emulator, plays with it and checks what is on screen.
+# It is not part of "CI success": it runs when its own files change, or on demand.
+on:
+  pull_request:
+    paths: ["platform/android/**", ".github/workflows/android-spike.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    name: APK with SDL ${{ matrix.variant }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # "shared" (SDL as a library of its own) also builds, but the plan links SDL into the
+        # program: it is 3 times bigger and failed once on the emulator without being studied.
+        variant: [static]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Show the tools of the runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "NDK=$ANDROID_NDK_LATEST_HOME"
+          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
+          java -version
+          cmake --version | head -1
+      - name: Build the APK
+        id: build
+        run: |
+          started=$(date +%s)
+          platform/android/spike/build.sh ${{ matrix.variant }} | tee build.log
+          echo "apk=$(tail -1 build.log)" >> "$GITHUB_OUTPUT"
+          echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_OUTPUT"
+      - name: Size of the APK and of what is in it
+        run: |
+          apk="${{ steps.build.outputs.apk }}"
+          {
+            echo "### APK with SDL ${{ matrix.variant }}"
+            echo "- build: ${{ steps.build.outputs.seconds }} s (native, then Gradle)"
+            echo "- APK: $(stat -c %s "$apk") bytes"
+            echo '```'
+            unzip -lv "$apk" | grep -E "\.so|assets|classes|resources|Archive" || true
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install, play and look at the screen (emulator, Android 14)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: platform/android/spike/run_on_device.sh ${{ steps.build.outputs.apk }} spike-output
+      - name: Put the result in the summary
+        if: always()
+        run: |
+          if [ -f spike-output/summary.md ]; then
+            { echo "### On the emulator, SDL ${{ matrix.variant }}"; cat spike-output/summary.md; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: android-spike-${{ matrix.variant }}
+          path: |
+            spike-output
+            ${{ steps.build.outputs.apk }}
