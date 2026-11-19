@@ -293,6 +293,75 @@ jobs:
           cmake --build build/android-player --target ge_player
           ls -l build/android-player/platform/sdl/libmain.so
 
+  # The Android export for real (ADR 0012): `gectl export --target android` makes the APK of a
+  # reference game with the NDK and Gradle, aapt2 reads its identity back, and an emulator
+  # (Android 14, x86_64) installs it, plays it with taps and a held finger and presses Back.
+  android-export:
+    name: Android APK of ${{ matrix.game }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { game: doodle_jump, window: "480 720", tap: "240 320" }
+          - { game: treasure_run, window: "800 600", tap: "" }
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build gectl
+        run: |
+          cmake --preset release -DGE_BUILD_TESTS=OFF
+          cmake --build --preset release --target gectl
+      - name: Export the game for Android (x86_64 for the emulator, arm64-v8a for phones)
+        run: |
+          started=$(date +%s)
+          ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
+            --abi x86_64,arm64-v8a --out dist
+          echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_ENV"
+      - name: What is in the APK
+        run: |
+          apk="$(find dist -name '*.apk' | head -1)"
+          aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
+          {
+            echo "### $(basename "$apk")"
+            echo "- export: ${seconds} s, APK: $(stat -c %s "$apk") bytes"
+            echo '```'
+            "$aapt2" dump badging "$apk" | grep -E "^package|application-label:|sdkVersion|launchable-activity"
+            unzip -l "$apk" | grep -E "\.so|assets/data/(game|files)"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          "$aapt2" dump badging "$apk" | grep -q "native-code: 'arm64-v8a' 'x86_64'" ||
+            "$aapt2" dump badging "$apk" | grep -q "native-code: 'x86_64' 'arm64-v8a'"
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Play it on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GAME_WINDOW: ${{ matrix.window }}
+          MENU_TAP: ${{ matrix.tap }}
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: platform/android/run_game_on_device.sh dist/*.apk game-output
+      - name: Put the result in the summary
+        if: always()
+        run: |
+          if [ -f game-output/summary.md ]; then
+            { echo "### On the emulator"; cat game-output/summary.md; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: android-${{ matrix.game }}
+          path: |
+            game-output
+            dist/*.apk
+
   ios:
     name: iOS (simulator, arm64)
     runs-on: macos-latest
@@ -323,6 +392,7 @@ jobs:
       - coverage
       - wasm
       - android
+      - android-export
       - ios
     runs-on: ubuntu-24.04
     steps:
