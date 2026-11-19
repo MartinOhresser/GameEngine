@@ -11,16 +11,15 @@ namespace ge::core {
 
 /// The path written in `text`, which is UTF-8.
 [[nodiscard]] inline std::filesystem::path path_from_utf8(const std::string& text) {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): char and char8_t share a layout
-    return std::filesystem::path(
-        std::u8string(reinterpret_cast<const char8_t*>(text.data()), text.size()));
+    // char to char8_t keeps every byte as it is (same size, modulo 256).
+    const std::u8string bytes(text.begin(), text.end());
+    return {bytes};
 }
 
 /// The path as UTF-8 text with `/` separators.
 [[nodiscard]] inline std::string path_to_utf8(const std::filesystem::path& path) {
-    const std::u8string text = path.generic_u8string();
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): char8_t and char share a layout
-    return std::string(reinterpret_cast<const char*>(text.data()), text.size());
+    const std::u8string bytes = path.generic_u8string();
+    return {bytes.begin(), bytes.end()};
 }
 
 } // namespace ge::core
