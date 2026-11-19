@@ -291,6 +291,20 @@ TEST_CASE("spawner2d: what fell below the screen is removed, what is above stays
     CHECK(!setup.app.world().is_alive(inside));
 }
 
+/// Whether the requests are prefab 3 rows at `first_x`, then `step` further each, all with y in
+/// [`low`, `high`].
+bool rows_are_in_band(const std::vector<SpawnRequest>& rows, float first_x, float step, float low,
+                      float high) {
+    float x = first_x;
+    for (const SpawnRequest& row : rows) {
+        if (row.prefab != 3U || row.x != x || row.y < low || row.y > high) {
+            return false;
+        }
+        x += step;
+    }
+    return true;
+}
+
 TEST_CASE("spawner2d: a generator that goes right lays rows ahead of the right edge") {
     Setup setup; // the screen shows x 0 to 480; rows reach 200 beyond it
     spawner2d::Generator generator = rows_of(100.0F);
@@ -303,14 +317,7 @@ TEST_CASE("spawner2d: a generator that goes right lays rows ahead of the right e
     add(setup, generator);
     setup.app.run_frames(1);
     REQUIRE(setup.seen->size() == 3); // x 400, 500 and 600; 700 is beyond 480 + 200
-    float x = 400.0F;
-    for (const SpawnRequest& row : *setup.seen) {
-        CHECK(row.prefab == 3U);
-        CHECK(row.x == x);
-        CHECK(row.y >= 50.0F);
-        CHECK(row.y <= 250.0F);
-        x += 100.0F;
-    }
+    CHECK(rows_are_in_band(*setup.seen, 400.0F, 100.0F, 50.0F, 250.0F));
     setup.app.world().get<transform2d::Position>(setup.camera)->x = 440.0F; // the screen runs on
     setup.app.run_frames(1);
     REQUIRE(setup.seen->size() == 5); // x 700 and 800 as well: the limit is now 440 + 240 + 200
