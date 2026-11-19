@@ -71,9 +71,10 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
   note "- same place after the tap: ($menu_after)"
   [ "$menu_before" != "$menu_after" ] && note "- the tap on Play was understood (touch is a click)" || fail "the menu is still there after the tap"
 
-  # A finger held on the stick (bottom left of the window); the swipe lasts 5 s in the background.
+  # A finger held on the stick (bottom left of the window), moved a little but inside its dead
+  # zone so that the jumper stays on its platform; the swipe lasts 5 s in the background.
   read -r sx sy < <(fraction 100 610)
-  read -r ex ey < <(fraction 150 610)
+  read -r ex ey < <(fraction 104 610)
   sx_px="$(python3 -c "print(int($sx * $width))")"; sy_px="$(python3 -c "print(int($sy * $height))")"
   ex_px="$(python3 -c "print(int($ex * $width))")"; ey_px="$(python3 -c "print(int($ey * $height))")"
   adb shell input swipe "$sx_px" "$sy_px" "$ex_px" "$ey_px" 5000 &
@@ -92,8 +93,13 @@ fi
 
 adb shell input keyevent KEYCODE_BACK
 sleep 4
-adb shell pidof "$package" > "$out/pid_back.txt" || true
-if [ -s "$out/pid_back.txt" ]; then fail "after Back the game is still running"; else note "- Back leaves the game"; fi
+# The process may stay around after the game ends: look at what is on the screen instead.
+adb shell dumpsys activity activities > "$out/activities.txt" || true
+if grep -E "ResumedActivity" "$out/activities.txt" | grep -q "$package"; then
+  fail "after Back the game is still on the screen"
+else
+  note "- Back leaves the game"
+fi
 
 adb logcat -d > "$out/logcat.txt"
 grep -E "SDL|$package|DEBUG" "$out/logcat.txt" | head -120 > "$out/game.log" || true
