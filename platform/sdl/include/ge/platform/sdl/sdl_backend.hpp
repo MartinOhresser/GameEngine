@@ -83,6 +83,10 @@ public:
     /// Same for a mouse button: "left", "middle" or "right".
     bool inject_mouse_button(std::string_view button, bool down);
 
+    /// Same for a finger: `id` tells fingers apart, `x` and `y` are where it is on the window, from
+    /// 0 to 1 as SDL reports them, `phase` is "down", "motion" or "up". False for another phase.
+    bool inject_finger(std::uint64_t id, float x, float y, std::string_view phase);
+
     /// Asks the window to close, as the close button does.
     void inject_quit();
 
