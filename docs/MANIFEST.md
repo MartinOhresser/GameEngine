@@ -34,7 +34,7 @@ Les fichiers acceptent les **commentaires** (`// …`, `/* … */`) et les **vir
 | `title`, `version`, `id`, `icon` | comment le jeu se présente, tout facultatif : `title` est le nom affiché (par défaut le nom, rendu lisible), `version` est `1.2.3` (0.1.0 par défaut), `id` est l'identité dans un paquet, `ge.games.mon_jeu` (par défaut `ge.games.` + le nom), `icon` est un PNG du dossier du jeu |
 | `modules` | modules utilisés, dépendances comprises (`screen_wrap` exige `transform2d`) |
 | `simulation` | `tick_rate` (1 à 1000, 60 par défaut) et `seed` (≥ 0, 0 par défaut) |
-| `window` | taille en pixels de la zone où le jeu dessine : `{"width": 800, "height": 600}` par défaut ; l'interface s'ancre à ses bords (`ui`) |
+| `window` | taille en pixels de la zone où le jeu dessine : `{"width": 800, "height": 600}` par défaut ; l'interface s'ancre à ses bords (`ui`). `"adapt": true` fait suivre la forme de l'écran (voir [UI.md](UI.md#la-fenêtre)) |
 | `params` | réglages des modules : `{"transform2d": {"speed_scale": 1.5}}`, vérifiés contre les bornes du module |
 | `atlases` | images découpées en cellules pour les sprites, facultatif ; l'ordre donne les numéros (le premier est 0) : voir [RENDERING.md](RENDERING.md) |
 | `lists` | listes de noms propres au jeu, facultatif : `{"layer": ["player", "door"]}` (voir « Les noms » plus bas) |

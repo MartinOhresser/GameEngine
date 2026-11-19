@@ -72,6 +72,11 @@ public:
     [[nodiscard]] std::shared_ptr<app::Renderer> renderer() override;
     [[nodiscard]] std::shared_ptr<app::AudioDevice> audio() override;
     bool resize(int width, int height) override;
+    void adapt_view(float min_aspect, float max_aspect) override;
+    [[nodiscard]] std::pair<int, int> view_size() const override;
+    bool set_window_size(int width, int height) override {
+        return inject_window_size(width, height);
+    }
     void reset_assets() override;
     bool load_sound(const std::string& name, const std::string& path, std::string& error) override;
 
@@ -86,6 +91,10 @@ public:
     /// Same for a finger: `id` tells fingers apart, `x` and `y` are where it is on the window, from
     /// 0 to 1 as SDL reports them, `phase` is "down", "motion" or "up". False for another phase.
     bool inject_finger(std::uint64_t id, float x, float y, std::string_view phase);
+
+    /// Gives the window another size in pixels, as the player (or a turn of the phone) does; the
+    /// drawing area of a game that follows the screen changes with the next `poll`.
+    bool inject_window_size(int width, int height);
 
     /// Asks the window to close, as the close button does.
     void inject_quit();
@@ -103,6 +112,8 @@ public:
 private:
     struct Impl;
     explicit SdlBackend(std::unique_ptr<Impl> impl);
+    /// Gives the drawing area the shape of the window, when the game asked for it.
+    void follow_window();
 
     std::unique_ptr<Impl> impl_;
 };
