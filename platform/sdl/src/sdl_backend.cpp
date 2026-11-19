@@ -364,7 +364,7 @@ void push_finger(std::array<SDL_FingerID, max_fingers>& fingers, const Session& 
                  const SDL_TouchFingerEvent& finger, std::vector<RawEvent>& events) {
     const bool ending =
         finger.type == SDL_EVENT_FINGER_UP || finger.type == SDL_EVENT_FINGER_CANCELED;
-    auto slot = std::ranges::find(fingers, finger.fingerID);
+    auto* slot = std::ranges::find(fingers, finger.fingerID);
     if (slot == fingers.end()) {
         if (ending) {
             return;
