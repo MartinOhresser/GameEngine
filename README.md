@@ -37,7 +37,14 @@ Le **MVP** est plus modeste : un jeu **2D solo sur desktop**, défini par config
 
 ## Pour commencer
 
-Prérequis : un compilateur C++20 (GCC 13+, Clang 16+, MSVC 2022), CMake ≥ 3.25, Ninja.
+Le plus court pour voir le moteur : un seul script compile le lanceur et l'ouvre, avec tous les jeux du dépôt (il suffit de CMake et d'un compilateur C++ ; sous Windows, lancez-le depuis Git Bash).
+
+```bash
+./gameEngine.sh                 # compile (quelques minutes la première fois), puis ouvre le lanceur
+./gameEngine.sh --build-only    # compile seulement
+```
+
+Pour développer, prérequis : un compilateur C++20 (GCC 13+, Clang 16+, MSVC 2022), CMake ≥ 3.25, Ninja.
 
 ```bash
 cmake --preset dev
