@@ -37,3 +37,5 @@ else()
   target_link_libraries(main PRIVATE SDL3::SDL3)
 endif()
 target_compile_options(main PRIVATE -Wall -Wextra -Werror)
+# What a release APK holds: no symbols (they are 10 of the 14 MB of the static library).
+target_link_options(main PRIVATE -Wl,--strip-all)

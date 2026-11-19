@@ -55,6 +55,9 @@ void try_pref_path() {
 } // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
+    // Without this, Back leaves the application (the activity is finished) and the game never
+    // sees it; with it, Back arrives as the key "AC Back" and the host decides.
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SPIKE init=fail (%s)", SDL_GetError());
         return 1;
@@ -96,6 +99,12 @@ int main(int /*argc*/, char** /*argv*/) {
             } else if (event.type == SDL_EVENT_FINGER_DOWN) {
                 SDL_Log("SPIKE finger x=%.2f y=%.2f", static_cast<double>(event.tfinger.x),
                         static_cast<double>(event.tfinger.y));
+            } else if (event.type == SDL_EVENT_WILL_ENTER_BACKGROUND ||
+                       event.type == SDL_EVENT_DID_ENTER_BACKGROUND ||
+                       event.type == SDL_EVENT_WILL_ENTER_FOREGROUND ||
+                       event.type == SDL_EVENT_DID_ENTER_FOREGROUND ||
+                       event.type == SDL_EVENT_TERMINATING) {
+                SDL_Log("SPIKE lifecycle event=0x%x", static_cast<unsigned>(event.type));
             } else if (event.type == SDL_EVENT_KEY_DOWN) {
                 SDL_Log("SPIKE key=%s", SDL_GetKeyName(event.key.key));
             }
