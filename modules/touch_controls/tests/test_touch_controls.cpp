@@ -94,7 +94,12 @@ TEST_CASE("touch_controls: a button is pressed while a finger is on it, and show
     rig.frame();
     CHECK(rig.value("fire") == 1.0F);
     CHECK(!rig.app.world().resource<ge::app::Actions>()->pressed("fire"));
+}
 
+TEST_CASE("touch_controls: a button lets go when the finger lifts") {
+    Rig rig;
+    rig.finger(1, true, 620.0F, 520.0F);
+    rig.frame();
     rig.finger(1, false);
     rig.frame();
     CHECK(rig.value("fire") == 0.0F);
@@ -125,17 +130,27 @@ TEST_CASE("touch_controls: the stick gives two axes, nothing inside its dead zon
     rig.frame();
     CHECK(rig.value("move_x") == 0.0F);
     CHECK(rig.value("move_y") == 1.0F);
+}
 
-    rig.finger(1, true, 240.0F, 500.0F); // far away: the knob stays on the circle
+TEST_CASE("touch_controls: far from the stick the knob stays on the circle") {
+    Rig rig;
+    rig.finger(1, true, 160.0F, 500.0F);
+    rig.frame();
+    rig.finger(1, true, 240.0F, 500.0F);
     rig.frame();
     CHECK(rig.value("move_x") == 1.0F);
     CHECK(rig.app.world().get<Position>(rig.knob)->x == 160.0F);
+}
 
-    rig.finger(1, true, 104.0F, 502.0F); // inside the dead zone
+TEST_CASE("touch_controls: the stick does nothing inside its dead zone, and lets go") {
+    Rig rig;
+    rig.finger(1, true, 104.0F, 502.0F);
     rig.frame();
     CHECK(rig.value("move_x") == 0.0F);
     CHECK(rig.value("move_y") == 0.0F);
 
+    rig.finger(1, true, 160.0F, 500.0F);
+    rig.frame();
     rig.finger(1, false);
     rig.frame();
     CHECK(rig.value("move_x") == 0.0F);
