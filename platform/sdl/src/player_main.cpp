@@ -7,6 +7,11 @@
 
 #include "registry.hpp"
 
+#ifdef __ANDROID__
+// SDL starts the program from Java: `main` becomes the function SDLActivity runs.
+#include <SDL3/SDL_main.h>
+#endif
+
 #include <algorithm>
 #include <iostream>
 #include <sstream>

@@ -1,5 +1,6 @@
 #include "export.hpp"
 
+#include "ge/core/path.hpp"
 #include "ge/game/game.hpp"
 #include "ge/game/package.hpp"
 #include "ge/game/scenario.hpp"
@@ -515,6 +516,29 @@ bool stage_package(const ExportJob& job, const ExportTarget& target, const fs::p
            write_text(package_dir / "LICENSES.txt", make_licenses(engine_license, sdl_license));
 }
 
+/// Writes `files.txt`, the list of everything in `data_dir` (one path a line, `/` separators): an
+/// APK has no folders to walk, so the program reads the list (the same list on every system).
+bool write_file_index(const fs::path& data_dir, std::ostream& err) {
+    std::vector<std::string> files;
+    std::error_code error;
+    for (fs::recursive_directory_iterator it(data_dir, error), end; !error && it != end;
+         it.increment(error)) {
+        if (it->is_regular_file(error)) {
+            files.push_back(core::path_to_utf8(it->path().lexically_relative(data_dir)));
+        }
+    }
+    std::ranges::sort(files);
+    std::string text;
+    for (const std::string& file : files) {
+        text += file + '\n';
+    }
+    if (!write_text(data_dir / "files.txt", text)) {
+        err << "cannot write " << (data_dir / "files.txt").string() << '\n';
+        return false;
+    }
+    return true;
+}
+
 } // namespace
 
 bool stage_game_files(const ExportJob& job, const fs::path& data_dir, std::ostream& err) {
@@ -532,7 +556,10 @@ bool stage_game_files(const ExportJob& job, const fs::path& data_dir, std::ostre
         err << manifest_path << ": " << (problem.empty() ? "cannot be read" : problem) << '\n';
         return false;
     }
-    return write_text(data_dir / "game.json", shipped);
+    if (!write_text(data_dir / "game.json", shipped)) {
+        return false;
+    }
+    return write_file_index(data_dir, err);
 }
 
 // ---------------------------------------------------------------------------------------

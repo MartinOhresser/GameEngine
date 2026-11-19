@@ -1,6 +1,7 @@
 #include "ge/platform/sdl/player.hpp"
 
 #include "ge/game/summary.hpp"
+#include "ge/platform/sdl/assets.hpp"
 #include "ge/platform/sdl/play.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
@@ -66,6 +67,16 @@ std::string save_path_of(const Arguments& arguments, const std::string& game_nam
     return directory.empty() ? std::string() : directory + "save.txt";
 }
 
+/// Where the game's files are when `--data` does not say: next to the program on a computer,
+/// in the `assets/` of the APK on Android (a path that is relative to it).
+std::string default_data_folder() {
+#ifdef __ANDROID__
+    return "data";
+#else
+    return base_directory() + "data";
+#endif
+}
+
 } // namespace
 
 std::string player_title(const game::LoadedGame& loaded) {
@@ -80,13 +91,13 @@ int run_player(const std::vector<std::string>& args, std::span<const game::Modul
         err << problem << '\n';
         return exit_usage;
     }
-    std::string folder = arguments.data.empty() ? base_directory() + "data" : arguments.data;
+    std::string folder = arguments.data.empty() ? default_data_folder() : arguments.data;
     while (folder.size() > 1 && (folder.back() == '/' || folder.back() == '\\')) {
         folder.pop_back();
     }
     const std::string manifest = folder + "/game.json";
     const game::LoadedGame loaded =
-        game::load_game(manifest, game::disk_reader(), game::catalog_of(modules));
+        game::load_game(manifest, game::FileReader(read_file), game::catalog_of(modules));
     for (const module::Diagnostic& diagnostic : loaded.diagnostics) {
         err << diagnostic.to_string() << '\n';
     }

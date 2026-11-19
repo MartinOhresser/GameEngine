@@ -2,6 +2,7 @@
 // sound card), so they run anywhere, CI included; keys are pushed into SDL's
 // real event queue, so the path from a key to an action is the real one.
 #include "ge/game/runtime.hpp"
+#include "ge/platform/sdl/assets.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
 #include "mini_test.hpp"
@@ -11,7 +12,10 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #ifdef GE_HAS_GEPLAY
 #include "ge/platform/sdl/geplay.hpp"
@@ -575,3 +579,38 @@ TEST_CASE("geplay: a headless run without --save writes nothing") {
 }
 
 #endif
+
+TEST_CASE("assets: a file is read whole, and a missing one is nothing") {
+    const fs::path path = temp_file("assets_read.txt");
+    {
+        std::ofstream file(path, std::ios::binary);
+        file << "one\r\ntwo";
+    }
+    const std::optional<std::string> text = sdl::read_file(path.string());
+    REQUIRE(text.has_value());
+    CHECK(*text == "one\r\ntwo");
+    CHECK(
+        !sdl::read_file((fs::temp_directory_path() / "ge_no_such_file.txt").string()).has_value());
+}
+
+TEST_CASE("assets: the files of a game come from its index, else from its folder") {
+    const fs::path folder = temp_file("assets_game");
+    std::error_code ignored;
+    fs::remove_all(folder, ignored);
+    fs::create_directories(folder / "sounds");
+    for (const char* name : {"game.json", "sounds/b.wav", "sounds/a.wav"}) {
+        std::ofstream(folder / name) << "x";
+    }
+    const std::string root = folder.string() + "/";
+    // No index: the folder is walked, in order, with `/` separators.
+    const std::vector<std::string> walked{"game.json", "sounds/a.wav", "sounds/b.wav"};
+    CHECK(sdl::list_game_files(root) == walked);
+    // An index wins: the files of an APK cannot be walked. A line ending is tolerated.
+    {
+        std::ofstream index(folder / sdl::file_index_name, std::ios::binary);
+        index << "sounds/z.wav\r\ngame.json\n\n";
+    }
+    const std::vector<std::string> indexed{"game.json", "sounds/z.wav"};
+    CHECK(sdl::list_game_files(root) == indexed);
+    fs::remove_all(folder, ignored);
+}

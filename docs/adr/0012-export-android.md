@@ -92,6 +92,8 @@ Chaque jalon est une pull request. A0 vient d'abord parce que c'est lui qui peut
 
 - **A1.** `ExportTarget` a deux étapes, `build` et `assemble`, qui reçoivent un `ExportJob` (le jeu vérifié, les modules, les dossiers, l'exécuteur de commandes). `export_game` fait ce qui est commun (cible, chargement, validation, scénarios) puis appelle les deux. Windows et Linux en héritent d'une base `DesktopTarget` ; la copie des fichiers du jeu est devenue `stage_game_files`, réutilisable par Android. Aucun changement de comportement : les tests d'export existants passent tels quels.
 
+- **A2.** `ge/platform/sdl/assets.hpp` : `read_file` (SDL_LoadFile : le disque ou l'APK, y compris avec des accents dans le chemin sous Windows) et `list_game_files` (l'index `files.txt` s'il existe, sinon le dossier parcouru). Le joueur lit son jeu, les atlas et la liste des sons par là ; `std::ifstream` ne sert plus qu'aux sauvegardes (le dossier de données de l'application, qui est un vrai dossier sur Android). L'export écrit `files.txt` dans `data/` pour tous les systèmes, donc le chemin « index » est celui que la CI Windows et Linux exerce déjà. Sous Android, `ge_add_player` crée la bibliothèque `main` (SDL entier lié dedans, symboles retirés) et `player_main.cpp` inclut `SDL_main.h` ; le dossier des données est `data` (dans les `assets/`). Le job `android` de la CI construit ce `libmain.so`.
+
 ## Limites assumées
 
 - **Beaucoup plus d'outils qu'en Windows** pour l'exportateur (JDK, SDK, NDK, Gradle) ; seul le destinataire n'a rien à installer.

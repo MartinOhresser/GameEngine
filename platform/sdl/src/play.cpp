@@ -3,13 +3,14 @@
 #include "ge/app/save.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/path.hpp"
+#include "ge/platform/sdl/assets.hpp"
 
 #include <algorithm>
-#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <optional>
 #include <ostream>
+#include <string_view>
 
 namespace ge::platform::sdl {
 
@@ -33,22 +34,21 @@ void write_text(const std::string& path, const std::string& text, std::ostream& 
 
 /// The .wav files of `<game directory>/sounds`, each named by its file name without extension.
 void load_sounds(Backend& backend, const std::string& manifest_path, std::ostream& err) {
-    namespace fs = std::filesystem;
-    const fs::path directory = core::path_from_utf8(manifest_path).parent_path() / "sounds";
-    std::error_code ignored;
-    if (!fs::is_directory(directory, ignored)) {
-        return;
-    }
-    std::vector<fs::path> files;
-    for (const fs::directory_entry& entry : fs::directory_iterator(directory, ignored)) {
-        if (entry.path().extension() == ".wav") {
-            files.push_back(entry.path());
+    const std::size_t slash = manifest_path.find_last_of("/\\");
+    const std::string folder =
+        slash == std::string::npos ? std::string() : manifest_path.substr(0, slash + 1);
+    for (const std::string& file : list_game_files(folder)) {
+        constexpr std::string_view directory = "sounds/";
+        constexpr std::string_view extension = ".wav";
+        const bool is_sound = file.starts_with(directory) && file.ends_with(extension) &&
+                              file.find('/', directory.size()) == std::string::npos;
+        if (!is_sound) {
+            continue;
         }
-    }
-    std::sort(files.begin(), files.end());
-    for (const fs::path& file : files) {
+        const std::string name =
+            file.substr(directory.size(), file.size() - directory.size() - extension.size());
         std::string error;
-        if (!backend.load_sound(core::path_to_utf8(file.stem()), core::path_to_utf8(file), error)) {
+        if (!backend.load_sound(name, folder + file, error)) {
             err << manifest_path << ": " << error << '\n';
         }
     }

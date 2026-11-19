@@ -1,11 +1,10 @@
 #include "ge/platform/sdl/sdl_backend.hpp"
 
-#include "ge/core/path.hpp"
+#include "ge/platform/sdl/assets.hpp"
 
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cctype>
-#include <fstream>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -111,17 +110,15 @@ public:
     }
 
     bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
-        std::ifstream file(core::path_from_utf8(atlas.image), std::ios::binary);
-        if (!file) {
+        const std::optional<std::string> bytes = read_file(atlas.image);
+        if (!bytes.has_value()) {
             error = "cannot read the image \"" + atlas.image + "\"";
             return false;
         }
-        const std::string bytes((std::istreambuf_iterator<char>(file)),
-                                std::istreambuf_iterator<char>());
         int width = 0;
         int height = 0;
         int channels = 0;
-        const std::vector<stbi_uc> encoded(bytes.begin(), bytes.end());
+        const std::vector<stbi_uc> encoded(bytes->begin(), bytes->end());
         stbi_uc* pixels = stbi_load_from_memory(encoded.data(), static_cast<int>(encoded.size()),
                                                 &width, &height, &channels, 4);
         if (pixels == nullptr) {

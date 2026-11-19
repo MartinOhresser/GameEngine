@@ -6,6 +6,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Changed
 
+- Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.
 - L'export est fait de deux étapes que chaque plateforme fournit (`ExportTarget::build` et `assemble`, ADR 0012, A1) ; Windows et Linux partagent une base `DesktopTarget`. Aucun changement pour un joueur.
 - ADR 0012 : plan de l'export Android (APK) en huit jalons A0 à A7 ; `docs/ROADMAP.md` les liste.
 - Windows : les chemins sont du UTF-8 (`ge/core/path.hpp`) : un jeu dans un dossier avec accent (`C:\Users\Léa\…`) trouve ses fichiers, ses sons, ses images et sa sauvegarde ; révélé par le job CI « Export ».

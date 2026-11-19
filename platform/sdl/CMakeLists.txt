@@ -36,7 +36,7 @@ add_library(ge_stb_image STATIC third_party/stb_image_impl.cpp)
 target_include_directories(ge_stb_image SYSTEM PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party")
 set_target_properties(ge_stb_image PROPERTIES CXX_CLANG_TIDY "" CXX_STANDARD 20)
 
-add_library(ge_platform_sdl STATIC src/sdl_backend.cpp)
+add_library(ge_platform_sdl STATIC src/sdl_backend.cpp src/assets.cpp)
 add_library(ge::platform_sdl ALIAS ge_platform_sdl)
 target_include_directories(ge_platform_sdl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(ge_platform_sdl PUBLIC ge::platform PRIVATE ${GE_SDL_TARGET} ge_stb_image)
@@ -74,7 +74,7 @@ endif()
 
 # The program of an exported game: ge_add_player(NAME MODULES a b c [ICON file.ico]).
 # Only the registry and the link change from a game to another: the modules are static
-# libraries, built once. On Windows the program has no console (a GUI program that keeps
+# libraries, built once. On Android it is the shared library `main` of the APK. On Windows the program has no console (a GUI program that keeps
 # `main`) and carries the icon; the C runtime is linked statically by the caller
 # (-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded, which gectl export passes).
 function(ge_add_player name)
@@ -87,7 +87,18 @@ function(ge_add_player name)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${name}.rc" "1 ICON \"${icon_path}\"\n")
     list(APPEND sources "${CMAKE_CURRENT_BINARY_DIR}/${name}.rc")
   endif()
-  add_executable(${name} ${sources})
+  if(ANDROID)
+    # An Android program is the library `libmain.so` that SDLActivity loads, with SDL linked into
+    # it. SDL's entry points for Java (JNI) are called by nothing in the program, so the linker
+    # would leave them out: take all of SDL.
+    add_library(${name} SHARED ${sources})
+    set_target_properties(${name} PROPERTIES OUTPUT_NAME main)
+    target_link_libraries(${name} PRIVATE -Wl,--whole-archive ${GE_SDL_TARGET}
+                                          -Wl,--no-whole-archive)
+    target_link_options(${name} PRIVATE -Wl,--strip-all)
+  else()
+    add_executable(${name} ${sources})
+  endif()
   target_link_libraries(${name} PRIVATE ge_play)
   foreach(module IN LISTS PLAYER_MODULES)
     target_link_libraries(${name} PRIVATE ge::mod::${module})
