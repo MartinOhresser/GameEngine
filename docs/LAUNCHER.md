@@ -2,6 +2,8 @@
 
 Le lanceur parcourt les jeux du dépôt, montre ce que chacun contient, et joue celui qu'on choisit dans la même fenêtre. C'est **un jeu comme les autres** (des fichiers JSON dans `tools/launcher/`, avec les modules `ui`, `text2d` et `host`) accompagné d'un petit programme, `gelauncher`, qui fait ce qu'un jeu ne peut pas faire : lire le disque et lancer un autre jeu. Voir l'[ADR 0011](adr/0011-lanceur-et-export.md).
 
+Le plus simple : `./gameEngine.sh` (à la racine ; sous Windows depuis Git Bash, ou `scripts\launcher.cmd`) configure, compile et ouvre le lanceur ; ses arguments vont au lanceur (`./gameEngine.sh --headless --frames 5`), et `--build-only` compile sans ouvrir. La compilation va dans `build/launcher`, avec les outils : le bouton Export fonctionne.
+
 ```
 gelauncher                           # depuis la racine du dépôt
 gelauncher --games games --launcher tools/launcher/game.json
