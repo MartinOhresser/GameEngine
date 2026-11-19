@@ -156,7 +156,11 @@ TEST_CASE("sdl: a mouse click reaches the game as an action") {
     CHECK(backend->inject_mouse_button("left", true));
     ge::platform::LoopOptions options;
     options.max_frames = 5;
-    ge::platform::run_loop(app, *backend, map, options);
+    // A tick runs only once enough real time has passed, which a fast machine may not have
+    // reached after five frames: keep playing until the click was seen (a second at most).
+    for (int round = 0; round < 200 && !fired; ++round) {
+        ge::platform::run_loop(app, *backend, map, options);
+    }
     CHECK(fired);
 }
 
