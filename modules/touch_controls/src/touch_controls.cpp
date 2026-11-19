@@ -6,11 +6,11 @@
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace ge::mod::touch_controls {
 
@@ -44,9 +44,8 @@ float given(const app::LiveInput* live, const app::Actions& actions, const std::
     return actions.value(name);
 }
 
-std::array<Finger, finger_count> read_fingers(const app::LiveInput* live,
-                                              const app::Actions& actions) {
-    std::array<Finger, finger_count> fingers{};
+std::vector<Finger> read_fingers(const app::LiveInput* live, const app::Actions& actions) {
+    std::vector<Finger> fingers(finger_count);
     for (std::size_t i = 0; i < finger_count; ++i) {
         const std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         fingers[i].down = given(live, actions, "touch_down" + suffix) != 0.0F;
@@ -93,7 +92,7 @@ void follow_fingers(ecs::World& world) {
         return;
     }
     const auto* names = world.resource<app::ActionNames>();
-    const std::array<Finger, finger_count> fingers = read_fingers(live, *actions);
+    const std::vector<Finger> fingers = read_fingers(live, *actions);
     if (world.resource<TouchSeen>() == nullptr) {
         world.insert_resource(TouchSeen{});
     }
@@ -106,7 +105,7 @@ void follow_fingers(ecs::World& world) {
     const auto alpha = [shown](std::uint32_t opacity) { return shown ? opacity : 0U; };
 
     // What each control held before, to tell a release from a control that was never touched.
-    std::array<bool, finger_count> taken{};
+    std::vector<bool> taken(finger_count, false);
     each_control(world, [&](std::uint32_t& finger, const transform2d::Position&, float, float) {
         if (finger != 0 && (finger > finger_count || !fingers[finger - 1].down)) {
             finger = 0;
@@ -158,8 +157,7 @@ void follow_fingers(ecs::World& world) {
         float x;
         float y;
     };
-    std::array<Pose, 8> poses{};
-    std::size_t pose_count = 0;
+    std::vector<Pose> poses;
     world.each<TouchStick, const transform2d::Position>(
         [&](ecs::Entity, TouchStick& stick, const transform2d::Position& at) {
             float dx = 0.0F;
@@ -183,17 +181,14 @@ void follow_fingers(ecs::World& world) {
                 give(*live, names, stick.action_y, dy);
             }
             stick.was_held = held;
-            if (pose_count < poses.size()) {
-                poses[pose_count++] =
-                    Pose{stick.group, at.x + dx * stick.radius, at.y + dy * stick.radius};
-            }
+            poses.push_back(Pose{stick.group, at.x + dx * stick.radius, at.y + dy * stick.radius});
         });
     world.each<const TouchKnob, transform2d::Position>(
         [&](ecs::Entity, const TouchKnob& knob, transform2d::Position& at) {
-            for (std::size_t i = 0; i < pose_count; ++i) {
-                if (poses[i].group == knob.group) {
-                    at.x = poses[i].x;
-                    at.y = poses[i].y;
+            for (const Pose& pose : poses) {
+                if (pose.group == knob.group) {
+                    at.x = pose.x;
+                    at.y = pose.y;
                     return;
                 }
             }
