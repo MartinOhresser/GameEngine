@@ -1,0 +1,34 @@
+// The Gradle project of an exported Android game (ADR 0012). `gectl export` fills the @...@
+// values from the game's manifest and adds, next to this file: src/main/assets/data (the
+// game's files), src/main/jniLibs (libmain.so, with SDL inside) and SDL's Java classes.
+plugins {
+    id 'com.android.application'
+}
+
+// The newest platform installed in the SDK, given by the export.
+def sdkLevel = (project.findProperty('compileSdk') ?: '35') as int
+
+android {
+    namespace = "ge.player"
+    compileSdk sdkLevel
+    defaultConfig {
+        applicationId "@APPLICATION_ID@"
+        minSdk 21
+        targetSdk sdkLevel
+        versionCode @VERSION_CODE@
+        versionName "@VERSION_NAME@"
+    }
+    buildTypes {
+        // Signed with the debug key that Android Studio makes (it installs by copying the file),
+        // but not a debuggable program.
+        debug {
+            debuggable false
+            minifyEnabled false
+        }
+    }
+    sourceSets.main.jniLibs.srcDir 'src/main/jniLibs'
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+}

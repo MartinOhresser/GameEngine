@@ -6,6 +6,7 @@
 #include "ge/game/scenario.hpp"
 #include "ge/json/json.hpp"
 
+#include "export_android.hpp"
 #include "registry.hpp"
 
 #include <algorithm>
@@ -224,9 +225,11 @@ std::string controls_of(const std::string& input_text) {
 std::vector<const ExportTarget*> export_targets(bool include_hidden) {
     static const WindowsTarget windows;
     static const LinuxTarget linux_target;
+    static const std::unique_ptr<ExportTarget> android = make_android_target(process_environment());
     std::vector<const ExportTarget*> targets{&windows};
     if (include_hidden) {
         targets.push_back(&linux_target);
+        targets.push_back(android.get());
     }
     return targets;
 }
@@ -642,6 +645,33 @@ bool DesktopTarget::assemble(const ExportJob& job, const std::string& program,
 // ---------------------------------------------------------------------------------------
 // The export
 
+bool prepare_export_job(const ExportRequest& request, const ExportTarget& target,
+                        const CommandRunner& run, ExportJob& job, std::ostream& err) {
+    job = ExportJob();
+    job.request = &request;
+    job.run = run;
+    job.loaded = game::load_game(request.manifest, game::disk_reader(),
+                                 game::catalog_of(ge::runner::linked_modules()));
+    for (const module::Diagnostic& problem : job.loaded.diagnostics) {
+        err << problem.to_string() << '\n';
+    }
+    if (!job.loaded.ok()) {
+        return false;
+    }
+    job.folder = folder_of(request.manifest);
+    job.summary = game::summarize(job.loaded, job.folder, job.loaded.game.manifest.name);
+    job.modules = game::required_modules(job.loaded.game.manifest,
+                                         game::catalog_of(ge::runner::linked_modules()));
+    job.package = package_name(job.summary, target);
+    job.out_dir = fs::absolute(request.out_dir);
+    job.build_dir = request.build_dir.empty()
+                        ? fs::absolute(fs::path(request.source_dir) / "build" / "export" /
+                                       target.name() / job.summary.name)
+                        : fs::absolute(request.build_dir);
+
+    return true;
+}
+
 int export_game(const ExportRequest& request, std::ostream& out, std::ostream& err,
                 const CommandRunner& run) {
     const ExportTarget* target = find_export_target(request.target);
@@ -658,26 +688,9 @@ int export_game(const ExportRequest& request, std::ostream& out, std::ostream& e
     }
 
     ExportJob job;
-    job.request = &request;
-    job.run = run;
-    job.loaded = game::load_game(request.manifest, game::disk_reader(),
-                                 game::catalog_of(ge::runner::linked_modules()));
-    for (const module::Diagnostic& problem : job.loaded.diagnostics) {
-        err << problem.to_string() << '\n';
-    }
-    if (!job.loaded.ok()) {
+    if (!prepare_export_job(request, *target, run, job, err)) {
         return 1;
     }
-    job.folder = folder_of(request.manifest);
-    job.summary = game::summarize(job.loaded, job.folder, job.loaded.game.manifest.name);
-    job.modules = game::required_modules(job.loaded.game.manifest,
-                                         game::catalog_of(ge::runner::linked_modules()));
-    job.package = package_name(job.summary, *target);
-    job.out_dir = fs::absolute(request.out_dir);
-    job.build_dir = request.build_dir.empty()
-                        ? fs::absolute(fs::path(request.source_dir) / "build" / "export" /
-                                       target->name() / job.summary.name)
-                        : fs::absolute(request.build_dir);
 
     out << "Exporting " << job.summary.title << " for " << target->label() << " ("
         << join(job.modules, ", ") << ")\n";

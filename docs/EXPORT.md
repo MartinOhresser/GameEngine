@@ -80,6 +80,7 @@ Une plateforme est un `ExportTarget` (`tools/gectl/export.hpp`) : un nom, un lib
 | --- | --- |
 | `windows` | proposée ; se fabrique sous Windows |
 | `linux` | cachée (`--targets` ne la montre pas) : sert aux tests, y compris sur la CI |
+| `android` | cachée jusqu'à A7 : `gectl export JEU --target android [--abi x86_64,arm64-v8a]` donne un `.apk` (par défaut `arm64-v8a`, les téléphones). Il faut le SDK Android (plateforme et Build-Tools), le NDK, un JDK 17+ et Ninja ; ce qui manque est dit avec où le trouver. Le premier export télécharge Gradle (quelques minutes). Voir `tools/gectl/export_android.cpp` et le gabarit `platform/android/template/`. |
 
 ## Vérifié en CI
 

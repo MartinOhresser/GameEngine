@@ -165,7 +165,7 @@ TEST_CASE("export: targets") {
     CHECK(ge::tools::find_export_target("linux") != nullptr);
     CHECK(ge::tools::find_export_target("amiga") == nullptr);
     CHECK(ge::tools::export_targets(false).size() == 1);
-    CHECK(ge::tools::export_targets(true).size() == 2);
+    CHECK(ge::tools::export_targets(true).size() == 3);
     const ge::tools::ExportTarget* windows = ge::tools::find_export_target("windows");
     REQUIRE(windows != nullptr);
     CHECK(!windows->hidden());

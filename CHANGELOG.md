@@ -4,6 +4,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ## [Unreleased]
 
+### Added
+
+- Export Android (ADR 0012, A3) : `gectl export JEU --target android [--abi a,b]` fabrique un `.apk` (NDK pour `libmain.so`, Gradle pour l'APK, gabarit dans `platform/android/template/`) et dit ce qui manque (SDK, NDK, JDK, Ninja). La cible reste cachée jusqu'à A7. Un workflow `Android export` l'exerce pour de vrai sur un émulateur.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.
