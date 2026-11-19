@@ -97,61 +97,68 @@ std::vector<std::string> split_commas(const std::string& text) {
     return parts;
 }
 
+/// Sets a flag that takes no value. False when `arg` is not one.
+bool apply_flag(const std::string& arg, Options& options) {
+    if (arg == "--json") {
+        options.json = true;
+    } else if (arg == "--skip-tests") {
+        options.skip_tests = true;
+    } else if (arg == "--targets") {
+        options.targets = true;
+    } else if (arg == "--compact") {
+        options.compact = true;
+    } else if (arg == "--check") {
+        options.check_only = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+/// Sets an option that takes a value. False when `name` is not one.
+bool apply_value(const std::string& name, const std::string& value, Options& options) {
+    if (name == "--modules") {
+        options.modules_dir = value;
+    } else if (name == "--games") {
+        options.games_dir = value;
+    } else if (name == "--out") {
+        options.out_dir = value;
+        options.out_given = true;
+    } else if (name == "--depends") {
+        options.depends = split_commas(value);
+    } else if (name == "--target") {
+        options.target = value;
+    } else if (name == "--source") {
+        options.source_dir = value;
+    } else if (name == "--build-dir") {
+        options.build_dir = value;
+    } else if (name == "--cmake-arg") {
+        options.cmake_arguments.push_back(value);
+    } else {
+        return false;
+    }
+    return true;
+}
+
 /// Parses the arguments after the command. Returns an error message, or empty.
 std::string parse_options(const std::vector<std::string>& args, Options& options) {
     for (std::size_t i = 1; i < args.size(); ++i) {
         const std::string& arg = args[i];
-        if (arg == "--modules") {
-            if (i + 1 >= args.size()) {
-                return "--modules needs a directory";
-            }
-            options.modules_dir = args[++i];
-        } else if (arg == "--games") {
-            if (i + 1 >= args.size()) {
-                return "--games needs a directory";
-            }
-            options.games_dir = args[++i];
-        } else if (arg == "--json") {
-            options.json = true;
-        } else if (arg == "--out") {
-            if (i + 1 >= args.size()) {
-                return "--out needs a directory";
-            }
-            options.out_dir = args[++i];
-            options.out_given = true;
-        } else if (arg == "--depends") {
-            if (i + 1 >= args.size()) {
-                return "--depends needs a comma-separated list of modules";
-            }
-            options.depends = split_commas(args[++i]);
-        } else if (arg == "--target" || arg == "--source" || arg == "--build-dir" ||
-                   arg == "--cmake-arg") {
-            if (i + 1 >= args.size()) {
-                return arg + " needs a value";
-            }
-            const std::string& value = args[++i];
-            if (arg == "--target") {
-                options.target = value;
-            } else if (arg == "--source") {
-                options.source_dir = value;
-            } else if (arg == "--build-dir") {
-                options.build_dir = value;
-            } else {
-                options.cmake_arguments.push_back(value);
-            }
-        } else if (arg == "--skip-tests") {
-            options.skip_tests = true;
-        } else if (arg == "--targets") {
-            options.targets = true;
-        } else if (arg == "--compact") {
-            options.compact = true;
-        } else if (arg == "--check") {
-            options.check_only = true;
-        } else if (arg.starts_with("--")) {
-            return "unknown option " + arg;
-        } else {
-            options.names.push_back(arg);
+        if (apply_flag(arg, options)) {
+            continue;
         }
+        if (!arg.starts_with("--")) {
+            options.names.push_back(arg);
+            continue;
+        }
+        // Anything else that starts with "--" is an option with a value, or unknown.
+        if (!apply_value(arg, i + 1 < args.size() ? args[i + 1] : std::string(), options)) {
+            return "unknown option " + arg;
+        }
+        if (i + 1 >= args.size()) {
+            return arg + " needs a value";
+        }
+        ++i;
     }
     return {};
 }

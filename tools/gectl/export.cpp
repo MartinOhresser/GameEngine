@@ -187,7 +187,13 @@ std::string controls_of(const std::string& input_text) {
         }
         std::vector<std::string> keys;
         for (const json::Value::Member& member : sources->members()) {
-            keys.push_back(readable_source(member.first));
+            // The pointer's position is not something a player presses.
+            if (member.first != "mouse:x" && member.first != "mouse:y") {
+                keys.push_back(readable_source(member.first));
+            }
+        }
+        if (keys.empty()) {
+            continue;
         }
         std::string name = action->as_string();
         std::ranges::replace(name, '_', ' ');
@@ -341,6 +347,8 @@ int run_process(const std::vector<std::string>& command) {
 #ifdef _WIN32
     line = "\"" + line + "\""; // cmd.exe drops the outer pair of quotes
 #endif
+    // gectl is a single-threaded command: nothing else touches the environment meanwhile.
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
     return std::system(line.c_str()) == 0 ? 0 : 1;
 }
 

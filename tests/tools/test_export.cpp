@@ -204,6 +204,14 @@ TEST_CASE("export: the README tells how to play") {
     CHECK(has(linux_readme, "QUITTING"));
     CHECK(!has(linux_readme, "CONTROLS"));
     CHECK(has(ge::tools::make_readme(summary, "{ broken", *windows, "x.exe"), "QUITTING"));
+    const std::string pointer = R"({"bindings": [
+        {"action": "pointer_x", "sources": {"mouse:x": 1}},
+        {"action": "click", "sources": {"mouse:left": 1}},
+        {"sources": {"key:a": 1}},
+    ]})";
+    const std::string with_pointer = ge::tools::make_readme(summary, pointer, *windows, "x.exe");
+    CHECK(!has(with_pointer, "pointer x"));
+    CHECK(has(with_pointer, "click: Mouse left"));
 }
 
 TEST_CASE("export: the licenses of what the program contains") {

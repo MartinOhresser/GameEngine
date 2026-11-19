@@ -113,7 +113,7 @@ TEST_CASE("gectl: help and usage errors") {
     CHECK(has(bad_option.err, "unknown option --bogus"));
     const Run no_dir = gectl({"check", "--modules"});
     CHECK(no_dir.code == 2);
-    CHECK(has(no_dir.err, "--modules needs a directory"));
+    CHECK(has(no_dir.err, "--modules needs a value"));
 }
 
 TEST_CASE("gectl: check reports every problem with its file and place") {
