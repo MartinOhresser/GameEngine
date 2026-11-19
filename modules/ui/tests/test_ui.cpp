@@ -62,7 +62,6 @@ constexpr std::uint32_t play = 6;
 constexpr std::uint32_t quit = 7;
 constexpr std::uint32_t left = 8;
 constexpr std::uint32_t right = 9;
-constexpr std::uint32_t help = 10;
 
 ui::Menu menu_with_keys() {
     ui::Menu menu;
