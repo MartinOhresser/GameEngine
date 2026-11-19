@@ -1,0 +1,13 @@
+// Up and Down steer at 380 units per second: after 20 ticks (a third of a second) the jumper is
+// about 127 units further down, and gravity did not touch that axis.
+{
+  "schema_version": 1,
+  "name": "steer_up_and_down",
+  "scene": "test_fall",
+  "ticks": 20,
+  "inputs": [{ "tick": 0, "action": "move_y", "value": 1 }],
+  "expect": [
+    { "at": 20, "check": "player.transform2d.Position.y > 360" },
+    { "at": 20, "check": "player.transform2d.Position.y < 370" },
+  ],
+}

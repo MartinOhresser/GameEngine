@@ -6,6 +6,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- Jeu de référence `games/sideways_jump` : un Doodle Jump tourné d'un quart de tour (gravité vers la gauche, rebond sur le côté droit des blocs, caméra qui ne va qu'à droite, monde généré vers la droite, score à la distance), sans C++ ni image, avec huit scénarios. Il montre que les modules ne connaissent ni le haut ni le bas ; voir `docs/SIDEWAYS_JUMP.md`.
+
 - Modules sans « haut » ni « bas » en dur : `camera2d.CameraFollow` gagne `offset_x`, `only_down`, `only_left` et `only_right` (comme `offset_y` et `only_up`) ; `bounce2d.Bouncer` et `combat2d.Mortal` gagnent `fall_x` et `fall_y`, le sens de la chute (par défaut vers le bas : rien ne change) : un jeu dont la gravité pointe vers la droite ou le haut rebondit sur le bon bord, une planche qui casse tombe dans le sens de la chute et `fall_death` surveille le bord d'écran de ce côté. Nouveau `include/ge/app/direction.hpp` pour lire un sens à partir de deux nombres.
 
 - `scripts/setup_linux.sh` : installe sous Linux (Debian, Ubuntu, WSL) ce qu'il faut pour compiler et jouer, avec `--android` le JDK, le SDK et le NDK Android, avec `--dev` clang-format et clang-tidy ; relançable, `--dry-run` dit le plan. Un workflow `Setup script` l'exerce sur un Ubuntu vierge.

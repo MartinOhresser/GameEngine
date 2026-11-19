@@ -1,0 +1,8 @@
+// Up and Down steer; R starts again.
+{
+  "schema_version": 1,
+  "bindings": [
+    { "action": "move_y", "sources": { "key:down": 1, "key:s": 1, "key:up": -1, "key:w": -1 } },
+    { "action": "restart", "sources": { "key:r": 1 } },
+  ],
+}

@@ -1,0 +1,14 @@
+// The jumper falls left onto the start block (its right side is at x=360): it lands, is put
+// against it and is thrown back to the right at 760 units per second.
+{
+  "schema_version": 1,
+  "name": "bounce_on_the_right_side",
+  "scene": "game",
+  "ticks": 40,
+  "expect": [
+    { "at": 5, "check": "player.bounce2d.Bouncer.bounces == 0" },
+    { "at": 40, "check": "player.bounce2d.Bouncer.bounces >= 1" },
+    { "at": 40, "check": "player.transform2d.Position.x > 372" },
+    "player alive",
+  ],
+}

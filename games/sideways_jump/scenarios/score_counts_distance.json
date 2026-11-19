@@ -1,0 +1,13 @@
+// The score is half the distance run to the right: nothing at the start, then what the first
+// bounce took the jumper (a bit over 200 units to the right of where it landed).
+{
+  "schema_version": 1,
+  "name": "score_counts_distance",
+  "scene": "game",
+  "ticks": 90,
+  "expect": [
+    { "at": 0, "check": "player.progress.Progress.score == 0" },
+    { "at": 90, "check": "player.progress.Progress.score > 50" },
+    { "at": 90, "check": "player.progress.Progress.distance > 100" },
+  ],
+}
