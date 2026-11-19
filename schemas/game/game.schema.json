@@ -50,6 +50,7 @@
           "spawner2d",
           "sprite2d",
           "text2d",
+          "touch_controls",
           "transform2d",
           "ui"
         ]
@@ -180,6 +181,11 @@
           "additionalProperties": false
         },
         "text2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "touch_controls": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

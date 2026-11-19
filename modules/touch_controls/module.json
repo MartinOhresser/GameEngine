@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "touch_controls",
+  "version": "0.1.0",
+  "description": "Controls drawn on the screen for a touch screen: buttons that stay pressed while a finger is on them, and a stick that gives two axes. They read the fingers as the actions touch_down, touch_x and touch_y (the first finger) and touch_down2, touch_x2, touch_y2 (the second) up to the fourth, which the game's input.json binds to touch:down, touch:x and touch:y of the same names; and they give their own actions to the game, which never learns that a finger did it.",
+  "depends": ["transform2d", "sprite2d"],
+  "components": [
+    {
+      "name": "TouchButton",
+      "description": "A rectangle of the screen, width by height pixels and centred on the entity's Position (put an ui.Anchor on it to keep it in a corner). While a finger holds it, the action named by action is 1 (pressed on the tick the finger lands, released when it lifts), and the entity's Sprite shows cell pressed_frame instead of normal_frame. A finger belongs to the first control it lands on or slides onto, and keeps it until it lifts, even if it slides off. finger (the finger that holds the button, 0 for none) and was_held are written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "width", "type": "f32", "default": 80 },
+        { "name": "height", "type": "f32", "default": 80 },
+        { "name": "normal_frame", "type": "u32", "default": 0 },
+        { "name": "pressed_frame", "type": "u32", "default": 0 },
+        { "name": "finger", "type": "u32", "default": 0 },
+        { "name": "was_held", "type": "bool", "default": false },
+        { "name": "opacity", "type": "u32", "default": 255 }
+      ]
+    },
+    {
+      "name": "TouchStick",
+      "description": "A stick: a finger that lands within zone pixels of the entity's Position (a square of side 2 * zone) takes it, and while it stays down action_x and action_y are its offset from the Position divided by radius, kept within [-1, 1] and 0 inside dead_zone (a fraction of the radius). Sprites of the stick and its knob show with their opacity (0 to 255, as a Sprite's alpha). Down is positive y, as on the screen. An action left out is none. The entities with a TouchKnob of the same group follow the finger, at most radius pixels from the Position. finger and was_held are written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "group", "type": "u32", "default": 0, "ref": "group" },
+        { "name": "action_x", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "action_y", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "radius", "type": "f32", "default": 60 },
+        { "name": "zone", "type": "f32", "default": 100 },
+        { "name": "dead_zone", "type": "f32", "default": 0.15 },
+        { "name": "finger", "type": "u32", "default": 0 },
+        { "name": "was_held", "type": "bool", "default": false },
+        { "name": "opacity", "type": "u32", "default": 255 }
+      ]
+    },
+    {
+      "name": "TouchKnob",
+      "description": "The thumb of a stick: an entity that the TouchStick of the same group moves to follow its finger, and puts back on the stick's Position when the finger lifts.",
+      "replicable": false,
+      "fields": [
+        { "name": "group", "type": "u32", "default": 0, "ref": "group" },
+        { "name": "opacity", "type": "u32", "default": 255 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "follow_fingers",
+      "description": "Gives the fingers to the buttons and sticks, and their actions to the game, before the simulation ticks. Shows their sprites (alpha = opacity) on a mobile host and from the first finger seen on any other, and hides them until then, so a game for a computer is not cluttered.",
+      "stage": "PreUpdate",
+      "reads": ["transform2d.Position"],
+      "writes": ["TouchButton", "TouchStick", "TouchKnob", "transform2d.Position", "sprite2d.Sprite"]
+    }
+  ]
+}

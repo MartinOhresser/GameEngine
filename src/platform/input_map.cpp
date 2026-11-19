@@ -27,8 +27,18 @@ float clamp_axis(float value) {
 }
 
 /// The pointer's position is in pixels, not an axis: it must not be clamped.
+/// "mouse:x", "mouse:y", and the position of a finger: "touch:x", "touch:y2"...
 bool is_pointer_position(std::string_view source) {
-    return source == "mouse:x" || source == "mouse:y";
+    if (source == "mouse:x" || source == "mouse:y") {
+        return true;
+    }
+    constexpr std::string_view touch = "touch:";
+    if (!source.starts_with(touch) || source.size() <= touch.size()) {
+        return false;
+    }
+    const std::string_view name = source.substr(touch.size());
+    return (name.front() == 'x' || name.front() == 'y') &&
+           std::all_of(name.begin() + 1, name.end(), [](char c) { return c >= '0' && c <= '9'; });
 }
 
 class Reader {
