@@ -157,6 +157,17 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: scripts\export.cmd games\doodle_jump\game.json --out dist
+      # The scripts that open the launcher, the way a person does it: they build it, then start it
+      # without a window for a few frames.
+      - name: Open the launcher with gameEngine.cmd (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        timeout-minutes: 30
+        run: gameEngine.cmd --headless --frames 3
+      - name: Open the launcher with gameEngine.sh (Linux)
+        if: runner.os == 'Linux'
+        timeout-minutes: 30
+        run: ./gameEngine.sh --headless --frames 3
       - name: Export Doodle Jump (Linux)
         if: runner.os == 'Linux'
         run: |

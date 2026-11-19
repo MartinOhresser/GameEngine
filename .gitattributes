@@ -4,3 +4,6 @@
 *.ogg binary
 *.wav binary
 *.glb binary
+# Batch files need CRLF: cmd.exe loses its labels (goto) in LF-only files.
+*.cmd text eol=crlf
+*.bat text eol=crlf
