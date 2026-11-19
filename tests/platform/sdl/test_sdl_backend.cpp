@@ -123,6 +123,54 @@ TEST_CASE("sdl: keys and mouse buttons arrive as raw events, repeats do not") {
     CHECK(events[5].value == 0.0F);
 }
 
+TEST_CASE("sdl: fingers arrive as touch sources, the first one also as a click") {
+    auto backend = open();
+    REQUIRE(backend != nullptr);
+    CHECK(!backend->inject_finger(1, 0.5F, 0.5F, "tap"));
+    // The window is 800x600 by default: the middle is (400, 300), a quarter is (200, 150).
+    CHECK(backend->inject_finger(7, 0.5F, 0.5F, "down"));
+    CHECK(backend->inject_finger(9, 0.25F, 0.25F, "down"));
+    CHECK(backend->inject_finger(9, 0.5F, 0.25F, "motion"));
+    CHECK(backend->inject_finger(7, 0.5F, 0.5F, "up"));
+    std::vector<ge::platform::RawEvent> events;
+    CHECK(backend->poll(events));
+    ge::platform::RawState state;
+    int clicks = 0;
+    for (const ge::platform::RawEvent& event : events) {
+        state.set(event.source, event.value);
+        clicks += event.source == "mouse:left" ? 1 : 0;
+    }
+    // The first finger came and went: a press and a release of the left button, once each.
+    CHECK(clicks == 2);
+    CHECK(state.value("touch:down") == 0.0F);
+    CHECK(state.value("touch:x") == 400.0F);
+    CHECK(state.value("touch:y") == 300.0F);
+    CHECK(state.value("mouse:left") == 0.0F);
+    // The second finger is still down and moved.
+    CHECK(state.value("touch:down2") == 1.0F);
+    CHECK(state.value("touch:x2") == 400.0F);
+    CHECK(state.value("touch:y2") == 150.0F);
+    CHECK(state.value("touch:down3") == 0.0F);
+
+    // A finger that goes first takes the first slot again.
+    CHECK(backend->inject_finger(11, 0.0F, 0.0F, "down"));
+    events.clear();
+    CHECK(backend->poll(events));
+    REQUIRE(!events.empty());
+    CHECK(events.front().source == "touch:x");
+    CHECK(ge::platform::is_valid_source("touch:down5"));
+}
+
+TEST_CASE("sdl: the Back button of Android is a key like another") {
+    auto backend = open();
+    REQUIRE(backend != nullptr);
+    CHECK(backend->inject_key("AC Back", true));
+    std::vector<ge::platform::RawEvent> events;
+    CHECK(backend->poll(events));
+    REQUIRE(events.size() == 1U);
+    CHECK(events[0].source == "key:ac_back");
+}
+
 TEST_CASE("sdl: closing the window stops the loop") {
     auto backend = open();
     REQUIRE(backend != nullptr);

@@ -23,8 +23,16 @@ struct PlayOptions {
     /// The file the game keeps what must last between two runs in (high scores);
     /// nothing is read or written when empty.
     std::string save_path;
-    /// Raw sources that leave the game for the host (the way back to a launcher).
-    std::vector<std::string> back_sources = {"key:escape"};
+    /// Raw sources that leave the game for the host (the way back to a launcher): Escape, and the
+    /// Back button of Android.
+    std::vector<std::string> back_sources = {"key:escape", "key:ac_back"};
+    /// Whether the host is a phone or a tablet: closing a game is then the system's job, so the
+    /// "Quit" buttons of the game do nothing (module `host`).
+#ifdef __ANDROID__
+    bool mobile = true;
+#else
+    bool mobile = false;
+#endif
 };
 
 struct PlayResult {

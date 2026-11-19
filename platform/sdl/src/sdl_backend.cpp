@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL.h>
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <iterator>
 #include <map>
@@ -15,6 +16,9 @@
 namespace ge::platform::sdl {
 
 namespace {
+
+/// How many fingers are followed at once (sources `touch:x` to `touch:x5`).
+constexpr std::size_t max_fingers = 5;
 
 std::string sdl_error() {
     const char* message = SDL_GetError();
@@ -348,6 +352,53 @@ private:
     std::map<std::string, Sound, std::less<>> sounds_;
 };
 
+/// The suffix of the sources of finger `slot`: "" for the first ("touch:x"), "2" for the second.
+std::string finger_suffix(std::size_t slot) {
+    return slot == 0 ? std::string() : std::to_string(slot + 1);
+}
+
+/// Turns a finger event into `touch:` sources, and the first finger into the mouse's (a touch
+/// is a click for the games that only know the mouse). SDL's own touch-to-mouse events are off
+/// (see `create`), so a touch is counted once.
+void push_finger(std::vector<SDL_FingerID>& fingers, const Session& session,
+                 const SDL_TouchFingerEvent& finger, std::vector<RawEvent>& events) {
+    const bool ending =
+        finger.type == SDL_EVENT_FINGER_UP || finger.type == SDL_EVENT_FINGER_CANCELED;
+    auto slot = std::ranges::find(fingers, finger.fingerID);
+    if (slot == fingers.end()) {
+        if (ending) {
+            return;
+        }
+        slot = std::ranges::find(fingers, SDL_FingerID{0});
+        if (slot == fingers.end()) {
+            return; // more fingers than we follow
+        }
+        *slot = finger.fingerID;
+    }
+    const auto index = static_cast<std::size_t>(slot - fingers.begin());
+    int window_width = 1;
+    int window_height = 1;
+    SDL_GetWindowSize(session.window, &window_width, &window_height);
+    float x = 0.0F;
+    float y = 0.0F;
+    SDL_RenderCoordinatesFromWindow(session.renderer, finger.x * static_cast<float>(window_width),
+                                    finger.y * static_cast<float>(window_height), &x, &y);
+    const std::string suffix = finger_suffix(index);
+    events.push_back(RawEvent{"touch:x" + suffix, x});
+    events.push_back(RawEvent{"touch:y" + suffix, y});
+    events.push_back(RawEvent{"touch:down" + suffix, ending ? 0.0F : 1.0F});
+    if (index == 0) {
+        events.push_back(RawEvent{"mouse:x", x});
+        events.push_back(RawEvent{"mouse:y", y});
+        if (finger.type != SDL_EVENT_FINGER_MOTION) {
+            events.push_back(RawEvent{"mouse:left", ending ? 0.0F : 1.0F});
+        }
+    }
+    if (ending) {
+        *slot = 0;
+    }
+}
+
 } // namespace
 
 std::uint32_t Frame::at(int x, int y) const {
@@ -373,6 +424,8 @@ struct SdlBackend::Impl {
     bool quit = false;
     int width = 0; ///< The view of the window (what the renderer draws in).
     int height = 0;
+    /// The fingers on the screen, in the order they came: slot i is `touch:down{i+1}`. 0 = free.
+    std::vector<SDL_FingerID> fingers = std::vector<SDL_FingerID>(max_fingers, 0);
 };
 
 SdlBackend::SdlBackend(std::unique_ptr<Impl> impl) : impl_(std::move(impl)) {}
@@ -405,6 +458,12 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");
         SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "dummy");
     }
+    // A touch is reported once, as a finger (`touch:` sources) that the backend also turns into a
+    // click: not SDL's own mouse events on top of it. On Android the Back button arrives as a key
+    // (`key:ac_back`) instead of closing the game at once.
+    SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
         error = "cannot start SDL: " + sdl_error();
         return nullptr;
@@ -471,9 +530,21 @@ bool SdlBackend::poll(std::vector<RawEvent>& events) {
             }
             break;
         }
-        case SDL_EVENT_MOUSE_MOTION:
-            events.push_back(RawEvent{"mouse:x", event.motion.x});
-            events.push_back(RawEvent{"mouse:y", event.motion.y});
+        case SDL_EVENT_MOUSE_MOTION: {
+            // In the pixels of the game, not of the window (they differ when it is resized
+            // or letterboxed).
+            float x = event.motion.x;
+            float y = event.motion.y;
+            SDL_RenderCoordinatesFromWindow(impl_->session->renderer, x, y, &x, &y);
+            events.push_back(RawEvent{"mouse:x", x});
+            events.push_back(RawEvent{"mouse:y", y});
+            break;
+        }
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_MOTION:
+        case SDL_EVENT_FINGER_UP:
+        case SDL_EVENT_FINGER_CANCELED:
+            push_finger(impl_->fingers, *impl_->session, event.tfinger, events);
             break;
         default:
             break;
@@ -549,6 +620,24 @@ bool SdlBackend::inject_mouse_button(std::string_view button, bool down) {
     event.type = down ? SDL_EVENT_MOUSE_BUTTON_DOWN : SDL_EVENT_MOUSE_BUTTON_UP;
     event.button.button = id;
     event.button.down = down;
+    return SDL_PushEvent(&event);
+}
+
+bool SdlBackend::inject_finger(std::uint64_t id, float x, float y, std::string_view phase) {
+    SDL_Event event{};
+    if (phase == "down") {
+        event.type = SDL_EVENT_FINGER_DOWN;
+    } else if (phase == "motion") {
+        event.type = SDL_EVENT_FINGER_MOTION;
+    } else if (phase == "up") {
+        event.type = SDL_EVENT_FINGER_UP;
+    } else {
+        return false;
+    }
+    event.tfinger.touchID = 1;
+    event.tfinger.fingerID = id;
+    event.tfinger.x = x;
+    event.tfinger.y = y;
     return SDL_PushEvent(&event);
 }
 

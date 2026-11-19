@@ -8,6 +8,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Export Android (ADR 0012, A3) : `gectl export JEU --target android [--abi a,b]` fabrique un `.apk` (NDK pour `libmain.so`, Gradle pour l'APK, gabarit dans `platform/android/template/`) et dit ce qui manque (SDK, NDK, JDK, Ninja). La cible reste cachée jusqu'à A7. Un workflow `Android export` l'exerce pour de vrai sur un émulateur.
 
+- Tactile (ADR 0012, A4) : les doigts arrivent en sources `touch:down/x/y` (jusqu'à cinq : `touch:down2`…), le premier est aussi une souris (un jeu souris se joue au doigt, compté une fois), les positions sont en pixels du jeu, le bouton Retour d'Android est `key:ac_back` et quitte comme Échap, un hôte mobile ignore les boutons « Quitter ».
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

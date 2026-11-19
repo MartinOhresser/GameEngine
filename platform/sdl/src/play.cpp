@@ -1,5 +1,6 @@
 #include "ge/platform/sdl/play.hpp"
 
+#include "ge/app/host.hpp"
 #include "ge/app/save.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/path.hpp"
@@ -105,6 +106,9 @@ PlayResult play_loaded(Backend& backend, const game::LoadedGame& loaded,
     }
     if (!setup.ok()) {
         return result;
+    }
+    if (auto* host = app.world().resource<app::HostInfo>(); host != nullptr) {
+        host->mobile = options.mobile;
     }
     const auto [width, height] = window_size_of(loaded, options);
     // The interface anchors itself to the real size of the window.

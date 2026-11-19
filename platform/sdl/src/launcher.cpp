@@ -324,7 +324,7 @@ LauncherResult Session::run() {
     result_.started = true;
     LoopOptions loop;
     loop.max_frames = options_->max_frames;
-    loop.back_sources = {"key:escape"};
+    loop.back_sources = {"key:escape", "key:ac_back"};
     loop.after_frame = [this](app::App& running) { on_frame(running); };
     bool fresh = true;
     while (true) {
