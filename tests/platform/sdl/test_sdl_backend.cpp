@@ -398,9 +398,16 @@ TEST_CASE("geplay: a held key moves the square on screen") {
     // The player started at 400, 300 and moved right, 3 units per tick.
     const sdl::Frame& frame = backend->last_frame();
     CHECK(frame.at(400, 300) == 0x121420FFU); // where it was: the background now
-    const double x = 400.0 + 3.0 * static_cast<double>(app.tick_count());
-    CHECK(frame.at(static_cast<int>(std::lround(x)), 300) == 0x6EE7A0FFU); // the player's colour
-    CHECK(frame.at(100, 100) == 0x475569FFU);                              // a landmark
+    // The frame shows the world as it was a tick or two before the loop ended, which depends on
+    // the machine's timing: look for the player's colour around where it should be.
+    const int x =
+        static_cast<int>(std::lround(400.0 + 3.0 * static_cast<double>(app.tick_count())));
+    bool found = false;
+    for (int dx = -9; dx <= 9 && !found; ++dx) {
+        found = frame.at(x + dx, 300) == 0x6EE7A0FFU; // the player's colour
+    }
+    CHECK(found);
+    CHECK(frame.at(100, 100) == 0x475569FFU); // a landmark
 }
 
 TEST_CASE("geplay: plays a game headless and saves a screenshot") {
