@@ -6,6 +6,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Changed
 
+- ADR 0012 : plan de l'export Android (APK) en huit jalons A0 à A7 ; `docs/ROADMAP.md` les liste.
 - Windows : les chemins sont du UTF-8 (`ge/core/path.hpp`) : un jeu dans un dossier avec accent (`C:\Users\Léa\…`) trouve ses fichiers, ses sons, ses images et sa sauvegarde ; révélé par le job CI « Export ».
 - CI : AddressSanitizer, clang-tidy et le build GCC Debug ne tournent plus en CI ; `scripts/check.sh` les exécute avant chaque pull request (le dépôt est public, mais ils doublaient ce que le script fait déjà).
 - ADR 0011 : décisions du lanceur (un jeu en JSON avec un hôte mince) et de l'export autonome par plateforme ; `docs/ROADMAP.md` liste les étapes E0 à E7.
