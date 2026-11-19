@@ -16,6 +16,7 @@
 namespace fs = std::filesystem;
 namespace sdl = ge::platform::sdl;
 
+#ifdef __linux__
 namespace {
 
 const std::string root = GE_SOURCE_DIR;
@@ -42,7 +43,6 @@ sdl::ExportProgress wait_for_end(sdl::ExportService& service, std::vector<std::s
 
 } // namespace
 
-#ifdef __linux__
 TEST_CASE("tool export: the platforms are those of gectl, and an export runs in the background") {
     const fs::path scratch = fs::temp_directory_path() / "ge_tool_export_test";
     std::error_code error;
