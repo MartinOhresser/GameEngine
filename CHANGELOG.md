@@ -12,6 +12,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Module `touch_controls` (ADR 0012, A5) : `TouchButton`, `TouchStick` et `TouchKnob` dessinent des contrôles pour un écran tactile (cachés sur un ordinateur jusqu'au premier doigt) et donnent des actions au jeu ; joystick et bouton de tir pour `doodle_jump`, joystick pour `treasure_run` (avec un scénario chacun). Les positions des doigts sont des pixels, pas des axes.
 
+- CI et release Android (ADR 0012, A6) : chaque pull request exporte `doodle_jump` et `treasure_run` en APK, lit le paquet avec `aapt2` puis le joue sur un émulateur (tape sur Jouer, doigt sur le joystick, Retour) ; la release ajoute les APK des jeux de référence. Nouvelle page `docs/EXPORT_ANDROID.md`.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.
