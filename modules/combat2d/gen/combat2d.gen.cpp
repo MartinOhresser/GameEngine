@@ -24,6 +24,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.fall_death = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "fall_margin") {
             component.fall_margin = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "fall_x") {
+            component.fall_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "fall_y") {
+            component.fall_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "on_death") {
             component.on_death = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "dead") {
@@ -50,6 +54,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "fall_margin") {
         return ::ge::app::Scalar{static_cast<double>(component->fall_margin)};
     }
+    if (field == "fall_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->fall_x)};
+    }
+    if (field == "fall_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->fall_y)};
+    }
     if (field == "on_death") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->on_death)};
     }
@@ -62,7 +72,7 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 6> component_0_fields{{{"hurt_layers", "u32", "layer", true}, {"fall_death", "bool", "", false}, {"fall_margin", "f32", "", false}, {"on_death", "u32", "action", false}, {"dead", "bool", "", false}, {"announced", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"hurt_layers", "u32", "layer", true}, {"fall_death", "bool", "", false}, {"fall_margin", "f32", "", false}, {"fall_x", "f32", "", false}, {"fall_y", "f32", "", false}, {"on_death", "u32", "action", false}, {"dead", "bool", "", false}, {"announced", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

@@ -11,11 +11,13 @@
 
 namespace ge::mod::combat2d {
 
-/// The entity can die. It dies when its Contacts touch a collider of one of hurt_layers (it needs a Collider and a Contacts), or, if fall_death is on, when it is more than fall_margin units under the bottom edge of the screen (y grows downwards). `dead` then stays true and, once, the action on_death is raised (a field of the game's `action` list), which a GoToScene can use to show a game over. Nothing else happens to the entity itself: the game decides what a death means.
+/// The entity can die. It dies when its Contacts touch a collider of one of hurt_layers (it needs a Collider and a Contacts), or, if fall_death is on, when it is more than fall_margin units outside the edge of the screen that fall_x and fall_y point to (0, 1: the bottom edge, as y grows downwards; 0, -1: the top; 1, 0: the right; -1, 0: the left; the axis with the bigger number counts). `dead` then stays true and, once, the action on_death is raised (a field of the game's `action` list), which a GoToScene can use to show a game over. Nothing else happens to the entity itself: the game decides what a death means.
 struct Mortal {
     std::uint32_t hurt_layers = 0U;
     bool fall_death = false;
     float fall_margin = 0.0F;
+    float fall_x = 0.0F;
+    float fall_y = 1.0F;
     std::uint32_t on_death = 4294967295U;
     bool dead = false;
     bool announced = false;
@@ -24,6 +26,8 @@ struct Mortal {
         hasher.add(hurt_layers);
         hasher.add(fall_death);
         hasher.add(fall_margin);
+        hasher.add(fall_x);
+        hasher.add(fall_y);
         hasher.add(on_death);
         hasher.add(dead);
         hasher.add(announced);

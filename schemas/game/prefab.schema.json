@@ -61,6 +61,12 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "fall_x": {
+              "type": "number"
+            },
+            "fall_y": {
+              "type": "number"
             }
           },
           "additionalProperties": false
@@ -116,6 +122,18 @@
               "type": "number"
             },
             "only_up": {
+              "type": "boolean"
+            },
+            "offset_x": {
+              "type": "number"
+            },
+            "only_down": {
+              "type": "boolean"
+            },
+            "only_left": {
+              "type": "boolean"
+            },
+            "only_right": {
               "type": "boolean"
             }
           },
@@ -179,6 +197,12 @@
               "type": "boolean"
             },
             "fall_margin": {
+              "type": "number"
+            },
+            "fall_x": {
+              "type": "number"
+            },
+            "fall_y": {
               "type": "number"
             },
             "on_death": {
