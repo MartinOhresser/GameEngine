@@ -227,9 +227,9 @@ std::vector<const ExportTarget*> export_targets(bool include_hidden) {
     static const LinuxTarget linux_target;
     static const std::unique_ptr<ExportTarget> android = make_android_target(process_environment());
     std::vector<const ExportTarget*> targets{&windows};
+    targets.push_back(android.get());
     if (include_hidden) {
         targets.push_back(&linux_target);
-        targets.push_back(android.get());
     }
     return targets;
 }
@@ -245,8 +245,12 @@ const ExportTarget* find_export_target(const std::string& name) {
 
 void print_export_targets(std::ostream& out) {
     for (const ExportTarget* target : export_targets(false)) {
+        const bool ready = target->buildable_here();
         out << target->name() << "  " << target->label() << "  "
-            << (target->buildable_here() ? "ready" : "not on this machine") << '\n';
+            << (ready ? "ready" : "not on this machine") << '\n';
+        if (!ready) {
+            out << "    " << target->needs() << '\n';
+        }
     }
 }
 

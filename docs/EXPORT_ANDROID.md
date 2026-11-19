@@ -2,7 +2,7 @@
 
 `gectl export JEU --target android` fabrique un fichier `.apk` qu'on copie sur un téléphone et qu'on ouvre. Même idée que le zip Windows : le joueur n'installe rien d'autre. Cette page dit ce qu'il faut sur **la machine qui exporte**, comment faire, et ce que le joueur voit. Le cadre général (étapes, options, README) est dans [EXPORT.md](EXPORT.md) ; les décisions sont dans l'[ADR 0012](adr/0012-export-android.md).
 
-> La cible `android` est encore **cachée** (`gectl export --targets` ne la montre pas, le lanceur ne la propose pas) : elle sera offerte quand tout le chemin aura été essayé sur un vrai téléphone (jalon A7). On l'utilise déjà avec `--target android`.
+La cible `android` est offerte comme Windows : `gectl export --targets` la montre (avec ce qui manque, si quelque chose manque) et le panneau « Export » du lanceur la propose.
 
 ## Ce qu'il faut sur la machine
 
@@ -26,10 +26,15 @@ gectl export games/doodle_jump/game.json --target android --abi arm64-v8a,x86_64
 
 Ce qui vient du jeu : l'identifiant de l'application (`id` du manifeste, `ge.games.<nom>` par défaut), la version (`1.2.3` donne le code de version 10203), le nom affiché (`title`), l'icône (`icon`, un PNG) et l'orientation (portrait si la fenêtre est plus haute que large, paysage sinon).
 
+## L'installer, la signer
+
+- `--install` met l'APK sur le téléphone ou l'émulateur branché, avec `adb` (celui du dossier `platform-tools` du SDK, ou du `PATH`) : `gectl export games/doodle_jump/game.json --target android --install`. Il faut un téléphone avec le « débogage USB » activé (ou un émulateur démarré) : `adb devices` doit le lister. Sans `adb`, l'export le dit avant de commencer.
+- `--keystore FICHIER --key-alias NOM` signe avec **votre** clé plutôt que celle de débogage (un APK signé ainsi se met à jour par-dessus lui-même, d'un export à l'autre, sans désinstaller). Les mots de passe ne passent jamais par la ligne de commande : `GE_KEYSTORE_PASSWORD` (et `GE_KEY_PASSWORD` si la clé en a un autre). On fabrique un fichier de clés avec `keytool` (livré avec le JDK) : `keytool -genkeypair -v -keystore ma.keystore -alias ma_cle -keyalg RSA -keysize 2048 -validity 10000`. Garder cette clé : la perdre empêche de mettre à jour une application déjà publiée. Le format pour Google Play (AAB) reste à faire.
+
 ## Ce que voit le joueur
 
 - Il copie le `.apk` sur le téléphone (câble, courriel, nuage) et l'ouvre ; Android demande d'autoriser l'installation d'applications de cette source. Avec un câble et `adb` : `adb install "Doodle jump 0.1.0 android.apk"`.
-- L'APK est **signé avec la clé de débogage** d'Android : il s'installe par copie mais ne peut pas être publié sur Google Play (une signature à soi et le format AAB viendront plus tard, voir l'ADR).
+- Sans `--keystore`, l'APK est **signé avec la clé de débogage** d'Android : il s'installe par copie mais ne peut pas être publié sur Google Play (le format AAB viendra plus tard, voir l'ADR).
 - Le jeu s'ouvre plein écran. Les menus se touchent (un doigt est un clic de souris), les jeux qui ont des contrôles à l'écran les montrent (module `touch_controls`, voir [UI.md](UI.md)). Le bouton Retour quitte le jeu.
 - La sauvegarde (meilleur score) est dans le dossier privé de l'application ; désinstaller l'application l'efface.
 

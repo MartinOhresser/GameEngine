@@ -18,12 +18,26 @@ android {
         versionCode @VERSION_CODE@
         versionName "@VERSION_NAME@"
     }
+    // Signed with the key the export was given (--keystore), else with the debug key.
+    signingConfigs {
+        custom {
+            if (project.hasProperty('geKeystore')) {
+                storeFile file(project.property('geKeystore'))
+                storePassword System.getenv('GE_KEYSTORE_PASSWORD')
+                keyAlias project.property('geKeyAlias')
+                keyPassword System.getenv('GE_KEY_PASSWORD') ?: System.getenv('GE_KEYSTORE_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         // Signed with the debug key that Android Studio makes (it installs by copying the file),
         // but not a debuggable program.
         debug {
             debuggable false
             minifyEnabled false
+            if (project.hasProperty('geKeystore')) {
+                signingConfig signingConfigs.custom
+            }
         }
     }
     sourceSets.main.jniLibs.srcDir 'src/main/jniLibs'

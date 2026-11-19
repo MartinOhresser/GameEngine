@@ -164,7 +164,7 @@ TEST_CASE("export: targets") {
     CHECK(ge::tools::find_export_target("windows") != nullptr);
     CHECK(ge::tools::find_export_target("linux") != nullptr);
     CHECK(ge::tools::find_export_target("amiga") == nullptr);
-    CHECK(ge::tools::export_targets(false).size() == 1);
+    CHECK(ge::tools::export_targets(false).size() == 2);
     CHECK(ge::tools::export_targets(true).size() == 3);
     const ge::tools::ExportTarget* windows = ge::tools::find_export_target("windows");
     REQUIRE(windows != nullptr);
@@ -179,6 +179,7 @@ TEST_CASE("export: targets") {
     std::ostringstream out;
     ge::tools::print_export_targets(out);
     CHECK(has(out.str(), "windows  Windows (64-bit)"));
+    CHECK(has(out.str(), "android  Android (APK)"));
     CHECK(!has(out.str(), "linux"));
 }
 
