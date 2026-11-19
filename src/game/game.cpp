@@ -263,7 +263,7 @@ void read_window_adapt(Checker& checker, const json::Value& object, Manifest& ma
         }
         manifest.window_adapt = true;
     } else {
-        checker.error("window.adapt", "expected true, false or {\"min_aspect\", \"max_aspect\"}");
+        checker.error("window.adapt", R"(expected true, false or {"min_aspect", "max_aspect"})");
         return;
     }
     if (low > high || design < low || design > high) {
