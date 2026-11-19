@@ -325,9 +325,9 @@ TEST_CASE("ui: a grid is moved through in both directions, and left stops at an 
     menu.wrap = false;
     scene.spawn(menu);
     for (std::uint32_t i = 0; i < 6; ++i) { // 3 columns, 2 rows
-        const auto column = static_cast<float>(i % 3U);
-        const auto row = static_cast<float>(i / 3U);
-        scene.spawn(transform2d::Position{column * 50.0F, row * 50.0F}, sized(i, 40.0F, 40.0F));
+        const float column = static_cast<float>(i % 3U) * 50.0F;
+        const float row = i < 3U ? 0.0F : 50.0F;
+        scene.spawn(transform2d::Position{column, row}, sized(i, 40.0F, 40.0F));
     }
     tap(scene, "right", 1);
     tap(scene, "down", 3);
@@ -335,9 +335,8 @@ TEST_CASE("ui: a grid is moved through in both directions, and left stops at an 
     tap(scene, "left", 7); // the left end: stays
     tap(scene, "down", 9); // the bottom: stays
     tap(scene, "up", 11);
-    const std::uint32_t expected[] = {1, 4, 3, 3, 3, 0};
     scene.app.run_frames(1);
-    for (const std::uint32_t at : expected) {
+    for (const std::uint32_t at : {1U, 4U, 3U, 3U, 3U, 0U}) {
         scene.app.run_frames(2);
         CHECK(focused(scene) == at);
     }
