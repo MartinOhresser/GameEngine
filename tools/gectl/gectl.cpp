@@ -52,12 +52,17 @@ constexpr const char* usage_text =
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
     "  gectl export   GAME.json [--target windows] [--out DIR] [--skip-tests]\n"
     "                 [--source DIR] [--build-dir DIR] [--cmake-arg ARG] [--abi A,B]\n"
+    "                 [--install] [--keystore FILE --key-alias NAME]\n"
     "      Make a zip of the game that anyone can run (default target windows, DIR dist).\n"
     "      It validates the game, replays its scenarios, builds its program with only the\n"
     "      modules it uses and gathers the program, the game's files, a README and the licenses.\n"
     "  gectl export   --targets\n"
     "      List the platforms a game can be exported for, and whether this machine can.\n"
-    "      --abi (android only): the processors to build for, default arm64-v8a.\n"
+    "      Android only: --abi the processors to build for (default arm64-v8a); --install puts "
+    "the\n"
+    "      package on the connected phone or emulator (adb); --keystore and --key-alias sign it "
+    "with\n"
+    "      your own key (passwords from GE_KEYSTORE_PASSWORD and GE_KEY_PASSWORD).\n"
     "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
     "      Create DIR/NAME with a working example (module.json, system, test).\n"
     "  gectl help\n"
@@ -73,6 +78,9 @@ struct Options {
     bool check_only = false;
     bool out_given = false;
     bool skip_tests = false;
+    bool install = false;
+    std::string keystore;
+    std::string key_alias;
     bool targets = false;
     std::string target = "windows";
     std::string source_dir = ".";
@@ -105,6 +113,8 @@ bool apply_flag(const std::string& arg, Options& options) {
         options.json = true;
     } else if (arg == "--skip-tests") {
         options.skip_tests = true;
+    } else if (arg == "--install") {
+        options.install = true;
     } else if (arg == "--targets") {
         options.targets = true;
     } else if (arg == "--compact") {
@@ -134,6 +144,10 @@ bool apply_value(const std::string& name, const std::string& value, Options& opt
         options.source_dir = value;
     } else if (name == "--build-dir") {
         options.build_dir = value;
+    } else if (name == "--keystore") {
+        options.keystore = value;
+    } else if (name == "--key-alias") {
+        options.key_alias = value;
     } else if (name == "--abi") {
         options.abis = split_commas(value);
     } else if (name == "--cmake-arg") {
@@ -531,6 +545,9 @@ int command_export(const Options& options, std::ostream& out, std::ostream& err)
     request.skip_tests = options.skip_tests;
     request.cmake_arguments = options.cmake_arguments;
     request.abis = options.abis;
+    request.install = options.install;
+    request.keystore = options.keystore;
+    request.key_alias = options.key_alias;
     return export_game(request, out, err);
 }
 

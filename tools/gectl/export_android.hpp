@@ -26,6 +26,8 @@ struct AndroidTools {
     std::filesystem::path ndk;
     std::filesystem::path ninja;
     std::filesystem::path java;
+    /// `adb` of the SDK's platform-tools, empty when there is none: only `--install` needs it.
+    std::filesystem::path adb;
     /// The newest platform installed in the SDK (35 for `platforms/android-35`), 0 when none.
     int platform = 0;
     /// One sentence for each thing that is missing, saying where to get it.

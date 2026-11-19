@@ -74,17 +74,17 @@ TEST_CASE("tool export: the platforms are those of gectl, and an export runs in 
     const std::vector<std::string> targets = service->targets();
     REQUIRE(targets.size() == 3U);
     CHECK(targets[0] == "Windows (64-bit)");
-    CHECK(targets[1] == "Linux (64-bit)");
-    CHECK(targets[2] == "Android (APK)");
+    CHECK(targets[1] == "Android (APK)");
+    CHECK(targets[2] == "Linux (64-bit)");
 
     std::string why;
     CHECK(!service->start("x/game.json", 9, why));
     CHECK(!why.empty());
 
     const std::string manifest = (scratch / "games" / "move_sprite" / "game.json").generic_string();
-    REQUIRE(service->start(manifest, 1, why));
+    REQUIRE(service->start(manifest, 2, why));
     // The export waits for the fake CMake: the service says it is running, and refuses another.
-    CHECK(!service->start(manifest, 1, why));
+    CHECK(!service->start(manifest, 2, why));
     CHECK(why == "An export is already going on.");
     CHECK(service->poll().running);
 
@@ -104,7 +104,7 @@ TEST_CASE("tool export: the platforms are those of gectl, and an export runs in 
     // A failure is reported as one.
     options.runner = [](const std::vector<std::string>&) { return 1; };
     const std::unique_ptr<sdl::ExportService> failing = sdl::make_tool_export(options);
-    REQUIRE(failing->start(manifest, 1, why));
+    REQUIRE(failing->start(manifest, 2, why));
     lines.clear();
     const sdl::ExportProgress failed = wait_for_end(*failing, lines);
     CHECK(failed.finished);
@@ -130,6 +130,7 @@ TEST_CASE("tool export: the output of a command is read line by line") {
 TEST_CASE("tool export: a service for the platforms people are offered") {
     const sdl::ToolExportOptions options;
     const std::unique_ptr<sdl::ExportService> service = sdl::make_tool_export(options);
-    CHECK(service->targets() == std::vector<std::string>{"Windows (64-bit)"});
+    const std::vector<std::string> offered{"Windows (64-bit)", "Android (APK)"};
+    CHECK(service->targets() == offered);
     CHECK(!service->poll().running);
 }

@@ -190,6 +190,16 @@ fs::path find_ninja(const fs::path& sdk, const Environment& env) {
     return {};
 }
 
+fs::path find_adb(const fs::path& sdk, const Environment& env) {
+    if (!sdk.empty()) {
+        const fs::path candidate = sdk / "platform-tools" / (std::string("adb") + program_suffix);
+        if (file_exists(candidate)) {
+            return candidate;
+        }
+    }
+    return find_in_path("adb", env);
+}
+
 std::string environment_variable(const std::string& name) {
 #ifdef _WIN32
     // The C runtime of Windows wants its own copy (getenv is deprecated there).
@@ -241,6 +251,7 @@ AndroidTools find_android_tools(const Environment& env) {
         tools.missing.emplace_back("a JDK, version 17 or newer (Android Studio brings one: set "
                                    "JAVA_HOME to its \"jbr\" folder)");
     }
+    tools.adb = find_adb(tools.sdk, env);
     tools.ninja = find_ninja(tools.sdk, env);
     if (tools.ninja.empty()) {
         tools.missing.emplace_back("Ninja (SDK Manager, SDK Tools, \"CMake\" brings it; or "
@@ -367,14 +378,38 @@ bool copy_one(const fs::path& from, const fs::path& to, std::ostream& err) {
     return true;
 }
 
+/// What `--install` and `--keystore` need, said before the long build starts.
+bool check_android_options(const ExportRequest& request, const AndroidTools& tools,
+                           const Environment& env, std::ostream& err) {
+    if (request.install && tools.adb.empty()) {
+        err << "--install needs adb (SDK Manager, SDK Tools, \"Android SDK Platform-Tools\").\n";
+        return false;
+    }
+    if (request.keystore.empty()) {
+        return true;
+    }
+    if (!file_exists(fs::path(request.keystore))) {
+        err << "The keystore " << request.keystore << " does not exist.\n";
+        return false;
+    }
+    if (request.key_alias.empty()) {
+        err << "--keystore needs --key-alias, the name of the key to sign with.\n";
+        return false;
+    }
+    if (env("GE_KEYSTORE_PASSWORD").empty()) {
+        err << "Set the environment variable GE_KEYSTORE_PASSWORD to the keystore's password "
+               "(GE_KEY_PASSWORD too when the key has another one).\n";
+        return false;
+    }
+    return true;
+}
+
 class AndroidTarget final : public ExportTarget {
 public:
     explicit AndroidTarget(Environment env) : env_(std::move(env)) {}
 
     [[nodiscard]] std::string name() const override { return "android"; }
     [[nodiscard]] std::string label() const override { return "Android (APK)"; }
-    // Not offered to players until the whole path is tried on an emulator in CI (A6, A7).
-    [[nodiscard]] bool hidden() const override { return true; }
     [[nodiscard]] bool buildable_here() const override { return find_android_tools(env_).ok(); }
     [[nodiscard]] std::string needs() const override {
         const AndroidTools tools = find_android_tools(env_);
@@ -409,6 +444,9 @@ bool AndroidTarget::build(const ExportJob& job, std::string& program, std::ostre
         return false;
     }
     const ExportRequest& request = *job.request;
+    if (!check_android_options(request, tools, env_, err)) {
+        return false;
+    }
     std::vector<std::string> abis = request.abis;
     if (abis.empty()) {
         abis.emplace_back(default_abi);
@@ -549,10 +587,16 @@ bool AndroidTarget::assemble(const ExportJob& job, const std::string& program,
 #else
     const std::string gradlew = "./gradlew";
 #endif
-    const std::vector<std::string> gradle{
+    std::vector<std::string> gradle{
         "cmake",        "-E",          "chdir", project.generic_string(),
         gradlew,        "--no-daemon", "-q",    "-PcompileSdk=" + std::to_string(tools.platform),
         "assembleDebug"};
+    if (!request.keystore.empty()) {
+        // The passwords stay in the environment, which Gradle inherits.
+        gradle.insert(gradle.end() - 1,
+                      {"-PgeKeystore=" + fs::absolute(request.keystore).generic_string(),
+                       "-PgeKeyAlias=" + request.key_alias});
+    }
     if (job.run(gradle) != 0) {
         err << "Gradle could not make the APK (see above).\n";
         return false;
@@ -567,9 +611,19 @@ bool AndroidTarget::assemble(const ExportJob& job, const std::string& program,
         return false;
     }
     artifact = result.string();
-    out << "Done: " << artifact << "\n"
-        << "Copy this file to an Android phone and open it, or: adb install \"" << artifact
-        << "\"\n";
+    out << "Done: " << artifact << "\n";
+    if (request.install) {
+        out << "Installing it on the connected phone or emulator...\n";
+        if (job.run({tools.adb.generic_string(), "install", "-r", artifact}) != 0) {
+            err << "The package is made but adb could not install it (see above). Is a phone "
+                   "connected with USB debugging on, or an emulator started? (adb devices)\n";
+            return false;
+        }
+        out << "Installed.\n";
+    } else {
+        out << "Copy this file to an Android phone and open it, or: adb install \"" << artifact
+            << "\"\n";
+    }
     return true;
 }
 

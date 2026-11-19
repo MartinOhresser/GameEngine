@@ -77,6 +77,7 @@ void make_sdk(const fs::path& root, bool with_ndk = true) {
         touch(root / "sdk" / "ndk" / "27.0" / "build" / "cmake" / "android.toolchain.cmake");
     }
     touch(root / "jdk" / "bin" / (std::string("java") + exe));
+    touch(root / "sdk" / "platform-tools" / (std::string("adb") + exe));
 }
 
 Environment environment_of(std::map<std::string, std::string> variables) {
@@ -199,7 +200,7 @@ TEST_CASE("android: what is missing is said, with where to get it") {
 
     const ge::tools::ExportTarget* android = ge::tools::find_export_target("android");
     REQUIRE(android != nullptr);
-    CHECK(android->hidden());
+    CHECK(!android->hidden());
     CHECK(android->label() == "Android (APK)");
     const std::unique_ptr<ge::tools::ExportTarget> without =
         ge::tools::make_android_target(machine(scratch.path()));
@@ -309,4 +310,80 @@ TEST_CASE("android: one processor by default, and a failing step stops the expor
     std::ostringstream err3;
     CHECK(!run_target(*target, request, no_gradle, artifact, err3));
     CHECK(has(err3.str(), "Gradle"));
+}
+
+TEST_CASE("android: --install puts the package on the phone with adb") {
+    const Scratch scratch("install");
+    make_sdk(scratch.path());
+    const std::unique_ptr<ge::tools::ExportTarget> target =
+        ge::tools::make_android_target(machine(scratch.path()));
+    ge::tools::ExportRequest request = request_in(scratch, "move_sprite");
+    request.install = true;
+    FakeSystem system;
+    std::string artifact;
+    std::ostringstream err;
+    REQUIRE(run_target(*target, request, system, artifact, err));
+    REQUIRE(system.commands.size() == 4U);
+    const auto& install = system.commands[3];
+    CHECK(fs::path(install[0]).stem() == "adb");
+    CHECK(install[1] == "install");
+    CHECK(install[2] == "-r");
+    CHECK(install[3] == artifact);
+
+    FakeSystem refused;
+    refused.fail_at = 3;
+    std::ostringstream err2;
+    CHECK(!run_target(*target, request, refused, artifact, err2));
+    CHECK(has(err2.str(), "adb could not install"));
+
+    // Without adb, the export says so before building anything.
+    fs::remove(scratch.path() / "sdk" / "platform-tools" / (std::string("adb") + exe));
+    FakeSystem none;
+    std::ostringstream err3;
+    CHECK(!run_target(*target, request, none, artifact, err3));
+    CHECK(has(err3.str(), "needs adb"));
+    CHECK(none.commands.empty());
+}
+
+TEST_CASE("android: a package can be signed with the developer's own key") {
+    const Scratch scratch("signing");
+    make_sdk(scratch.path());
+    touch(scratch.path() / "my.keystore");
+    ge::tools::ExportRequest request = request_in(scratch, "move_sprite");
+    request.keystore = (scratch.path() / "my.keystore").generic_string();
+    request.key_alias = "release";
+    const std::unique_ptr<ge::tools::ExportTarget> without_password =
+        ge::tools::make_android_target(machine(scratch.path()));
+    FakeSystem system;
+    std::string artifact;
+    std::ostringstream err;
+    CHECK(!run_target(*without_password, request, system, artifact, err));
+    CHECK(has(err.str(), "GE_KEYSTORE_PASSWORD"));
+    CHECK(system.commands.empty());
+
+    const std::unique_ptr<ge::tools::ExportTarget> target = ge::tools::make_android_target(
+        environment_of({{"ANDROID_HOME", (scratch.path() / "sdk").generic_string()},
+                        {"JAVA_HOME", (scratch.path() / "jdk").generic_string()},
+                        {"GE_KEYSTORE_PASSWORD", "secret"}}));
+    std::ostringstream err2;
+    REQUIRE(run_target(*target, request, system, artifact, err2));
+    const auto& gradle = system.commands.back();
+    CHECK(std::ranges::any_of(gradle, [](const std::string& a) {
+        return a.starts_with("-PgeKeystore=") && a.ends_with("my.keystore");
+    }));
+    CHECK(std::ranges::find(gradle, "-PgeKeyAlias=release") != gradle.end());
+    // The password is never on a command line.
+    CHECK(!std::ranges::any_of(
+        gradle, [](const std::string& a) { return a.find("secret") != std::string::npos; }));
+    CHECK(gradle.back() == "assembleDebug");
+
+    request.key_alias.clear();
+    std::ostringstream err3;
+    CHECK(!run_target(*target, request, system, artifact, err3));
+    CHECK(has(err3.str(), "--key-alias"));
+    request.key_alias = "release";
+    request.keystore = (scratch.path() / "nope.keystore").generic_string();
+    std::ostringstream err4;
+    CHECK(!run_target(*target, request, system, artifact, err4));
+    CHECK(has(err4.str(), "does not exist"));
 }

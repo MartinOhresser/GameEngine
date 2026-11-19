@@ -86,6 +86,12 @@ struct ExportRequest {
     /// The processors an Android package is made for ("arm64-v8a", "x86_64" for an emulator); empty
     /// means the target's default (arm64-v8a, every recent phone).
     std::vector<std::string> abis;
+    /// Android: install the package on the connected phone or emulator (`adb install`) once made.
+    bool install = false;
+    /// Android: sign with this keystore and key instead of the debug key. The passwords are read
+    /// from GE_KEYSTORE_PASSWORD (and GE_KEY_PASSWORD, the same by default), never from arguments.
+    std::string keystore;
+    std::string key_alias;
 };
 
 /// Runs a program with its arguments and returns its exit code. The default runs it for real
