@@ -3,8 +3,8 @@
 `gectl export` transforme un jeu en **un zip qu'on peut envoyer à quelqu'un d'autre** : le programme, les fichiers du jeu, un `README.txt` et les licences. Le destinataire le dézippe et double-clique ; il n'installe rien, n'ouvre pas de terminal et ne compile rien. Décisions : [ADR 0011](adr/0011-lanceur-et-export.md).
 
 ```
-gectl export games/doodle_jump/game.json                     # Windows, zip dans dist/
-gectl export games/doodle_jump/game.json --out C:\Envois
+scripts\export.cmd games\doodle_jump\game.json               # Windows : compile gectl au besoin, zip dans dist\
+gectl export games/doodle_jump/game.json --out C:\Envois    # gectl déjà construit
 gectl export --targets                                       # les plateformes possibles
 ```
 
@@ -21,14 +21,37 @@ gectl export --targets                                       # les plateformes p
 
 `gelauncher` a un bouton **Export** : on choisit le jeu, puis la plateforme, et le lanceur fait la même chose que la commande, en arrière-plan, avec les dernières lignes de sortie à l'écran (voir [LAUNCHER.md](LAUNCHER.md)). `gelauncher --source DIR --dist DIR` règle la racine du moteur et le dossier des zips.
 
-## Ce qui est nécessaire pour exporter
+## Pas à pas sous Windows
 
-L'export **compile** le programme du jeu, sur la machine de celui qui exporte (pas sur celle du joueur) :
+Une seule fois :
 
-- **Windows** : à faire sous Windows, avec Visual Studio (ou ses Build Tools) et CMake. Lancer la commande depuis « x64 Native Tools Command Prompt for VS » (le CMake de Visual Studio y est déjà). Pas besoin de Ninja : CMake prend le générateur de Visual Studio.
-- Une connexion Internet la première fois (CMake télécharge SDL3), puis rien.
+1. **Visual Studio Build Tools** ([visualstudio.microsoft.com/downloads](https://visualstudio.microsoft.com/downloads/), « Build Tools for Visual Studio ») : cocher la charge de travail **« Développement Desktop en C++ »**.
+2. **CMake** ([cmake.org/download](https://cmake.org/download/)) : cocher « Add CMake to the system PATH ».
+3. **Git** ([git-scm.com](https://git-scm.com/)), puis, dans une invite de commandes :
+   ```
+   git clone https://github.com/MartinOhresser/GameEngine
+   cd GameEngine
+   ```
 
-Le **premier export** compile SDL3 et les modules : plusieurs minutes. Les suivants réutilisent `build/export/<cible>/<jeu>` et ne refont que ce qui a changé.
+À chaque export :
+
+```
+scripts\export.cmd games\doodle_jump\game.json
+```
+
+Le script compile `gectl` la première fois, puis lance l'export. Le zip est dans `dist\`. Pas besoin de « x64 Native Tools Command Prompt » : CMake trouve Visual Studio tout seul. `scripts\launcher.cmd` ouvre le lanceur (avec son bouton Export) de la même façon.
+
+Le **premier export** compile SDL3 et les modules : plusieurs minutes, et une connexion Internet (CMake télécharge SDL3). Les suivants réutilisent `build/export/<cible>/<jeu>` et ne refont que ce qui a changé.
+
+Ailleurs que sous Windows, `gectl` se construit avec `cmake --preset dev` (ou `release`) et la cible `linux`, cachée, sert aux essais.
+
+## Sans carte graphique récente
+
+SDL dessine avec le processeur quand la carte graphique ne sait pas le faire : si l'ouverture de la fenêtre échoue avec le rendu matériel, le jeu réessaie en rendu logiciel tout seul. `ge_player --software` le force (utile pour vérifier qu'un jeu reste jouable sans accélération ; la CI exporte et lance Doodle Jump ainsi).
+
+## Récupérer un jeu déjà exporté
+
+Les versions publiées (page « Releases » du dépôt) contiennent les zips Windows des jeux de référence (Doodle Jump, Treasure Run, Coin Dash) : à télécharger et dézipper, sans rien installer.
 
 ## Ce que fait la commande
 

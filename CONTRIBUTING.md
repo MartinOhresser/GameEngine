@@ -74,7 +74,7 @@ Un choix structurant (dépendance majeure, API publique, règle de portabilité)
 1. Sur `dev`, mettre à jour la version dans `project(...)` de `CMakeLists.txt` et le journal des changements.
 2. Lancer « Promote dev to main » avec `vX.Y.Z` (exactement la version de `CMakeLists.txt`).
 
-Le workflow de promotion pose l'étiquette et lance `release.yml`, qui vérifie la correspondance, relance build et tests, et publie la release GitHub. Pousser soi-même une étiquette `vX.Y.Z` marche aussi. Un tag contenant un tiret (`v0.2.0-rc.1`) est publié comme pré-version.
+Le workflow de promotion pose l'étiquette et lance `release.yml`, qui vérifie la correspondance, relance build et tests, et publie la release GitHub, à laquelle des jobs Windows ajoutent les zips autonomes des jeux de référence (`scripts/export.cmd`, voir `docs/EXPORT.md`). Pousser soi-même une étiquette `vX.Y.Z` marche aussi. Un tag contenant un tiret (`v0.2.0-rc.1`) est publié comme pré-version.
 
 ## Réglages GitHub à activer une fois
 

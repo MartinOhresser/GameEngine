@@ -19,6 +19,7 @@ constexpr int exit_usage = 2;
 struct Arguments {
     std::string data;
     bool headless = false;
+    bool software = false;
     std::uint64_t frames = 0;
     std::string screenshot;
 };
@@ -29,6 +30,10 @@ std::string parse(const std::vector<std::string>& args, Arguments& out) {
         const std::string& arg = args[i];
         if (arg == "--headless") {
             out.headless = true;
+            continue;
+        }
+        if (arg == "--software") {
+            out.software = true;
             continue;
         }
         if (arg != "--data" && arg != "--frames" && arg != "--screenshot") {
@@ -99,6 +104,7 @@ int run_player(const std::vector<std::string>& args, std::span<const game::Modul
     window.width = width;
     window.height = height;
     window.headless = arguments.headless;
+    window.software = arguments.software;
     window.capture = !arguments.screenshot.empty();
     std::string error;
     const std::unique_ptr<SdlBackend> backend = SdlBackend::create(window, error);

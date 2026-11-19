@@ -207,6 +207,20 @@ TEST_CASE("sdl: the devices a game keeps outlive the backend") {
     fs::remove(path, ignored);
 }
 
+TEST_CASE("sdl: the software renderer draws the same frame") {
+    sdl::WindowOptions options = headless(true);
+    options.software = true;
+    std::string error;
+    auto backend = sdl::SdlBackend::create(options, error);
+    CHECK(error.empty());
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->draw({"square", 100.0F, 50.0F, 20.0F, 0xFF8000FFU});
+    renderer->end_frame();
+    CHECK(backend->last_frame().at(100, 50) == 0xFF8000FFU);
+    CHECK(backend->last_frame().at(400, 300) == 0x121420FFU);
+}
+
 TEST_CASE("sdl: a frame is drawn, captured and saved") {
     auto backend = open(true);
     REQUIRE(backend != nullptr);

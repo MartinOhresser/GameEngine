@@ -22,6 +22,7 @@ namespace ge::platform::sdl {
 ///
 ///     --data DIR        the folder of the game (default: data next to the executable)
 ///     --headless        no window and no sound card
+///     --software        draw with the processor, as a computer without a graphics card does
 ///     --frames N        stop after N frames
 ///     --screenshot F    save the last frame as a .bmp file
 ///

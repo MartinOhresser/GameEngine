@@ -18,7 +18,8 @@ Un jeu de ce dépôt est **uniquement des fichiers JSON** dans `games/<nom>/` : 
 7. **Valider** : `./build/dev/tools/gectl validate games/<nom>/game.json`. Corrige jusqu'à zéro erreur ; les messages disent le fichier, l'endroit et souvent la correction.
 8. **Jouer sans fenêtre** : `./build/dev/runner/gerun games/<nom>/game.json --test`. Un scénario par règle annoncée. Pour regarder l'état final : `gerun games/<nom>/game.json --ticks 300`. Pour voir le jeu (si `-DGE_BUILD_PLATFORM=ON`, préréglage `platform`) : `geplay games/<nom>/game.json`, ou `geplay games/<nom>/game.json --headless --frames 60 --screenshot image.bmp` pour une capture sans écran.
 9. **Contrôler** : `./scripts/check.sh` doit passer (il valide aussi tous les jeux et leurs scénarios), puis branche, commit (titre « Conventional Commits »), PR.
-10. **Rendre compte** en peu de mots : ce que le jeu fait, ce qui est vérifié par quel scénario, ce qui n'existe pas encore (fenêtre, rendu), et ce que l'utilisateur peut changer lui-même dans les JSON.
+10. **Exporter (seulement si l'utilisateur veut envoyer le jeu à quelqu'un)** : `gectl export games/<nom>/game.json` fabrique un zip autonome pour Windows (`--target windows`, `--out DIR`), après avoir rejoué les scénarios ; sous Windows, `scripts/export.cmd games/<nom>/game.json` compile `gectl` si besoin. Le jeu a un `title`, une `version` et, si possible, une `icon` (PNG d'au plus 256 × 256) dans `game.json`. L'export se fait aussi depuis le lanceur (`gelauncher`, bouton Export). Tu ne peux pas exécuter Windows : dis que la vérification du zip Windows se fait par la CI (job « Export »). Détails : `docs/EXPORT.md`.
+11. **Rendre compte** en peu de mots : ce que le jeu fait, ce qui est vérifié par quel scénario, ce qui n'existe pas encore (fenêtre, rendu), et ce que l'utilisateur peut changer lui-même dans les JSON.
 
 ## Règles
 

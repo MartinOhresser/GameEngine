@@ -48,3 +48,26 @@ jobs:
             flags+=(--prerelease)
           fi
           gh release create "$GITHUB_REF_NAME" "${flags[@]}"
+
+  # The reference games as zips that run on their own: made on Windows with scripts\export.cmd,
+  # the way a person does it, and added to the release that was just created.
+  windows-games:
+    name: Windows zip of ${{ matrix.game }}
+    needs: github-release
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        game: [doodle_jump, treasure_run, coin_dash]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Export
+        shell: cmd
+        run: scripts\export.cmd games\${{ matrix.game }}\game.json --out dist
+      - name: Add the zip to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" dist/*.zip --clobber
