@@ -280,6 +280,33 @@ def generators():
     ]
 
 
+def touch_layer():
+    """The controls of a touch screen: a stick on the left (steers), a button on the right
+    (shoots). They only show on a phone, or once a finger has touched the window."""
+    def screen_sprite(frame, size, red, green, blue):
+        return {"atlas": "ui", "frame": frame, "width": size, "height": size, "screen": True,
+                "layer": 20, "red": red, "green": green, "blue": blue}
+    return [
+        {"name": "touch_stick", "components": {
+            "transform2d.Position": {},
+            "ui.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 100, "offset_y": -110},
+            "sprite2d.Sprite": screen_sprite(0, 130, 90, 90, 90),
+            "touch_controls.TouchStick": {"group": "touch_stick", "action_x": "move_x",
+                                          "radius": 50, "zone": 110, "opacity": 90}}},
+        {"name": "touch_knob", "components": {
+            "transform2d.Position": {},
+            "sprite2d.Sprite": screen_sprite(0, 56, 60, 60, 60),
+            "touch_controls.TouchKnob": {"group": "touch_stick", "opacity": 200}}},
+        {"name": "touch_shoot", "components": {
+            "transform2d.Position": {},
+            "ui.Anchor": {"anchor_x": 1.0, "anchor_y": 1.0, "offset_x": -80, "offset_y": -110},
+            "sprite2d.Sprite": screen_sprite(1, 90, 255, 255, 255),
+            "touch_controls.TouchButton": {"action": "shoot", "width": 110, "height": 110,
+                                           "normal_frame": 1, "pressed_frame": 2,
+                                           "opacity": 130}}},
+    ]
+
+
 def game_scene():
     out = [
         paper(),
@@ -299,6 +326,7 @@ def game_scene():
             "scoreboard", "records.Record.best")},
         go("end_of_game", "gameover", use_action=True, action="died"),
     ]
+    out += touch_layer()
     return out
 
 

@@ -10,6 +10,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Tactile (ADR 0012, A4) : les doigts arrivent en sources `touch:down/x/y` (jusqu'à cinq : `touch:down2`…), le premier est aussi une souris (un jeu souris se joue au doigt, compté une fois), les positions sont en pixels du jeu, le bouton Retour d'Android est `key:ac_back` et quitte comme Échap, un hôte mobile ignore les boutons « Quitter ».
 
+- Module `touch_controls` (ADR 0012, A5) : `TouchButton`, `TouchStick` et `TouchKnob` dessinent des contrôles pour un écran tactile (cachés sur un ordinateur jusqu'au premier doigt) et donnent des actions au jeu ; joystick et bouton de tir pour `doodle_jump`, joystick pour `treasure_run` (avec un scénario chacun). Les positions des doigts sont des pixels, pas des axes.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

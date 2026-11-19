@@ -1,0 +1,21 @@
+// A finger on the stick drawn at the bottom left steers the jumper: touch_down, touch_x and
+// touch_y are what the player's input.json makes of a finger (module touch_controls). The jumper
+// goes right while the finger is to the right of the stick, and stops when it lifts.
+{
+  "schema_version": 1,
+  "name": "touch_stick_steers",
+  "scene": "game",
+  "ticks": 22,
+  "inputs": [
+    { "tick": 1, "action": "touch_x", "value": 160 },
+    { "tick": 1, "action": "touch_y", "value": 610 },
+    { "tick": 1, "action": "touch_down", "value": 1 },
+    { "tick": 14, "action": "touch_down", "value": 0 }
+  ],
+  "expect": [
+    { "at": 2, "check": "player.transform2d.Position.x < 250" },
+    { "at": 14, "check": "player.transform2d.Position.x > 300" },
+    { "at": 22, "check": "player.transform2d.Position.x < 345" },
+    "player alive"
+  ]
+}

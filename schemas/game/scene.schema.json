@@ -978,6 +978,105 @@
                 },
                 "additionalProperties": false
               },
+              "touch_controls.TouchButton": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "normal_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pressed_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "finger": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "was_held": {
+                    "type": "boolean"
+                  },
+                  "opacity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "touch_controls.TouchStick": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "action_x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "action_y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "radius": {
+                    "type": "number"
+                  },
+                  "zone": {
+                    "type": "number"
+                  },
+                  "dead_zone": {
+                    "type": "number"
+                  },
+                  "finger": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "was_held": {
+                    "type": "boolean"
+                  },
+                  "opacity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "touch_controls.TouchKnob": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "opacity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
               "transform2d.Position": {
                 "type": "object",
                 "properties": {

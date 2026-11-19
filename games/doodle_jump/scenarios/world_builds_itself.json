@@ -8,7 +8,7 @@
   "expect": [
     {
       "at": 0,
-      "check": "entities < 12"
+      "check": "entities < 16"
     },
     {
       "at": 3,

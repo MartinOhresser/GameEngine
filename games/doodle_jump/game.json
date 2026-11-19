@@ -11,7 +11,7 @@
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
     "patrol2d", "camera2d", "spawner2d", "combat2d", "altitude", "lifetime",
-    "sprite2d", "text2d", "scene_switch", "ui", "records", "host",
+    "sprite2d", "text2d", "scene_switch", "ui", "records", "host", "touch_controls",
   ],
   "simulation": { "tick_rate": 60, "seed": 2024 },
   // A tall window, as on a phone.
@@ -21,9 +21,9 @@
     // The things that bump into each other, one bit each (the order is fixed by the prefabs).
     "layer": ["player", "platform", "monster", "bullet"],
     // `died` is raised by the jumper's death; the others come from the buttons.
-    "action": ["died", "start_game", "restart_game", "show_menu", "quit_game"],
+    "action": ["died", "start_game", "restart_game", "show_menu", "quit_game", "move_x", "shoot"],
     "menu": ["main_menu", "gameover_menu"],
-    "group": ["menu_buttons", "gameover_buttons"],
+    "group": ["menu_buttons", "gameover_buttons", "touch_stick"],
     "tag": ["player", "scoreboard"],
     // The names under which numbers are saved between two runs of the program.
     "record": ["best_height"],
@@ -78,6 +78,7 @@
     "scenarios/game_over_shows_score.json",
     "scenarios/play_again_with_r.json",
     "scenarios/play_again_with_button.json",
+    "scenarios/touch_stick_steers.json",
     "scenarios/back_to_menu.json",
     "scenarios/quit_from_the_menu.json",
     "scenarios/play_does_not_quit.json",
