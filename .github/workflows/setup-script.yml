@@ -30,7 +30,9 @@ jobs:
       - name: Build gectl and ask what is missing
         run: |
           export ANDROID_HOME="$RUNNER_TEMP/sdk"
-          export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
+          javac="$(readlink -f "$(command -v javac)")"
+          JAVA_HOME="$(dirname "$(dirname "$javac")")"
+          export JAVA_HOME
           cmake --preset dev
           cmake --build --preset dev --target gectl
           ./build/dev/tools/gectl export --targets | tee targets.log
