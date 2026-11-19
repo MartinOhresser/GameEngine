@@ -117,6 +117,14 @@ PlayResult play_loaded(Backend& backend, const game::LoadedGame& loaded,
 
     backend.reset_assets();
     backend.resize(width, height);
+    // A game that asked for it fills any screen, unless the caller fixed the size (`--size`).
+    const game::Manifest& manifest = loaded.game.manifest;
+    if (manifest.window_adapt && options.width <= 0 && options.height <= 0) {
+        backend.adapt_view(manifest.window_min_aspect, manifest.window_max_aspect);
+    }
+    if (options.window_width > 0 && options.window_height > 0) {
+        backend.set_window_size(options.window_width, options.window_height);
+    }
     load_sounds(backend, manifest_path, err);
     warn_if_nothing_draws(loaded, manifest_path, err);
     const std::vector<std::string> atlas_problems =

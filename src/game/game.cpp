@@ -9,6 +9,8 @@
 #include <fstream>
 #include <iterator>
 #include <set>
+#include <string>
+#include <utility>
 
 namespace ge::game {
 
@@ -226,6 +228,54 @@ void read_window_size(Checker& checker, const json::Value& object, const char* k
     }
 }
 
+/// `window.adapt`: true (the usual range of phones, or of wide screens for a game that is wider
+/// than tall) or {"min_aspect": 0.4, "max_aspect": 0.8}, the aspects (width / height) between
+/// which the drawing area follows the screen.
+void read_window_adapt(Checker& checker, const json::Value& object, Manifest& manifest) {
+    const json::Value* adapt = object.find("adapt");
+    if (adapt == nullptr) {
+        return;
+    }
+    const bool portrait = manifest.window_width <= manifest.window_height;
+    const float design =
+        static_cast<float>(manifest.window_width) / static_cast<float>(manifest.window_height);
+    float low = portrait ? 0.4F : 1.25F;
+    float high = portrait ? 0.8F : 2.4F;
+    if (adapt->is_bool()) {
+        manifest.window_adapt = adapt->as_bool();
+        if (!manifest.window_adapt) {
+            return;
+        }
+    } else if (adapt->is_object()) {
+        checker.reject_unknown(*adapt, "window.adapt", {"min_aspect", "max_aspect"});
+        for (const auto& [key, out] : {std::pair<const char*, float*>{"min_aspect", &low},
+                                       std::pair<const char*, float*>{"max_aspect", &high}}) {
+            const json::Value* value = adapt->find(key);
+            if (value == nullptr) {
+                continue;
+            }
+            if (value->is_number() && value->as_real() > 0.0 && value->as_real() <= 100.0) {
+                *out = static_cast<float>(value->as_real());
+            } else {
+                checker.error(join_path("window.adapt", key),
+                              "expected a number above 0 (the width divided by the height)");
+            }
+        }
+        manifest.window_adapt = true;
+    } else {
+        checker.error("window.adapt", R"(expected true, false or {"min_aspect", "max_aspect"})");
+        return;
+    }
+    if (low > high || design < low || design > high) {
+        checker.error("window.adapt",
+                      "the aspects must be in order and include the window's own (" +
+                          std::to_string(design) + "): min_aspect <= " + std::to_string(design) +
+                          " <= max_aspect");
+    }
+    manifest.window_min_aspect = low;
+    manifest.window_max_aspect = high;
+}
+
 void read_window(Checker& checker, const json::Value& root, Manifest& manifest) {
     const json::Value* window = root.find("window");
     if (window == nullptr) {
@@ -235,9 +285,10 @@ void read_window(Checker& checker, const json::Value& root, Manifest& manifest) 
     if (object == nullptr) {
         return;
     }
-    checker.reject_unknown(*object, "window", {"width", "height"});
+    checker.reject_unknown(*object, "window", {"width", "height", "adapt"});
     read_window_size(checker, *object, "width", manifest.window_width);
     read_window_size(checker, *object, "height", manifest.window_height);
+    read_window_adapt(checker, *object, manifest);
 }
 
 void read_modules(const Context& context, Checker& checker, const json::Value& root,

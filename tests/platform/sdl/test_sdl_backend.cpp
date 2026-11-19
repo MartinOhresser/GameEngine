@@ -195,6 +195,34 @@ TEST_CASE("sdl: the window can take another size, and the frame follows it") {
     CHECK(frame.at(240, 400) == 0xFF8000FFU);
 }
 
+TEST_CASE("sdl: a game that follows the screen takes the shape of the window") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    REQUIRE(backend->resize(480, 720));
+    CHECK(backend->view_size().first == 0); // fixed until a game asks
+    backend->adapt_view(0.4F, 0.8F);
+    CHECK(backend->view_size().first == 480);
+    CHECK(backend->view_size().second == 720);
+
+    // A phone 9:20 high: the width stays, the height grows, and the frame is that big.
+    REQUIRE(backend->inject_window_size(270, 600));
+    std::vector<ge::platform::RawEvent> events;
+    backend->poll(events);
+    CHECK(backend->view_size().first == 480);
+    CHECK(backend->view_size().second == 1067);
+    // A square 1000 pixels down the game's view: it only exists on a view that tall (the window
+    // has 270 x 600 pixels, so it lands at 135 x 562).
+    backend->renderer()->draw({"square", 240.0F, 1000.0F, 20.0F, 0xFF8000FFU});
+    backend->renderer()->end_frame();
+    CHECK(backend->last_frame().width == 270);
+    CHECK(backend->last_frame().height == 600);
+    CHECK(backend->last_frame().at(135, 562) == 0xFF8000FFU);
+
+    // Back to a fixed area with a new size.
+    REQUIRE(backend->resize(480, 720));
+    CHECK(backend->view_size().first == 0);
+}
+
 TEST_CASE("sdl: a mouse click reaches the game as an action") {
     auto backend = open();
     REQUIRE(backend != nullptr);

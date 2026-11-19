@@ -230,6 +230,36 @@ TEST_CASE("game: the window size is a setting of the game, 800 by 600 by default
         "unknown key"));
 }
 
+TEST_CASE("game: a window can follow the shape of the screen, `adapt`") {
+    const auto with = [](const std::string& window) {
+        const std::string changed = R"("seed": 99}, "window": )" + window;
+        return load_changed("g/game.json", R"("seed": 99})", changed.c_str());
+    };
+    CHECK(!load(sample_game()).game.manifest.window_adapt);
+    // true: the usual shapes of phones for a tall game, of wide screens for a wide one.
+    const auto tall = with(R"({"width": 480, "height": 720, "adapt": true})");
+    REQUIRE(tall.ok());
+    CHECK(tall.game.manifest.window_adapt);
+    CHECK(tall.game.manifest.window_min_aspect == 0.4F);
+    CHECK(tall.game.manifest.window_max_aspect == 0.8F);
+    const auto wide = with(R"({"width": 800, "height": 600, "adapt": true})");
+    REQUIRE(wide.ok());
+    CHECK(wide.game.manifest.window_min_aspect == 1.25F);
+    CHECK(wide.game.manifest.window_max_aspect == 2.4F);
+    // Or the limits, which include the window's own shape.
+    const auto custom =
+        with(R"({"width": 480, "height": 720, "adapt": {"min_aspect": 0.5, "max_aspect": 0.7}})");
+    REQUIRE(custom.ok());
+    CHECK(custom.game.manifest.window_min_aspect == 0.5F);
+    CHECK(custom.game.manifest.window_max_aspect == 0.7F);
+    CHECK(!with(R"({"adapt": false})").game.manifest.window_adapt);
+    CHECK(mentions(with(R"({"width": 480, "height": 720, "adapt": {"min_aspect": 0.7}})"),
+                   "include the window's own"));
+    CHECK(mentions(with(R"({"adapt": {"min_aspect": -1}})"), "the width divided by the height"));
+    CHECK(mentions(with(R"({"adapt": {"mid": 1}})"), "unknown key"));
+    CHECK(mentions(with(R"({"adapt": 3})"), "expected true, false or"));
+}
+
 TEST_CASE("game: simulation settings are checked") {
     CHECK(mentions(load_changed("g/game.json", "\"tick_rate\": 30", "\"tick_rate\": 0"),
                    "1 to 1000"));
