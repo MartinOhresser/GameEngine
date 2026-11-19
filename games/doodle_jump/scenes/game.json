@@ -181,6 +181,88 @@
           "action": "died"
         }
       }
+    },
+    {
+      "name": "touch_stick",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 1.0,
+          "offset_x": 100,
+          "offset_y": -110
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 130,
+          "height": 130,
+          "screen": true,
+          "layer": 20,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        },
+        "touch_controls.TouchStick": {
+          "group": "touch_stick",
+          "action_x": "move_x",
+          "radius": 50,
+          "zone": 110,
+          "opacity": 90
+        }
+      }
+    },
+    {
+      "name": "touch_knob",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 56,
+          "height": 56,
+          "screen": true,
+          "layer": 20,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "touch_controls.TouchKnob": {
+          "group": "touch_stick",
+          "opacity": 200
+        }
+      }
+    },
+    {
+      "name": "touch_shoot",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1.0,
+          "anchor_y": 1.0,
+          "offset_x": -80,
+          "offset_y": -110
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 90,
+          "height": 90,
+          "screen": true,
+          "layer": 20,
+          "red": 255,
+          "green": 255,
+          "blue": 255
+        },
+        "touch_controls.TouchButton": {
+          "action": "shoot",
+          "width": 110,
+          "height": 110,
+          "normal_frame": 1,
+          "pressed_frame": 2,
+          "opacity": 130
+        }
+      }
     }
   ]
 }

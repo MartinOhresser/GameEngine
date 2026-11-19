@@ -102,3 +102,15 @@ Un objet rangé est **affiché** sur sa case : sa position suit celle de la case
 - Une pile ne se coupe pas : un `Transfer` n'a pas de quantité, la pile passe en entier ou fusionne.
 - Pas de défilement, pas de mise en page automatique au-delà des grilles, pas de texte enrichi, pas de glisser-déposer à la souris (clic puis clic).
 - Les coordonnées sont en pixels de la fenêtre : pas d'échelle automatique selon la résolution ni de mise en page adaptative.
+
+## Contrôles à l'écran (tactile)
+
+Le module `touch_controls` dessine des contrôles pour un écran tactile et les transforme en actions : le jeu ne sait pas qu'un doigt les a produites.
+
+| Composant | Rôle |
+| --- | --- |
+| `TouchButton` | un rectangle (`width` × `height`, centré sur la `Position`) ; tant qu'un doigt le tient, l'action `action` vaut 1 ; son `Sprite` montre `pressed_frame` au lieu de `normal_frame` |
+| `TouchStick` | un joystick : un doigt posé à moins de `zone` pixels de la `Position` le prend ; `action_x` et `action_y` valent le décalage divisé par `radius`, entre -1 et 1, à 0 dans la `dead_zone` (le bas est positif en y) |
+| `TouchKnob` | le « pouce » du joystick du même `group` : il suit le doigt |
+
+Mise en place : (1) ajoutez le module et déclarez dans `lists` les actions des contrôles (`action`) et le `group` du joystick ; (2) liez les doigts dans `input.json` : `touch_down`, `touch_x`, `touch_y` aux sources `touch:down`, `touch:x`, `touch:y`, et de même `…2`, `…3`, `…4` pour les doigts suivants (voir `docs/PLATFORM.md`) ; (3) placez les contrôles dans une scène, ancrés aux coins avec `ui.Anchor`. Ils sont invisibles sur un ordinateur jusqu'au premier doigt, tout de suite visibles sur un téléphone ; `opacity` règle leur transparence. Une touche liée à la même action n'est pas annulée tant qu'aucun doigt ne tient le contrôle. Dans un scénario, les doigts s'écrivent comme des actions (`touch_down`, `touch_x`, `touch_y`) : voir `games/doodle_jump/scenarios/touch_stick_steers.json`. Modèles : le joystick et le bouton de tir de `games/doodle_jump`, le joystick de `games/treasure_run`.

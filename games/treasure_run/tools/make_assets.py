@@ -269,6 +269,27 @@ def hud():
     return out
 
 
+def touch_stick():
+    """A stick at the bottom left walks the hero on a touch screen (it only shows on a phone, or
+    once a finger has touched the window)."""
+    def look(size, grey):
+        return {"atlas": "ui", "frame": 0, "width": size, "height": size, "screen": True,
+                "layer": 20, "red": grey, "green": grey, "blue": grey}
+    return [
+        {"name": "touch_stick", "components": {
+            "transform2d.Position": {},
+            "ui.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 110, "offset_y": -110},
+            "sprite2d.Sprite": look(140, 90),
+            "touch_controls.TouchStick": {"group": "touch_stick", "action_x": "move_x",
+                                          "action_y": "move_y", "radius": 55, "zone": 120,
+                                          "opacity": 90}}},
+        {"name": "touch_knob", "components": {
+            "transform2d.Position": {},
+            "sprite2d.Sprite": look(60, 60),
+            "touch_controls.TouchKnob": {"group": "touch_stick", "opacity": 200}}},
+    ]
+
+
 def menu_scene():
     buttons = [("play", "menu.play", "start_game"), ("credits", "menu.credits", "show_credits"),
                ("quit", "menu.quit", "quit_game")]
@@ -355,6 +376,7 @@ def main():
     entities.append({"name": "player", "prefab": "player", "components": player})
     entities.append({"name": "camera", "prefab": "camera", "components": player})
     entities += hud()
+    entities += touch_stick()
     write_json(os.path.join(game, "scenes", "main.json"),
                {"schema_version": 1, "name": "main", "entities": entities})
     write_json(os.path.join(game, "scenes", "menu.json"),

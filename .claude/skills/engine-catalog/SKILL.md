@@ -40,7 +40,7 @@ Si `gectl` n'existe pas encore : `cmake --preset dev && cmake --build --preset d
 
 ## Modules disponibles au départ
 
-Lis le catalogue plutôt que cette liste, qui vieillit : `transform2d` (position, vitesse, déplacement), `lifetime` (disparition après N ticks), `screen_wrap` (réapparition de l'autre côté), `action_control` (pilotage par les actions `move_x` et `move_y`), et pour l'affichage `sprite2d`, `text2d`, `camera2d`, pour les niveaux `scene_switch`, pour l'interface `ui` (ancrage, grilles, barres, menus) et `inventory` (conteneurs, cases à règles, objets). Les noms propres au jeu (catégories, conteneurs, menus…) se déclarent dans `lists` de `game.json` : voir `docs/UI.md`.
+Lis le catalogue plutôt que cette liste, qui vieillit : `transform2d` (position, vitesse, déplacement), `lifetime` (disparition après N ticks), `screen_wrap` (réapparition de l'autre côté), `action_control` (pilotage par les actions `move_x` et `move_y`), et pour l'affichage `sprite2d`, `text2d`, `camera2d`, pour les niveaux `scene_switch`, pour l'interface `ui` (ancrage, grilles, barres, menus) et `inventory` (conteneurs, cases à règles, objets), `touch_controls` (joystick et boutons à l'écran pour le tactile). Les noms propres au jeu (catégories, conteneurs, menus…) se déclarent dans `lists` de `game.json` : voir `docs/UI.md`.
 
 ## Quand rien ne convient
 

@@ -1,0 +1,20 @@
+// A finger to the right of the stick drawn at the bottom left walks the hero right; lifting it
+// stops the hero. touch_down, touch_x and touch_y are what the player's input.json makes of a
+// finger (module touch_controls).
+{
+  "schema_version": 1,
+  "name": "touch_stick_walks",
+  "scene": "main",
+  "ticks": 40,
+  "inputs": [
+    { "tick": 1, "action": "touch_x", "value": 200 },
+    { "tick": 1, "action": "touch_y", "value": 490 },
+    { "tick": 1, "action": "touch_down", "value": 1 },
+    { "tick": 20, "action": "touch_down", "value": 0 },
+  ],
+  "expect": [
+    { "at": 0, "check": "player.transform2d.Position.x < 100" },
+    { "at": 20, "check": "player.transform2d.Position.x > 110" },
+    { "at": 40, "check": "player.transform2d.Position.x < 125" },
+  ],
+}
