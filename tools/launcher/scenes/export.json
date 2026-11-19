@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "name": "export",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 247,
+          "blue": 225
+        }
+      }
+    },
+    {
+      "name": "title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 44
+        },
+        "text2d.Text": {
+          "string": "export.title",
+          "font": "font",
+          "size": 40,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 40
+        }
+      }
+    },
+    {
+      "name": "hint",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 88
+        },
+        "text2d.Text": {
+          "string": "export.hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        }
+      }
+    },
+    {
+      "name": "controller",
+      "components": {
+        "ui.Menu": {
+          "group": "export_menu",
+          "up": "menu_up",
+          "down": "menu_down",
+          "accept": "menu_accept",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "pages",
+      "components": {
+        "ui.Pager": {
+          "list": "targets",
+          "menu": "export_menu",
+          "page_size": 3,
+          "previous": "targets_prev",
+          "next": "targets_next"
+        }
+      }
+    },
+    {
+      "name": "row0",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 124
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "export_menu",
+          "order": 0,
+          "action": "start_export",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "targets",
+          "row": 0
+        }
+      }
+    },
+    {
+      "name": "row1",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 170
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "export_menu",
+          "order": 1,
+          "action": "start_export",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "targets",
+          "row": 1
+        }
+      }
+    },
+    {
+      "name": "row2",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 216
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "export_menu",
+          "order": 2,
+          "action": "start_export",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "targets",
+          "row": 2
+        }
+      }
+    },
+    {
+      "name": "button_back",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 450,
+          "offset_y": 124
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 120,
+          "height": 36,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": "button.back"
+        },
+        "ui.Button": {
+          "menu": "export_menu",
+          "order": 3,
+          "action": "back_main",
+          "width": 120,
+          "height": 36,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        }
+      }
+    },
+    {
+      "name": "go_main",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "main",
+          "use_action": true,
+          "action": "back_main"
+        }
+      }
+    },
+    {
+      "name": "start_it",
+      "components": {
+        "host.Call": {
+          "command": "export",
+          "action": "start_export",
+          "list": "targets"
+        }
+      }
+    },
+    {
+      "name": "line0",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 282
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 26,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 40
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 0
+        }
+      }
+    },
+    {
+      "name": "line1",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 316
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 120,
+          "green": 120,
+          "blue": 120
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 1
+        }
+      }
+    },
+    {
+      "name": "line2",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 348
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 2
+        }
+      }
+    },
+    {
+      "name": "line3",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 368
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 3
+        }
+      }
+    },
+    {
+      "name": "line4",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 388
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 4
+        }
+      }
+    },
+    {
+      "name": "line5",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 408
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 5
+        }
+      }
+    },
+    {
+      "name": "line6",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 428
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 6
+        }
+      }
+    },
+    {
+      "name": "line7",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 448
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 7
+        }
+      }
+    },
+    {
+      "name": "line8",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 468
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 8
+        }
+      }
+    },
+    {
+      "name": "line9",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 488
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 13,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 70,
+          "green": 70,
+          "blue": 70
+        },
+        "text2d.Dynamic": {
+          "list": "export",
+          "index": 9
+        }
+      }
+    }
+  ]
+}

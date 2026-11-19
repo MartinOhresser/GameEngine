@@ -1,0 +1,67 @@
+// Backspace on the export screen goes back to the list of games.
+{
+  "schema_version": 1,
+  "name": "back_from_export",
+  "ticks": 40,
+  "lists": {
+    "games": [
+      "Alpha",
+      "Beta"
+    ],
+    "targets": [
+      "Windows (64-bit)"
+    ]
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "menu_up",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "menu_up",
+      "value": 0
+    },
+    {
+      "tick": 6,
+      "action": "menu_up",
+      "value": 1
+    },
+    {
+      "tick": 7,
+      "action": "menu_up",
+      "value": 0
+    },
+    {
+      "tick": 10,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "menu_accept",
+      "value": 0
+    },
+    {
+      "tick": 25,
+      "action": "back_main",
+      "value": 1
+    },
+    {
+      "tick": 26,
+      "action": "back_main",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 22,
+      "check": "scene is export"
+    },
+    {
+      "at": 38,
+      "check": "scene is main"
+    }
+  ]
+}

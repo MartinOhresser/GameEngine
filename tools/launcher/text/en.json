@@ -6,6 +6,10 @@
     "launcher.hint": "Up/Down: choose   Enter: play   Left/Right: pages   Esc: quit",
     "button.prev": "<",
     "button.next": ">",
-    "button.quit": "Quit"
+    "button.quit": "Quit",
+    "button.export": "Export",
+    "button.back": "Back",
+    "export.title": "Export",
+    "export.hint": "Choose a platform, Enter: start   Backspace: back"
   }
 }

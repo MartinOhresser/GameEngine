@@ -1,5 +1,5 @@
 // Up and Down choose a game, Enter plays it, Left and Right (or Page Up and Page Down) turn
-// the pages, the mouse does the same by pointing and clicking. Escape belongs to the host.
+// the pages, Backspace leaves the export screen, the mouse does the same by pointing and clicking. Escape belongs to the host.
 {
   "schema_version": 1,
   "bindings": [
@@ -8,6 +8,7 @@
     { "action": "menu_accept", "sources": { "key:return": 1, "key:space": 1 } },
     { "action": "page_prev", "sources": { "key:left": 1, "key:pageup": 1 } },
     { "action": "page_next", "sources": { "key:right": 1, "key:pagedown": 1 } },
+    { "action": "back_main", "sources": { "key:backspace": 1 } },
     { "action": "pointer_x", "sources": { "mouse:x": 1 } },
     { "action": "pointer_y", "sources": { "mouse:y": 1 } },
     { "action": "click", "sources": { "mouse:left": 1 } },

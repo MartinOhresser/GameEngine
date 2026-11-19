@@ -17,6 +17,10 @@ gectl export --targets                                       # les plateformes p
 | `--build-dir DIR` | où compiler le programme (défaut `build/export/<cible>/<jeu>`) |
 | `--cmake-arg ARG` | un argument de plus pour CMake, répétable (par exemple `-DFETCHCONTENT_SOURCE_DIR_SDL3=...` pour utiliser une copie locale de SDL3) |
 
+## Depuis le lanceur
+
+`gelauncher` a un bouton **Export** : on choisit le jeu, puis la plateforme, et le lanceur fait la même chose que la commande, en arrière-plan, avec les dernières lignes de sortie à l'écran (voir [LAUNCHER.md](LAUNCHER.md)). `gelauncher --source DIR --dist DIR` règle la racine du moteur et le dossier des zips.
+
 ## Ce qui est nécessaire pour exporter
 
 L'export **compile** le programme du jeu, sur la machine de celui qui exporte (pas sur celle du joueur) :
@@ -63,4 +67,5 @@ Le job « Export » de la CI exporte Doodle Jump pour de vrai sous Windows et so
 - `cmake/GeRegistry.cmake` : `ge_write_registry` écrit `registry.cpp` pour une liste de modules (`gerun` en a tous, un export en a quelques-uns).
 - `platform/sdl/CMakeLists.txt` : `ge_add_player` ; `platform/sdl/src/player.cpp` et `player_main.cpp` : le programme du joueur (`--data DIR`, `--headless`, `--frames N`, `--screenshot F` servent aux tests).
 - `include/ge/game/package.hpp` : `required_modules`, `package_files`, `package_manifest`.
+- `platform/sdl/src/tool_export.cpp` : le service d'export du lanceur (un fil qui appelle `export_game`, ses commandes lues ligne par ligne avec `run_process_lines`).
 - `tools/gectl/export.cpp` : les cibles, le `.ico`, le README, les licences et l'enchaînement des commandes. Un `CommandRunner` remplace CMake dans les tests (`tests/tools/test_export.cpp`) : aucun programme n'est compilé pendant `ctest`.
