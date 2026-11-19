@@ -280,6 +280,30 @@ TEST_CASE("package: the manifest shipped has no scenarios") {
 }
 
 #ifdef __linux__
+TEST_CASE("export: the game's files are staged for any target") {
+    // The step every target shares: what the player reads, and a manifest without scenarios.
+    const Scratch scratch("stage");
+    ge::tools::ExportRequest request;
+    request.manifest = root() + "/games/move_sprite/game.json";
+    ge::tools::ExportJob job;
+    job.request = &request;
+    job.loaded = load_real("move_sprite");
+    REQUIRE(job.loaded.ok());
+    job.folder = root() + "/games/move_sprite/";
+    std::ostringstream err;
+    CHECK(ge::tools::stage_game_files(job, scratch.path() / "data", err));
+    CHECK(err.str().empty());
+    CHECK(fs::exists(scratch.path() / "data" / "game.json"));
+    CHECK(fs::exists(scratch.path() / "data" / "input.json"));
+    CHECK(!fs::exists(scratch.path() / "data" / "scenarios"));
+
+    // A manifest that cannot be read is said, not skipped.
+    request.manifest = root() + "/games/move_sprite/nothing.json";
+    std::ostringstream missing;
+    CHECK(!ge::tools::stage_game_files(job, scratch.path() / "again", missing));
+    CHECK(!missing.str().empty());
+}
+
 TEST_CASE("export: the commands that build and zip a package") {
     const Scratch scratch("commands");
     const std::string manifest = copy_game(scratch, "move_sprite");

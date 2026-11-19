@@ -90,6 +90,8 @@ Chaque jalon est une pull request. A0 vient d'abord parce que c'est lui qui peut
   - **L'écran** : l'émulateur donne 320×616 pixels à la fenêtre pour un écran de 320×640 (les barres du système en prennent une partie). La présentation logique avec bandes (décision 6) en tient compte ; le mode immersif et les zones sûres restent à faire.
   - **Pas vérifié** : l'exécution sur arm64 (l'émulateur de la CI est x86_64), un Android plus ancien que 14, et un vrai téléphone. Le build « SDL en bibliothèque à part » a marché une fois puis a échoué une fois dans l'émulateur sans qu'on sache pourquoi ; il n'est plus dans le job.
 
+- **A1.** `ExportTarget` a deux étapes, `build` et `assemble`, qui reçoivent un `ExportJob` (le jeu vérifié, les modules, les dossiers, l'exécuteur de commandes). `export_game` fait ce qui est commun (cible, chargement, validation, scénarios) puis appelle les deux. Windows et Linux en héritent d'une base `DesktopTarget` ; la copie des fichiers du jeu est devenue `stage_game_files`, réutilisable par Android. Aucun changement de comportement : les tests d'export existants passent tels quels.
+
 ## Limites assumées
 
 - **Beaucoup plus d'outils qu'en Windows** pour l'exportateur (JDK, SDK, NDK, Gradle) ; seul le destinataire n'a rien à installer.
