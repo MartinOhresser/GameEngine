@@ -31,6 +31,10 @@ Idée : « un vaisseau que je pilote et qui ramasse des pièces ; chaque pièce 
 - Création du module `pickup` (composants `Collector` et `Pickup`, système `collect`) avec ses tests : `modules/pickup`.
 - Le jeu `games/coin_dash` : trois préfabs (`ship`, `coin`, `gem` qui étend `coin`), une scène, trois scénarios. Les valeurs attendues sont calculées à la main : la pièce à 65 unités du vaisseau est ramassée au 21ᵉ tick, la gemme au 34ᵉ.
 
+## Envoyer le jeu à quelqu'un
+
+Un jeu fini s'exporte en un zip qui se lance d'un double-clic, sans rien installer : `gectl export games/<nom>/game.json` (sous Windows, `scripts\export.cmd games\<nom>\game.json`), ou le bouton Export du lanceur. Le `title`, la `version` et l'`icon` du manifeste en font le nom du programme, du zip et son icône. Voir [EXPORT.md](EXPORT.md).
+
 ## Les skills sont vérifiés
 
 `scripts/check_skills.py` (lancé par `check.sh` et la CI) refuse un skill qui cite une commande `gectl` inexistante, une option inconnue de `gectl` ou `gerun`, ou un fichier du dépôt qui n'existe pas. Un skill ne peut donc pas rester en retard sur les outils sans que ça se voie.
