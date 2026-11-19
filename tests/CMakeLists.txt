@@ -2,6 +2,7 @@ add_executable(
   ge_tests
   support/main.cpp
   core/test_hash.cpp
+  core/test_path.cpp
   core/test_random.cpp
   core/test_version.cpp
   game/test_atlas.cpp

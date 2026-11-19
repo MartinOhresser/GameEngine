@@ -6,6 +6,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Changed
 
+- Windows : les chemins sont du UTF-8 (`ge/core/path.hpp`) : un jeu dans un dossier avec accent (`C:\Users\Léa\…`) trouve ses fichiers, ses sons, ses images et sa sauvegarde ; révélé par le job CI « Export ».
 - CI : AddressSanitizer, clang-tidy et le build GCC Debug ne tournent plus en CI ; `scripts/check.sh` les exécute avant chaque pull request (le dépôt est public, mais ils doublaient ce que le script fait déjà).
 - ADR 0011 : décisions du lanceur (un jeu en JSON avec un hôte mince) et de l'export autonome par plateforme ; `docs/ROADMAP.md` liste les étapes E0 à E7.
 - Branches : `main` reste la dernière étape validée, les pull requests visent `dev`. La CI passe sur `dev` ; le workflow « Promote dev to main » avance `main` sur un commit de `dev` déjà vert et pose l'étiquette de version. Les issues « Module gap » et `ci-failure` (ouverte et fermée par un workflow) sont décrites dans `CONTRIBUTING.md`.

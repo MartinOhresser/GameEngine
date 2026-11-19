@@ -1,5 +1,7 @@
 #include "ge/game/summary.hpp"
 
+#include "ge/core/path.hpp"
+
 #include <algorithm>
 #include <filesystem>
 #include <utility>
@@ -83,8 +85,8 @@ bool discover_games(const std::string& directory, const FileReader& read, const 
     namespace fs = std::filesystem;
     std::vector<fs::path> directories;
     std::error_code failure;
-    for (fs::directory_iterator it(directory, failure), end; !failure && it != end;
-         it.increment(failure)) {
+    for (fs::directory_iterator it(core::path_from_utf8(directory), failure), end;
+         !failure && it != end; it.increment(failure)) {
         if (it->is_directory(failure) && fs::exists(it->path() / "game.json", failure)) {
             directories.push_back(it->path());
         }
@@ -95,8 +97,9 @@ bool discover_games(const std::string& directory, const FileReader& read, const 
     }
     std::sort(directories.begin(), directories.end());
     for (const fs::path& path : directories) {
-        const LoadedGame loaded = load_game((path / "game.json").generic_string(), read, catalog);
-        games.push_back(summarize(loaded, path.generic_string(), path.filename().string()));
+        const LoadedGame loaded = load_game(core::path_to_utf8(path / "game.json"), read, catalog);
+        games.push_back(
+            summarize(loaded, core::path_to_utf8(path), core::path_to_utf8(path.filename())));
     }
     return true;
 }

@@ -1,5 +1,7 @@
 #include "ge/game/package.hpp"
 
+#include "ge/core/path.hpp"
+
 #include <algorithm>
 #include <filesystem>
 #include <set>
@@ -20,13 +22,13 @@ std::vector<std::string> sound_files(const std::string& folder) {
     namespace fs = std::filesystem;
     std::vector<std::string> found;
     std::error_code ignored;
-    const fs::path directory = fs::path(folder.empty() ? "." : folder) / "sounds";
+    const fs::path directory = core::path_from_utf8(folder.empty() ? "." : folder) / "sounds";
     if (!fs::is_directory(directory, ignored)) {
         return found;
     }
     for (const fs::directory_entry& entry : fs::directory_iterator(directory, ignored)) {
         if (entry.is_regular_file(ignored) && entry.path().extension() == ".wav") {
-            found.push_back("sounds/" + entry.path().filename().generic_string());
+            found.push_back("sounds/" + core::path_to_utf8(entry.path().filename()));
         }
     }
     return found;

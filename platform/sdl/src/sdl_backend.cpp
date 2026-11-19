@@ -1,5 +1,7 @@
 #include "ge/platform/sdl/sdl_backend.hpp"
 
+#include "ge/core/path.hpp"
+
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cctype>
@@ -109,7 +111,7 @@ public:
     }
 
     bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
-        std::ifstream file(atlas.image, std::ios::binary);
+        std::ifstream file(core::path_from_utf8(atlas.image), std::ios::binary);
         if (!file) {
             error = "cannot read the image \"" + atlas.image + "\"";
             return false;
