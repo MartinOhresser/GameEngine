@@ -317,7 +317,7 @@ TEST_CASE("spawner2d: a generator that goes right lays rows ahead of the right e
     CHECK(setup.seen->back().x == 800.0F);
 }
 
-TEST_CASE("spawner2d: a generator that goes left or down lays its rows the other way") {
+TEST_CASE("spawner2d: a generator that goes left lays its rows towards smaller x") {
     Setup left;
     spawner2d::Generator toward_left = rows_of(100.0F);
     toward_left.toward_x = -1.0F;
@@ -329,7 +329,9 @@ TEST_CASE("spawner2d: a generator that goes left or down lays its rows the other
     REQUIRE(left.seen->size() == 3); // x 100, 0 and -100: the left edge is at 0, and 200 ahead
     CHECK(left.seen->front().x == 100.0F);
     CHECK(left.seen->back().x == -100.0F);
+}
 
+TEST_CASE("spawner2d: a generator that goes down lays its rows towards bigger y") {
     Setup down;
     spawner2d::Generator toward_down = rows_of(100.0F);
     toward_down.toward_x = 0.0F;
