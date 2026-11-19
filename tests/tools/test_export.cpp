@@ -71,7 +71,7 @@ std::string copy_game(const Scratch& scratch, const std::string& name) {
 }
 
 std::string text_of(const fs::path& path) {
-    std::ifstream stream(path, std::ios::binary);
+    const std::ifstream stream(path, std::ios::binary);
     std::ostringstream text;
     text << stream.rdbuf();
     return text.str();
@@ -178,8 +178,8 @@ TEST_CASE("export: targets") {
 
     std::ostringstream out;
     ge::tools::print_export_targets(out);
-    CHECK(has(out.str().c_str(), "windows  Windows (64-bit)"));
-    CHECK(!has(out.str().c_str(), "linux"));
+    CHECK(has(out.str(), "windows  Windows (64-bit)"));
+    CHECK(!has(out.str(), "linux"));
 }
 
 TEST_CASE("export: the README tells how to play") {
@@ -312,7 +312,7 @@ TEST_CASE("export: the commands that build and zip a package") {
     CHECK(!fs::exists(package / "data" / "scenarios"));
     CHECK(!has(text_of(package / "data" / "game.json"), "scenarios"));
     CHECK(has(text_of(package / "LICENSES.txt"), "MIT License"));
-    CHECK(has(out.str().c_str(), "3 scenarios pass"));
+    CHECK(has(out.str(), "3 scenarios pass"));
 }
 
 TEST_CASE("export: extra CMake arguments reach the configure step") {
@@ -343,14 +343,14 @@ TEST_CASE("export: a game whose tests fail is not exported") {
     CHECK(ge::tools::export_game(request, out, err, system.runner()) == 1);
     CHECK(system.commands.empty());
 
-    CHECK(has(err.str().c_str(), "idle"));
-    CHECK(has(err.str().c_str(), "nothing was exported"));
+    CHECK(has(err.str(), "idle"));
+    CHECK(has(err.str(), "nothing was exported"));
 
     request.skip_tests = true;
     std::ostringstream out2;
     std::ostringstream err2;
     CHECK(ge::tools::export_game(request, out2, err2, system.runner()) == 0);
-    CHECK(!has(out2.str().c_str(), "scenarios pass"));
+    CHECK(!has(out2.str(), "scenarios pass"));
 }
 
 TEST_CASE("export: a step that fails stops the export") {
@@ -375,7 +375,7 @@ TEST_CASE("export: a build that makes no program is reported") {
     std::ostringstream err;
     CHECK(ge::tools::export_game(request_in(scratch, copy_game(scratch, "move_sprite")), out, err,
                                  system.runner()) == 1);
-    CHECK(has(err.str().c_str(), "ge_player is not in"));
+    CHECK(has(err.str(), "ge_player is not in"));
 }
 
 TEST_CASE("export: a game with an icon gets it as an .ico file") {
@@ -383,7 +383,7 @@ TEST_CASE("export: a game with an icon gets it as an .ico file") {
     const std::string manifest = copy_game(scratch, "move_sprite");
     const fs::path folder = fs::path(manifest).parent_path();
     std::string text = text_of(manifest);
-    text.insert(text.find('{') + 1, "\"icon\": \"icon.png\",");
+    text.insert(text.find('{') + 1, R"("icon": "icon.png",)");
     std::ofstream(manifest, std::ios::trunc) << text;
     std::ofstream(folder / "icon.png", std::ios::binary) << png_of(32, 32);
 
@@ -403,7 +403,7 @@ TEST_CASE("export: a game with an icon gets it as an .ico file") {
     std::ostringstream err2;
     FakeSystem other;
     CHECK(ge::tools::export_game(request_in(scratch, manifest), out2, err2, other.runner()) == 1);
-    CHECK(has(err2.str().c_str(), "not a PNG"));
+    CHECK(has(err2.str(), "not a PNG"));
     CHECK(other.commands.empty());
 }
 #endif
@@ -416,14 +416,14 @@ TEST_CASE("export: what cannot be exported is said") {
     ExportRequest request = request_in(scratch, copy_game(scratch, "move_sprite"));
     request.target = "amiga";
     CHECK(ge::tools::export_game(request, out, err, system.runner()) == 1);
-    CHECK(has(err.str().c_str(), "unknown target \"amiga\""));
-    CHECK(has(err.str().c_str(), "windows"));
+    CHECK(has(err.str(), "unknown target \"amiga\""));
+    CHECK(has(err.str(), "windows"));
 
 #ifndef _WIN32
     std::ostringstream err2;
     request.target = "windows";
     CHECK(ge::tools::export_game(request, out, err2, system.runner()) == 1);
-    CHECK(has(err2.str().c_str(), "on Windows"));
+    CHECK(has(err2.str(), "on Windows"));
 #endif
     CHECK(system.commands.empty());
 
@@ -439,10 +439,10 @@ TEST_CASE("gectl: export is a command") {
     std::ostringstream out;
     std::ostringstream err;
     CHECK(ge::tools::run_gectl({"export", "--targets"}, out, err) == 0);
-    CHECK(has(out.str().c_str(), "windows"));
+    CHECK(has(out.str(), "windows"));
     std::ostringstream err2;
     CHECK(ge::tools::run_gectl({"export"}, out, err2) == 2);
-    CHECK(has(err2.str().c_str(), "exactly one game file"));
+    CHECK(has(err2.str(), "exactly one game file"));
     std::ostringstream err3;
     CHECK(ge::tools::run_gectl({"export", "g.json", "--target"}, out, err3) == 2);
     std::ostringstream err4;
@@ -450,5 +450,5 @@ TEST_CASE("gectl: export is a command") {
                                 "--source", ".", "--build-dir", "b", "--cmake-arg", "-DX=1",
                                 "--skip-tests"},
                                out, err4) == 1);
-    CHECK(has(err4.str().c_str(), "unknown target"));
+    CHECK(has(err4.str(), "unknown target"));
 }
