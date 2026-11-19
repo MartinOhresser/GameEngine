@@ -1,8 +1,11 @@
 #include "ge/platform/backend.hpp"
 
 #include "ge/app/host.hpp"
+#include "ge/app/viewport.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 
 namespace ge::platform {
 
@@ -34,7 +37,21 @@ std::chrono::nanoseconds ScriptedBackend::now() {
 bool ScriptedBackend::resize(int width, int height) {
     width_ = width;
     height_ = height;
+    adapt_ = false;
     return true;
+}
+
+void ScriptedBackend::adapt_view(float min_aspect, float max_aspect) {
+    adapt_ = true;
+    min_aspect_ = min_aspect;
+    max_aspect_ = max_aspect;
+}
+
+std::pair<int, int> ScriptedBackend::view_size() const {
+    if (!adapt_) {
+        return {0, 0};
+    }
+    return adapted_view(width_, height_, min_aspect_, max_aspect_, screen_width_, screen_height_);
 }
 
 void ScriptedBackend::reset_assets() {
@@ -50,7 +67,36 @@ bool ScriptedBackend::load_sound(const std::string& name, const std::string& /*p
     return true;
 }
 
+std::pair<int, int> adapted_view(int width, int height, float min_aspect, float max_aspect,
+                                 int screen_width, int screen_height) {
+    if (width <= 0 || height <= 0 || screen_width <= 0 || screen_height <= 0) {
+        return {width, height};
+    }
+    const float aspect =
+        std::clamp(static_cast<float>(screen_width) / static_cast<float>(screen_height), min_aspect,
+                   max_aspect);
+    if (width <= height) {
+        return {width,
+                std::max(1, static_cast<int>(std::lround(static_cast<float>(width) / aspect)))};
+    }
+    return {std::max(1, static_cast<int>(std::lround(static_cast<float>(height) * aspect))),
+            height};
+}
+
 namespace {
+
+/// Makes the viewport the size of the drawing area, when the backend lets it follow the screen:
+/// the interface anchors itself to its edges, so it moves with them.
+void follow_view(app::App& app, const Backend& backend) {
+    const auto [width, height] = backend.view_size();
+    auto* view = app.world().resource<app::Viewport>();
+    if (width > 0 && height > 0 && view != nullptr &&
+        (view->width != static_cast<std::uint32_t>(width) ||
+         view->height != static_cast<std::uint32_t>(height))) {
+        view->width = static_cast<std::uint32_t>(width);
+        view->height = static_cast<std::uint32_t>(height);
+    }
+}
 
 /// True when one of the back sources just went from released to pressed.
 bool back_pressed(const std::vector<std::string>& sources, const std::vector<RawEvent>& events,
@@ -85,6 +131,7 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
         for (const RawEvent& event : events) {
             raw.set(event.source, event.value);
         }
+        follow_view(app, backend);
         if (auto* live = app.world().resource<app::LiveInput>(); live != nullptr) {
             map.apply(raw, *live);
         }

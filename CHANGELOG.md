@@ -16,6 +16,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Export Android (ADR 0012, A7) : la cible `android` est proposée (`gectl export --targets` dit ce qui manque, le lanceur la liste) ; `--install` met l'APK sur le téléphone ou l'émulateur par `adb`, `--keystore` et `--key-alias` signent avec sa propre clé (mots de passe par l'environnement).
 
+- Jeux adaptatifs : `"window": {"adapt": true}` fait suivre à la zone de dessin la forme de l'écran (le petit côté garde sa taille, le grand s'étire dans des limites), pour remplir tous les téléphones sans bandes ; `doodle_jump` s'adapte de 9:16 à 9:21. `Backend::adapt_view`/`view_size`/`set_window_size`, `Viewport` mise à jour à chaque image, `geplay --window LxH` pour essayer une forme d'écran sur un ordinateur.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

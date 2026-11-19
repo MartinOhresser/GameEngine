@@ -2,6 +2,7 @@
 #include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/mod/action_control/action_control.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/platform/backend.hpp"
@@ -9,6 +10,7 @@
 #include "mini_test.hpp"
 
 #include <memory>
+#include <utility>
 
 using ge::platform::InputMap;
 using ge::platform::ScriptedBackend;
@@ -164,6 +166,50 @@ TEST_CASE("backend: a scripted backend remembers the size it was resized to") {
     CHECK(backend.resize(480, 800));
     CHECK(backend.width() == 480);
     CHECK(backend.height() == 800);
+}
+
+TEST_CASE("backend: a tall game takes the height of the screen, within limits") {
+    using ge::platform::adapted_view;
+    using Size = std::pair<int, int>;
+    // A phone 9:20 high, one 9:16, a tablet 3:4: the width stays, the height follows.
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 1080, 2400) == Size(480, 1067));
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 1080, 1920) == Size(480, 853));
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 1200, 1600) == Size(480, 640));
+    // Beyond the limits the shape stops there (and the screen has bars).
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 1000, 3000) == Size(480, 1200));
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 1000, 1000) == Size(480, 600));
+    // A wide game keeps its height instead.
+    CHECK(adapted_view(800, 600, 1.25F, 2.4F, 2400, 1080) == Size(1333, 600));
+    // A screen that is not known leaves the game's own size.
+    CHECK(adapted_view(480, 720, 0.4F, 0.8F, 0, 0) == Size(480, 720));
+}
+
+TEST_CASE("backend: the viewport of the game follows the screen while the loop runs") {
+    const auto viewport_after = [](bool adapt, int screen_width, int screen_height) {
+        ge::app::App app;
+        app.world().insert_resource(ge::app::Viewport{480, 720});
+        ScriptedBackend backend(60, 2);
+        backend.resize(480, 720);
+        backend.set_screen(screen_width, screen_height);
+        if (adapt) {
+            backend.adapt_view(0.4F, 0.8F);
+        }
+        ge::platform::run_loop(app, backend, InputMap{}, ge::platform::LoopOptions{});
+        return *app.world().resource<ge::app::Viewport>();
+    };
+    const ge::app::Viewport tall = viewport_after(true, 1080, 2400);
+    CHECK(tall.width == 480U);
+    CHECK(tall.height == 1067U);
+    // The same screen, but a game that did not ask for it keeps its size.
+    CHECK(viewport_after(false, 1080, 2400).height == 720U);
+    // A new fixed size ends the adaptation.
+    ScriptedBackend backend(60, 1);
+    backend.resize(480, 720);
+    backend.set_screen(1080, 2400);
+    backend.adapt_view(0.4F, 0.8F);
+    CHECK(backend.view_size().second == 1067);
+    CHECK(backend.resize(800, 560));
+    CHECK(backend.view_size().first == 0);
 }
 
 TEST_CASE("audio: the recorder remembers requests, the null device ignores them") {

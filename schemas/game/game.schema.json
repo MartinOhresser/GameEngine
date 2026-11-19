@@ -83,6 +83,27 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 16384
+        },
+        "adapt": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "min_aspect": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "max_aspect": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "additionalProperties": false

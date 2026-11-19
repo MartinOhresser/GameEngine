@@ -4,10 +4,12 @@
 #   run_game_on_device.sh game.apk OUTPUT_DIR
 # The package name is read from the APK. Writes screenshots, the log and a summary to OUTPUT_DIR.
 #
-# With GAME_WINDOW="480 720" (the game's window) and MENU_TAP="240 320" (where its Play button is,
-# in the pixels of the game), it also plays: it taps Play, checks that the menu is gone, holds a
-# finger on the stick at the bottom left and checks that the controls show, then presses Back and
-# checks that the game ends.
+# With GAME_WINDOW="480 720" (the game's window) and MENU_TAP="W/2 H/2-40" (where its Play button
+# is, in the pixels of the game: W and H are the width and the height of the area the game draws
+# in), it also plays: it taps Play, checks that the menu is gone, holds a finger on the stick at the
+# bottom left and checks that the controls show, then presses Back and checks that the game ends.
+# A game that follows the screen's shape (`adapt` in its window) says so with GAME_ADAPT="0.4 0.8"
+# (the limits of the shape), and W and H are then those of this screen.
 set -uo pipefail
 apk="$1"
 out="$2"
@@ -47,13 +49,30 @@ if grep -E "FATAL EXCEPTION|SIGSEGV|signal 11|Fatal signal" "$out/logcat.txt" | 
 fi
 grep -E "SDL|$package|DEBUG" "$out/logcat.txt" | head -80 > "$out/game.log" || true
 
-# A point of the game's window, as a fraction of the screen (the window is letterboxed).
-fraction() { # x y -> "fx fy"
-  python3 - "$width" "$height" $GAME_WINDOW "$1" "$2" <<'PY'
+# A point of the game's area, as a fraction of the screen. The area is as high as the screen when
+# the game follows its shape (GAME_ADAPT), else the window, letterboxed. x and y are expressions
+# of W and H, the width and the height of the area ("W/2 H-110").
+fraction() { # "x y" -> "fx fy"
+  python3 - "$width" "$height" $GAME_WINDOW "${GAME_ADAPT:-}" "$1" "$2" <<'PY'
 import sys
-w, h, gw, gh, x, y = map(float, sys.argv[1:7])
-scale = min(w / gw, h / gh)
-print((w - gw * scale) / 2 / w + x * scale / w, (h - gh * scale) / 2 / h + y * scale / h)
+w, h, gw, gh = map(float, sys.argv[1:5])
+adapt, ex, ey = sys.argv[5:8]
+vw, vh, inside = gw, gh, False
+if adapt:
+    low, high = map(float, adapt.split())
+    aspect = min(max(w / h, low), high)
+    inside = low <= w / h <= high
+    if gw <= gh:
+        vh = round(gw / aspect)
+    else:
+        vw = round(gh * aspect)
+env = {"__builtins__": {}, "W": vw, "H": vh}
+x, y = eval(ex, env), eval(ey, env)
+if inside:
+    print(x / vw, y / vh)
+else:
+    scale = min(w / vw, h / vh)
+    print((w - vw * scale) / 2 / w + x * scale / w, (h - vh * scale) / 2 / h + y * scale / h)
 PY
 }
 pixel() { python3 "$here/spike/pixel.py" "$1" $2; }
@@ -73,8 +92,8 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
 
   # A finger held on the stick (bottom left of the window), moved a little but inside its dead
   # zone so that the jumper stays on its platform; the swipe lasts 5 s in the background.
-  read -r sx sy < <(fraction 100 610)
-  read -r ex ey < <(fraction 104 610)
+  read -r sx sy < <(fraction 100 H-110)
+  read -r ex ey < <(fraction 104 H-110)
   sx_px="$(python3 -c "print(int($sx * $width))")"; sy_px="$(python3 -c "print(int($sy * $height))")"
   ex_px="$(python3 -c "print(int($ex * $width))")"; ey_px="$(python3 -c "print(int($ey * $height))")"
   adb shell input swipe "$sx_px" "$sy_px" "$ex_px" "$ey_px" 5000 &
@@ -82,7 +101,7 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
   adb exec-out screencap -p > "$out/shot4.png"
   wait
   # The stick is a grey disc, darker than the paper (250 247 225), at the left of its knob.
-  read -r bx by < <(fraction 70 610)
+  read -r bx by < <(fraction 70 H-110)
   base="$(pixel "$out/shot4.png" "$bx $by")"
   note "- stick base while a finger is on it: ($base)"
   read -r r g b <<< "$base"

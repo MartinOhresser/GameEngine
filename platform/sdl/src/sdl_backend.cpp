@@ -424,6 +424,13 @@ struct SdlBackend::Impl {
     bool quit = false;
     int width = 0; ///< The view of the window (what the renderer draws in).
     int height = 0;
+    /// The size the game asked for, and whether the view follows the shape of the window.
+    int design_width = 0;
+    int design_height = 0;
+    bool adapt = false;
+    bool stretched = false; ///< The view is stretched to the window (no bars), see follow_window.
+    float min_aspect = 0.0F;
+    float max_aspect = 0.0F;
     /// The fingers on the screen, in the order they came: slot i is `touch:down{i+1}`. 0 = free.
     std::vector<SDL_FingerID> fingers = std::vector<SDL_FingerID>(max_fingers, 0);
 };
@@ -497,6 +504,8 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
     impl->width = options.width;
     impl->height = options.height;
+    impl->design_width = options.width;
+    impl->design_height = options.height;
     impl->renderer = std::make_shared<SdlRenderer>(impl->session, options.capture, options.width,
                                                    options.height);
     impl->audio = std::make_shared<SdlAudio>(impl->session);
@@ -504,7 +513,37 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     return std::unique_ptr<SdlBackend>(new SdlBackend(std::move(impl)));
 }
 
+/// Gives the drawing area the shape of the window when the game asked for it, so that a phone
+/// of any shape is filled; the window can change (a resize, a turn of the phone) at any time.
+void SdlBackend::follow_window() {
+    Impl& impl = *impl_;
+    if (!impl.adapt) {
+        return;
+    }
+    int pixel_width = 0;
+    int pixel_height = 0;
+    SDL_GetWindowSizeInPixels(impl.session->window, &pixel_width, &pixel_height);
+    const auto [width, height] =
+        adapted_view(impl.design_width, impl.design_height, impl.min_aspect, impl.max_aspect,
+                     pixel_width, pixel_height);
+    // The height is a whole number of pixels, so it is a hair off the screen's shape: inside the
+    // limits the view is stretched by that hair (no bar), beyond them bars are left.
+    const float aspect = static_cast<float>(pixel_width) / static_cast<float>(pixel_height);
+    const bool inside = pixel_height > 0 && aspect >= impl.min_aspect && aspect <= impl.max_aspect;
+    if (width == impl.width && height == impl.height && inside == impl.stretched) {
+        return;
+    }
+    impl.stretched = inside;
+    SDL_SetRenderLogicalPresentation(impl.session->renderer, width, height,
+                                     inside ? SDL_LOGICAL_PRESENTATION_STRETCH
+                                            : SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl.renderer->set_view(width, height);
+    impl.width = width;
+    impl.height = height;
+}
+
 bool SdlBackend::poll(std::vector<RawEvent>& events) {
+    follow_window();
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -578,7 +617,23 @@ bool SdlBackend::resize(int width, int height) {
     impl_->renderer->set_view(width, height);
     impl_->width = width;
     impl_->height = height;
+    impl_->design_width = width;
+    impl_->design_height = height;
+    impl_->adapt = false;
+    impl_->stretched = false;
     return true;
+}
+
+void SdlBackend::adapt_view(float min_aspect, float max_aspect) {
+    impl_->adapt = true;
+    impl_->min_aspect = min_aspect;
+    impl_->max_aspect = max_aspect;
+    follow_window();
+}
+
+std::pair<int, int> SdlBackend::view_size() const {
+    return impl_->adapt ? std::pair<int, int>{impl_->width, impl_->height}
+                        : std::pair<int, int>{0, 0};
 }
 
 void SdlBackend::reset_assets() {
@@ -639,6 +694,14 @@ bool SdlBackend::inject_finger(std::uint64_t id, float x, float y, std::string_v
     event.tfinger.x = x;
     event.tfinger.y = y;
     return SDL_PushEvent(&event);
+}
+
+bool SdlBackend::inject_window_size(int width, int height) {
+    if (width <= 0 || height <= 0 || !SDL_SetWindowSize(impl_->session->window, width, height)) {
+        return false;
+    }
+    SDL_SyncWindow(impl_->session->window);
+    return true;
 }
 
 void SdlBackend::inject_quit() {

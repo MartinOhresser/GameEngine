@@ -165,6 +165,14 @@ Value game_schema(const Catalog& catalog) {
     Value window = Value::object();
     window.set("width", integer_between(1, 16384));
     window.set("height", integer_between(1, 16384));
+    Value aspect = type_only("number");
+    aspect.set("exclusiveMinimum", Value::integer(0));
+    Value range = Value::object();
+    range.set("min_aspect", aspect);
+    range.set("max_aspect", aspect);
+    Value adapt = Value::object();
+    adapt.set("oneOf", Value::array({type_only("boolean"), closed_object(std::move(range))}));
+    window.set("adapt", std::move(adapt));
     properties.set("window", closed_object(std::move(window)));
     properties.set("params", params_schema(catalog));
     Value list = type_only("array");
