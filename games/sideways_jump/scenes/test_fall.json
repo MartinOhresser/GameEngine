@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "test_fall",
+  "entities": [
+    { "name": "player", "prefab": "player", "components": { "transform2d.Position": { "x": 400, "y": 240 } } },
+    { "name": "camera", "prefab": "camera", "components": {} },
+    {
+      "name": "end_of_game",
+      "components": { "scene_switch.GoToScene": { "scene": "gameover", "use_action": true, "action": "died" } }
+    }
+  ]
+}

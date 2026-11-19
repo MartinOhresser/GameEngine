@@ -1,0 +1,15 @@
+// Gravity pulls to the left: 1400 units per second per second, so after 5 ticks (a twelfth of a
+// second) the jumper moves left at 116.7 units per second, and it never moves up or down.
+{
+  "schema_version": 1,
+  "name": "gravity_pulls_left",
+  "scene": "test_fall",
+  "ticks": 5,
+  "expect": [
+    { "at": 0, "check": "player.transform2d.Velocity.x == 0" },
+    { "at": 5, "check": "player.transform2d.Velocity.x < -116" },
+    { "at": 5, "check": "player.transform2d.Velocity.x > -117" },
+    { "at": 5, "check": "player.transform2d.Position.x < 399" },
+    { "at": 5, "check": "player.transform2d.Position.y == 240" },
+  ],
+}

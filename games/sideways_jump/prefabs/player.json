@@ -1,0 +1,21 @@
+// The jumper. Gravity pulls it to the left; landing on a block throws it back to the right
+// (bounce2d). Up and Down steer it (the action move_y), and it comes back at the bottom when it
+// leaves at the top. Leaving the screen on the left kills it (action `died`). How far right it got
+// is the score.
+{
+  "schema_version": 1,
+  "name": "player",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "gravity2d.Gravity": { "x": -1400, "y": 0, "terminal_speed": 1800 },
+    "action_control.Controlled": { "speed": 380, "horizontal": false },
+    "screen_wrap.WrapArea": { "height": 480, "wrap_x": false },
+    "collision2d.Collider": { "width": 24, "height": 24, "layer": ["player"], "mask": 0 },
+    "bounce2d.Bouncer": { "fall_x": -1, "fall_y": 0 },
+    "combat2d.Mortal": { "fall_death": true, "fall_x": -1, "fall_y": 0, "fall_margin": 60, "on_death": "died" },
+    "progress.Progress": { "toward_x": 1, "toward_y": 0, "scale": 0.5 },
+    "debug_draw.Square": { "size": 24, "red": 240, "green": 120, "blue": 60 },
+    "camera2d.CameraTarget": {}
+  }
+}

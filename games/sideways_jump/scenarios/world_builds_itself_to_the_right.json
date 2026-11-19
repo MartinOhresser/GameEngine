@@ -1,0 +1,13 @@
+// The blocks are made ahead of the jumper, to the right of the screen, while it plays: a few
+// ticks in, the space beyond the right edge is already full.
+{
+  "schema_version": 1,
+  "name": "world_builds_itself_to_the_right",
+  "scene": "game",
+  "ticks": 10,
+  "expect": [
+    { "at": 0, "check": "entities < 7" },
+    { "at": 3, "check": "entities > 8" },
+    "player alive",
+  ],
+}

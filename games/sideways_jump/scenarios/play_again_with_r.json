@@ -1,0 +1,17 @@
+// After the game over, R starts a new game: the jumper is back on its start block.
+{
+  "schema_version": 1,
+  "name": "play_again_with_r",
+  "scene": "test_fall",
+  "ticks": 120,
+  "inputs": [
+    { "tick": 100, "action": "restart", "value": 1 },
+    { "tick": 102, "action": "restart", "value": 0 },
+  ],
+  "expect": [
+    { "at": 99, "check": "scene is gameover" },
+    { "at": 110, "check": "scene is game" },
+    { "at": 110, "check": "player alive" },
+    { "at": 110, "check": "player.progress.Progress.score == 0" },
+  ],
+}
