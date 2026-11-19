@@ -16,6 +16,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Export Android (ADR 0012, A7) : la cible `android` est proposée (`gectl export --targets` dit ce qui manque, le lanceur la liste) ; `--install` met l'APK sur le téléphone ou l'émulateur par `adb`, `--keystore` et `--key-alias` signent avec sa propre clé (mots de passe par l'environnement).
 
+- Menus : `ui.Menu` lit ses boutons comme un tableau d'après leur place à l'écran. Nouvelles actions `left` et `right` : elles déplacent le focus le long d'une ligne de boutons côte à côte, `up` et `down` changent de ligne (vers le bouton le plus proche), grilles comprises. Le lanceur : flèches gauche/droite (ou A/D) naviguent, PageUp/PageDown tournent les pages.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

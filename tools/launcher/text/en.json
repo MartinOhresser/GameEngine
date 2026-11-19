@@ -3,7 +3,7 @@
   "locale": "en",
   "entries": {
     "launcher.title": "Game Engine",
-    "launcher.hint": "Up/Down: choose   Enter: play   Left/Right: pages   Esc: quit",
+    "launcher.hint": "Up/Down/Left/Right: choose   Enter: play   PgUp/PgDn: pages   Esc: quit",
     "button.prev": "<",
     "button.next": ">",
     "button.quit": "Quit",

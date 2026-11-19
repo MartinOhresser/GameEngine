@@ -76,6 +76,8 @@
           "group": "export_menu",
           "up": "menu_up",
           "down": "menu_down",
+          "left": "menu_left",
+          "right": "menu_right",
           "accept": "menu_accept",
           "use_pointer": true,
           "pointer_x": "pointer_x",

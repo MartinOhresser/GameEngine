@@ -248,6 +248,10 @@ void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.up = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "down") {
             component.down = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "left") {
+            component.left = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "right") {
+            component.right = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "accept") {
             component.accept = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "use_pointer") {
@@ -288,6 +292,12 @@ std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world,
     if (field == "down") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->down)};
     }
+    if (field == "left") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->left)};
+    }
+    if (field == "right") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->right)};
+    }
     if (field == "accept") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->accept)};
     }
@@ -312,7 +322,7 @@ std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 12> component_6_fields{{{"group", "u32", "menu", false}, {"focused", "u32", "", false}, {"wrap", "bool", "", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"accept", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 14> component_6_fields{{{"group", "u32", "menu", false}, {"focused", "u32", "", false}, {"wrap", "bool", "", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"accept", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
 
 void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

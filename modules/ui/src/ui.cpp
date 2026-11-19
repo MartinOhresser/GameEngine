@@ -13,7 +13,9 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <numeric>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace ge::mod::ui {
@@ -63,19 +65,80 @@ std::vector<Candidate> buttons_of(ecs::World& world, std::uint32_t menu) {
     return found;
 }
 
-/// Where the focus goes after `up` or `down`, an index among the sorted buttons.
-std::size_t moved_focus(std::size_t current, std::size_t count, int step, bool wrap) {
-    const std::size_t last = count - 1;
-    if (step < 0) {
-        if (current > 0) {
-            return current - 1;
+enum class Direction : std::uint8_t { Up, Down, Left, Right };
+
+/// The buttons as a table: the ones that sit side by side (their boxes overlap vertically, and
+/// they are not on top of each other) share a row; rows go from top to bottom, the buttons of a
+/// row from left to right. Each cell is an index into `buttons`. Buttons that have the same place
+/// count as different rows, one after the other in the order of their numbers.
+std::vector<std::vector<std::size_t>> rows_of(const std::vector<Candidate>& buttons) {
+    std::vector<std::size_t> by_height(buttons.size());
+    std::iota(by_height.begin(), by_height.end(), std::size_t{0});
+    std::stable_sort(by_height.begin(), by_height.end(), [&buttons](std::size_t a, std::size_t b) {
+        return buttons[a].y < buttons[b].y;
+    });
+    std::vector<std::vector<std::size_t>> rows;
+    for (const std::size_t index : by_height) {
+        const Candidate& button = buttons[index];
+        bool beside = !rows.empty();
+        if (beside) {
+            const Candidate& first = buttons[rows.back().front()];
+            beside = std::fabs(button.y - first.y) < first.half_height + button.half_height &&
+                     std::ranges::none_of(rows.back(), [&](std::size_t member) {
+                         return std::fabs(buttons[member].x - button.x) < 1.0F;
+                     });
         }
-        return wrap ? last : 0;
+        if (beside) {
+            rows.back().push_back(index);
+        } else {
+            rows.push_back({index});
+        }
     }
-    if (current < last) {
-        return current + 1;
+    for (std::vector<std::size_t>& row : rows) {
+        std::stable_sort(row.begin(), row.end(), [&buttons](std::size_t a, std::size_t b) {
+            return buttons[a].x < buttons[b].x;
+        });
     }
-    return wrap ? 0 : last;
+    return rows;
+}
+
+/// The position `step` (-1 or 1) from `at` in a line of `count` places: round the ends with
+/// `wrap`, else where it already is.
+std::size_t stepped(std::size_t at, std::size_t count, int step, bool wrap) {
+    if (step < 0) {
+        return at > 0 ? at - 1 : (wrap ? count - 1 : at);
+    }
+    return at + 1 < count ? at + 1 : (wrap ? 0 : at);
+}
+
+/// Where the focus goes after a key: left and right move along the row, up and down go to the
+/// row above or below, to the button of it that is the nearest to where the focus is. An index
+/// among the sorted buttons (the same one when there is nowhere to go).
+std::size_t moved_focus(const std::vector<Candidate>& buttons, std::size_t current,
+                        Direction direction, bool wrap) {
+    const std::vector<std::vector<std::size_t>> rows = rows_of(buttons);
+    std::size_t row = 0;
+    std::size_t column = 0;
+    for (std::size_t r = 0; r < rows.size(); ++r) {
+        const auto found = std::ranges::find(rows[r], current);
+        if (found != rows[r].end()) {
+            row = r;
+            column = static_cast<std::size_t>(found - rows[r].begin());
+        }
+    }
+    if (direction == Direction::Left || direction == Direction::Right) {
+        const int step = direction == Direction::Left ? -1 : 1;
+        return rows[row][stepped(column, rows[row].size(), step, wrap)];
+    }
+    const int step = direction == Direction::Up ? -1 : 1;
+    const std::size_t target = stepped(row, rows.size(), step, wrap);
+    if (target == row) {
+        return current;
+    }
+    const float x = buttons[current].x;
+    return *std::ranges::min_element(rows[target], [&](std::size_t a, std::size_t b) {
+        return std::fabs(buttons[a].x - x) < std::fabs(buttons[b].x - x);
+    });
 }
 
 std::optional<std::size_t> hovered(const std::vector<Candidate>& buttons, float x, float y) {
@@ -105,11 +168,14 @@ void run_menu(ecs::World& world, Menu& menu, app::Actions& actions, const app::A
     });
     std::size_t current =
         by_order == buttons.end() ? 0U : static_cast<std::size_t>(by_order - buttons.begin());
-    if (pressed(actions, names, menu.up)) {
-        current = moved_focus(current, buttons.size(), -1, menu.wrap);
-    }
-    if (pressed(actions, names, menu.down)) {
-        current = moved_focus(current, buttons.size(), 1, menu.wrap);
+    const std::pair<std::uint32_t, Direction> keys[] = {{menu.up, Direction::Up},
+                                                        {menu.down, Direction::Down},
+                                                        {menu.left, Direction::Left},
+                                                        {menu.right, Direction::Right}};
+    for (const auto& [action, direction] : keys) {
+        if (pressed(actions, names, action)) {
+            current = moved_focus(buttons, current, direction, menu.wrap);
+        }
     }
     bool clicked = false;
     if (menu.use_pointer) {

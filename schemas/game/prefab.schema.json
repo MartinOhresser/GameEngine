@@ -1228,6 +1228,16 @@
               "minimum": 0,
               "maximum": 4294967295
             },
+            "left": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "right": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
             "accept": {
               "type": "integer",
               "minimum": 0,

@@ -34,8 +34,9 @@ struct Scene {
         CHECK(app.module_problems().empty());
         CHECK(app.schedule().problems().empty());
         // The game's actions, as a game's manifest would list them.
-        app.world().insert_resource(ge::app::ActionNames{
-            {"up", "down", "accept", "pointer_x", "pointer_y", "click", "play", "quit"}});
+        app.world().insert_resource(
+            ge::app::ActionNames{{"up", "down", "accept", "pointer_x", "pointer_y", "click", "play",
+                                  "quit", "left", "right", "help"}});
     }
 
     template <typename... Components>
@@ -59,6 +60,9 @@ constexpr std::uint32_t pointer_y = 4;
 constexpr std::uint32_t click = 5;
 constexpr std::uint32_t play = 6;
 constexpr std::uint32_t quit = 7;
+constexpr std::uint32_t left = 8;
+constexpr std::uint32_t right = 9;
+constexpr std::uint32_t help = 10;
 
 ui::Menu menu_with_keys() {
     ui::Menu menu;
@@ -236,6 +240,107 @@ TEST_CASE("ui: the focus wraps round, or stops at the ends") {
     stopped.app.world().resource<ge::app::ScriptedInput>()->add(0, "up", 1.0F);
     stopped.app.run_frames(1);
     CHECK(stopped.app.world().get<ui::Menu>(fixed)->focused == 0U);
+}
+
+namespace {
+
+/// Presses an action for a tick, then lets a tick go by, as a key does.
+void tap(Scene& scene, const std::string& action, std::uint64_t tick) {
+    auto* script = scene.app.world().resource<ge::app::ScriptedInput>();
+    script->add(tick, action, 1.0F);
+    script->add(tick + 1, action, 0.0F);
+}
+
+/// The number of the button that has the focus of the (only) menu.
+std::uint32_t focused(Scene& scene) {
+    std::uint32_t found = 0;
+    scene.app.world().each<const ui::Menu>(
+        [&found](ge::ecs::Entity, const ui::Menu& m) { found = m.focused; });
+    return found;
+}
+
+ui::Menu menu_with_arrows() {
+    ui::Menu menu = menu_with_keys();
+    menu.left = left;
+    menu.right = right;
+    return menu;
+}
+
+ui::Button sized(std::uint32_t order, float width, float height) {
+    ui::Button result = button(order, play);
+    result.width = width;
+    result.height = height;
+    return result;
+}
+
+} // namespace
+
+TEST_CASE("ui: buttons side by side are moved through with left and right, not up and down") {
+    Scene scene;
+    scene.spawn(menu_with_arrows());
+    // A row of three at the same height, with a wide button above them.
+    scene.spawn(transform2d::Position{100.0F, 0.0F}, sized(0, 300.0F, 30.0F));
+    scene.spawn(transform2d::Position{40.0F, 60.0F}, sized(1, 56.0F, 36.0F));
+    scene.spawn(transform2d::Position{110.0F, 62.0F}, sized(2, 56.0F, 36.0F)); // a little lower
+    scene.spawn(transform2d::Position{180.0F, 60.0F}, sized(3, 56.0F, 36.0F));
+    tap(scene, "down", 1); // to the row: the button nearest to the middle of the one above
+    tap(scene, "right", 3);
+    tap(scene, "right", 5); // the end of the row: round to its first
+    tap(scene, "left", 7);  // and back to its last
+    tap(scene, "up", 9);
+    tap(scene, "down", 11);
+    scene.app.run_frames(1);
+    CHECK(focused(scene) == 0U);
+    for (const std::uint32_t at : {2U, 3U, 1U, 3U, 0U, 2U}) {
+        scene.app.run_frames(2);
+        CHECK(focused(scene) == at);
+    }
+}
+
+TEST_CASE("ui: up and down go to the button of the next row that is the nearest") {
+    Scene scene;
+    scene.spawn(menu_with_arrows());
+    // A game's row, wide, above a bar of buttons (the launcher): down from the row lands on
+    // the button below its middle, up from the far right one goes to the row.
+    scene.spawn(transform2d::Position{205.0F, 124.0F}, sized(0, 330.0F, 40.0F));
+    scene.spawn(transform2d::Position{68.0F, 506.0F}, sized(1, 56.0F, 36.0F));
+    scene.spawn(transform2d::Position{214.0F, 506.0F}, sized(2, 100.0F, 36.0F));
+    scene.spawn(transform2d::Position{320.0F, 506.0F}, sized(3, 100.0F, 36.0F));
+    tap(scene, "down", 1);
+    tap(scene, "right", 3);
+    tap(scene, "up", 5);
+    scene.app.run_frames(1);
+    CHECK(focused(scene) == 0U);
+    scene.app.run_frames(2);
+    CHECK(focused(scene) == 2U); // nearest below x 205 is the one at 214
+    scene.app.run_frames(2);
+    CHECK(focused(scene) == 3U);
+    scene.app.run_frames(2);
+    CHECK(focused(scene) == 0U);
+}
+
+TEST_CASE("ui: a grid is moved through in both directions, and left stops at an end without wrap") {
+    Scene scene;
+    ui::Menu menu = menu_with_arrows();
+    menu.wrap = false;
+    scene.spawn(menu);
+    for (std::uint32_t i = 0; i < 6; ++i) { // 3 columns, 2 rows
+        const auto column = static_cast<float>(i % 3U);
+        const auto row = static_cast<float>(i / 3U);
+        scene.spawn(transform2d::Position{column * 50.0F, row * 50.0F}, sized(i, 40.0F, 40.0F));
+    }
+    tap(scene, "right", 1);
+    tap(scene, "down", 3);
+    tap(scene, "left", 5);
+    tap(scene, "left", 7); // the left end: stays
+    tap(scene, "down", 9); // the bottom: stays
+    tap(scene, "up", 11);
+    const std::uint32_t expected[] = {1, 4, 3, 3, 3, 0};
+    scene.app.run_frames(1);
+    for (const std::uint32_t at : expected) {
+        scene.app.run_frames(2);
+        CHECK(focused(scene) == at);
+    }
 }
 
 TEST_CASE("ui: the pointer focuses the button it moves over and a click presses it") {

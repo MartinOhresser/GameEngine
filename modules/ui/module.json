@@ -68,7 +68,7 @@
     },
     {
       "name": "Menu",
-      "description": "The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's \"menu\" list; wrap makes the focus go round. focused is the number of the focused button.",
+      "description": "The controller of one menu: the Buttons of the same group. They are read as a table, as they are laid out on the screen: the ones side by side (about the same height) make a row. left and right (actions of the game) move the focus along the row, up and down to the row above or below, to the button that is the nearest; buttons on top of each other count as one after the other, in the order of their numbers. accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's \"menu\" list; wrap makes the focus go round. focused is the number of the focused button.",
       "replicable": false,
       "fields": [
         { "name": "group", "type": "u32", "default": 0, "ref": "menu" },
@@ -76,6 +76,8 @@
         { "name": "wrap", "type": "bool", "default": true },
         { "name": "up", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "down", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "left", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "accept", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "use_pointer", "type": "bool", "default": false },
         { "name": "pointer_x", "type": "u32", "default": 4294967295, "ref": "action" },
