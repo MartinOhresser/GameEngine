@@ -40,29 +40,6 @@
                 },
                 "additionalProperties": false
               },
-              "altitude.Altitude": {
-                "type": "object",
-                "properties": {
-                  "scale": {
-                    "type": "number"
-                  },
-                  "origin_y": {
-                    "type": "number"
-                  },
-                  "started": {
-                    "type": "boolean"
-                  },
-                  "height": {
-                    "type": "number"
-                  },
-                  "score": {
-                    "type": "integer",
-                    "minimum": -2147483648,
-                    "maximum": 2147483647
-                  }
-                },
-                "additionalProperties": false
-              },
               "bounce2d.Bouncer": {
                 "type": "object",
                 "properties": {
@@ -600,6 +577,35 @@
                   },
                   "radius": {
                     "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "progress.Progress": {
+                "type": "object",
+                "properties": {
+                  "toward_x": {
+                    "type": "number"
+                  },
+                  "toward_y": {
+                    "type": "number"
+                  },
+                  "scale": {
+                    "type": "number"
+                  },
+                  "origin": {
+                    "type": "number"
+                  },
+                  "started": {
+                    "type": "boolean"
+                  },
+                  "distance": {
+                    "type": "number"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
                   }
                 },
                 "additionalProperties": false

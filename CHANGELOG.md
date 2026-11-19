@@ -28,6 +28,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Changed
 
+- Le module `altitude` devient `progress` : `progress.Progress` mesure jusqu'où une entité est allée dans un sens (`toward_x`, `toward_y` ; haut par défaut, droite pour un coureur, bas, gauche), sans compter les retours en arrière, et en tire un score entier. `Altitude` devient `Progress`, `height` `distance` et `origin_y` `origin`. `doodle_jump` est mis à jour.
+
 - `spawner2d.Generator` ne pose plus ses rangées « vers le haut » : `toward_x` et `toward_y` donnent le sens (haut par défaut ; droite pour un coureur, bas, gauche), et `spawner2d.Cull` détruit ce qui sort du côté d'écran que disent `side_x` et `side_y` (bas par défaut). Les champs qui parlaient de hauteur ou de x et y en dur sont renommés : `x_min`/`x_max` deviennent `across_min`/`across_max` (en travers du sens), `next_y` `next`, `origin_y` `origin`, `ramp_height` `ramp_distance`, `from_height` `from_distance`, `extra_dx` `extra_across` et `extra_dy` `extra_along` (positif : en avant ; l'ancien `-14` s'écrit `14`). `across_max` vaut 0 par défaut (480 était la largeur de doodle_jump). `doodle_jump` est mis à jour et construit le même monde pour la même graine.
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

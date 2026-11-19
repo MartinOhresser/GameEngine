@@ -8,27 +8,27 @@
   "expect": [
     {
       "at": 0,
-      "check": "player.altitude.Altitude.score == 0"
+      "check": "player.progress.Progress.score == 0"
     },
     {
       "at": 40,
-      "check": "player.altitude.Altitude.score > 100"
+      "check": "player.progress.Progress.score > 100"
     },
     {
       "at": 80,
-      "check": "player.altitude.Altitude.score >= 228"
+      "check": "player.progress.Progress.score >= 228"
     },
     {
       "at": 80,
-      "check": "player.altitude.Altitude.score < 240"
+      "check": "player.progress.Progress.score < 240"
     },
     {
       "at": 120,
-      "check": "player.altitude.Altitude.score >= 228"
+      "check": "player.progress.Progress.score >= 228"
     },
     {
       "at": 120,
-      "check": "player.altitude.Altitude.height > 450"
+      "check": "player.progress.Progress.distance > 450"
     }
   ]
 }

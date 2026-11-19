@@ -37,7 +37,7 @@
         "records.Record": {
           "key": "best_height",
           "source": "player",
-          "field": "altitude.Altitude.score"
+          "field": "progress.Progress.score"
         }
       }
     },
