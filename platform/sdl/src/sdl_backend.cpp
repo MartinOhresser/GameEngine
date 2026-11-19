@@ -1,5 +1,7 @@
 #include "ge/platform/sdl/sdl_backend.hpp"
 
+#include "ge/core/path.hpp"
+
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cctype>
@@ -109,7 +111,7 @@ public:
     }
 
     bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
-        std::ifstream file(atlas.image, std::ios::binary);
+        std::ifstream file(core::path_from_utf8(atlas.image), std::ios::binary);
         if (!file) {
             error = "cannot read the image \"" + atlas.image + "\"";
             return false;
@@ -390,6 +392,15 @@ std::string user_data_directory(const std::string& game) {
     std::string directory = path;
     SDL_free(path);
     return directory;
+}
+
+std::string base_directory() {
+    const char* path = SDL_GetBasePath();
+    return path == nullptr ? std::string() : std::string(path);
+}
+
+void show_error(const std::string& title, const std::string& message) {
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), message.c_str(), nullptr);
 }
 
 std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std::string& error) {

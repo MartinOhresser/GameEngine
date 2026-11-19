@@ -2,6 +2,7 @@ add_executable(
   ge_tests
   support/main.cpp
   core/test_hash.cpp
+  core/test_path.cpp
   core/test_random.cpp
   core/test_version.cpp
   game/test_atlas.cpp
@@ -48,7 +49,7 @@ foreach(module_name IN LISTS all_modules)
 endforeach()
 target_compile_definitions(ge_tests PRIVATE GE_EXPECTED_VERSION="${PROJECT_VERSION}")
 if(GE_BUILD_TOOLS)
-  target_sources(ge_tests PRIVATE tools/test_gectl.cpp runner/test_runner.cpp)
+  target_sources(ge_tests PRIVATE tools/test_gectl.cpp tools/test_export.cpp runner/test_runner.cpp)
   target_link_libraries(ge_tests PRIVATE gectl_lib ge::runner)
   target_include_directories(ge_tests PRIVATE "${PROJECT_SOURCE_DIR}/tools/gectl")
   target_compile_definitions(ge_tests PRIVATE GE_SOURCE_DIR="${PROJECT_SOURCE_DIR}")

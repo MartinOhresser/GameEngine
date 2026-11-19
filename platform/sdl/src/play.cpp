@@ -2,6 +2,7 @@
 
 #include "ge/app/save.hpp"
 #include "ge/app/viewport.hpp"
+#include "ge/core/path.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -15,7 +16,7 @@ namespace ge::platform::sdl {
 namespace {
 
 std::optional<std::string> read_text(const std::string& path) {
-    std::ifstream stream(path, std::ios::binary);
+    std::ifstream stream(core::path_from_utf8(path), std::ios::binary);
     if (!stream) {
         return std::nullopt;
     }
@@ -23,7 +24,7 @@ std::optional<std::string> read_text(const std::string& path) {
 }
 
 void write_text(const std::string& path, const std::string& text, std::ostream& err) {
-    std::ofstream stream(path, std::ios::binary | std::ios::trunc);
+    std::ofstream stream(core::path_from_utf8(path), std::ios::binary | std::ios::trunc);
     stream << text;
     if (!stream) {
         err << "cannot write the save file " << path << '\n';
@@ -33,7 +34,7 @@ void write_text(const std::string& path, const std::string& text, std::ostream& 
 /// The .wav files of `<game directory>/sounds`, each named by its file name without extension.
 void load_sounds(Backend& backend, const std::string& manifest_path, std::ostream& err) {
     namespace fs = std::filesystem;
-    const fs::path directory = fs::path(manifest_path).parent_path() / "sounds";
+    const fs::path directory = core::path_from_utf8(manifest_path).parent_path() / "sounds";
     std::error_code ignored;
     if (!fs::is_directory(directory, ignored)) {
         return;
@@ -47,7 +48,7 @@ void load_sounds(Backend& backend, const std::string& manifest_path, std::ostrea
     std::sort(files.begin(), files.end());
     for (const fs::path& file : files) {
         std::string error;
-        if (!backend.load_sound(file.stem().string(), file.string(), error)) {
+        if (!backend.load_sound(core::path_to_utf8(file.stem()), core::path_to_utf8(file), error)) {
             err << manifest_path << ": " << error << '\n';
         }
     }
