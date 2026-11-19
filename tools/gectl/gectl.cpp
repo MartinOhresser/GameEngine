@@ -8,6 +8,7 @@
 #include "ge/module/generate.hpp"
 #include "ge/module/spec.hpp"
 
+#include "export.hpp"
 #include "scaffold.hpp"
 
 #include <algorithm>
@@ -49,6 +50,13 @@ constexpr const char* usage_text =
     "      modules and whether they are valid. An invalid game is listed, not fatal.\n"
     "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
+    "  gectl export   GAME.json [--target windows] [--out DIR] [--skip-tests]\n"
+    "                 [--source DIR] [--build-dir DIR] [--cmake-arg ARG]\n"
+    "      Make a zip of the game that anyone can run (default target windows, DIR dist).\n"
+    "      It validates the game, replays its scenarios, builds its program with only the\n"
+    "      modules it uses and gathers the program, the game's files, a README and the licenses.\n"
+    "  gectl export   --targets\n"
+    "      List the platforms a game can be exported for, and whether this machine can.\n"
     "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
     "      Create DIR/NAME with a working example (module.json, system, test).\n"
     "  gectl help\n"
@@ -62,6 +70,13 @@ struct Options {
     bool json = false;
     bool compact = false;
     bool check_only = false;
+    bool out_given = false;
+    bool skip_tests = false;
+    bool targets = false;
+    std::string target = "windows";
+    std::string source_dir = ".";
+    std::string build_dir;
+    std::vector<std::string> cmake_arguments;
     std::vector<std::string> names;
     std::vector<std::string> depends;
 };
@@ -103,11 +118,31 @@ std::string parse_options(const std::vector<std::string>& args, Options& options
                 return "--out needs a directory";
             }
             options.out_dir = args[++i];
+            options.out_given = true;
         } else if (arg == "--depends") {
             if (i + 1 >= args.size()) {
                 return "--depends needs a comma-separated list of modules";
             }
             options.depends = split_commas(args[++i]);
+        } else if (arg == "--target" || arg == "--source" || arg == "--build-dir" ||
+                   arg == "--cmake-arg") {
+            if (i + 1 >= args.size()) {
+                return arg + " needs a value";
+            }
+            const std::string& value = args[++i];
+            if (arg == "--target") {
+                options.target = value;
+            } else if (arg == "--source") {
+                options.source_dir = value;
+            } else if (arg == "--build-dir") {
+                options.build_dir = value;
+            } else {
+                options.cmake_arguments.push_back(value);
+            }
+        } else if (arg == "--skip-tests") {
+            options.skip_tests = true;
+        } else if (arg == "--targets") {
+            options.targets = true;
         } else if (arg == "--compact") {
             options.compact = true;
         } else if (arg == "--check") {
@@ -467,6 +502,26 @@ int command_validate(const Options& options, std::ostream& out, std::ostream& er
     return exit_ok;
 }
 
+int command_export(const Options& options, std::ostream& out, std::ostream& err) {
+    if (options.targets) {
+        print_export_targets(out);
+        return exit_ok;
+    }
+    if (options.names.size() != 1) {
+        err << "export needs exactly one game file\n\n" << usage_text;
+        return exit_usage;
+    }
+    ExportRequest request;
+    request.manifest = options.names.front();
+    request.target = options.target;
+    request.out_dir = options.out_given ? options.out_dir : "dist";
+    request.source_dir = options.source_dir;
+    request.build_dir = options.build_dir;
+    request.skip_tests = options.skip_tests;
+    request.cmake_arguments = options.cmake_arguments;
+    return export_game(request, out, err);
+}
+
 } // namespace
 
 int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostream& err) {
@@ -481,7 +536,7 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command != "check" && command != "catalog" && command != "generate" &&
         command != "validate" && command != "schema" && command != "new-module" &&
-        command != "list") {
+        command != "list" && command != "export") {
         err << "unknown command \"" << command << "\"\n\n" << usage_text;
         return exit_usage;
     }
@@ -507,6 +562,9 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command == "list") {
         return command_list(options, out, err);
+    }
+    if (command == "export") {
+        return command_export(options, out, err);
     }
     return command_generate(options, out, err);
 }

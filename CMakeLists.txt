@@ -29,6 +29,7 @@ else()
 endif()
 
 include(cmake/GeOptions.cmake)
+include(cmake/GeRegistry.cmake)
 
 add_subdirectory(src)
 add_subdirectory(modules)

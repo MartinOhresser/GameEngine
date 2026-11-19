@@ -176,6 +176,7 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 8. ✅ **M7** Rendu 2D : atlas, sprites, animation, caméra, collisions 2D (`games/treasure_run`).
 9. ✅ **M8** Interface : texte par langue, changement de scène, HUD, menus, inventaire configurable (fin du MVP : `games/treasure_run`).
 10. ✅ **Doodle Jump** : premier jeu demandé après le MVP (`games/doodle_jump`, [docs/DOODLE_JUMP.md](docs/DOODLE_JUMP.md)) : gravité, rebonds, monde généré, mort, score, meilleur score sauvegardé, sans C++ dans le jeu.
+11. 🚧 **Lanceur et export** : `gelauncher` parcourt et joue les jeux ([docs/LAUNCHER.md](docs/LAUNCHER.md)), `gectl export` fabrique un zip autonome d'un jeu, d'abord pour Windows ([docs/EXPORT.md](docs/EXPORT.md)).
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 

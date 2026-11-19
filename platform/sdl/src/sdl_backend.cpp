@@ -392,6 +392,15 @@ std::string user_data_directory(const std::string& game) {
     return directory;
 }
 
+std::string base_directory() {
+    const char* path = SDL_GetBasePath();
+    return path == nullptr ? std::string() : std::string(path);
+}
+
+void show_error(const std::string& title, const std::string& message) {
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), message.c_str(), nullptr);
+}
+
 std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std::string& error) {
     if (options.headless) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");

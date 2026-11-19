@@ -129,6 +129,87 @@ jobs:
           name: screenshot-${{ matrix.name }}
           path: screenshot.bmp
 
+  # `gectl export` makes the zip that players receive. This job makes it for real, unpacks it in a
+  # folder with spaces and an accent, checks that nothing but system libraries is needed, and
+  # plays it without a window.
+  export:
+    name: Export ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Windows", os: windows-latest, target: windows }
+          - { name: "Linux", os: ubuntu-24.04, target: linux }
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install SDL3 build dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+            libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
+            libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
+      - name: Install Ninja (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ninja -y
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build gectl
+        run: |
+          cmake --preset release
+          cmake --build --preset release --target gectl
+      - name: Export Doodle Jump
+        shell: bash
+        run: |
+          exe=build/release/tools/gectl
+          if [ ! -f "$exe" ]; then exe="$exe.exe"; fi
+          "$exe" export games/doodle_jump/game.json --target ${{ matrix.target }} --out dist
+      - name: Check the package and unpack it in a folder with spaces and an accent
+        shell: bash
+        run: |
+          set -e
+          zip=$(ls dist/*.zip)
+          cmake -E tar tf "$zip" | tee contents.txt
+          grep -q "README.txt" contents.txt
+          grep -q "LICENSES.txt" contents.txt
+          grep -q "data/game.json" contents.txt
+          if grep -q "scenarios" contents.txt; then echo "::error::scenarios are shipped"; exit 1; fi
+          mkdir -p "unpacked/Mon dossier é"
+          (cd "unpacked/Mon dossier é" && cmake -E tar xf "$GITHUB_WORKSPACE/$zip")
+      - name: Check what the program depends on (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -e
+          exe=$(find unpacked -maxdepth 3 -type f -name '*.exe' | head -n 1)
+          echo "program: $exe"
+          dumpbin -dependents "$exe" | tee dependents.txt
+          if grep -qiE "vcruntime|msvcp|msvcr|ucrtbase|api-ms-win-crt|sdl3" dependents.txt; then
+            echo "::error::the program needs a library that Windows does not have"
+            exit 1
+          fi
+      - name: Play the package without a window
+        shell: bash
+        run: |
+          set -e
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            exe=$(find unpacked -maxdepth 3 -type f -name '*.exe' | head -n 1)
+          else
+            exe=$(find unpacked -maxdepth 3 -type f -perm -u+x | head -n 1)
+          fi
+          echo "playing $exe"
+          chmod +x "$exe"
+          "$exe" --headless --frames 30 --screenshot screenshot.bmp
+          test -s screenshot.bmp
+      - name: Keep the package
+        uses: actions/upload-artifact@v7
+        with:
+          name: export-${{ matrix.name }}
+          path: dist/*.zip
+
   coverage:
     name: Coverage
     runs-on: ubuntu-24.04
@@ -215,6 +296,7 @@ jobs:
       - modules
       - build-test
       - platform
+      - export
       - coverage
       - wasm
       - android

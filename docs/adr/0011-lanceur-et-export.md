@@ -77,6 +77,8 @@ Le dossier `data/` contient les fichiers du jeu tels quels (JSON, PNG, sons). Le
 
 - **E4.** `gelauncher` joue le jeu choisi avec la même fonction que `geplay` (`play_loaded`). Les atlas et les sons d'un jeu sont séparés de la fenêtre par `Backend::reset_assets` : le lanceur recharge les siens à son retour. Le lanceur est en pause pendant le jeu parce que sa boucle s'arrête (`QuitRequest` posée par l'hôte) puis reprend avec la même `App`. Détails du jeu : l'hôte écrit la liste d'exécution `details` quand la sélection change. Voir `docs/LAUNCHER.md`.
 
+- **E5.** `gectl export` (`tools/gectl/export.cpp`) enchaîne validation, scénarios rejoués dans le processus (`gectl` est lié à `ge_runner`), `.ico` tiré du PNG de l'icône, `cmake` configure et build de `ge_player` dans `build/export/<cible>/<jeu>`, dossier du paquet, README, licences, zip. Pas de Ninja imposé : le générateur par défaut de CMake convient (Visual Studio sous Windows), d'où la recherche de `ge_player` avec ou sans sous-dossier `Release`. Le programme (`ge_player`, `player.cpp`) est séparé de `geplay` : pas de console, seulement `data/` et ses options de test. Un `CommandRunner` injectable remplace CMake dans les tests. Voir `docs/EXPORT.md`.
+
 ## Limites assumées
 
 - **SmartScreen.** Un `.exe` non signé téléchargé affiche « Windows a protégé votre PC » ; le destinataire clique sur « Informations complémentaires » puis « Exécuter quand même ». Seul un certificat de signature (payant) l'évite ; une option `--sign` viendra plus tard.

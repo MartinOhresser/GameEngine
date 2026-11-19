@@ -12,6 +12,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- E5 : `gectl export GAME.json [--target windows] [--out DIR]` fabrique un zip autonome (programme sans console avec les seuls modules du jeu, `data/`, README, licences, icône `.ico` tirée du PNG du manifeste) après avoir validé le jeu et rejoué ses scénarios ; `gectl export --targets`. `ge_add_player` et `ge_write_registry` (CMake), `ge_player` (`run_player`), `ge::game::required_modules`/`package_files`/`package_manifest`, `SdlBackend` : `base_directory` et `show_error`, job CI « Export » (Windows et Linux). `docs/EXPORT.md`.
 - E1 : champs facultatifs `title`, `version`, `id` et `icon` dans `game.json` (validés, présents dans le schéma JSON), `gectl list [--games DIR] [--json]` qui décrit chaque jeu, et `ge::game::summarize` / `GameSummary` ; les six jeux du dépôt ont un `title`.
 
 - Doodle Jump : `games/doodle_jump` (menu, partie sans fin de plus en plus difficile, fin de partie, meilleur score sauvegardé ; 20 scénarios, dont des scènes d'essai `test_*`), `docs/DOODLE_JUMP.md`, ADR 0010.

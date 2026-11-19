@@ -40,6 +40,14 @@ struct Frame {
 /// user's application-data folder. Empty when the machine has none.
 [[nodiscard]] std::string user_data_directory(const std::string& game);
 
+/// The folder the program was started from (where its executable is), ending with a
+/// separator: where an exported game finds its `data/` folder. Empty when unknown.
+[[nodiscard]] std::string base_directory();
+
+/// Shows an error in a dialog box, for a program that has no console to print to (an exported
+/// game started by a double-click). Does nothing when the machine cannot show one.
+void show_error(const std::string& title, const std::string& message);
+
 /// What a key is called in an input file: "key:" plus SDL's name for it in
 /// lower case, spaces turned into underscores ("Left Shift" -> "key:left_shift").
 [[nodiscard]] std::string key_source(std::string_view sdl_key_name);
