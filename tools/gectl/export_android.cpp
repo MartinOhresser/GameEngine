@@ -191,10 +191,22 @@ fs::path find_ninja(const fs::path& sdk, const Environment& env) {
 }
 
 std::string environment_variable(const std::string& name) {
+#ifdef _WIN32
+    // The C runtime of Windows wants its own copy (getenv is deprecated there).
+    char* value = nullptr;
+    std::size_t size = 0;
+    if (_dupenv_s(&value, &size, name.c_str()) != 0 || value == nullptr) {
+        return {};
+    }
+    std::string text(value);
+    std::free(value); // NOLINT(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory)
+    return text;
+#else
     // Read once, at the start of an export: nothing sets variables meanwhile.
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     const char* value = std::getenv(name.c_str());
     return value == nullptr ? std::string() : std::string(value);
+#endif
 }
 
 } // namespace

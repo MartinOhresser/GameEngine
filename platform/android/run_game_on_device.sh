@@ -13,7 +13,7 @@ note() { echo "$*" | tee -a "$out/summary.md"; }
 fail() { note "FAIL: $*"; failures=$((failures + 1)); }
 
 : > "$out/summary.md"
-aapt2="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
+aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
 package="$("$aapt2" dump packagename "$apk")"
 note "- package: $package"
 

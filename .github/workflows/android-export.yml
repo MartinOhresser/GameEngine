@@ -35,7 +35,7 @@ jobs:
           ls -l dist
       - name: Size and content of the APK
         run: |
-          apk="$(ls dist/*.apk)"
+          apk="$(find dist -name '*.apk' | head -1)"
           {
             echo "### $(basename "$apk")"
             echo "- export: ${seconds} s, APK: $(stat -c %s "$apk") bytes"
@@ -43,7 +43,7 @@ jobs:
             unzip -l "$apk" | grep -E "\.so|assets/data/(game|files)|classes|Archive" || true
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          aapt2="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
+          aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
           "$aapt2" dump badging "$apk" | grep -E "^package|application-label:|sdkVersion|launchable" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Enable KVM for the emulator
         run: |
