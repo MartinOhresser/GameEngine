@@ -416,9 +416,21 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     impl->headless = options.headless;
     impl->capture = options.capture;
     impl->session = std::make_shared<Session>(); // owns SDL from here on
-    if (!SDL_CreateWindowAndRenderer(options.title.c_str(), options.width, options.height,
-                                     SDL_WINDOW_RESIZABLE, &impl->session->window,
-                                     &impl->session->renderer)) {
+    const auto open_window = [&options, &impl]() {
+        return SDL_CreateWindowAndRenderer(options.title.c_str(), options.width, options.height,
+                                           SDL_WINDOW_RESIZABLE, &impl->session->window,
+                                           &impl->session->renderer);
+    };
+    if (options.software) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+    }
+    // A computer without a usable graphics card still runs the game: draw with the processor.
+    bool opened = open_window();
+    if (!opened && !options.software) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+        opened = open_window();
+    }
+    if (!opened) {
         error = "cannot open a window: " + sdl_error();
         return nullptr;
     }

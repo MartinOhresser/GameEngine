@@ -23,6 +23,9 @@ struct WindowOptions {
     bool headless = false;
     /// Keep a copy of every presented frame (see `SdlBackend::last_frame`).
     bool capture = false;
+    /// Draw with the processor, not the graphics card (SDL's software renderer). Without
+    /// this, the software renderer is still the fallback when the card cannot be used.
+    bool software = false;
 };
 
 /// A presented frame, as 0xRRGGBBAA pixels, row by row.

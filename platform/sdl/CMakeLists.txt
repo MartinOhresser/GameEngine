@@ -109,7 +109,8 @@ if(GE_BUILD_TESTS)
   add_executable(ge_platform_tests "${PROJECT_SOURCE_DIR}/tests/support/main.cpp"
                                    "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_sdl_backend.cpp")
   if(TARGET ge_runner)
-    target_sources(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_launcher.cpp")
+    target_sources(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_launcher.cpp"
+                                             "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_player.cpp")
   endif()
   target_include_directories(ge_platform_tests PRIVATE "${PROJECT_SOURCE_DIR}/tests/support")
   target_link_libraries(ge_platform_tests PRIVATE ge::platform_sdl ge::game)
