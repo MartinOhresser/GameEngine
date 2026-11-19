@@ -360,11 +360,11 @@ std::string finger_suffix(std::size_t slot) {
 /// Turns a finger event into `touch:` sources, and the first finger into the mouse's (a touch
 /// is a click for the games that only know the mouse). SDL's own touch-to-mouse events are off
 /// (see `create`), so a touch is counted once.
-void push_finger(std::array<SDL_FingerID, max_fingers>& fingers, const Session& session,
+void push_finger(std::vector<SDL_FingerID>& fingers, const Session& session,
                  const SDL_TouchFingerEvent& finger, std::vector<RawEvent>& events) {
     const bool ending =
         finger.type == SDL_EVENT_FINGER_UP || finger.type == SDL_EVENT_FINGER_CANCELED;
-    auto* slot = std::ranges::find(fingers, finger.fingerID);
+    auto slot = std::ranges::find(fingers, finger.fingerID);
     if (slot == fingers.end()) {
         if (ending) {
             return;
@@ -425,7 +425,7 @@ struct SdlBackend::Impl {
     int width = 0; ///< The view of the window (what the renderer draws in).
     int height = 0;
     /// The fingers on the screen, in the order they came: slot i is `touch:down{i+1}`. 0 = free.
-    std::array<SDL_FingerID, max_fingers> fingers{};
+    std::vector<SDL_FingerID> fingers = std::vector<SDL_FingerID>(max_fingers, 0);
 };
 
 SdlBackend::SdlBackend(std::unique_ptr<Impl> impl) : impl_(std::move(impl)) {}
