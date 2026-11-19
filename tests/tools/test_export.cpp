@@ -296,6 +296,13 @@ TEST_CASE("export: the game's files are staged for any target") {
     CHECK(fs::exists(scratch.path() / "data" / "game.json"));
     CHECK(fs::exists(scratch.path() / "data" / "input.json"));
     CHECK(!fs::exists(scratch.path() / "data" / "scenarios"));
+    // An index of what was staged, for the systems where a folder cannot be walked (an APK).
+    std::ifstream index(scratch.path() / "data" / "files.txt");
+    const std::string listed((std::istreambuf_iterator<char>(index)),
+                             std::istreambuf_iterator<char>());
+    CHECK(has(listed, "game.json\n"));
+    CHECK(has(listed, "input.json\n"));
+    CHECK(!has(listed, "files.txt"));
 
     // A manifest that cannot be read is said, not skipped.
     request.manifest = root() + "/games/move_sprite/nothing.json";
