@@ -6,6 +6,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- Modules sans « haut » ni « bas » en dur : `camera2d.CameraFollow` gagne `offset_x`, `only_down`, `only_left` et `only_right` (comme `offset_y` et `only_up`) ; `bounce2d.Bouncer` et `combat2d.Mortal` gagnent `fall_x` et `fall_y`, le sens de la chute (par défaut vers le bas : rien ne change) : un jeu dont la gravité pointe vers la droite ou le haut rebondit sur le bon bord, une planche qui casse tombe dans le sens de la chute et `fall_death` surveille le bord d'écran de ce côté. Nouveau `include/ge/app/direction.hpp` pour lire un sens à partir de deux nombres.
+
 - `scripts/setup_linux.sh` : installe sous Linux (Debian, Ubuntu, WSL) ce qu'il faut pour compiler et jouer, avec `--android` le JDK, le SDK et le NDK Android, avec `--dev` clang-format et clang-tidy ; relançable, `--dry-run` dit le plan. Un workflow `Setup script` l'exerce sur un Ubuntu vierge.
 
 - Export Android (ADR 0012, A3) : `gectl export JEU --target android [--abi a,b]` fabrique un `.apk` (NDK pour `libmain.so`, Gradle pour l'APK, gabarit dans `platform/android/template/`) et dit ce qui manque (SDK, NDK, JDK, Ninja). La cible reste cachée jusqu'à A7. Un workflow `Android export` l'exerce pour de vrai sur un émulateur.

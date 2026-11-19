@@ -20,6 +20,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "bounces") {
             component.bounces = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "fall_x") {
+            component.fall_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "fall_y") {
+            component.fall_y = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -34,10 +38,16 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "bounces") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->bounces)};
     }
+    if (field == "fall_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->fall_x)};
+    }
+    if (field == "fall_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->fall_y)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"bounces", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"bounces", "u32", "", false}, {"fall_x", "f32", "", false}, {"fall_y", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

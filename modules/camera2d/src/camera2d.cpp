@@ -22,6 +22,18 @@ std::optional<transform2d::Position> first_position(ecs::World& world) {
     return found;
 }
 
+/// Where an axis goes: `next`, unless the camera may not move that way. `smaller_only` keeps it
+/// from ever growing (it only goes to smaller numbers: up or left), `bigger_only` the contrary.
+float limited(float now, float next, bool smaller_only, bool bigger_only) {
+    if (smaller_only) {
+        next = std::min(now, next);
+    }
+    if (bigger_only) {
+        next = std::max(now, next);
+    }
+    return next;
+}
+
 } // namespace
 
 void follow(ecs::World& world) {
@@ -33,12 +45,14 @@ void follow(ecs::World& world) {
         [&target](ecs::Entity, const CameraFollow& follow, transform2d::Position& position) {
             const float stiffness = std::clamp(follow.stiffness, 0.0F, 1.0F);
             if (follow.follow_x) {
-                position.x += (target->x - position.x) * stiffness;
+                const float goal = target->x + follow.offset_x;
+                const float next = position.x + (goal - position.x) * stiffness;
+                position.x = limited(position.x, next, follow.only_left, follow.only_right);
             }
             if (follow.follow_y) {
                 const float goal = target->y + follow.offset_y;
                 const float next = position.y + (goal - position.y) * stiffness;
-                position.y = follow.only_up ? std::min(position.y, next) : next;
+                position.y = limited(position.y, next, follow.only_up, follow.only_down);
             }
         });
 }

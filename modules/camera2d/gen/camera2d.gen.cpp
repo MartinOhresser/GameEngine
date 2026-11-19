@@ -70,6 +70,14 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.offset_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "only_up") {
             component.only_up = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "offset_x") {
+            component.offset_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "only_down") {
+            component.only_down = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "only_left") {
+            component.only_left = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "only_right") {
+            component.only_right = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -96,10 +104,22 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     if (field == "only_up") {
         return ::ge::app::Scalar{static_cast<bool>(component->only_up)};
     }
+    if (field == "offset_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_x)};
+    }
+    if (field == "only_down") {
+        return ::ge::app::Scalar{static_cast<bool>(component->only_down)};
+    }
+    if (field == "only_left") {
+        return ::ge::app::Scalar{static_cast<bool>(component->only_left)};
+    }
+    if (field == "only_right") {
+        return ::ge::app::Scalar{static_cast<bool>(component->only_right)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 9> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}, {"offset_x", "f32", "", false}, {"only_down", "bool", "", false}, {"only_left", "bool", "", false}, {"only_right", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2}}};
 

@@ -1,3 +1,4 @@
+#include "ge/app/direction.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
@@ -8,6 +9,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace ge::mod::combat2d {
@@ -35,21 +37,24 @@ Box box_of(ecs::Entity entity, const collision2d::Collider& collider,
                position.y + half_height};
 }
 
-/// The y of the bottom edge of the screen, from the first camera.
-std::optional<float> screen_bottom(ecs::World& world) {
+/// How far the edge of the screen that `fall` points to is, along that direction, from the first
+/// camera (see app::Direction: for a fall down it is the y of the bottom edge).
+std::optional<float> screen_edge(ecs::World& world, const app::Direction& fall) {
     const auto* viewport = world.resource<app::Viewport>();
-    std::optional<float> bottom;
+    std::optional<float> edge;
     if (viewport == nullptr) {
-        return bottom;
+        return edge;
     }
     world.each<const camera2d::Camera, const transform2d::Position>(
         [&](ecs::Entity, const camera2d::Camera& camera, const transform2d::Position& position) {
-            if (!bottom) {
+            if (!edge) {
                 const float zoom = camera.zoom > 0.0F ? camera.zoom : 1.0F;
-                bottom = position.y + static_cast<float>(viewport->height) / (2.0F * zoom);
+                const auto size =
+                    static_cast<float>(fall.vertical ? viewport->height : viewport->width);
+                edge = fall.along(position.x, position.y) + size / (2.0F * zoom);
             }
         });
-    return bottom;
+    return edge;
 }
 
 } // namespace
@@ -90,12 +95,28 @@ void shots(ecs::World& world) {
 }
 
 void hurt(ecs::World& world) {
-    const std::optional<float> bottom = screen_bottom(world);
+    // Each Mortal may fall its own way, but a game has one or two directions: the edge is looked
+    // for once per distinct direction.
+    std::vector<std::pair<app::Direction, std::optional<float>>> edges;
+    const auto edge_for = [&](const app::Direction& fall) {
+        for (const auto& known : edges) {
+            if (known.first.vertical == fall.vertical && known.first.sign == fall.sign) {
+                return known.second;
+            }
+        }
+        edges.emplace_back(fall, screen_edge(world, fall));
+        return edges.back().second;
+    };
     world.each<Mortal, const transform2d::Position>([&](ecs::Entity entity, Mortal& mortal,
                                                         const transform2d::Position& position) {
         const auto* contacts = world.get<collision2d::Contacts>(entity);
         const bool touched = contacts != nullptr && (contacts->layers & mortal.hurt_layers) != 0U;
-        const bool fell = mortal.fall_death && bottom && position.y > *bottom + mortal.fall_margin;
+        bool fell = false;
+        if (mortal.fall_death) {
+            const app::Direction fall = app::Direction::of(mortal.fall_x, mortal.fall_y);
+            const std::optional<float> edge = edge_for(fall);
+            fell = edge && fall.along(position.x, position.y) > *edge + mortal.fall_margin;
+        }
         if (touched || fell) {
             mortal.dead = true;
         }

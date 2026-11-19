@@ -144,6 +144,36 @@ TEST_CASE("combat2d: with fall_death a mortal dies under the bottom edge of the 
     CHECK(dead(app, inside));
 }
 
+TEST_CASE("combat2d: fall_x and fall_y say which edge of the screen a mortal dies past") {
+    auto app = game();
+    static_cast<void>(spawn_camera(app, 360.0F)); // the screen shows x 0 to 480 and y 0 to 720
+    combat2d::Mortal runner; // loses the race when it is left behind: past the left edge
+    runner.fall_death = true;
+    runner.fall_x = -1.0F;
+    runner.fall_y = 0.0F;
+    runner.fall_margin = 30.0F;
+    const Entity inside = spawn_mortal(app, 10.0F, 5000.0F, runner); // far below: that is allowed
+    const Entity behind = spawn_mortal(app, -40.0F, 300.0F, runner);
+    const Entity ahead = spawn_mortal(app, 900.0F, 300.0F, runner);
+    combat2d::Mortal diver; // falls up
+    diver.fall_death = true;
+    diver.fall_y = -1.0F;
+    const Entity above = spawn_mortal(app, 100.0F, -20.0F, diver);
+    const Entity on_screen = spawn_mortal(app, 100.0F, 20.0F, diver);
+    combat2d::Mortal sideways; // dies past the right edge
+    sideways.fall_death = true;
+    sideways.fall_x = 1.0F;
+    sideways.fall_y = 0.0F;
+    const Entity past_right = spawn_mortal(app, 500.0F, 300.0F, sideways);
+    app.run_frames(1);
+    CHECK(!dead(app, inside));
+    CHECK(dead(app, behind));
+    CHECK(!dead(app, ahead));
+    CHECK(dead(app, above));
+    CHECK(!dead(app, on_screen));
+    CHECK(dead(app, past_right));
+}
+
 TEST_CASE("combat2d: a death raises its action once, for the whole next tick") {
     auto app = game();
     static_cast<void>(spawn_camera(app, 360.0F));

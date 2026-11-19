@@ -173,3 +173,59 @@ TEST_CASE("camera2d: only_up lets the camera climb but never come back down") {
     app.run_frames(1);
     CHECK(position_of(app, camera).y == -320.0F);
 }
+
+TEST_CASE("camera2d: only_right lets the camera run to the right but never come back") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto target = spawn_target(app, 0.0F, 0.0F);
+    camera2d::CameraFollow follow;
+    follow.follow_y = false;
+    follow.only_right = true;
+    const auto camera = spawn_follower(app, 0.0F, 7.0F, follow);
+
+    app.world().get<transform2d::Position>(target)->x = 300.0F;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 300.0F);
+
+    app.world().get<transform2d::Position>(target)->x = 100.0F; // the runner steps back
+    app.run_frames(3);
+    CHECK(position_of(app, camera).x == 300.0F);
+    CHECK(position_of(app, camera).y == 7.0F); // follow_y is off
+
+    app.world().get<transform2d::Position>(target)->x = 340.0F;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 340.0F);
+}
+
+TEST_CASE("camera2d: only_left and only_down are the mirror images of only_right and only_up") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto target = spawn_target(app, 0.0F, 0.0F);
+    camera2d::CameraFollow follow;
+    follow.only_left = true;
+    follow.only_down = true;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+
+    app.world().get<transform2d::Position>(target)->x = -200.0F;
+    app.world().get<transform2d::Position>(target)->y = 150.0F;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == -200.0F);
+    CHECK(position_of(app, camera).y == 150.0F);
+
+    app.world().get<transform2d::Position>(target)->x = 50.0F; // back to the right
+    app.world().get<transform2d::Position>(target)->y = 20.0F; // and up
+    app.run_frames(3);
+    CHECK(position_of(app, camera).x == -200.0F);
+    CHECK(position_of(app, camera).y == 150.0F);
+}
+
+TEST_CASE("camera2d: offset_x puts the camera beside the target") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    static_cast<void>(spawn_target(app, 100.0F, 0.0F));
+    camera2d::CameraFollow follow;
+    follow.offset_x = -80.0F; // the camera is left of the runner: it sees what lies ahead
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 20.0F);
+}

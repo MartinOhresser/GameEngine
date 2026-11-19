@@ -20,14 +20,18 @@
     },
     {
       "name": "CameraFollow",
-      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it.",
+      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right.",
       "replicable": false,
       "fields": [
         { "name": "stiffness", "type": "f32", "default": 1 },
         { "name": "follow_x", "type": "bool", "default": true },
         { "name": "follow_y", "type": "bool", "default": true },
         { "name": "offset_y", "type": "f32", "default": 0 },
-        { "name": "only_up", "type": "bool", "default": false }
+        { "name": "only_up", "type": "bool", "default": false },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "only_down", "type": "bool", "default": false },
+        { "name": "only_left", "type": "bool", "default": false },
+        { "name": "only_right", "type": "bool", "default": false }
       ]
     }
   ],
