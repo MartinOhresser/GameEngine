@@ -3,11 +3,10 @@
   "locale": "en",
   "entries": {
     "launcher.title": "Game Engine",
-    "launcher.hint": "Up/Down/Left/Right: choose   Enter: play   PgUp/PgDn: pages   Esc: quit",
+    "launcher.hint": "Arrows: choose   Enter: play   Right, Enter: export   PgUp/PgDn: pages   Esc: quit",
     "button.prev": "<",
     "button.next": ">",
     "button.quit": "Quit",
-    "button.export": "Export",
     "button.back": "Back",
     "export.title": "Export",
     "export.hint": "Choose a platform, Enter: start   Backspace: back"

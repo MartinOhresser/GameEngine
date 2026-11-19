@@ -1,4 +1,4 @@
-// Up from the first game goes round to the Export button, the nearest of the row below; Enter opens the export screen, where
+// Right from the first game goes to its export button; Enter opens the export screen, where
 // the first platform is focused and selected.
 {
   "schema_version": 1,
@@ -16,12 +16,12 @@
   "inputs": [
     {
       "tick": 3,
-      "action": "menu_up",
+      "action": "menu_right",
       "value": 1
     },
     {
       "tick": 4,
-      "action": "menu_up",
+      "action": "menu_right",
       "value": 0
     },
     {
@@ -38,7 +38,7 @@
   "expect": [
     {
       "at": 8,
-      "check": "controller.ui.Menu.focused == 10"
+      "check": "controller.ui.Menu.focused == 11"
     },
     {
       "at": 25,

@@ -73,6 +73,7 @@ Pour une liste longue, `ui.Pager` et `ui.Row` font la pagination avec les bouton
 
 - Le `Pager` donne à chaque `Row` son élément (`page * page_size + row`) et **éteint** le bouton d'une rangée sans élément : il n'est plus focalisable ni cliquable et montre `disabled_frame`.
 - La rangée qui a le focus devient l'**élément sélectionné** de la liste, et le reste quand le focus passe à « Précédent » ou « Jouer ».
+- `ui.RowButton { list, row }` est un **second bouton** pour une rangée (une icône d'export à côté de chaque jeu, un bouton « supprimer » à côté de chaque sauvegarde) : il représente le même élément que la rangée, s'éteint avec elle, et quand il a le focus ou qu'on le presse, l'élément de sa rangée est l'élément sélectionné. Placé à droite de la rangée, il se rejoint avec la flèche droite.
 - `host.Call` avec `list` envoie cet élément à l'hôte (`play` sait quel jeu).
 - Les rangées se choisissent au clavier et à la souris, comme tout bouton. Le défilement fluide viendra si la pagination ne suffit pas.
 

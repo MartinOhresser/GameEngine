@@ -207,6 +207,21 @@ struct Row {
     [[nodiscard]] friend bool operator==(const Row&, const Row&) = default;
 };
 
+/// A second button for a Row: it stands for the same item of the same Pager's list (an export icon beside each game, a delete button beside each save). Give it a Button; it is switched off when the page has no item for the row, and when it has the focus, or is pressed, the item of its row is the selected item of the list, so host.Call can act on it. It is a separate entity from the Row's own, so the two can be told apart and sit side by side (left and right move the focus from one to the other). item is written for you.
+struct RowButton {
+    std::uint32_t list = 0U;
+    std::uint32_t row = 0U;
+    std::uint32_t item = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(row);
+        hasher.add(item);
+    }
+
+    [[nodiscard]] friend bool operator==(const RowButton&, const RowButton&) = default;
+};
+
 /// Puts every anchored entity where the window's size says.
 /// Runs in FixedUpdate.
 void anchor(::ge::ecs::World& world);
@@ -227,11 +242,11 @@ void fill(::ge::ecs::World& world);
 /// Runs in FixedUpdate.
 void menu(::ge::ecs::World& world);
 
-/// Turns the pages of every Pager and gives each Row its item, switching off the buttons that have none.
+/// Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.
 /// Runs in FixedUpdate.
 void pager(::ge::ecs::World& world);
 
-/// Makes the item of the focused Row the selected item of its list.
+/// Makes the item of the focused Row (or RowButton) the selected item of its list.
 /// Runs in FixedUpdate.
 void select(::ge::ecs::World& world);
 

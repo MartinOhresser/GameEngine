@@ -20,6 +20,8 @@ ROWS = 8          # games shown at once
 ROW_WIDTH = 330
 ROW_HEIGHT = 40
 ROW_GAP = 6
+ICON_SIZE = 40    # the export button beside each game
+ICON_GAP = 6
 LIST_LEFT = 40    # window pixels
 LIST_TOP = 124
 PANEL_LEFT = 440
@@ -42,17 +44,45 @@ def write_json(path, data):
         out.write("\n")
 
 
+# A 16 x 16 export icon: an arrow leaving a tray. "#" is white, "." the button's colour.
+EXPORT_ICON = [
+    "................",
+    "................",
+    ".......##.......",
+    "......####......",
+    ".....######.....",
+    "....########....",
+    ".......##.......",
+    ".......##.......",
+    "..#....##....#..",
+    "..#....##....#..",
+    "..#..........#..",
+    "..#..........#..",
+    "..############..",
+    "..############..",
+    "................",
+    "................",
+]
+
+
+def export_icon(background):
+    white = rgba("ffffff")
+    return [[white if mark == "#" else background for mark in row] for row in EXPORT_ICON]
+
+
 def write_ui_atlas():
-    """Cells: 0 white, 1 button, 2 button with the focus, 3 nothing (a row without a game)."""
-    cells = [solid(rgba("ffffff")), solid(rgba("4a8a3a")), solid(rgba("e0a030")),
-             solid([0, 0, 0, 0])]
-    pixels = [[[0, 0, 0, 0]] * 32 for _ in range(32)]
+    """Cells: 0 white, 1 button, 2 button with the focus, 3 nothing (a row without a game),
+    4 export icon, 5 export icon with the focus."""
+    green, orange = rgba("4a8a3a"), rgba("e0a030")
+    cells = [solid(rgba("ffffff")), solid(green), solid(orange), solid([0, 0, 0, 0]),
+             export_icon(green), export_icon(orange)]
+    pixels = [[[0, 0, 0, 0]] * 32 for _ in range(48)]
     for index, cell in enumerate(cells):
         ox, oy = (index % 2) * 16, (index // 2) * 16
         for y in range(16):
             for x in range(16):
                 pixels[oy + y][ox + x] = cell[y][x]
-    write_png(os.path.join(GAME, "art", "ui.png"), 32, 32,
+    write_png(os.path.join(GAME, "art", "ui.png"), 32, 48,
               [[c for pixel in row for c in pixel] for row in pixels])
     write_json(os.path.join(GAME, "art", "ui.json"),
                {"schema_version": 1, "name": "ui", "image": "ui.png",
@@ -110,15 +140,26 @@ def main_scene():
         components["text2d.Dynamic"] = {}
         components["ui.Row"] = {"list": "games", "row": row}
         out.append({"name": "row%d" % row, "components": components})
+    # An export icon beside each game: it stands for the same game as the row (ui.RowButton).
+    icon_x = LIST_LEFT + ROW_WIDTH + ICON_GAP + ICON_SIZE // 2
+    for row in range(ROWS):
+        y = LIST_TOP + row * (ROW_HEIGHT + ROW_GAP)
+        components = anchored(icon_x, y)
+        components["sprite2d.Sprite"] = {"atlas": "ui", "frame": 4, "width": ICON_SIZE,
+                                         "height": ICON_SIZE, "screen": True, "layer": 10}
+        components["ui.Button"] = {"menu": "main_menu", "order": ROWS + 3 + row,
+                                   "action": "open_export", "width": ICON_SIZE,
+                                   "height": ICON_SIZE, "normal_frame": 4, "focus_frame": 5,
+                                   "disabled_frame": 3}
+        components["ui.RowButton"] = {"list": "games", "row": row}
+        out.append({"name": "export%d" % row, "components": components})
     bottom = LIST_TOP + ROWS * (ROW_HEIGHT + ROW_GAP) + 14
     out.append({"name": "button_prev", "components": button(
         ROWS, "page_prev", 56, 36, LIST_LEFT + 28, bottom, string="button.prev")})
     out.append({"name": "button_next", "components": button(
         ROWS + 1, "page_next", 56, 36, LIST_LEFT + 90, bottom, string="button.next")})
-    out.append({"name": "button_export", "components": button(
-        ROWS + 2, "open_export", 100, 36, LIST_LEFT + 174, bottom, string="button.export")})
     out.append({"name": "button_quit", "components": button(
-        ROWS + 3, "quit_game", 100, 36, LIST_LEFT + 280, bottom, string="button.quit")})
+        ROWS + 2, "quit_game", 100, 36, LIST_LEFT + 174, bottom, string="button.quit")})
     out.append({"name": "go_export", "components": {"scene_switch.GoToScene": {
         "scene": "export", "use_action": True, "action": "open_export"}}})
     out.append({"name": "quit_game", "components": {"host.Quit": {"action": "quit_game"}}})

@@ -18,6 +18,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Menus : `ui.Menu` lit ses boutons comme un tableau d'après leur place à l'écran. Nouvelles actions `left` et `right` : elles déplacent le focus le long d'une ligne de boutons côte à côte, `up` et `down` changent de ligne (vers le bouton le plus proche), grilles comprises. Le lanceur : flèches gauche/droite (ou A/D) naviguent, PageUp/PageDown tournent les pages.
 
+- Lanceur : un petit bouton à l'icône d'export à droite de chaque jeu ouvre l'écran d'export de ce jeu (le bouton « Export » du bas disparaît). Nouveau composant `ui.RowButton`, un second bouton pour la rangée d'une liste paginée.
+
 - Jeux adaptatifs : `"window": {"adapt": true}` fait suivre à la zone de dessin la forme de l'écran (le petit côté garde sa taille, le grand s'étire dans des limites), pour remplir tous les téléphones sans bandes ; `doodle_jump` s'adapte de 9:16 à 9:21. `Backend::adapt_view`/`view_size`/`set_window_size`, `Viewport` mise à jour à chaque image, `geplay --window LxH` pour essayer une forme d'écran sur un ordinateur.
 
 ### Changed

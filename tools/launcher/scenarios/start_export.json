@@ -15,12 +15,12 @@
   "inputs": [
     {
       "tick": 3,
-      "action": "menu_up",
+      "action": "menu_right",
       "value": 1
     },
     {
       "tick": 4,
-      "action": "menu_up",
+      "action": "menu_right",
       "value": 0
     },
     {

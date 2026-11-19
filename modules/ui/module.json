@@ -126,6 +126,16 @@
         { "name": "row", "type": "u32", "default": 0 },
         { "name": "item", "type": "u32", "default": 0 }
       ]
+    },
+    {
+      "name": "RowButton",
+      "description": "A second button for a Row: it stands for the same item of the same Pager's list (an export icon beside each game, a delete button beside each save). Give it a Button; it is switched off when the page has no item for the row, and when it has the focus, or is pressed, the item of its row is the selected item of the list, so host.Call can act on it. It is a separate entity from the Row's own, so the two can be told apart and sit side by side (left and right move the focus from one to the other). item is written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "row", "type": "u32", "default": 0 },
+        { "name": "item", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -169,17 +179,17 @@
     },
     {
       "name": "pager",
-      "description": "Turns the pages of every Pager and gives each Row its item, switching off the buttons that have none.",
+      "description": "Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.",
       "stage": "FixedUpdate",
-      "reads": ["Pager", "Row"],
-      "writes": ["Pager", "Row", "Button", "text2d.Dynamic"],
+      "reads": ["Pager", "Row", "RowButton"],
+      "writes": ["Pager", "Row", "RowButton", "Button", "text2d.Dynamic"],
       "after": ["layout"]
     },
     {
       "name": "select",
-      "description": "Makes the item of the focused Row the selected item of its list.",
+      "description": "Makes the item of the focused Row (or RowButton) the selected item of its list.",
       "stage": "FixedUpdate",
-      "reads": ["Pager", "Row", "Menu", "Button"],
+      "reads": ["Pager", "Row", "RowButton", "Menu", "Button"],
       "after": ["menu"]
     }
   ]
