@@ -240,9 +240,9 @@ TEST_CASE("bounce2d: a body that falls up lands on the underside of a surface") 
     const Entity diver = spawn_faller(app, 0.0F, 135.0F, 0.0F, -1.0F, 100.0F);
     app.run_frames(1); // its top edge goes from 125 to 115
     CHECK(vy_of(app, diver) == -100.0F);
-    app.run_frames(1); // then to 105: it reaches the underside
+    app.run_frames(1);                  // then to 105: it reaches the underside
     CHECK(vy_of(app, diver) == 300.0F); // thrown back down, against its fall
-    CHECK(y_of(app, diver) == 115.0F); // put on the underside: top edge 105
+    CHECK(y_of(app, diver) == 115.0F);  // put on the underside: top edge 105
     CHECK(app.world().get<bounce2d::Bouncer>(diver)->bounces == 1U);
 }
 
@@ -255,14 +255,14 @@ TEST_CASE("bounce2d: a body that falls to the right lands on the left side of a 
     CHECK(vx_of(app, runner) == 100.0F); // right edge at 85 then 95 on the next tick
     app.run_frames(1);
     CHECK(vx_of(app, runner) == -250.0F); // thrown back to the left
-    CHECK(x_of(app, runner) == 85.0F); // put against the wall: right edge 95
+    CHECK(x_of(app, runner) == 85.0F);    // put against the wall: right edge 95
 }
 
 TEST_CASE("bounce2d: a body that falls to the right ignores a wall behind it or above it") {
     auto app = game();
     static_cast<void>(spawn_wall(app, 100.0F, 0.0F, plain()));
     const Entity beside = spawn_faller(app, 65.0F, 200.0F, 1.0F, 0.0F, 100.0F); // misses it
-    const Entity beyond = spawn_faller(app, 160.0F, 0.0F, 1.0F, 0.0F, 100.0F); // already past it
+    const Entity beyond = spawn_faller(app, 160.0F, 0.0F, 1.0F, 0.0F, 100.0F);  // already past it
     app.run_frames(4);
     CHECK(vx_of(app, beside) == 100.0F);
     CHECK(vx_of(app, beyond) == 100.0F);

@@ -49,7 +49,8 @@ std::optional<float> screen_edge(ecs::World& world, const app::Direction& fall) 
         [&](ecs::Entity, const camera2d::Camera& camera, const transform2d::Position& position) {
             if (!edge) {
                 const float zoom = camera.zoom > 0.0F ? camera.zoom : 1.0F;
-                const float size = static_cast<float>(fall.vertical ? viewport->height : viewport->width);
+                const auto size =
+                    static_cast<float>(fall.vertical ? viewport->height : viewport->width);
                 edge = fall.along(position.x, position.y) + size / (2.0F * zoom);
             }
         });
