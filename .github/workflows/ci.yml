@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang-format-18
+        run: sudo apt-get update && sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends clang-format-18
       - name: Check formatting
         run: git ls-files '*.cpp' '*.hpp' | xargs --no-run-if-empty clang-format-18 --dry-run --Werror
 
@@ -97,8 +97,8 @@ jobs:
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          sudo apt-get -o Acquire::Retries=5 update
+          sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
             libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
             libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
             libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
@@ -146,8 +146,8 @@ jobs:
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          sudo apt-get -o Acquire::Retries=5 update
+          sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
             libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
             libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
             libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
