@@ -161,8 +161,8 @@ void drive_buttons(ecs::World& world, app::LiveInput& live, const app::ActionNam
 /// unit circle and 0 inside the dead zone.
 std::pair<float, float> stick_offset(const Finger& finger, const transform2d::Position& at,
                                      const TouchStick& stick) {
-    float dx = (finger.x - at.x) / stick.radius;
-    float dy = (finger.y - at.y) / stick.radius;
+    const float dx = (finger.x - at.x) / stick.radius;
+    const float dy = (finger.y - at.y) / stick.radius;
     const float length = std::hypot(dx, dy);
     if (length > 1.0F) {
         return {dx / length, dy / length};
