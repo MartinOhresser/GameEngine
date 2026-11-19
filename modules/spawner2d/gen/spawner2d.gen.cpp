@@ -38,16 +38,20 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.extra_chance = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "extra_chance_end") {
             component.extra_chance_end = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "extra_dx") {
-            component.extra_dx = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "extra_dy") {
-            component.extra_dy = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "extra_across") {
+            component.extra_across = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "extra_along") {
+            component.extra_along = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "extra_on_alt") {
             component.extra_on_alt = ::ge::app::scalar_as<bool>(field.value);
-        } else if (field.name == "x_min") {
-            component.x_min = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "x_max") {
-            component.x_max = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "across_min") {
+            component.across_min = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "across_max") {
+            component.across_max = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "toward_x") {
+            component.toward_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "toward_y") {
+            component.toward_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "gap_min") {
             component.gap_min = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "gap_max") {
@@ -56,20 +60,20 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.gap_min_end = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "gap_max_end") {
             component.gap_max_end = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "ramp_height") {
-            component.ramp_height = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "origin_y") {
-            component.origin_y = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "from_height") {
-            component.from_height = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "ramp_distance") {
+            component.ramp_distance = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "origin") {
+            component.origin = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "from_distance") {
+            component.from_distance = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "row_chance") {
             component.row_chance = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "row_chance_end") {
             component.row_chance_end = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "ahead") {
             component.ahead = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "next_y") {
-            component.next_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "next") {
+            component.next = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -111,20 +115,26 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "extra_chance_end") {
         return ::ge::app::Scalar{static_cast<double>(component->extra_chance_end)};
     }
-    if (field == "extra_dx") {
-        return ::ge::app::Scalar{static_cast<double>(component->extra_dx)};
+    if (field == "extra_across") {
+        return ::ge::app::Scalar{static_cast<double>(component->extra_across)};
     }
-    if (field == "extra_dy") {
-        return ::ge::app::Scalar{static_cast<double>(component->extra_dy)};
+    if (field == "extra_along") {
+        return ::ge::app::Scalar{static_cast<double>(component->extra_along)};
     }
     if (field == "extra_on_alt") {
         return ::ge::app::Scalar{static_cast<bool>(component->extra_on_alt)};
     }
-    if (field == "x_min") {
-        return ::ge::app::Scalar{static_cast<double>(component->x_min)};
+    if (field == "across_min") {
+        return ::ge::app::Scalar{static_cast<double>(component->across_min)};
     }
-    if (field == "x_max") {
-        return ::ge::app::Scalar{static_cast<double>(component->x_max)};
+    if (field == "across_max") {
+        return ::ge::app::Scalar{static_cast<double>(component->across_max)};
+    }
+    if (field == "toward_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->toward_x)};
+    }
+    if (field == "toward_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->toward_y)};
     }
     if (field == "gap_min") {
         return ::ge::app::Scalar{static_cast<double>(component->gap_min)};
@@ -138,14 +148,14 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "gap_max_end") {
         return ::ge::app::Scalar{static_cast<double>(component->gap_max_end)};
     }
-    if (field == "ramp_height") {
-        return ::ge::app::Scalar{static_cast<double>(component->ramp_height)};
+    if (field == "ramp_distance") {
+        return ::ge::app::Scalar{static_cast<double>(component->ramp_distance)};
     }
-    if (field == "origin_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->origin_y)};
+    if (field == "origin") {
+        return ::ge::app::Scalar{static_cast<double>(component->origin)};
     }
-    if (field == "from_height") {
-        return ::ge::app::Scalar{static_cast<double>(component->from_height)};
+    if (field == "from_distance") {
+        return ::ge::app::Scalar{static_cast<double>(component->from_distance)};
     }
     if (field == "row_chance") {
         return ::ge::app::Scalar{static_cast<double>(component->row_chance)};
@@ -156,13 +166,13 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "ahead") {
         return ::ge::app::Scalar{static_cast<double>(component->ahead)};
     }
-    if (field == "next_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->next_y)};
+    if (field == "next") {
+        return ::ge::app::Scalar{static_cast<double>(component->next)};
     }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 26> component_0_fields{{{"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_chance", "f32", "", false}, {"alt_chance_end", "f32", "", false}, {"alt2_prefab", "u32", "prefab", false}, {"alt2_chance", "f32", "", false}, {"alt2_chance_end", "f32", "", false}, {"extra_prefab", "u32", "prefab", false}, {"extra_chance", "f32", "", false}, {"extra_chance_end", "f32", "", false}, {"extra_dx", "f32", "", false}, {"extra_dy", "f32", "", false}, {"extra_on_alt", "bool", "", false}, {"x_min", "f32", "", false}, {"x_max", "f32", "", false}, {"gap_min", "f32", "", false}, {"gap_max", "f32", "", false}, {"gap_min_end", "f32", "", false}, {"gap_max_end", "f32", "", false}, {"ramp_height", "f32", "", false}, {"origin_y", "f32", "", false}, {"from_height", "f32", "", false}, {"row_chance", "f32", "", false}, {"row_chance_end", "f32", "", false}, {"ahead", "f32", "", false}, {"next_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 28> component_0_fields{{{"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_chance", "f32", "", false}, {"alt_chance_end", "f32", "", false}, {"alt2_prefab", "u32", "prefab", false}, {"alt2_chance", "f32", "", false}, {"alt2_chance_end", "f32", "", false}, {"extra_prefab", "u32", "prefab", false}, {"extra_chance", "f32", "", false}, {"extra_chance_end", "f32", "", false}, {"extra_across", "f32", "", false}, {"extra_along", "f32", "", false}, {"extra_on_alt", "bool", "", false}, {"across_min", "f32", "", false}, {"across_max", "f32", "", false}, {"toward_x", "f32", "", false}, {"toward_y", "f32", "", false}, {"gap_min", "f32", "", false}, {"gap_max", "f32", "", false}, {"gap_min_end", "f32", "", false}, {"gap_max_end", "f32", "", false}, {"ramp_distance", "f32", "", false}, {"origin", "f32", "", false}, {"from_distance", "f32", "", false}, {"row_chance", "f32", "", false}, {"row_chance_end", "f32", "", false}, {"ahead", "f32", "", false}, {"next", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -170,6 +180,10 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "margin") {
             component.margin = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "side_x") {
+            component.side_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "side_y") {
+            component.side_y = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -184,10 +198,16 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     if (field == "margin") {
         return ::ge::app::Scalar{static_cast<double>(component->margin)};
     }
+    if (field == "side_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->side_x)};
+    }
+    if (field == "side_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->side_y)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_1_fields{{{"margin", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_1_fields{{{"margin", "f32", "", false}, {"side_x", "f32", "", false}, {"side_y", "f32", "", false}}};
 
 void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

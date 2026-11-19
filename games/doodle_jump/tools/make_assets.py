@@ -262,21 +262,21 @@ def generators():
             "alt_prefab": "platform_moving", "alt_chance": 0.0, "alt_chance_end": 0.3,
             "alt2_prefab": "platform_vanishing", "alt2_chance": 0.0, "alt2_chance_end": 0.15,
             "extra_prefab": "spring", "extra_chance": 0.12, "extra_chance_end": 0.06,
-            "extra_dx": 22, "extra_dy": -14, "extra_on_alt": False,
-            "x_min": 40, "x_max": 440,
+            "extra_across": 22, "extra_along": 14, "extra_on_alt": False,
+            "across_min": 40, "across_max": 440,
             "gap_min": 50, "gap_max": 90, "gap_min_end": 90, "gap_max_end": 170,
-            "ramp_height": 12000, "origin_y": 690, "next_y": 560}}},
+            "ramp_distance": 12000, "origin": 690, "next": 560}}},
         {"name": "breakables", "components": {"spawner2d.Generator": {
-            "prefab": "platform_breakable", "x_min": 40, "x_max": 440,
+            "prefab": "platform_breakable", "across_min": 40, "across_max": 440,
             "gap_min": 90, "gap_max": 200, "row_chance": 0.5, "row_chance_end": 0.8,
-            "ramp_height": 12000, "origin_y": 690, "from_height": 600, "next_y": 400}}},
+            "ramp_distance": 12000, "origin": 690, "from_distance": 600, "next": 400}}},
         {"name": "monsters", "components": {"spawner2d.Generator": {
             "prefab": "monster", "alt_prefab": "monster_flying",
             "alt_chance": 0.2, "alt_chance_end": 0.6,
-            "x_min": 60, "x_max": 420,
+            "across_min": 60, "across_max": 420,
             "gap_min": 500, "gap_max": 900, "gap_min_end": 330, "gap_max_end": 500,
             "row_chance": 0.6, "row_chance_end": 0.9,
-            "ramp_height": 12000, "origin_y": 690, "from_height": 1800, "next_y": 560}}},
+            "ramp_distance": 12000, "origin": 690, "from_distance": 1800, "next": 560}}},
     ]
 
 
