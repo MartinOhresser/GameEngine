@@ -20,6 +20,11 @@ struct PlayOptions {
     /// A window size other than the one of the manifest's `window`; 0 keeps it.
     int width = 0;
     int height = 0;
+    /// The size of the window itself, whatever the game's drawing area: a game that follows the
+    /// screen takes its shape (`geplay --window 360x800` tries a phone). 0 leaves the window as it
+    /// is.
+    int window_width = 0;
+    int window_height = 0;
     /// The file the game keeps what must last between two runs in (high scores);
     /// nothing is read or written when empty.
     std::string save_path;

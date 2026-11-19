@@ -14,8 +14,10 @@
     "sprite2d", "text2d", "scene_switch", "ui", "records", "host", "touch_controls",
   ],
   "simulation": { "tick_rate": 60, "seed": 2024 },
-  // A tall window, as on a phone.
-  "window": { "width": 480, "height": 720 },
+  // A tall window, as on a phone: 480 wide, and as high as the screen is (from the shape of a
+  // tablet to the longest phones), so every phone is filled. The interface is anchored to the
+  // edges (`ui.Anchor`), the world is built ahead of whatever height the screen shows.
+  "window": { "width": 480, "height": 720, "adapt": true },
   "input": "input.json",
   "lists": {
     // The things that bump into each other, one bit each (the order is fixed by the prefabs).

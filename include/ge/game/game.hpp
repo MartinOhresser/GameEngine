@@ -134,6 +134,13 @@ struct Manifest {
     /// The size in pixels of the area the game draws in (`window`).
     std::uint32_t window_width = 800;
     std::uint32_t window_height = 600;
+    /// Whether the drawing area follows the screen (`window.adapt`): the short side of the
+    /// window stays `window_width` x `window_height`'s, the long one stretches to the screen's
+    /// shape, within `window_min_aspect` to `window_max_aspect` (width / height of the area).
+    /// Beyond them, bars are left. Off: the area is always the same and bars fill the rest.
+    bool window_adapt = false;
+    float window_min_aspect = 0.0F;
+    float window_max_aspect = 0.0F;
     std::vector<ParamSetting> params;
     /// The game's own named lists, in the order the manifest gives them: the
     /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
