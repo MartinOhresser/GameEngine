@@ -16,6 +16,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Export Android (ADR 0012, A7) : la cible `android` est proposée (`gectl export --targets` dit ce qui manque, le lanceur la liste) ; `--install` met l'APK sur le téléphone ou l'émulateur par `adb`, `--keystore` et `--key-alias` signent avec sa propre clé (mots de passe par l'environnement).
 
+- Menus : `ui.Menu` lit ses boutons comme un tableau d'après leur place à l'écran. Nouvelles actions `left` et `right` : elles déplacent le focus le long d'une ligne de boutons côte à côte, `up` et `down` changent de ligne (vers le bouton le plus proche), grilles comprises. Le lanceur : flèches gauche/droite (ou A/D) naviguent, PageUp/PageDown tournent les pages.
+
 - Jeux adaptatifs : `"window": {"adapt": true}` fait suivre à la zone de dessin la forme de l'écran (le petit côté garde sa taille, le grand s'étire dans des limites), pour remplir tous les téléphones sans bandes ; `doodle_jump` s'adapte de 9:16 à 9:21. `Backend::adapt_view`/`view_size`/`set_window_size`, `Viewport` mise à jour à chaque image, `geplay --window LxH` pour essayer une forme d'écran sur un ordinateur.
 
 ### Changed

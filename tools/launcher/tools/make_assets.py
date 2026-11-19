@@ -96,8 +96,8 @@ def main_scene():
         {"name": "hint", "components": label("launcher.hint", 14, LIST_LEFT, 88,
                                              red=90, green=90, blue=90)},
         {"name": "controller", "components": {"ui.Menu": {
-            "group": "main_menu", "up": "menu_up", "down": "menu_down", "accept": "menu_accept",
-            "use_pointer": True, "pointer_x": "pointer_x", "pointer_y": "pointer_y",
+            "group": "main_menu", "up": "menu_up", "down": "menu_down", "left": "menu_left",
+            "right": "menu_right", "accept": "menu_accept", "use_pointer": True, "pointer_x": "pointer_x", "pointer_y": "pointer_y",
             "click": "click"}}},
         {"name": "pages", "components": {"ui.Pager": {
             "list": "games", "menu": "main_menu", "page_size": ROWS,
@@ -157,7 +157,7 @@ def export_scene():
                                              red=90, green=90, blue=90)},
         {"name": "controller", "components": {"ui.Menu": {
             "group": "export_menu", "up": "menu_up", "down": "menu_down",
-            "accept": "menu_accept", "use_pointer": True, "pointer_x": "pointer_x",
+            "left": "menu_left", "right": "menu_right", "accept": "menu_accept", "use_pointer": True, "pointer_x": "pointer_x",
             "pointer_y": "pointer_y", "click": "click"}}},
         {"name": "pages", "components": {"ui.Pager": {
             "list": "targets", "menu": "export_menu", "page_size": TARGET_ROWS,

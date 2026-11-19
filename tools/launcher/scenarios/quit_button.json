@@ -1,4 +1,5 @@
-// Up from the first row goes round to the Quit button, Enter presses it.
+// Up from the first game goes round to the row of buttons below (the Export one is the nearest),
+// Right moves along it to the Quit button, Enter presses it.
 {
   "schema_version": 1,
   "name": "quit_button",
@@ -22,6 +23,16 @@
       "value": 0
     },
     {
+      "tick": 5,
+      "action": "menu_right",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "menu_right",
+      "value": 0
+    },
+    {
       "tick": 8,
       "action": "menu_accept",
       "value": 1
@@ -34,11 +45,11 @@
   ],
   "expect": [
     {
-      "at": 6,
+      "at": 7,
       "check": "controller.ui.Menu.focused == 11"
     },
     {
-      "at": 6,
+      "at": 7,
       "check": "list games selected == 0"
     },
     "game quits"

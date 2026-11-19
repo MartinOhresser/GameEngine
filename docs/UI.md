@@ -38,7 +38,7 @@ La position du pointeur arrive comme des actions : liez `mouse:x` et `mouse:y` �
 | `Tag` | un nom que porte une entité (« player »), pour la retrouver sans référence |
 | `Bind` | recopie chaque tick un champ de l'entité qui porte le `Tag` `source` dans le `Text.value` et le `Bar.value` de sa propre entité (score, vie…) |
 | `Bar` | une barre : un `Sprite` de longueur `length * value / max` ; avec un `pivot_x` de 0 elle grandit depuis son bord gauche |
-| `Menu` + `Button` | le contrôleur d'un menu et ses boutons : haut/bas déplacent le focus, `accept` appuie ; avec `use_pointer`, la souris focalise le bouton survolé et `click` appuie |
+| `Menu` + `Button` | le contrôleur d'un menu et ses boutons, lus comme un tableau d'après leur place à l'écran (les boutons côte à côte, à peu près à la même hauteur, forment une ligne) : `left`/`right` déplacent le focus le long de la ligne, `up`/`down` vont à la ligne du dessus ou du dessous, sur le bouton le plus proche ; des boutons au même endroit se suivent dans l'ordre de leurs numéros ; `accept` appuie ; avec `use_pointer`, la souris focalise le bouton survolé et `click` appuie |
 
 | `Pager` + `Row` | une liste de textes remplie pendant la partie (voir plus bas), montrée une page à la fois : `page_size` rangées (`Row`), des actions `previous` / `next` pour tourner les pages |
 
