@@ -51,12 +51,13 @@ constexpr const char* usage_text =
     "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
     "  gectl export   GAME.json [--target windows] [--out DIR] [--skip-tests]\n"
-    "                 [--source DIR] [--build-dir DIR] [--cmake-arg ARG]\n"
+    "                 [--source DIR] [--build-dir DIR] [--cmake-arg ARG] [--abi A,B]\n"
     "      Make a zip of the game that anyone can run (default target windows, DIR dist).\n"
     "      It validates the game, replays its scenarios, builds its program with only the\n"
     "      modules it uses and gathers the program, the game's files, a README and the licenses.\n"
     "  gectl export   --targets\n"
     "      List the platforms a game can be exported for, and whether this machine can.\n"
+    "      --abi (android only): the processors to build for, default arm64-v8a.\n"
     "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
     "      Create DIR/NAME with a working example (module.json, system, test).\n"
     "  gectl help\n"
@@ -77,6 +78,7 @@ struct Options {
     std::string source_dir = ".";
     std::string build_dir;
     std::vector<std::string> cmake_arguments;
+    std::vector<std::string> abis;
     std::vector<std::string> names;
     std::vector<std::string> depends;
 };
@@ -132,6 +134,8 @@ bool apply_value(const std::string& name, const std::string& value, Options& opt
         options.source_dir = value;
     } else if (name == "--build-dir") {
         options.build_dir = value;
+    } else if (name == "--abi") {
+        options.abis = split_commas(value);
     } else if (name == "--cmake-arg") {
         options.cmake_arguments.push_back(value);
     } else {
@@ -526,6 +530,7 @@ int command_export(const Options& options, std::ostream& out, std::ostream& err)
     request.build_dir = options.build_dir;
     request.skip_tests = options.skip_tests;
     request.cmake_arguments = options.cmake_arguments;
+    request.abis = options.abis;
     return export_game(request, out, err);
 }
 

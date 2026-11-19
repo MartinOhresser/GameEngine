@@ -3,6 +3,7 @@
 
     pixel.py shot.png x y     prints "r g b"   (x, y as fractions of the size: 0.5 0.5 is the centre)
     pixel.py shot.png size    prints "width height"
+    pixel.py shot.png colours prints how many distinct colours a grid of 40x40 points shows
 """
 import struct
 import sys
@@ -53,6 +54,10 @@ if __name__ == "__main__":
     w, h, step, rows = decode(sys.argv[1])
     if sys.argv[2] == "size":
         print(w, h)
+    elif sys.argv[2] == "colours":
+        seen = {bytes(rows[y * h // 40][x * w // 40 * step:x * w // 40 * step + 3])
+                for y in range(40) for x in range(40)}
+        print(len(seen))
     else:
         x = min(w - 1, int(float(sys.argv[2]) * w))
         y = min(h - 1, int(float(sys.argv[3]) * h))

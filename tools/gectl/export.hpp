@@ -83,6 +83,9 @@ struct ExportRequest {
     bool skip_tests = false;
     /// More `-D...` arguments for CMake (a local copy of SDL3, for instance).
     std::vector<std::string> cmake_arguments;
+    /// The processors an Android package is made for ("arm64-v8a", "x86_64" for an emulator); empty
+    /// means the target's default (arm64-v8a, every recent phone).
+    std::vector<std::string> abis;
 };
 
 /// Runs a program with its arguments and returns its exit code. The default runs it for real
@@ -144,6 +147,12 @@ struct ExportJob {
 /// `engine_license` and `sdl_license` are the texts of the files, empty when not found.
 [[nodiscard]] std::string make_licenses(const std::string& engine_license,
                                         const std::string& sdl_license);
+
+/// Reads and checks the game of `request` and fills `job` for `target`: what `export_game` does
+/// before the steps of the target. False, with the problems written to `err`, when the game is
+/// not valid.
+[[nodiscard]] bool prepare_export_job(const ExportRequest& request, const ExportTarget& target,
+                                      const CommandRunner& run, ExportJob& job, std::ostream& err);
 
 /// Makes the package of a game: validates it, replays its scenarios, builds its player,
 /// gathers the files and zips them. Returns 0 on success, 1 when something went wrong (a

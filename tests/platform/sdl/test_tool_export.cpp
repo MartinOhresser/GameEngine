@@ -72,9 +72,10 @@ TEST_CASE("tool export: the platforms are those of gectl, and an export runs in 
     };
     const std::unique_ptr<sdl::ExportService> service = sdl::make_tool_export(options);
     const std::vector<std::string> targets = service->targets();
-    REQUIRE(targets.size() == 2U);
+    REQUIRE(targets.size() == 3U);
     CHECK(targets[0] == "Windows (64-bit)");
     CHECK(targets[1] == "Linux (64-bit)");
+    CHECK(targets[2] == "Android (APK)");
 
     std::string why;
     CHECK(!service->start("x/game.json", 9, why));
