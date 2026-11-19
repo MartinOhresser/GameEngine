@@ -24,7 +24,7 @@ for arg in "$@"; do
 done
 
 if ! command -v cmake >/dev/null 2>&1; then
-  echo "CMake was not found. Install it from https://cmake.org/download/ (or with your package manager) and try again." >&2
+  echo "CMake was not found. On Debian, Ubuntu and WSL, run scripts/setup_linux.sh; otherwise install it from https://cmake.org/download/ (or with your package manager) and try again." >&2
   exit 1
 fi
 

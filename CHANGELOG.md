@@ -6,6 +6,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- `scripts/setup_linux.sh` : installe sous Linux (Debian, Ubuntu, WSL) ce qu'il faut pour compiler et jouer, avec `--android` le JDK, le SDK et le NDK Android, avec `--dev` clang-format et clang-tidy ; relançable, `--dry-run` dit le plan. Un workflow `Setup script` l'exerce sur un Ubuntu vierge.
+
 - Export Android (ADR 0012, A3) : `gectl export JEU --target android [--abi a,b]` fabrique un `.apk` (NDK pour `libmain.so`, Gradle pour l'APK, gabarit dans `platform/android/template/`) et dit ce qui manque (SDK, NDK, JDK, Ninja). La cible reste cachée jusqu'à A7. Un workflow `Android export` l'exerce pour de vrai sur un émulateur.
 
 - Tactile (ADR 0012, A4) : les doigts arrivent en sources `touch:down/x/y` (jusqu'à cinq : `touch:down2`…), le premier est aussi une souris (un jeu souris se joue au doigt, compté une fois), les positions sont en pixels du jeu, le bouton Retour d'Android est `key:ac_back` et quitte comme Échap, un hôte mobile ignore les boutons « Quitter ».
