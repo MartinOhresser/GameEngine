@@ -130,6 +130,7 @@ TEST_CASE("tool export: the output of a command is read line by line") {
 TEST_CASE("tool export: a service for the platforms people are offered") {
     const sdl::ToolExportOptions options;
     const std::unique_ptr<sdl::ExportService> service = sdl::make_tool_export(options);
-    CHECK(service->targets() == std::vector<std::string>{"Windows (64-bit)", "Android (APK)"});
+    const std::vector<std::string> offered{"Windows (64-bit)", "Android (APK)"};
+    CHECK(service->targets() == offered);
     CHECK(!service->poll().running);
 }
