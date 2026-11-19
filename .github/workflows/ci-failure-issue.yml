@@ -6,7 +6,7 @@ name: CI failure issue
 # its own red check is enough.
 on:
   workflow_run:
-    workflows: [CI, Security, Release]
+    workflows: [CI, Security, Release, Flaky tests]
     types: [completed]
 
 permissions:

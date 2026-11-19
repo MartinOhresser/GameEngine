@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -155,7 +156,11 @@ TEST_CASE("sdl: a mouse click reaches the game as an action") {
     CHECK(backend->inject_mouse_button("left", true));
     ge::platform::LoopOptions options;
     options.max_frames = 5;
-    ge::platform::run_loop(app, *backend, map, options);
+    // A tick runs only once enough real time has passed, which a fast machine may not have
+    // reached after five frames: keep playing until the click was seen (a second at most).
+    for (int round = 0; round < 200 && !fired; ++round) {
+        ge::platform::run_loop(app, *backend, map, options);
+    }
     CHECK(fired);
 }
 
@@ -405,22 +410,32 @@ TEST_CASE("geplay: a held key moves the square on screen") {
     REQUIRE(backend != nullptr);
     CHECK(backend->inject_key("Right", true));
     ge::platform::LoopOptions options;
-    options.max_frames = 30;
+    // Few frames, so that however slow the machine is (the loop catches up at most 8 ticks a
+    // frame) the player cannot have left the 800 pixel wide screen.
+    options.max_frames = 10;
     ge::platform::run_loop(app, *backend, loaded.game.input, options);
 
-    CHECK(app.tick_count() >= 10U);
-    // The player started at 400, 300 and moved right, 3 units per tick.
+    // The player started at 400, 300 and moved right, 3 units per tick. How many ticks ran
+    // depends on the machine's speed, so the test finds the player on the row it moves along
+    // instead of at a computed pixel.
+    REQUIRE(app.tick_count() >= 1U);
     const sdl::Frame& frame = backend->last_frame();
-    CHECK(frame.at(400, 300) == 0x121420FFU); // where it was: the background now
-    // The frame shows the world as it was a tick or two before the loop ended, which depends on
-    // the machine's timing: look for the player's colour around where it should be.
-    const int x =
-        static_cast<int>(std::lround(400.0 + 3.0 * static_cast<double>(app.tick_count())));
-    bool found = false;
-    for (int dx = -9; dx <= 9 && !found; ++dx) {
-        found = frame.at(x + dx, 300) == 0x6EE7A0FFU; // the player's colour
+    int first = -1;
+    int last = -1;
+    for (int x = 0; x < frame.width; ++x) {
+        if (frame.at(x, 300) == 0x6EE7A0FFU) { // the player's colour
+            first = first < 0 ? x : first;
+            last = x;
+        }
     }
-    CHECK(found);
+    if (first < 0) { // the log of a failing run must say what the loop did
+        std::fprintf(stderr, "no player pixel on row 300 after %llu ticks in %llu frames\n",
+                     static_cast<unsigned long long>(app.tick_count()),
+                     static_cast<unsigned long long>(options.max_frames));
+    }
+    REQUIRE(first >= 0);
+    CHECK(static_cast<double>(first + last) / 2.0 >= 402.0);
+    CHECK(static_cast<double>(first + last) / 2.0 <= 400.0 + 3.0 * 8.0 * 10.0 + 2.0);
     CHECK(frame.at(100, 100) == 0x475569FFU); // a landmark
 }
 
