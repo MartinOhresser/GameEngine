@@ -279,6 +279,8 @@ TEST_CASE("bounce2d: a plank that breaks falls the way the body falls") {
     CHECK(app.world().get<bounce2d::Bouncy>(wall) == nullptr);
     const auto* velocity = app.world().get<transform2d::Velocity>(wall);
     CHECK(velocity != nullptr);
-    CHECK(velocity != nullptr && velocity->x == 80.0F);
-    CHECK(velocity != nullptr && velocity->y == 0.0F);
+    if (velocity != nullptr) {
+        CHECK(velocity->x == 80.0F);
+        CHECK(velocity->y == 0.0F);
+    }
 }
