@@ -129,8 +129,11 @@ install_system_packages() {
   say "System packages to install: ${missing[*]}"
   local yes=()
   [ "$assume_yes" = 1 ] && yes=(-y)
-  as_root apt-get -o Acquire::Retries=5 update
-  as_root apt-get -o Acquire::Retries=5 install ${yes[@]+"${yes[@]}"} --no-install-recommends \
+  # A fresh Ubuntu (WSL included) often runs unattended-upgrades, which holds the dpkg lock for
+  # a few minutes: wait for it instead of failing.
+  local apt_options=(-o Acquire::Retries=5 -o DPkg::Lock::Timeout=600)
+  as_root apt-get "${apt_options[@]}" update
+  as_root apt-get "${apt_options[@]}" install ${yes[@]+"${yes[@]}"} --no-install-recommends \
     "${missing[@]}"
 }
 
