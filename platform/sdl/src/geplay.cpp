@@ -82,28 +82,42 @@ std::string parse_size(const std::string& option, const std::string& text, int& 
     return {};
 }
 
+/// An option that takes a value: false when `arg` is not one, else the error (or empty) is in
+/// `error`.
+bool parse_valued(const std::vector<std::string>& args, std::size_t& i, Arguments& out,
+                  std::string& error) {
+    const std::string& arg = args[i];
+    if (arg == "--frames") {
+        const std::string* text = value_of(args, i, "a number", error);
+        error = text != nullptr ? parse_frames(*text, out.frames) : error;
+    } else if (arg == "--size" || arg == "--window") {
+        const std::string* text = value_of(args, i, "WIDTHxHEIGHT, for example 800x600", error);
+        if (text != nullptr) {
+            const bool window = arg == "--window";
+            error = window ? parse_size(arg, *text, out.window_width, out.window_height)
+                           : parse_size(arg, *text, out.width, out.height);
+        }
+    } else if (arg == "--screenshot") {
+        const std::string* text = value_of(args, i, "a file name", error);
+        out.screenshot = text != nullptr ? *text : out.screenshot;
+    } else if (arg == "--save") {
+        const std::string* text = value_of(args, i, "a file name", error);
+        out.save = text != nullptr ? *text : out.save;
+    } else {
+        return false;
+    }
+    return true;
+}
+
 /// Returns an error message, or empty.
 std::string parse(const std::vector<std::string>& args, Arguments& out) {
     std::string error;
     for (std::size_t i = 0; i < args.size() && error.empty(); ++i) {
         const std::string& arg = args[i];
-        if (arg == "--frames") {
-            const std::string* text = value_of(args, i, "a number", error);
-            error = text != nullptr ? parse_frames(*text, out.frames) : error;
-        } else if (arg == "--size") {
-            const std::string* text = value_of(args, i, "WIDTHxHEIGHT, for example 800x600", error);
-            error = text != nullptr ? parse_size(arg, *text, out.width, out.height) : error;
-        } else if (arg == "--window") {
-            const std::string* text = value_of(args, i, "WIDTHxHEIGHT, for example 360x800", error);
-            error = text != nullptr ? parse_size(arg, *text, out.window_width, out.window_height)
-                                    : error;
-        } else if (arg == "--screenshot") {
-            const std::string* text = value_of(args, i, "a file name", error);
-            out.screenshot = text != nullptr ? *text : out.screenshot;
-        } else if (arg == "--save") {
-            const std::string* text = value_of(args, i, "a file name", error);
-            out.save = text != nullptr ? *text : out.save;
-        } else if (arg == "--headless") {
+        if (parse_valued(args, i, out, error)) {
+            continue;
+        }
+        if (arg == "--headless") {
             out.headless = true;
         } else if (arg.starts_with("--")) {
             error = "unknown option " + arg;
