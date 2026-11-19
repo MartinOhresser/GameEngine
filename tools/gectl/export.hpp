@@ -5,6 +5,7 @@
 
 #include "ge/game/summary.hpp"
 
+#include <filesystem>
 #include <functional>
 #include <iosfwd>
 #include <string>
@@ -12,8 +13,15 @@
 
 namespace ge::tools {
 
+struct ExportJob;
+
 /// A platform a game can be exported for. A new platform is a new target; nothing else
 /// changes (Android, iOS, macOS and consoles will be some).
+///
+/// An export has the same steps everywhere: check the game, replay its tests, then the two that
+/// belong to the platform: `build` makes the program (a compiler and CMake on a desktop, with
+/// Gradle on top of them for Android) and `assemble` makes what is sent from it and from the
+/// game's files (a zip, an APK).
 class ExportTarget {
 public:
     ExportTarget() = default;
@@ -33,14 +41,26 @@ public:
     [[nodiscard]] virtual bool buildable_here() const = 0;
     /// What to do when it cannot.
     [[nodiscard]] virtual std::string needs() const = 0;
-    /// ".exe" for Windows, nothing elsewhere.
-    [[nodiscard]] virtual std::string executable_suffix() const = 0;
-    /// Extra `-D` arguments for CMake: static runtime, for instance.
-    [[nodiscard]] virtual std::vector<std::string> configure_arguments() const = 0;
+    /// ".exe" for Windows, nothing elsewhere. Used by the desktop steps; other platforms keep
+    /// the default.
+    [[nodiscard]] virtual std::string executable_suffix() const { return {}; }
+    /// Extra `-D` arguments for CMake: static runtime, for instance. Desktop only.
+    [[nodiscard]] virtual std::vector<std::string> configure_arguments() const { return {}; }
     /// The part of the README that depends on the platform: how to start the game, where it
     /// keeps its progress, what the system may say about an unsigned program.
     [[nodiscard]] virtual std::string readme_platform_notes(const std::string& executable,
                                                             const std::string& game_name) const = 0;
+
+    /// Step 1: makes the program of the game in `job.build_dir`. `program` is where it is
+    /// afterwards. False, with the reason written to `err`, when it could not.
+    [[nodiscard]] virtual bool build(const ExportJob& job, std::string& program, std::ostream& out,
+                                     std::ostream& err) const = 0;
+    /// Step 2: makes what is sent in `job.out_dir` from the program and the game's files
+    /// (`stage_game_files`). `artifact` is the file that was made. False, with the reason
+    /// written to `err`, when it could not.
+    [[nodiscard]] virtual bool assemble(const ExportJob& job, const std::string& program,
+                                        std::string& artifact, std::ostream& out,
+                                        std::ostream& err) const = 0;
 };
 
 /// The targets that exist, `hidden` ones included only when asked.
@@ -68,6 +88,31 @@ struct ExportRequest {
 /// Runs a program with its arguments and returns its exit code. The default runs it for real
 /// (CMake builds the player and makes the zip); tests give one that pretends.
 using CommandRunner = std::function<int(const std::vector<std::string>& command)>;
+
+/// What the steps of a target share: the game, checked, and where things go. Made by
+/// `export_game`.
+struct ExportJob {
+    const ExportRequest* request = nullptr;
+    game::LoadedGame loaded;
+    game::GameSummary summary;
+    /// The game's folder, with its trailing separator ("games/doodle_jump/").
+    std::string folder;
+    /// The modules the program contains: those of the game and what they depend on.
+    std::vector<std::string> modules;
+    /// Where the program is made.
+    std::filesystem::path build_dir;
+    /// Where what is sent goes.
+    std::filesystem::path out_dir;
+    /// The name of the package, without extension: "Doodle jump 1.0.0 windows".
+    std::string package;
+    /// Runs the programs the steps need (CMake, Gradle).
+    CommandRunner run;
+};
+
+/// Copies the files of the game that the package needs (those it uses, not the scenarios or the
+/// sources of the art) to `data_dir`, with its manifest reduced to what a player needs.
+[[nodiscard]] bool stage_game_files(const ExportJob& job, const std::filesystem::path& data_dir,
+                                    std::ostream& err);
 
 /// Runs a command as a new process, its output shown as it comes.
 [[nodiscard]] int run_process(const std::vector<std::string>& command);

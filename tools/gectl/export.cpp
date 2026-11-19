@@ -33,7 +33,18 @@ namespace {
 // ---------------------------------------------------------------------------------------
 // Targets
 
-class WindowsTarget final : public ExportTarget {
+/// What the desktop systems have in common: CMake compiles `ge_player` for the game's modules,
+/// and the program, the game's files, a README and the licenses become a zip.
+class DesktopTarget : public ExportTarget {
+public:
+    [[nodiscard]] bool build(const ExportJob& job, std::string& program, std::ostream& out,
+                             std::ostream& err) const override;
+    [[nodiscard]] bool assemble(const ExportJob& job, const std::string& program,
+                                std::string& artifact, std::ostream& out,
+                                std::ostream& err) const override;
+};
+
+class WindowsTarget final : public DesktopTarget {
 public:
     [[nodiscard]] std::string name() const override { return "windows"; }
     [[nodiscard]] std::string label() const override { return "Windows (64-bit)"; }
@@ -72,7 +83,7 @@ public:
     }
 };
 
-class LinuxTarget final : public ExportTarget {
+class LinuxTarget final : public DesktopTarget {
 public:
     [[nodiscard]] std::string name() const override { return "linux"; }
     [[nodiscard]] std::string label() const override { return "Linux (64-bit)"; }
@@ -399,34 +410,21 @@ int run_process_lines(const std::vector<std::string>& command,
 }
 
 // ---------------------------------------------------------------------------------------
-// The export
+// The steps
 
 namespace {
 
-/// Everything the steps share.
-struct Plan {
-    const ExportTarget* target = nullptr;
-    game::LoadedGame loaded;
-    game::GameSummary summary;
-    std::string folder;
-    std::vector<std::string> modules;
-    fs::path build_dir;
-    fs::path out_dir;
-    std::string executable; ///< "Doodle jump.exe"
-    std::string package;    ///< "Doodle_jump-1.0.0-windows"
-};
-
 /// Replays every scenario. Returns false when one fails.
-bool replay_scenarios(const Plan& plan, std::ostream& out, std::ostream& err) {
+bool replay_scenarios(const ExportJob& job, std::ostream& out, std::ostream& err) {
     std::size_t failed = 0;
-    for (const game::ScenarioData& scenario : plan.loaded.game.scenarios) {
+    for (const game::ScenarioData& scenario : job.loaded.game.scenarios) {
         const game::ScenarioReport report =
-            game::run_scenario(plan.loaded.game, scenario, ge::runner::linked_modules());
+            game::run_scenario(job.loaded.game, scenario, ge::runner::linked_modules());
         if (report.passed()) {
             continue;
         }
         ++failed;
-        err << "scenario " << plan.summary.name << '/' << report.name << " fails:\n";
+        err << "scenario " << job.summary.name << '/' << report.name << " fails:\n";
         for (const std::string& failure : report.failures) {
             err << "  " << failure << '\n';
         }
@@ -435,28 +433,28 @@ bool replay_scenarios(const Plan& plan, std::ostream& out, std::ostream& err) {
         err << "The game's tests fail, so nothing was exported (--skip-tests ignores them).\n";
         return false;
     }
-    out << plan.loaded.game.scenarios.size() << " scenarios pass.\n";
+    out << job.loaded.game.scenarios.size() << " scenarios pass.\n";
     return true;
 }
 
 /// Writes the icon as an .ico file. `icon` is left empty when the game has none.
-bool prepare_icon(const Plan& plan, std::string& icon, std::ostream& err) {
+bool prepare_icon(const ExportJob& job, std::string& icon, std::ostream& err) {
     icon.clear();
-    if (plan.summary.icon.empty()) {
+    if (job.summary.icon.empty()) {
         return true;
     }
-    const std::optional<std::string> png = read_text(plan.folder + plan.summary.icon);
+    const std::optional<std::string> png = read_text(job.folder + job.summary.icon);
     std::string ico;
     std::string problem;
     if (!png.has_value()) {
-        err << "cannot read the icon " << plan.folder + plan.summary.icon << '\n';
+        err << "cannot read the icon " << job.folder + job.summary.icon << '\n';
         return false;
     }
     if (!png_to_ico(*png, ico, problem)) {
-        err << plan.folder + plan.summary.icon << ": " << problem << '\n';
+        err << job.folder + job.summary.icon << ": " << problem << '\n';
         return false;
     }
-    const fs::path path = plan.build_dir / "icon.ico";
+    const fs::path path = job.build_dir / "icon.ico";
     if (!write_text(path, ico)) {
         err << "cannot write " << path.string() << '\n';
         return false;
@@ -466,59 +464,16 @@ bool prepare_icon(const Plan& plan, std::string& icon, std::ostream& err) {
 }
 
 /// Where the compiled player is, whichever the generator (single or multi-configuration).
-std::optional<fs::path> built_player(const Plan& plan) {
-    const std::string file = "ge_player" + plan.target->executable_suffix();
-    for (const fs::path& candidate : {plan.build_dir / "platform" / "sdl" / file,
-                                      plan.build_dir / "platform" / "sdl" / "Release" / file}) {
+std::optional<fs::path> built_player(const ExportJob& job, const ExportTarget& target) {
+    const std::string file = "ge_player" + target.executable_suffix();
+    for (const fs::path& candidate : {job.build_dir / "platform" / "sdl" / file,
+                                      job.build_dir / "platform" / "sdl" / "Release" / file}) {
         std::error_code ignored;
         if (fs::is_regular_file(candidate, ignored)) {
             return candidate;
         }
     }
     return std::nullopt;
-}
-
-std::optional<fs::path> build_player(const Plan& plan, const ExportRequest& request,
-                                     const std::string& icon, const CommandRunner& run,
-                                     std::ostream& out, std::ostream& err) {
-    std::vector<std::string> configure{"cmake",
-                                       "-S",
-                                       fs::absolute(request.source_dir).generic_string(),
-                                       "-B",
-                                       plan.build_dir.generic_string(),
-                                       "-DCMAKE_BUILD_TYPE=Release",
-                                       "-DGE_BUILD_PLATFORM=ON",
-                                       "-DGE_BUILD_TESTS=OFF",
-                                       "-DGE_BUILD_TOOLS=OFF",
-                                       "-DGE_BUILD_EXAMPLES=OFF",
-                                       "-DGE_WARNINGS_AS_ERRORS=OFF",
-                                       "-DGE_PLAYER_MODULES=" + join(plan.modules, ";")};
-    if (!icon.empty()) {
-        configure.push_back("-DGE_PLAYER_ICON=" + icon);
-    }
-    for (const std::string& argument : plan.target->configure_arguments()) {
-        configure.push_back(argument);
-    }
-    for (const std::string& argument : request.cmake_arguments) {
-        configure.push_back(argument);
-    }
-    out << "Building the program (the first time takes a few minutes)...\n";
-    if (run(configure) != 0) {
-        err << "CMake could not prepare the build (see above).\n";
-        return std::nullopt;
-    }
-    const std::vector<std::string> build{"cmake",    "--build",   plan.build_dir.generic_string(),
-                                         "--target", "ge_player", "--config",
-                                         "Release"};
-    if (run(build) != 0) {
-        err << "The program could not be built (see above).\n";
-        return std::nullopt;
-    }
-    std::optional<fs::path> player = built_player(plan);
-    if (!player.has_value()) {
-        err << "The build succeeded but ge_player is not in " << plan.build_dir.string() << '\n';
-    }
-    return player;
 }
 
 bool copy_into(const fs::path& from, const fs::path& to, std::ostream& err) {
@@ -533,11 +488,39 @@ bool copy_into(const fs::path& from, const fs::path& to, std::ostream& err) {
     return true;
 }
 
-/// Writes the game's files to `<package>/data`.
-bool stage_data(const Plan& plan, const std::string& manifest_path, const fs::path& data,
-                std::ostream& err) {
-    for (const std::string& file : game::package_files(plan.loaded, manifest_path)) {
-        if (!copy_into(fs::path(plan.folder) / file, data / file, err)) {
+/// Gathers the package's folder: the program, the game's files, the README, the licenses.
+bool stage_package(const ExportJob& job, const ExportTarget& target, const fs::path& player,
+                   const std::string& executable, const fs::path& package_dir, std::ostream& err) {
+    std::error_code error;
+    fs::remove_all(package_dir, error);
+    fs::create_directories(package_dir, error);
+    if (error) {
+        err << "cannot create " << package_dir.string() << ": " << error.message() << '\n';
+        return false;
+    }
+    if (!copy_into(player, package_dir / executable, err) ||
+        !stage_game_files(job, package_dir / "data", err)) {
+        return false;
+    }
+    const std::string input_text =
+        job.loaded.game.manifest.input_file.empty()
+            ? std::string()
+            : read_text(job.folder + job.loaded.game.manifest.input_file).value_or("");
+    const fs::path source = job.request->source_dir;
+    const std::string engine_license = read_text(source / "LICENSE").value_or("");
+    const std::string sdl_license =
+        read_text(job.build_dir / "_deps" / "sdl3-src" / "LICENSE.txt").value_or("");
+    return write_text(package_dir / "README.txt",
+                      make_readme(job.summary, input_text, target, executable)) &&
+           write_text(package_dir / "LICENSES.txt", make_licenses(engine_license, sdl_license));
+}
+
+} // namespace
+
+bool stage_game_files(const ExportJob& job, const fs::path& data_dir, std::ostream& err) {
+    const std::string& manifest_path = job.request->manifest;
+    for (const std::string& file : game::package_files(job.loaded, manifest_path)) {
+        if (!copy_into(fs::path(job.folder) / file, data_dir / file, err)) {
             return false;
         }
     }
@@ -549,105 +532,137 @@ bool stage_data(const Plan& plan, const std::string& manifest_path, const fs::pa
         err << manifest_path << ": " << (problem.empty() ? "cannot be read" : problem) << '\n';
         return false;
     }
-    return write_text(data / "game.json", shipped);
+    return write_text(data_dir / "game.json", shipped);
 }
 
-bool stage_package(const Plan& plan, const ExportRequest& request, const fs::path& player,
-                   const fs::path& package_dir, std::ostream& err) {
-    std::error_code error;
-    fs::remove_all(package_dir, error);
-    fs::create_directories(package_dir, error);
-    if (error) {
-        err << "cannot create " << package_dir.string() << ": " << error.message() << '\n';
+// ---------------------------------------------------------------------------------------
+// The desktop steps
+
+bool DesktopTarget::build(const ExportJob& job, std::string& program, std::ostream& out,
+                          std::ostream& err) const {
+    std::string icon;
+    if (!prepare_icon(job, icon, err)) {
         return false;
     }
-    if (!copy_into(player, package_dir / plan.executable, err) ||
-        !stage_data(plan, request.manifest, package_dir / "data", err)) {
+    const ExportRequest& request = *job.request;
+    std::vector<std::string> configure{"cmake",
+                                       "-S",
+                                       fs::absolute(request.source_dir).generic_string(),
+                                       "-B",
+                                       job.build_dir.generic_string(),
+                                       "-DCMAKE_BUILD_TYPE=Release",
+                                       "-DGE_BUILD_PLATFORM=ON",
+                                       "-DGE_BUILD_TESTS=OFF",
+                                       "-DGE_BUILD_TOOLS=OFF",
+                                       "-DGE_BUILD_EXAMPLES=OFF",
+                                       "-DGE_WARNINGS_AS_ERRORS=OFF",
+                                       "-DGE_PLAYER_MODULES=" + join(job.modules, ";")};
+    if (!icon.empty()) {
+        configure.push_back("-DGE_PLAYER_ICON=" + icon);
+    }
+    for (const std::string& argument : configure_arguments()) {
+        configure.push_back(argument);
+    }
+    for (const std::string& argument : request.cmake_arguments) {
+        configure.push_back(argument);
+    }
+    out << "Building the program (the first time takes a few minutes)...\n";
+    if (job.run(configure) != 0) {
+        err << "CMake could not prepare the build (see above).\n";
         return false;
     }
-    const std::string input_text =
-        plan.loaded.game.manifest.input_file.empty()
-            ? std::string()
-            : read_text(plan.folder + plan.loaded.game.manifest.input_file).value_or("");
-    const fs::path source = request.source_dir;
-    const std::string engine_license = read_text(source / "LICENSE").value_or("");
-    const std::string sdl_license =
-        read_text(plan.build_dir / "_deps" / "sdl3-src" / "LICENSE.txt").value_or("");
-    return write_text(package_dir / "README.txt",
-                      make_readme(plan.summary, input_text, *plan.target, plan.executable)) &&
-           write_text(package_dir / "LICENSES.txt", make_licenses(engine_license, sdl_license));
+    const std::vector<std::string> build_command{
+        "cmake",    "--build", job.build_dir.generic_string(), "--target", "ge_player",
+        "--config", "Release"};
+    if (job.run(build_command) != 0) {
+        err << "The program could not be built (see above).\n";
+        return false;
+    }
+    const std::optional<fs::path> player = built_player(job, *this);
+    if (!player.has_value()) {
+        err << "The build succeeded but ge_player is not in " << job.build_dir.string() << '\n';
+        return false;
+    }
+    program = player->generic_string();
+    return true;
 }
 
-} // namespace
+bool DesktopTarget::assemble(const ExportJob& job, const std::string& program,
+                             std::string& artifact, std::ostream& out, std::ostream& err) const {
+    const std::string executable = safe_file_name(job.summary.title) + executable_suffix();
+    const fs::path package_dir = job.out_dir / job.package;
+    if (!stage_package(job, *this, program, executable, package_dir, err)) {
+        return false;
+    }
+    const std::string zip = job.package + ".zip";
+    std::error_code ignored;
+    fs::remove(job.out_dir / zip, ignored);
+    const std::vector<std::string> pack{
+        "cmake", "-E",           "chdir", job.out_dir.generic_string(),
+        "cmake", "-E",           "tar",   "cf",
+        zip,     "--format=zip", "--",    job.package};
+    if (job.run(pack) != 0) {
+        err << "The zip could not be made (see above); the folder " << package_dir.string()
+            << " is complete.\n";
+        return false;
+    }
+    artifact = (job.out_dir / zip).string();
+    out << "Done: " << artifact << "\n"
+        << "Send this zip: it runs on its own, with nothing to install.\n";
+    return true;
+}
+
+// ---------------------------------------------------------------------------------------
+// The export
 
 int export_game(const ExportRequest& request, std::ostream& out, std::ostream& err,
                 const CommandRunner& run) {
-    Plan plan;
-    plan.target = find_export_target(request.target);
-    if (plan.target == nullptr) {
+    const ExportTarget* target = find_export_target(request.target);
+    if (target == nullptr) {
         err << "unknown target \"" << request.target << "\"; the targets are:\n";
-        for (const ExportTarget* target : export_targets(false)) {
-            err << "  " << target->name() << "  " << target->label() << '\n';
+        for (const ExportTarget* known : export_targets(false)) {
+            err << "  " << known->name() << "  " << known->label() << '\n';
         }
         return 1;
     }
-    if (!plan.target->buildable_here()) {
-        err << plan.target->label() << " cannot be made on this machine. " << plan.target->needs()
-            << '\n';
+    if (!target->buildable_here()) {
+        err << target->label() << " cannot be made on this machine. " << target->needs() << '\n';
         return 1;
     }
 
-    plan.loaded = game::load_game(request.manifest, game::disk_reader(),
-                                  game::catalog_of(ge::runner::linked_modules()));
-    for (const module::Diagnostic& problem : plan.loaded.diagnostics) {
+    ExportJob job;
+    job.request = &request;
+    job.run = run;
+    job.loaded = game::load_game(request.manifest, game::disk_reader(),
+                                 game::catalog_of(ge::runner::linked_modules()));
+    for (const module::Diagnostic& problem : job.loaded.diagnostics) {
         err << problem.to_string() << '\n';
     }
-    if (!plan.loaded.ok()) {
+    if (!job.loaded.ok()) {
         return 1;
     }
-    plan.folder = folder_of(request.manifest);
-    plan.summary = game::summarize(plan.loaded, plan.folder, plan.loaded.game.manifest.name);
-    plan.modules = game::required_modules(plan.loaded.game.manifest,
-                                          game::catalog_of(ge::runner::linked_modules()));
-    plan.executable = safe_file_name(plan.summary.title) + plan.target->executable_suffix();
-    plan.package = package_name(plan.summary, *plan.target);
-    plan.out_dir = fs::absolute(request.out_dir);
-    plan.build_dir = request.build_dir.empty()
-                         ? fs::absolute(fs::path(request.source_dir) / "build" / "export" /
-                                        plan.target->name() / plan.summary.name)
-                         : fs::absolute(request.build_dir);
+    job.folder = folder_of(request.manifest);
+    job.summary = game::summarize(job.loaded, job.folder, job.loaded.game.manifest.name);
+    job.modules = game::required_modules(job.loaded.game.manifest,
+                                         game::catalog_of(ge::runner::linked_modules()));
+    job.package = package_name(job.summary, *target);
+    job.out_dir = fs::absolute(request.out_dir);
+    job.build_dir = request.build_dir.empty()
+                        ? fs::absolute(fs::path(request.source_dir) / "build" / "export" /
+                                       target->name() / job.summary.name)
+                        : fs::absolute(request.build_dir);
 
-    out << "Exporting " << plan.summary.title << " for " << plan.target->label() << " ("
-        << join(plan.modules, ", ") << ")\n";
-    if (!request.skip_tests && !replay_scenarios(plan, out, err)) {
+    out << "Exporting " << job.summary.title << " for " << target->label() << " ("
+        << join(job.modules, ", ") << ")\n";
+    if (!request.skip_tests && !replay_scenarios(job, out, err)) {
         return 1;
     }
-    std::string icon;
-    if (!prepare_icon(plan, icon, err)) {
+    std::string program;
+    std::string artifact;
+    if (!target->build(job, program, out, err) ||
+        !target->assemble(job, program, artifact, out, err)) {
         return 1;
     }
-    const std::optional<fs::path> player = build_player(plan, request, icon, run, out, err);
-    if (!player.has_value()) {
-        return 1;
-    }
-    const fs::path package_dir = plan.out_dir / plan.package;
-    if (!stage_package(plan, request, *player, package_dir, err)) {
-        return 1;
-    }
-    const std::string zip = plan.package + ".zip";
-    std::error_code ignored;
-    fs::remove(plan.out_dir / zip, ignored);
-    const std::vector<std::string> pack{
-        "cmake", "-E",           "chdir", plan.out_dir.generic_string(),
-        "cmake", "-E",           "tar",   "cf",
-        zip,     "--format=zip", "--",    plan.package};
-    if (run(pack) != 0) {
-        err << "The zip could not be made (see above); the folder " << package_dir.string()
-            << " is complete.\n";
-        return 1;
-    }
-    out << "Done: " << (plan.out_dir / zip).string() << "\n"
-        << "Send this zip: it runs on its own, with nothing to install.\n";
     return 0;
 }
 

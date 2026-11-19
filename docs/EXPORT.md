@@ -74,7 +74,7 @@ Le zip contient un dossier du même nom : le destinataire n'éparpille rien.
 
 ## Les cibles
 
-Une plateforme est un `ExportTarget` (`tools/gectl/export.hpp`) : un nom, un libellé, ce qu'il faut pour la fabriquer, le suffixe de l'exécutable, les arguments CMake propres à la plateforme et la partie du README qui en dépend. Ajouter Android, macOS ou une console, c'est ajouter une classe et la déclarer dans `export_targets` ; la validation, les tests, le choix des modules et la copie des fichiers ne changent pas.
+Une plateforme est un `ExportTarget` (`tools/gectl/export.hpp`) : un nom, un libellé, ce qu'il faut pour la fabriquer, la partie du README qui en dépend et **deux étapes** : `build` fabrique le programme (CMake et un compilateur sur un ordinateur ; Gradle en plus pour Android) et `assemble` fabrique ce qu'on envoie (un zip, un APK) à partir du programme et des fichiers du jeu. Windows et Linux partagent une base « ordinateur » (`DesktopTarget` : CMake compile `ge_player`, puis dossier, README, licences et zip) ; leurs différences sont le suffixe de l'exécutable, les arguments CMake et le texte du README. Ajouter une plateforme, c'est ajouter une classe et la déclarer dans `export_targets` ; la validation, les tests, le choix des modules et `stage_game_files` (la copie des fichiers du jeu, la même partout) ne changent pas.
 
 | Cible | État |
 | --- | --- |
