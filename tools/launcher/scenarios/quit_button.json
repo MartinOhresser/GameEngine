@@ -35,7 +35,7 @@
   "expect": [
     {
       "at": 6,
-      "check": "controller.ui.Menu.focused == 10"
+      "check": "controller.ui.Menu.focused == 11"
     },
     {
       "at": 6,

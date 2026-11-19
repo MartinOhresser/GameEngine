@@ -1,0 +1,70 @@
+// Up twice from the first game reaches the Export button; Enter opens the export screen, where
+// the first platform is focused and selected.
+{
+  "schema_version": 1,
+  "name": "open_export",
+  "ticks": 30,
+  "lists": {
+    "games": [
+      "Alpha",
+      "Beta"
+    ],
+    "targets": [
+      "Windows (64-bit)"
+    ]
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "menu_up",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "menu_up",
+      "value": 0
+    },
+    {
+      "tick": 6,
+      "action": "menu_up",
+      "value": 1
+    },
+    {
+      "tick": 7,
+      "action": "menu_up",
+      "value": 0
+    },
+    {
+      "tick": 10,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 8,
+      "check": "controller.ui.Menu.focused == 10"
+    },
+    {
+      "at": 25,
+      "check": "scene is export"
+    },
+    {
+      "at": 25,
+      "check": "row0.ui.Button.enabled == true"
+    },
+    {
+      "at": 25,
+      "check": "row1.ui.Button.enabled == false"
+    },
+    {
+      "at": 25,
+      "check": "list targets selected == 0"
+    }
+  ]
+}

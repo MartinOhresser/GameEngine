@@ -79,6 +79,8 @@ Le dossier `data/` contient les fichiers du jeu tels quels (JSON, PNG, sons). Le
 
 - **E5.** `gectl export` (`tools/gectl/export.cpp`) enchaîne validation, scénarios rejoués dans le processus (`gectl` est lié à `ge_runner`), `.ico` tiré du PNG de l'icône, `cmake` configure et build de `ge_player` dans `build/export/<cible>/<jeu>`, dossier du paquet, README, licences, zip. Pas de Ninja imposé : le générateur par défaut de CMake convient (Visual Studio sous Windows), d'où la recherche de `ge_player` avec ou sans sous-dossier `Release`. Le programme (`ge_player`, `player.cpp`) est séparé de `geplay` : pas de console, seulement `data/` et ses options de test. Un `CommandRunner` injectable remplace CMake dans les tests. Voir `docs/EXPORT.md`.
 
+- **E6.** L'export du lanceur est une seconde scène JSON (`export`) et un `ExportService` abstrait dans `launcher.hpp` : le lanceur ne dépend pas des outils, `gelauncher` lui donne un service qui exécute `export_game` de `gectl` dans un fil détaché (un seul export à la fois, lignes de sortie lues par `run_process_lines`). Échap revient de l'écran d'export aux jeux et ne quitte pas le lanceur pendant un export ; fermer la fenêtre le quitte sans attendre. `LauncherResult::export_lines` expose l'écran pour les tests.
+
 ## Limites assumées
 
 - **SmartScreen.** Un `.exe` non signé téléchargé affiche « Windows a protégé votre PC » ; le destinataire clique sur « Informations complémentaires » puis « Exécuter quand même ». Seul un certificat de signature (payant) l'évite ; une option `--sign` viendra plus tard.

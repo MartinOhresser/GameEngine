@@ -72,6 +72,11 @@ using CommandRunner = std::function<int(const std::vector<std::string>& command)
 /// Runs a command as a new process, its output shown as it comes.
 [[nodiscard]] int run_process(const std::vector<std::string>& command);
 
+/// Runs a command as a new process and hands each line it writes (output and errors) to
+/// `on_line` instead of showing it. A launcher uses it to show the progress of an export.
+[[nodiscard]] int run_process_lines(const std::vector<std::string>& command,
+                                    const std::function<void(const std::string&)>& on_line);
+
 /// A name that is safe as a file name on every system: letters, digits, space, `-`, `_`, `.`.
 [[nodiscard]] std::string safe_file_name(const std::string& text);
 

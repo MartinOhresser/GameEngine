@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace sdl = ge::platform::sdl;
 
@@ -44,6 +46,50 @@ Run run_launcher_on(ge::platform::ScriptedBackend& backend) {
 void press(ge::platform::ScriptedBackend& backend, std::uint64_t frame, const char* key) {
     backend.at(frame, key, 1.0F);
     backend.at(frame + 1, key, 0.0F);
+}
+
+/// An export service that makes nothing: it notes what was asked and says what it is told to.
+class FakeExport final : public sdl::ExportService {
+public:
+    [[nodiscard]] std::vector<std::string> targets() const override {
+        return {"Windows (64-bit)", "Moon"};
+    }
+    [[nodiscard]] bool start(const std::string& manifest, std::size_t target,
+                             std::string& error) override {
+        if (refuse) {
+            error = "Nothing today.";
+            return false;
+        }
+        started.emplace_back(manifest, target);
+        running = true;
+        return true;
+    }
+    [[nodiscard]] sdl::ExportProgress poll() override {
+        ++polls;
+        sdl::ExportProgress progress;
+        if (running && polls > start_poll + 3) {
+            progress.lines = {"Exporting...", "Done: dist/x.zip"};
+            running = false;
+            progress.finished = true;
+            progress.succeeded = true;
+        }
+        progress.running = running;
+        return progress;
+    }
+    void begin_after(int poll_number) { start_poll = poll_number; }
+
+    std::vector<std::pair<std::string, std::size_t>> started;
+    bool running = false;
+    bool refuse = false;
+    int polls = 0;
+    int start_poll = 0;
+};
+
+/// Up twice from the first game reaches the Export button; Enter opens the export screen.
+void open_export_screen(ge::platform::ScriptedBackend& backend, std::uint64_t frame) {
+    press(backend, frame, "key:up");
+    press(backend, frame + 4, "key:up");
+    press(backend, frame + 8, "key:return");
 }
 
 ge::game::GameSummary summary_of(const std::string& description) {
@@ -139,4 +185,88 @@ TEST_CASE("launcher: a launcher that is not a game of this program does not star
                                           ge::runner::linked_modules(), options, err);
     CHECK(!result.started);
     CHECK(!err.str().empty());
+}
+
+TEST_CASE("launcher: the export screen asks the service to export the chosen game") {
+    FakeExport exporter;
+    ge::platform::ScriptedBackend backend(60, 120);
+    open_export_screen(backend, 5);
+    press(backend, 25, "key:return"); // the first platform
+    const ge::game::LoadedGame loaded = launcher();
+    sdl::LauncherOptions options;
+    options.games_dir = root + "/games";
+    options.exporter = &exporter;
+    std::ostringstream err;
+    const auto result = sdl::run_launcher(backend, loaded, launcher_path,
+                                          ge::runner::linked_modules(), options, err);
+    REQUIRE(exporter.started.size() == 1U);
+    CHECK(exporter.started[0].first == root + "/games/coin_dash/game.json");
+    CHECK(exporter.started[0].second == 0U);
+    // What the service said ends up on the screen: the heading, the state, the lines.
+    REQUIRE(result.export_lines.size() == sdl::export_line_count);
+    CHECK(result.export_lines[0] == "Coin Dash");
+    CHECK(result.export_lines[1] == "Done. The zip is in the dist folder.");
+    CHECK(result.export_lines[2] == "Exporting...");
+    CHECK(result.export_lines[3] == "Done: dist/x.zip");
+    CHECK(err.str().empty());
+}
+
+TEST_CASE("launcher: an export that cannot start says why") {
+    FakeExport exporter;
+    exporter.refuse = true;
+    ge::platform::ScriptedBackend backend(60, 80);
+    open_export_screen(backend, 5);
+    press(backend, 25, "key:return");
+    const ge::game::LoadedGame loaded = launcher();
+    sdl::LauncherOptions options;
+    options.games_dir = root + "/games";
+    options.exporter = &exporter;
+    std::ostringstream err;
+    const auto result = sdl::run_launcher(backend, loaded, launcher_path,
+                                          ge::runner::linked_modules(), options, err);
+    CHECK(exporter.started.empty());
+    REQUIRE(result.export_lines.size() == sdl::export_line_count);
+    CHECK(result.export_lines[1] == "Nothing today.");
+}
+
+TEST_CASE("launcher: without an export service there is no platform and nothing starts") {
+    ge::platform::ScriptedBackend backend(60, 80);
+    open_export_screen(backend, 5);
+    press(backend, 25, "key:return");
+    const Run done = run_launcher_on(backend);
+    CHECK(done.result.started);
+    REQUIRE(done.result.export_lines.size() == sdl::export_line_count);
+    CHECK(done.result.export_lines[1] == "No platform to export for here.");
+}
+
+TEST_CASE("launcher: Escape on the export screen goes back to the games, not out of the launcher") {
+    ge::platform::ScriptedBackend backend(60, 200);
+    open_export_screen(backend, 5);
+    backend.at(30, "key:escape", 1.0F);
+    backend.at(31, "key:escape", 0.0F);
+    press(backend, 50, "key:down");   // the second game of the list again
+    press(backend, 54, "key:return"); // plays it: the games screen is back
+    const Run done = run_launcher_on(backend);
+    REQUIRE(done.result.played.size() == 1U);
+    CHECK(done.result.played[0] == "doodle_jump");
+}
+
+TEST_CASE("launcher: Escape does not leave the launcher while an export is going on") {
+    FakeExport exporter;
+    exporter.running = true; // an export that never ends in this test
+    exporter.begin_after(100000);
+    ge::platform::ScriptedBackend backend(60, 100);
+    backend.at(5, "key:escape", 1.0F);
+    backend.at(6, "key:escape", 0.0F);
+    press(backend, 20, "key:down");
+    press(backend, 24, "key:return");
+    const ge::game::LoadedGame loaded = launcher();
+    sdl::LauncherOptions options;
+    options.games_dir = root + "/games";
+    options.exporter = &exporter;
+    std::ostringstream err;
+    const auto result = sdl::run_launcher(backend, loaded, launcher_path,
+                                          ge::runner::linked_modules(), options, err);
+    REQUIRE(result.played.size() == 1U);
+    CHECK(result.played[0] == "doodle_jump");
 }

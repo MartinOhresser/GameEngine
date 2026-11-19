@@ -61,6 +61,17 @@ if(TARGET ge_runner)
   ge_target_options(gelauncher)
 endif()
 
+# The launcher's export panel runs `gectl export` in a thread of its own program, so it needs the
+# tools' library (and hence every module). Without the tools the launcher has no export.
+if(TARGET ge_runner AND TARGET gectl_lib)
+  find_package(Threads REQUIRED)
+  add_library(ge_tool_export STATIC src/tool_export.cpp)
+  target_link_libraries(ge_tool_export PUBLIC ge_play gectl_lib Threads::Threads)
+  ge_target_options(ge_tool_export)
+  target_link_libraries(gelauncher PRIVATE ge_tool_export)
+  target_compile_definitions(gelauncher PRIVATE GE_LAUNCHER_EXPORT=1)
+endif()
+
 # The program of an exported game: ge_add_player(NAME MODULES a b c [ICON file.ico]).
 # Only the registry and the link change from a game to another: the modules are static
 # libraries, built once. On Windows the program has no console (a GUI program that keeps
@@ -106,6 +117,11 @@ if(GE_BUILD_TESTS)
   if(TARGET ge_runner)
     target_link_libraries(ge_platform_tests PRIVATE ge_play ge_runner)
     target_compile_definitions(ge_platform_tests PRIVATE GE_HAS_GEPLAY=1)
+  endif()
+  if(TARGET ge_tool_export)
+    target_sources(ge_platform_tests PRIVATE
+                   "${PROJECT_SOURCE_DIR}/tests/platform/sdl/test_tool_export.cpp")
+    target_link_libraries(ge_platform_tests PRIVATE ge_tool_export)
   endif()
   ge_target_options(ge_platform_tests)
   add_test(NAME ge_platform_tests COMMAND ge_platform_tests)

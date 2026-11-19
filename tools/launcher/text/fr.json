@@ -6,6 +6,10 @@
     "launcher.hint": "Haut/Bas : choisir   Entrée : jouer   Gauche/Droite : pages   Échap : quitter",
     "button.prev": "<",
     "button.next": ">",
-    "button.quit": "Quitter"
+    "button.quit": "Quitter",
+    "button.export": "Exporter",
+    "button.back": "Retour",
+    "export.title": "Exporter",
+    "export.hint": "Choisir une plateforme, Entrée : lancer   Retour arrière : retour"
   }
 }
