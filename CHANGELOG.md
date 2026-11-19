@@ -15,6 +15,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- `gameEngine.cmd` : la version Windows de `./gameEngine.sh` (invite ordinaire, sans Ninja ni « Native Tools ») ; `scripts\launcher.cmd` l'appelle. La CI ouvre le lanceur avec chacun des deux scripts.
 - `./gameEngine.sh` : configure, compile (dans `build/launcher`) et ouvre le lanceur en une commande ; `--build-only` compile seulement, les autres arguments vont à `gelauncher`.
 - E7 : `scripts/export.cmd` et `scripts/launcher.cmd` (Windows : construisent ce qu'il faut puis exportent ou ouvrent le lanceur, depuis une invite ordinaire) ; `ge_player --software` (`WindowOptions::software`) et repli automatique sur le rendu logiciel de SDL ; la release publie les zips Windows de Doodle Jump, Treasure Run et Coin Dash ; le job CI « Export » passe par `scripts/export.cmd` et lance le joueur en rendu logiciel ; `docs/EXPORT.md` pas à pas pour Windows ; le skill `game-from-prompt` sait exporter.
 - E6 : écran « Export » du lanceur (scène JSON `export`, bouton « Export », listes `targets` et `export`, commande `export`), `ExportService` (interface du lanceur), `gelauncher --source --dist` avec un service qui fait tourner `gectl export` en arrière-plan (`tool_export.cpp`, `run_process_lines`), Échap qui revient de l'écran d'export, `LauncherResult::export_lines`.
