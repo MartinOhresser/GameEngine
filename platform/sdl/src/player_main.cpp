@@ -7,6 +7,7 @@
 
 #include "registry.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -19,7 +20,11 @@ int main(int argc, char** argv) {
         ge::platform::sdl::run_player(args, ge::runner::linked_modules(), std::cout, err);
     if (code != 0) {
         std::cerr << err.str();
-        ge::platform::sdl::show_error("The game cannot start", err.str());
+        // A dialog waits for a click: not for a test or a script, which read the message above.
+        const bool headless = std::ranges::find(args, "--headless") != args.end();
+        if (!headless) {
+            ge::platform::sdl::show_error("The game cannot start", err.str());
+        }
     }
     return code;
 }

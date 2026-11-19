@@ -193,8 +193,9 @@ jobs:
           fi
       - name: Play the package without a window
         shell: bash
+        timeout-minutes: 5
         run: |
-          set -e
+          set -eo pipefail
           if [ "${{ runner.os }}" = "Windows" ]; then
             exe=$(find unpacked -maxdepth 3 -type f -name '*.exe' | head -n 1)
           else
@@ -202,7 +203,7 @@ jobs:
           fi
           echo "playing $exe"
           chmod +x "$exe"
-          "$exe" --headless --frames 30 --screenshot screenshot.bmp
+          "$exe" --headless --frames 30 --screenshot screenshot.bmp 2>&1 | tee play.log
           test -s screenshot.bmp
       - name: Keep the package
         uses: actions/upload-artifact@v7
