@@ -1,6 +1,6 @@
 # ADR 0012 : exporter un APK Android
 
-Statut : proposé (plan ; les écarts constatés à l'implémentation s'ajoutent à la fin, comme pour l'ADR 0011).
+Statut : proposé. A0 est fait : ses mesures confirment le plan (voir « Écarts constatés »). Les écarts constatés aux jalons suivants s'ajoutent à la fin, comme pour l'ADR 0011.
 
 ## Contexte
 
@@ -78,6 +78,18 @@ Chaque jalon est une pull request. A0 vient d'abord parce que c'est lui qui peut
 | A6 | **CI et publication** : job « Export Android » avec émulateur, APK de référence dans la release, `docs/EXPORT_ANDROID.md` (pas à pas, USB et `adb`) | la CI échoue si l'APK ne s'installe pas, ne démarre pas ou ne dessine pas |
 | A7 | **Confort** : cible visible dans le panneau d'export du lanceur, `--install` (via `adb`), `--keystore`, aide d'installation des outils | quelqu'un sans Android Studio exporte son APK en suivant la doc |
 
+## Écarts constatés à l'implémentation
+
+- **A0** (`platform/android/spike/`, job « Android APK (spike) »). Un programme SDL de 150 lignes, un gabarit Gradle et un script de build, exécutés sur un runner Ubuntu puis dans un émulateur Android 14 (x86_64). Tout a marché du premier coup, et la suite en est simplifiée :
+  - **SDL 3.2.30 suffit**, il n'y a pas à changer de version. L'archive de SDL contient `android-project/` : ses classes Java, ses icônes et styles, **et un `gradlew` avec son jar** (Gradle 8.12, plugin Android 8.7.3). L'export les copie depuis là : aucun binaire n'entre dans notre dépôt (la décision 3 y gagne).
+  - **SDL lié dans `libmain.so`, ça marche** : avec `--whole-archive` (sinon l'éditeur de liens écarte les points d'entrée JNI) et une activité dont `getLibraries()` ne renvoie que `main`. Taille de l'APK, deux ABI (arm64-v8a et x86_64), bibliothèque sans symboles : **2,4 Mo** (1,1 Mo par ABI compressé). Sans retirer les symboles : 9,5 Mo ; avec SDL en bibliothèque à part : 7,5 Mo, d'où le choix de la décision 2.
+  - **Durées** sur le runner : 55 s pour compiler SDL et le programme pour les deux ABI, 30 s pour Gradle, soit environ 1 min 30 au premier export, avant l'émulateur.
+  - **Les fichiers de l'APK** : `SDL_LoadFile("data/hello.txt")` lit `assets/data/hello.txt`, `std::ifstream` échoue sur le même chemin. La décision 4 est confirmée. `SDL_GetPrefPath` renvoie `/data/data/<id>/files/`, où l'écriture et la relecture marchent.
+  - **Le toucher** arrive en **deux** événements : un clic de souris (identifiant de souris `SDL_TOUCH_MOUSEID`, coordonnées de la fenêtre) et un événement de doigt (coordonnées entre 0 et 1). Les menus de `ui` marchent donc au doigt, comme prévu en décision 5, mais le jeu reçoit aussi `mouse:left` quand un doigt est sur un contrôle à l'écran : A4 devra décider qui compte (ignorer les clics de souris d'origine tactile pour les actions de jeu, ou désactiver la synthèse avec `SDL_HINT_TOUCH_MOUSE_EVENTS` dès que `ui` lit les doigts).
+  - **Le bouton Retour** termine l'activité si on ne fait rien : le jeu ne voit rien et le processus reste, en pause. Avec `SDL_HINT_ANDROID_TRAP_BACK_BUTTON=1`, il arrive comme la touche « AC Back » et le jeu continue. `ge_player` doit donc poser ce réglage.
+  - **L'écran** : l'émulateur donne 320×616 pixels à la fenêtre pour un écran de 320×640 (les barres du système en prennent une partie). La présentation logique avec bandes (décision 6) en tient compte ; le mode immersif et les zones sûres restent à faire.
+  - **Pas vérifié** : l'exécution sur arm64 (l'émulateur de la CI est x86_64), un Android plus ancien que 14, et un vrai téléphone. Le build « SDL en bibliothèque à part » a marché une fois puis a échoué une fois dans l'émulateur sans qu'on sache pourquoi ; il n'est plus dans le job.
+
 ## Limites assumées
 
 - **Beaucoup plus d'outils qu'en Windows** pour l'exportateur (JDK, SDK, NDK, Gradle) ; seul le destinataire n'a rien à installer.
@@ -89,8 +101,7 @@ Chaque jalon est une pull request. A0 vient d'abord parce que c'est lui qui peut
 
 ## Ce qui reste ouvert
 
-- La version de SDL : 3.2.30 est épinglée aujourd'hui ; les outils de projet Android de SDL ont beaucoup évolué (A0 tranche).
-- Le niveau d'API minimal : 24 dans le job CI actuel ; 21 couvre davantage de téléphones, mais SDL récent demande plus.
+- Le niveau d'API minimal : 21 (celui du gabarit de SDL) a été compilé, mais installé seulement sur Android 14 ; le job CI de compilation du cœur vise 24. À tester sur un émulateur plus ancien avant d'annoncer une version.
 - Contrôles tactiles : une seule disposition par jeu, ou plusieurs (gaucher, taille) ?
 - Les jeux pensés pour le tactile (pas seulement adaptés) : inclinaison, glisser, pincer.
 - Compacter les données (`.gepak`) plutôt que `assets/` en clair (déjà ouvert dans l'ADR 0011).

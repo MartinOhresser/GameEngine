@@ -19,7 +19,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [static, shared]
+        # "shared" (SDL as a library of its own) also builds, but the plan links SDL into the
+        # program: it is 3 times bigger and failed once on the emulator without being studied.
+        variant: [static]
     steps:
       - uses: actions/checkout@v7
       - name: Show the tools of the runner
