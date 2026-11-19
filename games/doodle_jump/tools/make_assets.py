@@ -201,13 +201,13 @@ def go(name, scene, **trigger):
 
 
 def scoreboard():
-    """Follows the altitude score of the player: keeps the best (saved) and the last, and stays
+    """Follows the progress score of the player: keeps the best (saved) and the last, and stays
     from scene to scene so that the game over screen can show them."""
     return {"name": "scoreboard", "components": {
         "scene_switch.Persistent": {},
         "ui.Tag": {"tag": "scoreboard"},
         "records.Record": {"key": "best_height", "source": "player",
-                           "field": "altitude.Altitude.score"}}}
+                           "field": "progress.Progress.score"}}}
 
 
 def boot_scene():
@@ -320,7 +320,7 @@ def game_scene():
     out += [
         {"name": "hud_score", "components": bound(
             text("hud.score", 30, 14, 8, red=60, green=60, blue=60),
-            "player", "altitude.Altitude.score")},
+            "player", "progress.Progress.score")},
         {"name": "hud_best", "components": bound(
             text("hud.best", 16, -14, 14, 1.0, 0.0, 1.0, 0.0, red=120, green=120, blue=120),
             "scoreboard", "records.Record.best")},

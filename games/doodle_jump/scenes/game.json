@@ -141,7 +141,7 @@
         },
         "ui.Bind": {
           "source": "player",
-          "field": "altitude.Altitude.score"
+          "field": "progress.Progress.score"
         }
       }
     },

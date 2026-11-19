@@ -32,7 +32,6 @@
         "type": "string",
         "enum": [
           "action_control",
-          "altitude",
           "bounce2d",
           "camera2d",
           "collision2d",
@@ -44,6 +43,7 @@
           "lifetime",
           "patrol2d",
           "pickup",
+          "progress",
           "records",
           "scene_switch",
           "screen_wrap",
@@ -116,11 +116,6 @@
           "properties": {},
           "additionalProperties": false
         },
-        "altitude": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
         "bounce2d": {
           "type": "object",
           "properties": {},
@@ -172,6 +167,11 @@
           "additionalProperties": false
         },
         "pickup": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "progress": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

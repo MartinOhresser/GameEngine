@@ -1,0 +1,70 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "progress",
+  "version": "0.1.0",
+  "description": "How far an entity has got in a direction: the score of a climbing game (up), of a runner (right), of a diver (down). The distance is measured from where the entity started, only counts the best it reached (going back loses nothing) and is turned into a whole score.",
+  "depends": [
+    "transform2d"
+  ],
+  "components": [
+    {
+      "name": "Progress",
+      "description": "Measures the furthest the entity has been since its first tick, in the direction (toward_x, toward_y): (0, -1) is up, as the climber of an endless climb (y grows downwards), (1, 0) is right, (0, 1) down and (-1, 0) left; the axis with the bigger number counts. distance is how far it got from where it began, in world units, and score is distance times scale as a whole number, rounded down. started and origin hold where it began (its coordinate along the direction).",
+      "replicable": true,
+      "fields": [
+        {
+          "name": "toward_x",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "toward_y",
+          "type": "f32",
+          "default": -1
+        },
+        {
+          "name": "scale",
+          "type": "f32",
+          "default": 1
+        },
+        {
+          "name": "origin",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "started",
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "distance",
+          "type": "f32",
+          "default": 0
+        },
+        {
+          "name": "score",
+          "type": "i32",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "measure",
+      "description": "Updates the distance and the score of every Progress entity from its Position.",
+      "stage": "FixedUpdate",
+      "reads": [
+        "transform2d.Position"
+      ],
+      "writes": [
+        "Progress"
+      ],
+      "after": [
+        "transform2d.integrate"
+      ]
+    }
+  ]
+}

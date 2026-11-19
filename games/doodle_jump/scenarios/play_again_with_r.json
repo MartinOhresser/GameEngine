@@ -35,7 +35,7 @@
     },
     {
       "at": 175,
-      "check": "player.altitude.Altitude.score < 100"
+      "check": "player.progress.Progress.score < 100"
     }
   ]
 }
