@@ -61,7 +61,7 @@ Avant d'exporter, `gectl export` valide le jeu et rejoue ses scénarios : un exp
 
 Chaque plateforme est une **cible** (`ExportTarget` : un nom, la possibilité de s'exécuter sur cette machine, la fabrication du paquet). Windows est la seule proposée, une cible `linux` cachée sert aux tests dans l'intégration continue. Alternatives pour les suivantes :
 
-- **Android** : même mécanisme, avec un projet Gradle autour de `SDLActivity`, la lecture des fichiers dans l'APK et l'entrée tactile.
+- **Android** (planifié dans l'[ADR 0012](0012-export-android.md)) : même mécanisme, avec un projet Gradle autour de `SDLActivity`, la lecture des fichiers dans l'APK et l'entrée tactile.
 - **macOS et iOS** : nécessitent un Mac et la signature d'Apple, donc une compilation lancée par la CI plutôt qu'en local.
 - **Consoles** : les SDK sont sous NDA, donc des cibles privées, hors du dépôt.
 
