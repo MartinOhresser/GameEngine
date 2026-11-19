@@ -4,6 +4,7 @@
 
 #include "mini_test.hpp"
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <filesystem>
@@ -20,12 +21,9 @@ namespace {
 const std::string root = GE_SOURCE_DIR;
 
 bool has_line(const std::vector<std::string>& lines, const std::string& fragment) {
-    for (const std::string& line : lines) {
-        if (line.find(fragment) != std::string::npos) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(lines, [&fragment](const std::string& line) {
+        return line.find(fragment) != std::string::npos;
+    });
 }
 
 /// Polls until the export has ended (or about ten seconds went by), collecting its lines.
@@ -129,7 +127,7 @@ TEST_CASE("tool export: the output of a command is read line by line") {
 #endif
 
 TEST_CASE("tool export: a service for the platforms people are offered") {
-    sdl::ToolExportOptions options;
+    const sdl::ToolExportOptions options;
     const std::unique_ptr<sdl::ExportService> service = sdl::make_tool_export(options);
     CHECK(service->targets() == std::vector<std::string>{"Windows (64-bit)"});
     CHECK(!service->poll().running);
