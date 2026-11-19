@@ -498,6 +498,43 @@ TEST_CASE("ui: the focus skips the rows that have no item") {
     CHECK(menu_of->focused == 3U);
 }
 
+TEST_CASE("ui: a button beside a row stands for the same item, and goes off with it") {
+    Scene scene;
+    scene.app.world().insert_resource(
+        ge::app::ListNames{{{"runtime_list", {"games"}}, {"menu", {"main"}}}});
+    scene.app.world().resource<ge::app::RuntimeLists>()->set("games", {"a", "b"});
+    scene.spawn(menu_with_arrows());
+    ui::Pager paging;
+    paging.page_size = 3;
+    scene.spawn(paging);
+    std::vector<ge::ecs::Entity> icons;
+    for (std::uint32_t row = 0; row < 3; ++row) {
+        const float y = 40.0F * static_cast<float>(row);
+        ui::Row line;
+        line.row = row;
+        scene.spawn(transform2d::Position{0.0F, y}, sprite2d::Sprite{}, text2d::Text{},
+                    text2d::Dynamic{}, line, sized(row, 100.0F, 30.0F));
+        ui::RowButton icon;
+        icon.row = row;
+        icons.push_back(scene.spawn(transform2d::Position{80.0F, y}, sprite2d::Sprite{}, icon,
+                                    sized(10 + row, 30.0F, 30.0F)));
+    }
+    const auto* lists = scene.app.world().resource<ge::app::RuntimeLists>();
+    tap(scene, "right", 2);
+    tap(scene, "down", 4);
+    scene.app.run_frames(1);
+    CHECK(scene.app.world().get<ui::RowButton>(icons[1])->item == 1U);
+    CHECK(scene.app.world().get<ui::Button>(icons[1])->enabled);
+    CHECK(!scene.app.world().get<ui::Button>(icons[2])->enabled); // only two games
+    CHECK(lists->selected("games") == 0U);
+    scene.app.run_frames(2); // right: the icon beside the first game
+    CHECK(focused(scene) == 10U);
+    CHECK(lists->selected("games") == 0U);
+    scene.app.run_frames(2); // down: the icon beside the second game
+    CHECK(focused(scene) == 11U);
+    CHECK(lists->selected("games") == 1U);
+}
+
 TEST_CASE("ui: the focused row is the selection of the list, and it stays when the focus leaves") {
     PagedScene paged(5);
     const auto* lists = paged.scene.app.world().resource<ge::app::RuntimeLists>();

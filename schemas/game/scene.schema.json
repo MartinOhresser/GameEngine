@@ -1385,6 +1385,27 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "ui.RowButton": {
+                "type": "object",
+                "properties": {
+                  "list": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "row": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "item": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false

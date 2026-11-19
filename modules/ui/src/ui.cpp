@@ -382,6 +382,17 @@ void pager(ecs::World& world) {
             button->enabled = row.item < lists->size(list_name(list_names, row.list));
         }
     });
+    world.each<RowButton>([&](ecs::Entity entity, RowButton& row) {
+        const auto owner = std::find_if(pagers.begin(), pagers.end(),
+                                        [&row](const Pager& p) { return p.list == row.list; });
+        if (owner == pagers.end()) {
+            return;
+        }
+        row.item = owner->page * std::max<std::uint32_t>(owner->page_size, 1U) + row.row;
+        if (auto* button = world.get<Button>(entity); button != nullptr) {
+            button->enabled = row.item < lists->size(list_name(list_names, row.list));
+        }
+    });
 }
 
 void select(ecs::World& world) {
@@ -397,21 +408,30 @@ void select(ecs::World& world) {
     std::vector<Pager> pagers;
     world.each<const Pager>(
         [&pagers](ecs::Entity, const Pager& pager) { pagers.push_back(pager); });
-    world.each<const Row, const Button>([&](ecs::Entity, const Row& row, const Button& button) {
+    // A Row and a RowButton stand for an item the same way: when its button has the focus, the
+    // item is the selected one of the list.
+    const auto choose = [&](std::uint32_t list, std::uint32_t item, const Button& button) {
         const bool focused =
             button.enabled && std::any_of(focus.begin(), focus.end(), [&button](const auto& f) {
                 return f.first == button.menu && f.second == button.order;
             });
         const auto owner = std::find_if(pagers.begin(), pagers.end(), [&](const Pager& p) {
-            return p.list == row.list && p.menu == button.menu;
+            return p.list == list && p.menu == button.menu;
         });
         if (!focused || owner == pagers.end()) {
             return;
         }
-        if (const std::string_view name = list_name(list_names, row.list); !name.empty()) {
-            lists->select(name, row.item);
+        if (const std::string_view name = list_name(list_names, list); !name.empty()) {
+            lists->select(name, item);
         }
+    };
+    world.each<const Row, const Button>([&](ecs::Entity, const Row& row, const Button& button) {
+        choose(row.list, row.item, button);
     });
+    world.each<const RowButton, const Button>(
+        [&](ecs::Entity, const RowButton& row, const Button& button) {
+            choose(row.list, row.item, button);
+        });
 }
 
 } // namespace ge::mod::ui

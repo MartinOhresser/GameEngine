@@ -3,11 +3,10 @@
   "locale": "fr",
   "entries": {
     "launcher.title": "Game Engine",
-    "launcher.hint": "Flèches : choisir   Entrée : jouer   PgPréc/PgSuiv : pages   Échap : quitter",
+    "launcher.hint": "Flèches : choisir   Entrée : jouer   Droite, Entrée : exporter   PgPréc/PgSuiv : pages   Échap : quitter",
     "button.prev": "<",
     "button.next": ">",
     "button.quit": "Quitter",
-    "button.export": "Exporter",
     "button.back": "Retour",
     "export.title": "Exporter",
     "export.hint": "Choisir une plateforme, Entrée : lancer   Retour arrière : retour"

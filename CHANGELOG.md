@@ -18,6 +18,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 - Menus : `ui.Menu` lit ses boutons comme un tableau d'après leur place à l'écran. Nouvelles actions `left` et `right` : elles déplacent le focus le long d'une ligne de boutons côte à côte, `up` et `down` changent de ligne (vers le bouton le plus proche), grilles comprises. Le lanceur : flèches gauche/droite (ou A/D) naviguent, PageUp/PageDown tournent les pages.
 
+- Lanceur : un petit bouton à l'icône d'export à droite de chaque jeu ouvre l'écran d'export de ce jeu (le bouton « Export » du bas disparaît). Nouveau composant `ui.RowButton`, un second bouton pour la rangée d'une liste paginée.
+
 ### Changed
 
 - Les fichiers d'un jeu exporté se lisent par SDL (`read_file`, `list_game_files`) et l'export écrit `data/files.txt` : de quoi lire dans un APK (ADR 0012, A2). `ge_add_player` crée la bibliothèque `main` sous Android.

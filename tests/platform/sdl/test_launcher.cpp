@@ -85,10 +85,9 @@ public:
     int start_poll = 0;
 };
 
-/// Up from the first game goes round to the Export button (the nearest of the row of buttons
-/// below); Enter opens the export screen.
+/// Right from the first game goes to its export button; Enter opens the export screen.
 void open_export_screen(ge::platform::ScriptedBackend& backend, std::uint64_t frame) {
-    press(backend, frame, "key:up");
+    press(backend, frame, "key:right");
     press(backend, frame + 8, "key:return");
 }
 
