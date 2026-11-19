@@ -740,19 +740,25 @@
                   "extra_chance_end": {
                     "type": "number"
                   },
-                  "extra_dx": {
+                  "extra_across": {
                     "type": "number"
                   },
-                  "extra_dy": {
+                  "extra_along": {
                     "type": "number"
                   },
                   "extra_on_alt": {
                     "type": "boolean"
                   },
-                  "x_min": {
+                  "across_min": {
                     "type": "number"
                   },
-                  "x_max": {
+                  "across_max": {
+                    "type": "number"
+                  },
+                  "toward_x": {
+                    "type": "number"
+                  },
+                  "toward_y": {
                     "type": "number"
                   },
                   "gap_min": {
@@ -767,13 +773,13 @@
                   "gap_max_end": {
                     "type": "number"
                   },
-                  "ramp_height": {
+                  "ramp_distance": {
                     "type": "number"
                   },
-                  "origin_y": {
+                  "origin": {
                     "type": "number"
                   },
-                  "from_height": {
+                  "from_distance": {
                     "type": "number"
                   },
                   "row_chance": {
@@ -785,7 +791,7 @@
                   "ahead": {
                     "type": "number"
                   },
-                  "next_y": {
+                  "next": {
                     "type": "number"
                   }
                 },
@@ -795,6 +801,12 @@
                 "type": "object",
                 "properties": {
                   "margin": {
+                    "type": "number"
+                  },
+                  "side_x": {
+                    "type": "number"
+                  },
+                  "side_y": {
                     "type": "number"
                   }
                 },

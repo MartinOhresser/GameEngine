@@ -34,8 +34,8 @@ Comme à l'écran, **y augmente vers le bas** : la gravité est positive, monter
 
 - La forme du saut : `gravity2d.Gravity.y` (player.json) et `bounce2d.Bouncy.strength` (platform.json). La hauteur d'un saut est `force² / (2 × gravité)` : 760 et 1400 donnent 206 unités.
 - **L'écart maximal entre deux plateformes doit rester sous la hauteur du saut**, sinon la partie devient impossible : c'est `gap_max_end` du générateur `platforms` (scenes/game.json, 170 pour un saut de 206).
-- La difficulté monte sur `ramp_height` unités de hauteur (12000) : chaque réglage `*_end` (écarts, chance des plateformes mobiles et blanches, chance des ressorts, fréquence des monstres) est atteint à cette hauteur. Un `*_end` à -1 veut dire « ne change pas ».
-- Les monstres n'apparaissent qu'à partir de `from_height` (1800).
+- La difficulté monte sur `ramp_distance` unités de distance parcourue vers le haut (12000) : chaque réglage `*_end` (écarts, chance des plateformes mobiles et blanches, chance des ressorts, fréquence des monstres) est atteint à cette hauteur. Un `*_end` à -1 veut dire « ne change pas ».
+- Les monstres n'apparaissent qu'à partir de `from_distance` (1800).
 - Le score : `altitude.Altitude.scale` (player.json).
 
 ## Le banc d'essai

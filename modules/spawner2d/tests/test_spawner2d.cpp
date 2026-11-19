@@ -55,10 +55,10 @@ spawner2d::Generator rows_of(float gap) {
     generator.prefab = 3;
     generator.gap_min = gap;
     generator.gap_max = gap;
-    generator.x_min = 100.0F;
-    generator.x_max = 300.0F;
-    generator.next_y = 700.0F;
-    generator.origin_y = 700.0F; // the height of a row is how far it is above the first one
+    generator.across_min = 100.0F;
+    generator.across_max = 300.0F;
+    generator.next = 700.0F;
+    generator.origin = 700.0F; // the height of a row is how far it is above the first one
     return generator;
 }
 
@@ -120,7 +120,7 @@ TEST_CASE("spawner2d: the gaps grow with the height over the ramp") {
     generator.gap_max = 50.0F;
     generator.gap_min_end = 150.0F;
     generator.gap_max_end = 150.0F;
-    generator.ramp_height = 400.0F;
+    generator.ramp_distance = 400.0F;
     add(setup, generator);
     setup.move_camera_to(-2000.0F); // a lot to build
     setup.app.run_frames(1);
@@ -168,10 +168,11 @@ TEST_CASE("spawner2d: an alternative that is not named is never used") {
                       [](const SpawnRequest& request) { return request.prefab == 3U; }));
 }
 
-TEST_CASE("spawner2d: rows below from_height are skipped, and so are rows that miss their chance") {
+TEST_CASE(
+    "spawner2d: rows below from_distance are skipped, and so are rows that miss their chance") {
     Setup setup;
     spawner2d::Generator generator = rows_of(100.0F);
-    generator.from_height = 250.0F; // rows at 700, 600, 500 are skipped
+    generator.from_distance = 250.0F; // rows at 700, 600, 500 are skipped
     add(setup, generator);
     setup.app.run_frames(1);
     REQUIRE(!setup.seen->empty());
@@ -193,8 +194,8 @@ TEST_CASE("spawner2d: a row can bring an extra prefab next to it") {
     spawner2d::Generator generator = rows_of(100.0F);
     generator.extra_prefab = 7;
     generator.extra_chance = 1.0F;
-    generator.extra_dx = 10.0F;
-    generator.extra_dy = -14.0F;
+    generator.extra_across = 10.0F;
+    generator.extra_along = 14.0F; // ahead of a row that goes up: y is smaller
     add(setup, generator);
     setup.app.run_frames(1);
     REQUIRE(setup.seen->size() == 18); // a row and its extra, nine times
@@ -288,6 +289,95 @@ TEST_CASE("spawner2d: what fell below the screen is removed, what is above stays
     setup.move_camera_to(60.0F); // the screen climbs: 700 is now below its bottom edge
     setup.app.run_frames(1);
     CHECK(!setup.app.world().is_alive(inside));
+}
+
+TEST_CASE("spawner2d: a generator that goes right lays rows ahead of the right edge") {
+    Setup setup; // the screen shows x 0 to 480; rows reach 200 beyond it
+    spawner2d::Generator generator = rows_of(100.0F);
+    generator.toward_x = 1.0F;
+    generator.toward_y = 0.0F;
+    generator.across_min = 50.0F; // across a horizontal layout is y
+    generator.across_max = 250.0F;
+    generator.next = 400.0F;
+    generator.origin = 400.0F;
+    add(setup, generator);
+    setup.app.run_frames(1);
+    REQUIRE(setup.seen->size() == 3); // x 400, 500 and 600; 700 is beyond 480 + 200
+    float x = 400.0F;
+    for (const SpawnRequest& row : *setup.seen) {
+        CHECK(row.prefab == 3U);
+        CHECK(row.x == x);
+        CHECK(row.y >= 50.0F);
+        CHECK(row.y <= 250.0F);
+        x += 100.0F;
+    }
+    setup.app.world().get<transform2d::Position>(setup.camera)->x = 440.0F; // the screen runs on
+    setup.app.run_frames(1);
+    REQUIRE(setup.seen->size() == 5); // x 700 and 800 as well: the limit is now 440 + 240 + 200
+    CHECK(setup.seen->back().x == 800.0F);
+}
+
+TEST_CASE("spawner2d: a generator that goes left or down lays its rows the other way") {
+    Setup left;
+    spawner2d::Generator toward_left = rows_of(100.0F);
+    toward_left.toward_x = -1.0F;
+    toward_left.toward_y = 0.0F;
+    toward_left.next = 100.0F;
+    toward_left.origin = 100.0F;
+    add(left, toward_left);
+    left.app.run_frames(1);
+    REQUIRE(left.seen->size() == 3); // x 100, 0 and -100: the left edge is at 0, and 200 ahead
+    CHECK(left.seen->front().x == 100.0F);
+    CHECK(left.seen->back().x == -100.0F);
+
+    Setup down;
+    spawner2d::Generator toward_down = rows_of(100.0F);
+    toward_down.toward_x = 0.0F;
+    toward_down.toward_y = 1.0F;
+    toward_down.next = 700.0F;
+    toward_down.origin = 700.0F;
+    add(down, toward_down);
+    down.app.run_frames(1);
+    REQUIRE(down.seen->size() == 3); // y 700, 800 and 900: the bottom edge is at 720, 200 ahead
+    CHECK(down.seen->back().y == 900.0F);
+}
+
+TEST_CASE("spawner2d: the difficulty ramp counts the distance along the direction") {
+    Setup setup;
+    spawner2d::Generator generator = rows_of(100.0F);
+    generator.toward_x = 1.0F;
+    generator.toward_y = 0.0F;
+    generator.next = 400.0F;
+    generator.origin = 400.0F;
+    generator.from_distance = 250.0F; // rows at 400, 500 and 600 are less than that from the start
+    add(setup, generator);
+    setup.app.run_frames(1);
+    CHECK(setup.seen->empty());
+    setup.app.world().get<transform2d::Position>(setup.camera)->x = 640.0F;
+    setup.app.run_frames(1);
+    REQUIRE(!setup.seen->empty());
+    CHECK(setup.seen->front().x >= 650.0F); // the first row built is 250 or more past the origin
+}
+
+TEST_CASE("spawner2d: Cull destroys what is past the side of the screen it names") {
+    Setup setup; // the screen shows x 0 to 480
+    const auto spawn_cull = [&](float x, spawner2d::Cull cull) {
+        const Entity entity = setup.app.world().spawn();
+        CHECK(setup.app.world().insert(entity, transform2d::Position{x, 300.0F}));
+        CHECK(setup.app.world().insert(entity, cull));
+        return entity;
+    };
+    spawner2d::Cull behind; // a runner leaves things on its left
+    behind.side_x = -1.0F;
+    behind.side_y = 0.0F;
+    behind.margin = 100.0F;
+    const Entity near_left = spawn_cull(-50.0F, behind);
+    const Entity far_left = spawn_cull(-150.0F, behind);
+    const Entity right = spawn_cull(900.0F, behind);
+    setup.app.run_frames(1);
+    CHECK(setup.app.world().is_alive(near_left));
+    CHECK(!setup.app.world().is_alive(far_left));
+    CHECK(setup.app.world().is_alive(right));
 }
 
 TEST_CASE("spawner2d: a shooter fires when its action is pressed, with a cooldown") {
