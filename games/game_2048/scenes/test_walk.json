@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "name": "test_walk",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 248,
+          "blue": 239
+        }
+      }
+    },
+    {
+      "name": "plate",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 412,
+          "height": 412,
+          "layer": -2,
+          "red": 187,
+          "green": 173,
+          "blue": 160
+        }
+      }
+    },
+    {
+      "name": "cell_0_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -150.0,
+          "y": -150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -50.0,
+          "y": -150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 50.0,
+          "y": -150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 150.0,
+          "y": -150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_0_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -150.0,
+          "y": -50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -50.0,
+          "y": -50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 50.0,
+          "y": -50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 150.0,
+          "y": -50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_0_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -150.0,
+          "y": 50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_1_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -50.0,
+          "y": 50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 50.0,
+          "y": 50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_3_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 150.0,
+          "y": 50.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_0_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -150.0,
+          "y": 150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_1_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -50.0,
+          "y": 150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_2_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 50.0,
+          "y": 150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "cell_3_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 150.0,
+          "y": 150.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 90,
+          "height": 90,
+          "layer": -1,
+          "red": 205,
+          "green": 193,
+          "blue": 180
+        }
+      }
+    },
+    {
+      "name": "board",
+      "components": {
+        "transform2d.Position": {},
+        "grid2d.Grid": {
+          "id": "board",
+          "columns": 4,
+          "rows": 4,
+          "cell_width": 100,
+          "cell_height": 100
+        },
+        "slide_merge.SlideBoard": {
+          "grid": "board",
+          "left": "left",
+          "right": "right",
+          "up": "up",
+          "down": "down",
+          "mode": 0,
+          "moved_action": "moved",
+          "stuck_action": "stuck"
+        },
+        "ui.Tag": {
+          "tag": "board"
+        },
+        "phase.ActiveIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "swipe",
+      "components": {
+        "gesture.Swipe": {
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "press": "click",
+          "min_distance": 30,
+          "max_ticks": 45,
+          "left": "left",
+          "right": "right",
+          "up": "up",
+          "down": "down"
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "components": {
+        "transform2d.Position": {},
+        "camera2d.Camera": {
+          "zoom": 1
+        },
+        "camera2d.CameraFit": {
+          "width": 460,
+          "height": 460,
+          "margin_top": 100,
+          "margin_bottom": 175,
+          "max_zoom": 1.6
+        }
+      }
+    },
+    {
+      "name": "game_phase",
+      "components": {
+        "phase.Phase": {
+          "current": "playing"
+        }
+      }
+    },
+    {
+      "name": "to_won",
+      "components": {
+        "phase.Transition": {
+          "action": "goal",
+          "from_any": false,
+          "from": 1,
+          "to": "won"
+        }
+      }
+    },
+    {
+      "name": "to_lost",
+      "components": {
+        "phase.Transition": {
+          "action": "stuck",
+          "from_any": false,
+          "from": 1,
+          "to": "lost"
+        }
+      }
+    },
+    {
+      "name": "to_playing",
+      "components": {
+        "phase.Transition": {
+          "action": "continue_game",
+          "from_any": false,
+          "from": 2,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "goal",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "board",
+          "field": "slide_merge.SlideBoard.highest",
+          "min": 2048,
+          "action": "goal",
+          "once": true
+        }
+      }
+    },
+    {
+      "name": "new_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "game",
+          "use_action": true,
+          "action": "new_game"
+        }
+      }
+    },
+    {
+      "name": "hud_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 22,
+          "offset_y": 22
+        },
+        "text2d.Text": {
+          "string": "hud.title",
+          "font": "font",
+          "size": 44,
+          "screen": true,
+          "pivot_x": 0,
+          "pivot_y": 0,
+          "red": 119,
+          "green": 110,
+          "blue": 101
+        }
+      }
+    },
+    {
+      "name": "hud_score",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1,
+          "anchor_y": 0,
+          "offset_x": -22,
+          "offset_y": 24
+        },
+        "text2d.Text": {
+          "string": "hud.score",
+          "font": "font",
+          "size": 22,
+          "screen": true,
+          "pivot_x": 1,
+          "pivot_y": 0,
+          "red": 119,
+          "green": 110,
+          "blue": 101
+        },
+        "ui.Bind": {
+          "source": "board",
+          "field": "slide_merge.SlideBoard.score"
+        }
+      }
+    },
+    {
+      "name": "hud_best",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1,
+          "anchor_y": 0,
+          "offset_x": -22,
+          "offset_y": 58
+        },
+        "text2d.Text": {
+          "string": "hud.best",
+          "font": "font",
+          "size": 22,
+          "screen": true,
+          "pivot_x": 1,
+          "pivot_y": 0,
+          "red": 119,
+          "green": 110,
+          "blue": 101
+        },
+        "ui.Bind": {
+          "source": "scoreboard",
+          "field": "records.Record.best"
+        }
+      }
+    },
+    {
+      "name": "help",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "hud.help",
+          "font": "font",
+          "size": 18,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 119,
+          "green": 110,
+          "blue": 101
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "won_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "won.title",
+          "font": "font",
+          "size": 30,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 230,
+          "green": 150,
+          "blue": 20
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "lost_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "lost.title",
+          "font": "font",
+          "size": 30,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 200,
+          "green": 60,
+          "blue": 50
+        },
+        "phase.ShowIn": {
+          "phases": 4
+        }
+      }
+    },
+    {
+      "name": "game_menu_input",
+      "components": {
+        "ui.Menu": {
+          "group": "game_menu",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "button_new",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_y": -45
+        },
+        "ui.Button": {
+          "order": 0,
+          "action": "new_game"
+        },
+        "text2d.Text": {
+          "string": "button.new"
+        }
+      }
+    },
+    {
+      "name": "button_continue",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_y": -100
+        },
+        "ui.Button": {
+          "order": 1,
+          "action": "continue_game"
+        },
+        "text2d.Text": {
+          "string": "button.continue"
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "t1",
+      "prefab": "tile",
+      "components": {
+        "transform2d.Position": {
+          "x": -50.0,
+          "y": -50.0
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        },
+        "grid2d.GridPos": {
+          "col": 1,
+          "row": 1,
+          "from_position": false
+        },
+        "slide_merge.Tile": {
+          "value": 2
+        }
+      }
+    }
+  ]
+}

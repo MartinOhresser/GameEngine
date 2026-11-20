@@ -1,0 +1,54 @@
+// A swipe of the finger (or a drag of the mouse) slides the board like the arrow
+// keys do: here to the left.
+{
+  "schema_version": 1,
+  "name": "swipe_slides_the_board",
+  "scene": "test_walk",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "pointer_x",
+      "value": 300
+    },
+    {
+      "tick": 5,
+      "action": "pointer_y",
+      "value": 300
+    },
+    {
+      "tick": 5,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "pointer_x",
+      "value": 200
+    },
+    {
+      "tick": 11,
+      "action": "pointer_y",
+      "value": 310
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "t1.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 40,
+      "check": "t1.grid2d.GridPos.row == 1"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 1"
+    }
+  ]
+}

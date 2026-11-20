@@ -1,0 +1,33 @@
+// A full board where nothing can merge ends the game: the board stops answering.
+{
+  "schema_version": 1,
+  "name": "no_more_moves_ends_the_game",
+  "scene": "test_lost",
+  "ticks": 30,
+  "inputs": [
+    {
+      "tick": 15,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 16,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 30,
+      "check": "board.slide_merge.SlideBoard.no_moves == true"
+    },
+    {
+      "at": 30,
+      "check": "game_phase.phase.Phase.current == 2"
+    },
+    {
+      "at": 30,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    }
+  ]
+}

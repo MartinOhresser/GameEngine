@@ -1,0 +1,18 @@
+// Arrows, W A S D (and Z Q S D on a French keyboard) slide the tiles; a swipe of a finger, or a
+// drag of the mouse, does the same (module gesture, which reads the pointer). R or N starts a new
+// game at any time, Enter or C goes on after 2048. The first finger of a touch screen is also the
+// mouse, so the buttons answer to a tap.
+{
+  "schema_version": 1,
+  "bindings": [
+    { "action": "left", "sources": { "key:left": 1, "key:a": 1, "key:q": 1 } },
+    { "action": "right", "sources": { "key:right": 1, "key:d": 1 } },
+    { "action": "up", "sources": { "key:up": 1, "key:w": 1, "key:z": 1 } },
+    { "action": "down", "sources": { "key:down": 1, "key:s": 1 } },
+    { "action": "new_game", "sources": { "key:r": 1, "key:n": 1 } },
+    { "action": "continue_game", "sources": { "key:return": 1, "key:c": 1 } },
+    { "action": "pointer_x", "sources": { "mouse:x": 1 } },
+    { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "click", "sources": { "mouse:left": 1 } },
+  ],
+}

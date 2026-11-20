@@ -1,0 +1,62 @@
+// From the victory screen the game goes on (key C or Enter): the board answers again,
+// and the victory screen is not shown a second time.
+{
+  "schema_version": 1,
+  "name": "continue_after_2048",
+  "scene": "test_win",
+  "ticks": 60,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    },
+    {
+      "tick": 20,
+      "action": "continue_game",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "continue_game",
+      "value": 0
+    },
+    {
+      "tick": 30,
+      "action": "down",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "down",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 12,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 25,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 60,
+      "check": "t1.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 60,
+      "check": "board.slide_merge.SlideBoard.moves == 2"
+    },
+    {
+      "at": 60,
+      "check": "game_phase.phase.Phase.current == 0"
+    }
+  ]
+}
