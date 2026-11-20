@@ -86,11 +86,9 @@ std::vector<std::vector<std::size_t>> rows_of(const std::vector<Candidate>& butt
         if (beside) {
             const Candidate& first = buttons[rows.back().front()];
             beside = std::fabs(button.y - first.y) < first.half_height + button.half_height &&
-                     std::ranges::none_of(
-                         rows.back(),
-                         [&](std::size_t member) {
-                             return std::fabs(buttons[member].x - button.x) < 1.0F;
-                         });
+                     std::ranges::none_of(rows.back(), [&](std::size_t member) {
+                         return std::fabs(buttons[member].x - button.x) < 1.0F;
+                     });
         }
         if (beside) {
             rows.back().push_back(index);
