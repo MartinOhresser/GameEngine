@@ -35,7 +35,7 @@
       "name": "scoreboard",
       "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "scoreboard"
         },
         "records.Record": {

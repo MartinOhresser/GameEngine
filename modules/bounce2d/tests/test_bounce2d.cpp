@@ -150,17 +150,6 @@ TEST_CASE("bounce2d: a surface that breaks gives no bounce and falls away") {
     CHECK(app.world().get<bounce2d::Bouncer>(jumper)->bounces == 0U);
 }
 
-TEST_CASE("bounce2d: a surface that kills is removed by the landing") {
-    auto app = game();
-    bounce2d::Bouncy monster = plain(400.0F);
-    monster.kills = true;
-    const Entity target = spawn_surface(app, 0.0F, 100.0F, monster);
-    const Entity jumper = spawn_jumper(app, 0.0F, 85.0F, 100.0F);
-    app.run_frames(1);
-    CHECK(vy_of(app, jumper) == -400.0F);
-    CHECK(!app.world().is_alive(target));
-}
-
 TEST_CASE("bounce2d: a body thrown up keeps rising and bounces again on the way down") {
     auto app = game();
     static_cast<void>(spawn_surface(app, 0.0F, 100.0F, plain(300.0F)));

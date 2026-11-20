@@ -25,6 +25,6 @@
       "red": 255, "green": 255, "blue": 255
     },
     "camera2d.CameraTarget": {},
-    "ui.Tag": { "tag": "player" }
+    "tag.Tag": { "tag": "player" }
   }
 }

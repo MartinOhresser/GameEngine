@@ -6,6 +6,7 @@
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -19,6 +20,7 @@
 namespace {
 
 namespace sprite2d = ge::mod::sprite2d;
+namespace tag = ge::mod::tag;
 namespace text2d = ge::mod::text2d;
 namespace transform2d = ge::mod::transform2d;
 namespace ui = ge::mod::ui;
@@ -30,6 +32,7 @@ struct Scene {
         transform2d::install(app);
         sprite2d::install(app);
         text2d::install(app);
+        tag::install(app);
         ui::install(app);
         CHECK(app.module_problems().empty());
         CHECK(app.schedule().problems().empty());
@@ -161,8 +164,8 @@ TEST_CASE("ui: a bar fills with its value, from its pivot") {
 TEST_CASE("ui: a text and a bar show a number of the game through a tag") {
     Scene scene;
     // Any numeric field can be shown; the x of a Position is at hand in every game.
-    const auto hero = scene.spawn(transform2d::Position{12.0F, 0.0F}, ui::Tag{1});
-    scene.spawn(transform2d::Position{99.0F, 0.0F}, ui::Tag{2}); // another tag, another number
+    const auto hero = scene.spawn(transform2d::Position{12.0F, 0.0F}, tag::Tag{1});
+    scene.spawn(transform2d::Position{99.0F, 0.0F}, tag::Tag{2}); // another tag, another number
 
     ui::Bind bind;
     bind.source = 1;
@@ -199,7 +202,7 @@ TEST_CASE("ui: with own, a text and a bar show a number of the entity itself") {
     const auto tile = scene.spawn(transform2d::Position{4.0F, 0.0F}, text2d::Text{}, bind);
     const auto gauge =
         scene.spawn(transform2d::Position{5.0F, 0.0F}, sprite2d::Sprite{}, bar, bind);
-    scene.spawn(transform2d::Position{99.0F, 0.0F}, ui::Tag{0}); // a tag is not needed
+    scene.spawn(transform2d::Position{99.0F, 0.0F}, tag::Tag{0}); // a tag is not needed
     scene.app.run_frames(1);
     CHECK(scene.app.world().get<text2d::Text>(tile)->value == 4.0F);
     CHECK(scene.app.world().get<sprite2d::Sprite>(gauge)->width == 50.0F);

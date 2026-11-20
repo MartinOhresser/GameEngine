@@ -656,7 +656,7 @@ constexpr std::array<std::string_view, 7> system_3_reads{"grid_moves.Picker", "g
 constexpr std::array<std::string_view, 3> system_3_writes{"grid_moves.Marker", "grid2d.GridPos", "transform2d.Hidden"};
 constexpr std::array<::ge::app::SystemInfo, 4> systems{{{"grid_moves.pick", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"grid_moves.execute", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"grid_moves.judge", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"grid_moves.mark", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}}};
 
-constexpr std::array<std::string_view, 4> depends{"grid2d", "camera2d", "turns", "transform2d"};
+constexpr std::array<std::string_view, 3> depends{"grid2d", "turns", "transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

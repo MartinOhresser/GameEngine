@@ -4,8 +4,10 @@
 1. Every modules/*/module.json is valid against schemas/module.schema.json
    (needs the `jsonschema` package; skipped with a notice when it is missing,
    unless --require-schema is given, as in CI).
-2. A module only includes what it declares: engine headers (`ge/...`), its own
-   headers and the headers of modules listed in its `depends`.
+2. A module's shipped code only includes what it declares: engine headers (`ge/...`), its own
+   headers and the headers of modules listed in its `depends`. Its tests (modules/<name>/tests)
+   may include any module: `depends` is what a game must list to use the module, so it must not
+   grow for the sake of a test.
 3. A module contains no platform code: no OS, windowing or graphics headers.
 4. SDL is used only inside platform/sdl: no other directory includes an SDL
    header, so the engine never depends on the window library.
@@ -70,7 +72,8 @@ def check_includes(modules):
             for header in INCLUDE.findall(text):
                 relative = path.relative_to(ROOT)
                 owner = MODULE_HEADER.match(header)
-                if owner and owner.group(1) not in allowed:
+                in_tests = (MODULES / name / "tests") in path.parents
+                if owner and owner.group(1) not in allowed and not in_tests:
                     problems.append(
                         f"{relative}: includes {header}, but module '{owner.group(1)}' is not "
                         f"in the depends of '{name}'"

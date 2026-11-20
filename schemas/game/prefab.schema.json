@@ -27,6 +27,16 @@
             },
             "vertical": {
               "type": "boolean"
+            },
+            "action_x": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "action_y": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false
@@ -104,9 +114,6 @@
             },
             "fall_speed": {
               "type": "number"
-            },
-            "kills": {
-              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -2142,6 +2149,17 @@
           },
           "additionalProperties": false
         },
+        "tag.Tag": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "text2d.Text": {
           "type": "object",
           "properties": {
@@ -2570,17 +2588,6 @@
               "maximum": 4294967295
             },
             "index": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 4294967295
-            }
-          },
-          "additionalProperties": false
-        },
-        "ui.Tag": {
-          "type": "object",
-          "properties": {
-            "tag": {
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295

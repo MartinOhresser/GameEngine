@@ -3,24 +3,26 @@
   "schema_version": 1,
   "name": "action_control",
   "version": "0.1.0",
-  "description": "Lets the player steer an entity with the actions move_x and move_y.",
+  "description": "Lets a player steer an entity with two actions, one per axis: move_x and move_y unless the entity names others (a second player on the same screen, a cursor and a character steered apart).",
   "depends": ["transform2d"],
   "components": [
     {
       "name": "Controlled",
-      "description": "The entity's Velocity follows the actions move_x and move_y, multiplied by speed. horizontal and vertical turn an axis off: the entity then leaves that part of its Velocity alone (a jumper steered left and right keeps vertical false, so gravity decides how it moves up and down).",
+      "description": "The entity's Velocity follows the actions action_x and action_y (move_x and move_y when they are none), multiplied by speed. horizontal and vertical turn an axis off: the entity then leaves that part of its Velocity alone (a jumper steered left and right keeps vertical false, so gravity decides how it moves up and down).",
       "replicable": true,
       "fields": [
         { "name": "speed", "type": "f32", "default": 100 },
         { "name": "horizontal", "type": "bool", "default": true },
-        { "name": "vertical", "type": "bool", "default": true }
+        { "name": "vertical", "type": "bool", "default": true },
+        { "name": "action_x", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "action_y", "type": "u32", "default": 4294967295, "ref": "action" }
       ]
     }
   ],
   "systems": [
     {
       "name": "steer",
-      "description": "Sets the Velocity of every Controlled entity from the current move_x and move_y actions.",
+      "description": "Sets the Velocity of every Controlled entity from the current value of its two actions.",
       "stage": "FixedUpdate",
       "reads": ["Controlled"],
       "writes": ["transform2d.Velocity"],

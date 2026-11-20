@@ -4,7 +4,7 @@
   "name": "ui",
   "version": "0.1.0",
   "description": "Interfaces made of entities: things that stay where the window's edges put them, rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
-  "depends": ["transform2d", "sprite2d", "text2d"],
+  "depends": ["transform2d", "sprite2d", "text2d", "tag"],
   "components": [
     {
       "name": "Anchor",
@@ -37,14 +37,6 @@
       "fields": [
         { "name": "group", "type": "u32", "default": 0, "ref": "group" },
         { "name": "index", "type": "u32", "default": 0 }
-      ]
-    },
-    {
-      "name": "Tag",
-      "description": "A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's \"tag\" list. When several entities share a tag, the oldest one is found.",
-      "replicable": false,
-      "fields": [
-        { "name": "tag", "type": "u32", "default": 0, "ref": "tag" }
       ]
     },
     {
@@ -161,7 +153,7 @@
       "name": "bind",
       "description": "Copies the bound numbers into the texts and bars that show them.",
       "stage": "FixedUpdate",
-      "reads": ["Bind", "Tag"],
+      "reads": ["Bind", "tag.Tag"],
       "writes": ["text2d.Text", "Bar"]
     },
     {

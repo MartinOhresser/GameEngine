@@ -5,7 +5,11 @@ description: Créer ou étendre un module du moteur (composants, systèmes, test
 
 # Ajouter un module
 
-Un module est un dossier `modules/<nom>/` qui ajoute des **composants** (données) et des **systèmes** (logique). Il passe par une branche, une PR et la CI, comme tout code. Un module n'entre au catalogue que s'il sert un jeu réel : ne crée pas de module « au cas où ».
+Un module est un dossier `modules/<nom>/` qui ajoute des **composants** (données) et des **systèmes** (logique). Il passe par une branche, une PR et la CI, comme tout code. Un module doit être **le plus générique possible** : utilisable par n'importe quel jeu, sans rien de propre à un jeu ou à un genre (ni dans les noms de composants et de champs, ni dans le code, ni dans les descriptions, où un genre n'apparaît que comme un exemple parmi d'autres). Il n'a pas besoin de servir un jeu du dépôt s'il peut clairement servir un futur jeu ; mais préfère toujours étendre un module existant à créer un doublon.
+
+- Un comportement de jeu se décrit par des **données** (champs, actions, entités qui décrivent des règles), pas par un cas particulier : pas de champ qui ne sert qu'à un jeu (« kills » pour le monstre d'un jeu de plateformes là où « vanish » suffit), pas de nom d'action écrit en dur (un champ `ref: "action"`, avec l'ancien nom par défaut).
+- `depends` liste ce que le **code livré** (`src/`, `include/`) inclut, rien d'autre : un jeu doit lister ces modules. Les tests (`tests/`) peuvent inclure n'importe quel module.
+- Ce qui sert à plusieurs modules sans appartenir à l'un d'eux (retrouver une entité par son nom : `tag`) est un petit module à part, pas un composant glissé dans un module voisin.
 
 ## Étapes
 

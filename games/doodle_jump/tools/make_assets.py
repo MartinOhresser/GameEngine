@@ -205,7 +205,7 @@ def scoreboard():
     from scene to scene so that the game over screen can show them."""
     return {"name": "scoreboard", "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {"tag": "scoreboard"},
+        "tag.Tag": {"tag": "scoreboard"},
         "records.Record": {"key": "best_height", "source": "player",
                            "field": "progress.Progress.score"}}}
 

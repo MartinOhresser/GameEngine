@@ -7,6 +7,7 @@
 #include "ge/mod/health/health.gen.hpp"
 #include "ge/mod/path2d/path2d.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -40,6 +41,7 @@ struct Scene {
         collision2d::install(app);
         ge::mod::sprite2d::install(app);
         ge::mod::text2d::install(app);
+        ge::mod::tag::install(app);
         ge::mod::ui::install(app);
         health::install(app);
         path2d::install(app);

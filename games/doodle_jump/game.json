@@ -11,7 +11,7 @@
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
     "patrol2d", "camera2d", "spawner2d", "health", "bounds2d", "combat2d", "progress", "lifetime",
-    "sprite2d", "text2d", "scene_switch", "ui", "records", "host", "touch_controls",
+    "sprite2d", "text2d", "scene_switch", "tag", "ui", "records", "host", "touch_controls",
   ],
   "simulation": { "tick_rate": 60, "seed": 2024 },
   // A tall window, as on a phone: 480 wide, and as high as the screen is (from the shape of a

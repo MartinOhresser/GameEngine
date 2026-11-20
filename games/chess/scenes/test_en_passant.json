@@ -5182,7 +5182,7 @@
           "grid": "board",
           "player": 0
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "side_white"
         }
       }
@@ -5194,7 +5194,7 @@
           "grid": "board",
           "player": 1
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "side_black"
         }
       }
@@ -5316,7 +5316,7 @@
           "match_value": 0,
           "action": "need_promotion"
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "promotion_top"
         }
       }
@@ -5334,7 +5334,7 @@
           "match_value": 0,
           "action": "need_promotion"
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "promotion_bottom"
         }
       }
@@ -6169,7 +6169,7 @@
           "blue": 40,
           "alpha": 0
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "check_text"
         }
       }

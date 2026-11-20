@@ -16,14 +16,13 @@
     },
     {
       "name": "Bouncy",
-      "description": "A surface that throws a landing Bouncer back (against its fall) at strength units per second (a Collider gives its size; only the edge the Bouncer comes from counts: the top edge for a Bouncer that falls down). A Bouncer that falls onto it lands; one that moves away through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed (in the direction the Bouncer falls). kills removes the surface after the bounce too, for a monster that is jumped on.",
+      "description": "A surface that throws a landing Bouncer back (against its fall) at strength units per second (a Collider gives its size; only the edge the Bouncer comes from counts: the top edge for a Bouncer that falls down). A Bouncer that falls onto it lands; one that moves away through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed (in the direction the Bouncer falls). A monster that dies when jumped on is a vanishing surface.",
       "replicable": true,
       "fields": [
         { "name": "strength", "type": "f32", "default": 760 },
         { "name": "vanish", "type": "bool", "default": false },
         { "name": "breaks", "type": "bool", "default": false },
-        { "name": "fall_speed", "type": "f32", "default": 300 },
-        { "name": "kills", "type": "bool", "default": false }
+        { "name": "fall_speed", "type": "f32", "default": 300 }
       ]
     }
   ],

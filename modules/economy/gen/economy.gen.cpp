@@ -370,7 +370,7 @@ constexpr std::array<std::string_view, 4> system_1_reads{"grid2d.GridCursor", "g
 constexpr std::array<std::string_view, 4> system_1_writes{"economy.Placer", "economy.Wallet", "transform2d.Position", "transform2d.Hidden"};
 constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"economy.pay_bounties", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"economy.build", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
 
-constexpr std::array<std::string_view, 4> depends{"transform2d", "grid2d", "health", "camera2d"};
+constexpr std::array<std::string_view, 3> depends{"transform2d", "grid2d", "health"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

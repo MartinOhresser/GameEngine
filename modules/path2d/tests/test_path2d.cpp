@@ -4,6 +4,7 @@
 #include "ge/mod/health/health.gen.hpp"
 #include "ge/mod/path2d/path2d.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -16,6 +17,7 @@ namespace {
 
 namespace health = ge::mod::health;
 namespace path2d = ge::mod::path2d;
+namespace tag = ge::mod::tag;
 namespace transform2d = ge::mod::transform2d;
 
 using ge::ecs::Entity;
@@ -28,6 +30,7 @@ struct Scene {
         transform2d::install(app);
         ge::mod::sprite2d::install(app);
         ge::mod::text2d::install(app);
+        tag::install(app);
         ge::mod::ui::install(app);
         health::install(app);
         path2d::install(app);
@@ -87,7 +90,7 @@ TEST_CASE("path2d: a follower that reaches the end hurts its target, says so and
     life.max = 10;
     life.despawn_on_zero = false;
     CHECK(scene.app.world().insert(base, life));
-    CHECK(scene.app.world().insert(base, ge::mod::ui::Tag{4}));
+    CHECK(scene.app.world().insert(base, tag::Tag{4}));
     const Entity walker = scene.walker(0.0F, 0.0F, 60.0F);
     auto* follower = scene.app.world().get<path2d::PathFollower>(walker);
     follower->end_target = 4;

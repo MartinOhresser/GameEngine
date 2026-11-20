@@ -26,20 +26,18 @@ struct Bouncer {
     [[nodiscard]] friend bool operator==(const Bouncer&, const Bouncer&) = default;
 };
 
-/// A surface that throws a landing Bouncer back (against its fall) at strength units per second (a Collider gives its size; only the edge the Bouncer comes from counts: the top edge for a Bouncer that falls down). A Bouncer that falls onto it lands; one that moves away through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed (in the direction the Bouncer falls). kills removes the surface after the bounce too, for a monster that is jumped on.
+/// A surface that throws a landing Bouncer back (against its fall) at strength units per second (a Collider gives its size; only the edge the Bouncer comes from counts: the top edge for a Bouncer that falls down). A Bouncer that falls onto it lands; one that moves away through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed (in the direction the Bouncer falls). A monster that dies when jumped on is a vanishing surface.
 struct Bouncy {
     float strength = 760.0F;
     bool vanish = false;
     bool breaks = false;
     float fall_speed = 300.0F;
-    bool kills = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(strength);
         hasher.add(vanish);
         hasher.add(breaks);
         hasher.add(fall_speed);
-        hasher.add(kills);
     }
 
     [[nodiscard]] friend bool operator==(const Bouncy&, const Bouncy&) = default;

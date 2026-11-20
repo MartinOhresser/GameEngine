@@ -10,7 +10,7 @@ Les champs qui désignent « un élément d'une liste » s'écrivent avec des no
 "lists": {
   "menu": ["main_menu"],                    // les menus (ui.Menu / ui.Button)
   "group": ["menu_buttons", "hotbar"],      // les groupes de cases d'une grille (ui.Grid / ui.Cell)
-  "tag": ["player"],                        // les étiquettes (ui.Tag)
+  "tag": ["player"],                        // les étiquettes (tag.Tag)
   "container": ["backpack", "chest"],       // les conteneurs (inventory.Slot / Item)
   "item_kind": ["key", "sword", "potion"],  // les genres d'objets
   "category": ["tool", "weapon", "consumable"], // les catégories d'objets (32 au plus)

@@ -35,7 +35,7 @@ Ce que le projet n'est pas : un éditeur visuel, ni un concurrent d'Unity/Godot.
 
 Jeux existants : `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
 
-Modules (37) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `combat2d`, `health`, `bounds2d`, `gravity2d`, `bounce2d`, `action_control`, `touch_controls`, `gesture`, `screen_wrap`, `spawner2d`, `lifetime`, `patrol2d`, `pickup`, `progress`, `phase`, `scene_switch`, `tween2d`, `debug_draw`, `host`, `records`, `ui`, `inventory`, `grid2d`, `grid_moves`, `turns`, `slide_merge`, `rules`, `path2d`, `autofire`, `waves`, `economy`, et `tag` (en cours de création, voir §7).
+Modules (37) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `combat2d`, `health`, `bounds2d`, `gravity2d`, `bounce2d`, `action_control`, `touch_controls`, `gesture`, `screen_wrap`, `spawner2d`, `lifetime`, `patrol2d`, `pickup`, `progress`, `phase`, `scene_switch`, `tween2d`, `debug_draw`, `host`, `records`, `ui`, `inventory`, `grid2d`, `grid_moves`, `turns`, `slide_merge`, `rules`, `path2d`, `autofire`, `waves`, `economy`, `tag`.
 
 ### Règles d'un module (vérifiées par `scripts/check_modules.py` et clang-tidy)
 
@@ -43,7 +43,7 @@ Modules (37) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `
 - Systèmes déterministes (hasard via `Random`, temps via `Time`), simulation en `FixedUpdate`, entrées via `app::Actions` (jamais un clavier), pas de création/destruction d'entité pendant `world.each` (passer par `Commands`).
 - Aucun code de plateforme. Le code livré n'inclut que les en-têtes du moteur, du module et de ses `depends`. **`depends` sert à ce que le code livré utilise vraiment** (un jeu doit lister les dépendances de chaque module qu'il utilise) ; les tests d'un module peuvent inclure n'importe quel module.
 - Pas d'exceptions ni de RTTI ; pas de tableaux C, complexité cognitive ≤ 25, pas de `++` dans une expression (clang-tidy) ; pas de `std::to_chars` / `std::from_chars` flottants (absents sur iOS et WebAssembly) ; code portable GCC, Clang, MSVC, AppleClang, NDK, Emscripten.
-- Un module n'entre au catalogue que s'il sert un jeu réel et reste **générique** : aucun mot propre à un jeu ou à un genre dans son code ni ses descriptions. Préférer étendre un module existant à un doublon.
+- Un module doit être **le plus générique possible** : utilisable par n'importe quel jeu, aucun mot propre à un jeu ou à un genre dans son code, ses noms ni ses descriptions (un genre n'y est qu'un exemple parmi d'autres). **Il peut ne servir aucun jeu du dépôt s'il peut servir un futur jeu** (règle de Martin, 21 novembre 2026). Préférer étendre un module existant à un doublon.
 
 ## 3. Commandes utiles
 
@@ -100,39 +100,30 @@ Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026)
    1. **Nettoyer la CI GitHub** : trop longue (≈ 2/3 du temps du projet passé dessus) et trop instable. Chercher les récurrences d'échec et **adapter les skills** (ajout/modification de modules, création de jeux…) pour les éviter ; **ne tester sur GitHub que ce qui ne peut pas l'être en local**. → **Fait** : PR #61 fusionnée dans `dev` (CI à deux niveaux, ~10 min de temps de mur au lieu de ~30 pour l'export Windows seul, reprises et miroir Maven, scénarios `"screen"` pour tester les touchers de téléphone en local). **Reste** : intégrer les leçons de CI dans les skills (voir §7).
    2. **Vérifier, un par un, que tous les skills (et modules) sont génériques**, sans spécialisation à un jeu ou à un genre. Cas cités : **l'inventaire de treasure run et l'échiquier, ou les tuiles en général, semblent faire doublon.** → **En cours** (audit fait, correctifs partiels, voir §7).
    3. **Ensuite seulement** : discuter de pistes pour **améliorer les graphismes** en ajoutant d'autres modules de rendu avec un autre style graphique. Discussion, pas de code avant d'avoir fini 1 et 2.
-7. **Dernier message (21 h 49)** : « C'est pas du tout assez efficace. On arrête tout. » → travail interrompu, ce fichier demandé.
+7. **20 novembre 2026, 21 h 49** : « C'est pas du tout assez efficace. On arrête tout. » → passage du projet Claude (sandbox cloud) à **Claude Code sur son PC** (§5) ; le travail non poussé de la branche `chore/audit-modules` du sandbox a été perdu.
+8. **20–21 novembre 2026, Claude Code** : « Je veux que la CI soit plus optimisée et rapide » → PR #62 à #64 (ccache local et en CI, export Windows des PR avec Ninja + ccache, clés de cache) : une PR passe de ~10 min à ~5,5 min. Puis « refait l'audit des modules : le plus générique possible, pouvoir servir à n'importe quel jeu ; un module qui ne sert à aucun jeu mais peut servir un futur jeu, c'est bien aussi » → branche `refactor/audit-modules` (§7).
 
-## 7. État exact au moment de l'arrêt
+## 7. État de l'audit des modules (21 novembre 2026)
 
-Dépôt local `/home/claude/gameengine`, branche `chore/audit-modules` (créée depuis `dev` à jour après la fusion de #61 ; **aucun commit, rien poussé, aucune PR**). Modifications non commitées, `check.sh` complet **interrompu avant son verdict** (la construction `dev` et `ctest --preset dev` passaient : 3/3).
+### Fait sur `refactor/audit-modules`
 
-### Audit des modules — constats
+- Nouveau module **`tag`** (`tag.Tag`, `ge/mod/tag/find.hpp` : `tag::find`, `tag::tagged`) : remplace `ui.Tag`, qui n'avait rien d'UI ; la recherche « entité la plus ancienne portant ce nom » existait en 4 copies (`ui`, `rules`, `records`, `path2d`).
+- `depends` réduits au code livré (`autofire`, `economy`, `grid_moves`, `path2d`, `rules`, `slide_merge`) ; `check_modules.py` laisse les tests d'un module inclure n'importe quel module.
+- `action_control.Controlled.action_x/action_y` (défaut `move_x`/`move_y`) ; `bounce2d.Bouncy.kills` retiré (identique à `vanish`) ; commentaires d'`economy` sans « tower ».
+- Jeux, scènes, préfabs, `make_assets.py`, docs, tests et schémas migrés ; skill `add-module` et règle de généricité (§2) mis à jour. Les ADR 0009 et 0013 citent encore `ui.Tag` (historique).
 
-1. **`ui.Tag` n'avait rien d'UI** : `rules`, `records` et `path2d` dépendaient de `ui` pour ça, et la recherche « entité la plus ancienne portant ce nom » existait en 4 copies.
-2. **Dépendances « tests seulement »** dans `module.json` : `sprite2d`/`text2d`/`ui` (autofire, path2d, rules), `camera2d` (economy, grid_moves, slide_merge) obligeaient chaque jeu à lister des modules qu'il n'utilisait pas.
-3. **Doublon grille / curseur (non traité)** :
-   - `ui.Grid` + `ui.Cell` (mise en page de HUD par index, espacement, ancrage à l'écran) font le même travail que `grid2d.Grid` + `grid2d.GridPos` (cases par colonne/ligne, monde).
-   - Trois logiques de curseur : `ui.Menu` (focus clavier/manette + pointeur sur boutons), `inventory.Hand` (touches + pointeur sur les entités `Slot`, `columns`, `slot_width`, `slot_height`), `grid2d.GridCursor` (pointeur seulement, converti par la caméra).
-   - Usages : `ui.Grid/Cell` dans treasure_run (hotbar, menu) et doodle_jump (menus) ; `inventory.Hand` seulement dans treasure_run ; `GridCursor` dans chess, tower_defense, economy, grid_moves.
-   - Pistes envisagées : espacement + espace écran pour `grid2d.Grid`, `GridCursor` avec navigation clavier/manette et mode écran, `inventory.Hand` qui lit un `GridCursor`, retrait de `ui.Grid/Cell`. Obstacle : ordre d'exécution `ui.anchor` → placement de grille sans faire dépendre `ui` de `grid2d`/`camera2d`. **Gros changement cassant** (scènes, tests, docs, scénarios Android) : à cadrer par un ADR et à faire valider par l'utilisateur avant de coder.
-   - Recouvrements secondaires : score de `pickup` vs `economy.Wallet`, `patrol2d` vs `path2d`, taille du `Placer`.
+### Décisions en attente de Martin (ne pas coder avant)
 
-### Changements déjà faits (non commités) sur `chore/audit-modules`
-
-- Nouveau module **`modules/tag/`** : composant `Tag { tag: u32 ref "tag" }`, aucun système, `include/ge/mod/tag/find.hpp` (`tag::find(world, tag)`, `tag::tagged(world)` → `Tagged::find`), tests `modules/tag/tests/test_tag.cpp`.
-- `ui.Tag` supprimé de `ui` ; `ui` dépend maintenant de `tag` ; `rules`, `records`, `path2d` utilisent `tag::find`/`tag::tagged` et dépendent de `tag` (plus de `ui`).
-- `depends` allégés : autofire (`transform2d, collision2d, health, path2d`), economy (`transform2d, grid2d, health`), grid_moves (`grid2d, turns, transform2d`), slide_merge (`grid2d, transform2d`), rules (`tag, transform2d`), path2d (`transform2d, health, tag`).
-- `scripts/check_modules.py` : les tests d'un module (`modules/<nom>/tests`) ne sont plus soumis à `depends`.
-- Migration : `ui.Tag` → `tag.Tag` dans tous les jeux, scènes, préfabs, `make_assets.py`, docs (`UI.md`, `GAME_TOWER_DEFENSE.md`), tests ; `"tag"` ajouté aux `modules` de chess, doodle_jump, game_2048, tower_defense, treasure_run et `tools/launcher/game.json` ; tests (`test_scenario.cpp`, `test_sdl_backend.cpp`, tests de modules) mis à jour ; code généré et schémas régénérés ; `clang-format-18` appliqué ; entrées ajoutées au `CHANGELOG.md` (audit de généricité + résumé de la PR #61).
-- Les ADR 0009 et 0013 mentionnent encore `ui.Tag` (historique, laissés tels quels) ; un nouvel ADR 0014 devrait consigner la décision.
-- **À faire pour terminer cette PR** : relancer `CLANG_FORMAT=clang-format-18 ./scripts/check.sh` jusqu'au bout, commiter, pousser, ouvrir la PR vers `dev` (titre conventional commit, corps en français), surveiller la CI, fusionner.
+1. **Doublon grille / curseur** (gros changement cassant, ADR 0014 à écrire d'abord) : `ui.Grid`/`ui.Cell` (mise en page de HUD par index, écran) font le travail de `grid2d.Grid`/`GridPos` (cases, monde) ; trois curseurs : `ui.Menu` (clavier/manette + pointeur sur boutons), `inventory.Hand` (touches + pointeur sur les `Slot`), `grid2d.GridCursor` (pointeur seulement, via la caméra). Usages : `ui.Grid/Cell` dans treasure_run et doodle_jump ; `Hand` dans treasure_run ; `GridCursor` dans chess, tower_defense, economy, grid_moves. Piste : `grid2d.Grid` avec espacement et mode écran, `GridCursor` avec navigation clavier/manette, `Hand` qui lit un `GridCursor`, retrait de `ui.Grid/Cell`. Obstacle : ordre `ui.anchor` → placement de grille sans faire dépendre `ui` de `grid2d`/`camera2d`.
+2. **`spawner2d.Generator`** : choix de préfabs en emplacements figés (`prefab`, `alt_prefab`, `alt2_prefab`, `extra_prefab`, chacun avec chance de départ et de fin) taillés pour doodle_jump/sideways_jump ; plus générique : une liste d'entités « choix » (préfab, poids, progression), comme `grid_moves.Pattern`. Cassant pour ces deux jeux.
+3. **Ramassage** : `pickup.Collector.score` additionne dans son propre champ, `economy.Wallet` et `inventory` ont leurs propres façons de recevoir ; piste : un `Pickup` qui ajoute sa valeur à n'importe quel champ (comme `rules.OnAction`).
+4. Petits : `debug_draw.Square` = `Rect` carré (10 fichiers de jeux l'utilisent) ; `patrol2d` (aller-retour entre deux limites) et `path2d` (suite de points) restent distincts.
 
 ### Reste à faire ensuite
 
-- **Skills** (`.claude/skills/*`, jamais modifiés à ce jour) : créer `docs/GAMES.md` (besoin → jeu de référence → doc) et y faire pointer les skills ; corriger les affirmations périmées (le tactile existe, le README dit encore « ni fenêtre, ni rendu ») ; retirer les listes de modules figées de `engine-catalog` ; dans `add-module`, ajouter les leçons de CI (pas de `to_chars/from_chars`, portabilité GCC/Clang/MSVC/iOS/WASM, tests nécessaires pour la couverture ≥ 90 % sur `main`, `depends` = dépendances du code livré, tester en local plutôt qu'en CI) ; dans `playtest-headless` / `game-from-prompt`, documenter `"screen"` pour jouer en local un scénario de téléphone. Garder `scripts/check_skills.py` vert.
-- **Doublon grille/curseur** : proposer à l'utilisateur les options (unification complète cassante vs consolidation partielle) avec un ADR 0014 avant tout code.
-- **Rappels à donner à l'utilisateur à la fin** : promouvoir `dev` → `main` (workflow « Promote dev to main »), activer « Automatically delete head branches » dans les réglages GitHub, lancer une fois le workflow « Flaky tests ».
-- **Ensuite seulement** : discussion sur les graphismes (modules de rendu alternatifs, autre style graphique ; voir `docs/RENDERING.md` et l'ADR 0008).
+- **Skills** : créer `docs/GAMES.md` (besoin → jeu de référence → doc) et y faire pointer les skills ; corriger les affirmations périmées (le tactile existe, le README dit encore « ni fenêtre, ni rendu ») ; retirer les listes de modules figées de `engine-catalog` ; dans `add-module`, ajouter les leçons de CI (pas de `to_chars/from_chars`, portabilité GCC/Clang/MSVC/iOS/WASM, tests nécessaires pour la couverture ≥ 90 % sur `main`) ; dans `playtest-headless` / `game-from-prompt`, documenter `"screen"`. Garder `scripts/check_skills.py` vert.
+- **Rappels à donner à Martin** : promouvoir `dev` → `main` (workflow « Promote dev to main »), activer « Automatically delete head branches », lancer une fois le workflow « Flaky tests ».
+- **Ensuite seulement** : discussion sur les graphismes (modules de rendu alternatifs ; `docs/RENDERING.md`, ADR 0008).
 
 ## 8. Façon de travailler avec Martin
 

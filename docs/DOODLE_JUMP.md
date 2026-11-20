@@ -16,7 +16,7 @@ Flèches ou A / D : bouger. Espace ou Haut : tirer. Entrée ou clic : choisir da
 | Il rebondit tout seul sur une plateforme où il atterrit, la traverse par en dessous et par le côté | `bounce2d.Bouncer` (sauteur) et `bounce2d.Bouncy` (surface, avec sa force de rebond) |
 | Plateforme verte, bleue qui glisse, blanche qui disparaît après un rebond, marron qui cède | préfabs `platform`, `platform_moving` (`patrol2d.Patrol`), `platform_vanishing` (`vanish`), `platform_breakable` (`breaks`) |
 | Ressort : un rebond bien plus haut | préfab `spring` (force 1250 contre 760) |
-| Monstre : tue au contact, meurt si on lui saute dessus (et on rebondit très haut) ou si on lui tire dessus | préfabs `monster` et `monster_flying` : `Bouncy` avec `kills`, `health.Health` (une vie), `combat2d.ContactDamage` sur la couche du joueur, couche `monster` |
+| Monstre : tue au contact, meurt si on lui saute dessus (et on rebondit très haut) ou si on lui tire dessus | préfabs `monster` et `monster_flying` : `Bouncy` avec `vanish`, `health.Health` (une vie), `combat2d.ContactDamage` sur la couche du joueur, couche `monster` |
 | Tir vers le haut | `spawner2d.Shooter` du sauteur (action `shoot`), préfab `bullet` (`combat2d.Projectile`) |
 | Sortir par un côté ramène de l'autre | `screen_wrap.WrapArea` avec `wrap_y` éteint |
 | L'écran ne fait que monter | `camera2d.CameraFollow` avec `only_up`, `follow_x` éteint et `offset_y` |

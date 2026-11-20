@@ -302,7 +302,7 @@ def shown_in(components, phases):
 
 
 def tagged(components, tag):
-    return dict(components, **{"ui.Tag": {"tag": tag}})
+    return dict(components, **{"tag.Tag": {"tag": tag}})
 
 
 def go(name, scene, **trigger):

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "name": "path2d",
   "description": "Things that follow a path: a line of waypoints (entities with a position and a number) and followers that walk it one after the other at their own speed, turning at each point. A follower that reaches the end can hurt something (a base, a player, a convoy's goal) and then disappears. Enemies on a road, vehicles, patrols that are not a loop, a projectile that follows a curve. The speed of a follower is scaled by its transform2d.SpeedScale, so a slow effect works on it.",
-  "depends": ["transform2d", "health", "ui", "sprite2d", "text2d"],
+  "depends": ["transform2d", "health", "tag"],
   "components": [
     {
       "name": "Waypoint",
@@ -35,7 +35,7 @@
       "name": "follow",
       "description": "Moves every PathFollower along its path; the ones that reach the end hurt their end target, raise their action and are destroyed.",
       "stage": "FixedUpdate",
-      "reads": ["Waypoint", "ui.Tag", "transform2d.SpeedScale"],
+      "reads": ["Waypoint", "tag.Tag", "transform2d.SpeedScale"],
       "writes": ["PathFollower", "transform2d.Position", "health.Damage"],
       "after": ["transform2d.integrate"],
       "before": ["health.apply_damage"]

@@ -631,13 +631,13 @@ fs::path write_scoring_game(const char* name) {
     fs::create_directories(directory, ignored);
     std::ofstream game(directory / "game.json");
     game << R"({"schema_version": 1, "name": "scoring",
-                "modules": ["transform2d", "sprite2d", "text2d", "ui", "records"],
+                "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui", "records"],
                 "lists": {"tag": ["player", "board"], "record": ["best"]},
                 "scenes": ["main.json"], "start_scene": "main"})";
     std::ofstream scene(directory / "main.json");
     scene << R"({"schema_version": 1, "name": "main", "entities": [
-        {"components": {"ui.Tag": {"tag": "player"}, "ui.Bar": {"value": 42, "max": 100}}},
-        {"components": {"ui.Tag": {"tag": "board"}, "records.Record": {
+        {"components": {"tag.Tag": {"tag": "player"}, "ui.Bar": {"value": 42, "max": 100}}},
+        {"components": {"tag.Tag": {"tag": "board"}, "records.Record": {
             "key": "best", "source": "player", "field": "ui.Bar.value"}}}]})";
     return directory;
 }

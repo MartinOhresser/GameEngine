@@ -4,8 +4,8 @@
 #include "ge/ecs/commands.hpp"
 #include "ge/mod/health/damage.hpp"
 #include "ge/mod/path2d/path2d.gen.hpp"
+#include "ge/mod/tag/find.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
-#include "ge/mod/ui/ui.gen.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -81,16 +81,6 @@ bool walk(const std::vector<Point>& route, float reach, PathFollower& follower,
     return static_cast<std::size_t>(follower.index) >= route.size();
 }
 
-ecs::Entity tagged(ecs::World& world, std::uint32_t tag) {
-    ecs::Entity found;
-    world.each<const ui::Tag>([&](ecs::Entity entity, const ui::Tag& item) {
-        if (found.is_null() && item.tag == tag) {
-            found = entity;
-        }
-    });
-    return found;
-}
-
 } // namespace
 
 void follow(ecs::World& world) {
@@ -113,7 +103,7 @@ void follow(ecs::World& world) {
     });
     for (const ecs::Entity entity : arrived) {
         const auto* follower = world.get<PathFollower>(entity);
-        const ecs::Entity target = tagged(world, follower->end_target);
+        const ecs::Entity target = tag::find(world, follower->end_target);
         if (!target.is_null()) {
             health::deal(world, target, follower->end_damage);
         }

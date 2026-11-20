@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "name": "autofire",
   "description": "Things that aim and shoot by themselves: every so often the entity picks a target in range among what has a Health on the layers it is for, and fires a prefab (a projectile, from the combat2d module for instance) towards it. A turret, an enemy that shoots at the player, a hero that attacks alone, a guard. How it chooses is a setting: the closest, the one furthest along its path (or the least advanced), the strongest or the weakest.",
-  "depends": ["transform2d", "collision2d", "health", "path2d", "ui", "sprite2d", "text2d"],
+  "depends": ["transform2d", "collision2d", "health", "path2d"],
   "components": [
     {
       "name": "AutoFire",

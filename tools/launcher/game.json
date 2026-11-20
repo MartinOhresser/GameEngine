@@ -8,7 +8,7 @@
   "name": "launcher",
   "title": "Game Engine launcher",
   "description": "Lists the games of the engine, shows what each one is made of, and plays the one you choose.",
-  "modules": ["transform2d", "sprite2d", "text2d", "ui", "host", "collision2d", "scene_switch"],
+  "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui", "host", "collision2d", "scene_switch"],
   "simulation": { "tick_rate": 60, "seed": 1 },
   "window": { "width": 800, "height": 560 },
   "input": "input.json",

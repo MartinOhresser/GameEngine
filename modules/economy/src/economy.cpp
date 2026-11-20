@@ -18,7 +18,7 @@ namespace {
 
 constexpr std::uint32_t no_prefab = 0xFFFFFFFFU;
 
-/// How many ticks a Placer waits for the entity that replaces a tower to exist.
+/// How many ticks a Placer waits for the entity that replaces an upgraded one to exist.
 constexpr std::uint32_t reselect_ticks = 6;
 
 struct Output {
@@ -187,7 +187,7 @@ void handle(ecs::World& world, ecs::Entity entity, const Output& out) {
     }
     if (out.pressed(placer->upgrade_action)) {
         change(world, *placer, *layout, true, out);
-        // No `reselect` in the tick of the change: the tower it replaces is still there.
+        // No `reselect` in the tick of the change: the entity it replaces is still there.
     } else if (out.pressed(placer->sell_action)) {
         change(world, *placer, *layout, false, out);
     } else {

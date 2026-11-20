@@ -4,6 +4,7 @@
 #include "ge/app/scene.hpp"
 #include "ge/mod/rules/rules.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -16,6 +17,7 @@
 namespace {
 
 namespace rules = ge::mod::rules;
+namespace tag = ge::mod::tag;
 namespace transform2d = ge::mod::transform2d;
 namespace ui = ge::mod::ui;
 
@@ -26,6 +28,7 @@ struct Scene {
         transform2d::install(app);
         ge::mod::sprite2d::install(app);
         ge::mod::text2d::install(app);
+        tag::install(app);
         ui::install(app);
         rules::install(app);
         CHECK(app.module_problems().empty());
@@ -106,7 +109,7 @@ TEST_CASE("rules: a Watch can look at the entity that has a tag") {
     Scene scene;
     const auto base = scene.app.world().spawn();
     CHECK(scene.app.world().insert(base, transform2d::Position{50.0F, 0.0F}));
-    CHECK(scene.app.world().insert(base, ui::Tag{1}));
+    CHECK(scene.app.world().insert(base, tag::Tag{1}));
     const auto rule = scene.app.world().spawn();
     rules::Watch watch;
     watch.own = false;
@@ -125,7 +128,7 @@ TEST_CASE("rules: OnAction sets or adds to a number when its action is pressed")
     Scene scene;
     const auto target = scene.app.world().spawn();
     CHECK(scene.app.world().insert(target, transform2d::Position{1.0F, 0.0F}));
-    CHECK(scene.app.world().insert(target, ui::Tag{2}));
+    CHECK(scene.app.world().insert(target, tag::Tag{2}));
     const auto setter = scene.app.world().spawn();
     rules::OnAction set;
     set.action = 1;
