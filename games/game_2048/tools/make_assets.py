@@ -141,7 +141,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     return {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **extra),
     }
@@ -163,7 +163,7 @@ def go(name, scene, **trigger):
 def paper():
     return {"name": "paper", "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
         "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                             "screen": True, "layer": -10, "red": 250, "green": 248, "blue": 239}}}
 
@@ -274,11 +274,11 @@ def interface_entities():
             "group": "game_menu", "use_pointer": True, "pointer_x": "pointer_x",
             "pointer_y": "pointer_y", "click": "click"}}},
         {"name": "button_new", "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -45},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -45},
             "ui.Button": {"order": 0, "action": "new_game"},
             "text2d.Text": {"string": "button.new"}}},
         {"name": "button_continue", "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -100},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -100},
             "ui.Button": {"order": 1, "action": "continue_game"},
             "text2d.Text": {"string": "button.continue"},
             "phase.ShowIn": {"phases": WON}}},

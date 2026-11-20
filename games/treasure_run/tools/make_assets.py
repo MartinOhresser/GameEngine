@@ -214,7 +214,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     components = {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **extra),
     }
@@ -223,11 +223,11 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
 
 def bar_pair(name, x, y, max_value):
     """A dark bar with a coloured one over it that fills with the player's score."""
-    back = {"transform2d.Position": {}, "ui.Anchor": {"offset_x": x, "offset_y": y},
+    back = {"transform2d.Position": {}, "transform2d.Anchor": {"offset_x": x, "offset_y": y},
             "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "screen": True, "layer": 11,
                                 "width": 200, "height": 10, "pivot_x": 0,
                                 "red": 40, "green": 40, "blue": 60}}
-    front = {"transform2d.Position": {}, "ui.Anchor": {"offset_x": x, "offset_y": y},
+    front = {"transform2d.Position": {}, "transform2d.Anchor": {"offset_x": x, "offset_y": y},
              "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "screen": True, "layer": 12,
                                  "pivot_x": 0, "red": 90, "green": 220, "blue": 110},
              "ui.Bar": {"max": max_value, "length": 200, "thickness": 10},
@@ -248,7 +248,7 @@ def hud():
     # tools, slot 1 only weapons; the others hold anything, and slot 4 at most 2 of a kind.
     out.append({"name": "hotbar", "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1, "offset_x": -88, "offset_y": -34},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1, "offset_x": -88, "offset_y": -34},
         "ui.Grid": {"group": "hotbar", "columns": 5, "cell_width": 40, "cell_height": 40,
                     "spacing_x": 4}}})
     rules = [{"accepts": ["tool"]}, {"accepts": ["weapon"]}, {}, {}, {"max_stack": 2}]
@@ -278,7 +278,7 @@ def touch_stick():
     return [
         {"name": "touch_stick", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 110, "offset_y": -110},
+            "transform2d.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 110, "offset_y": -110},
             "sprite2d.Sprite": look(140, 90),
             "touch_controls.TouchStick": {"group": "touch_stick", "action_x": "move_x",
                                           "action_y": "move_y", "radius": 55, "zone": 120,
@@ -301,7 +301,7 @@ def menu_scene():
             "click": "click"}}},
         {"name": "menu_list", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": -10},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": -10},
             "ui.Grid": {"group": "menu_buttons", "columns": 1, "cell_width": 240,
                         "cell_height": 48, "spacing_y": 14}}},
     ]

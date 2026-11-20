@@ -1,4 +1,5 @@
 #include "ge/app/time.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/ecs/commands.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -46,6 +47,20 @@ void attach(ecs::World& world) {
                 position->x = at->x + attached.offset_x;
                 position->y = at->y + attached.offset_y;
             }
+        });
+}
+
+void anchor(ecs::World& world) {
+    const auto* view = world.resource<app::Viewport>();
+    if (view == nullptr) {
+        return;
+    }
+    const auto width = static_cast<float>(view->width);
+    const auto height = static_cast<float>(view->height);
+    world.each<const Anchor, Position>(
+        [width, height](ecs::Entity, const Anchor& at, Position& position) {
+            position.x = width * at.anchor_x + at.offset_x;
+            position.y = height * at.anchor_y + at.offset_y;
         });
 }
 

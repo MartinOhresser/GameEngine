@@ -6,7 +6,7 @@
       "name": "menu_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -41,7 +41,7 @@
       "name": "menu_list",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_y": -10

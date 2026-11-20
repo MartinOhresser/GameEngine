@@ -3,20 +3,9 @@
   "schema_version": 1,
   "name": "ui",
   "version": "0.1.0",
-  "description": "Interfaces made of entities: things that stay where the window's edges put them, rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
+  "description": "Interfaces made of entities: rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
   "depends": ["transform2d", "sprite2d", "text2d", "tag"],
   "components": [
-    {
-      "name": "Anchor",
-      "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts.",
-      "replicable": false,
-      "fields": [
-        { "name": "anchor_x", "type": "f32", "default": 0 },
-        { "name": "anchor_y", "type": "f32", "default": 0 },
-        { "name": "offset_x", "type": "f32", "default": 0 },
-        { "name": "offset_y", "type": "f32", "default": 0 }
-      ]
-    },
     {
       "name": "Grid",
       "description": "Lays out the entities that have a Cell of the same group: cell number n goes in column n % columns and row n / columns, cell_width + spacing_x and cell_height + spacing_y apart, the first cell being centred on the Grid's own Position. columns 1 makes a column, a large number a row. A hotbar, an inventory, a list of buttons and a table are all grids with other numbers. group names an item of the game's \"group\" list (game.json lists).",
@@ -135,19 +124,12 @@
   ],
   "systems": [
     {
-      "name": "anchor",
-      "description": "Puts every anchored entity where the window's size says.",
-      "stage": "FixedUpdate",
-      "reads": ["Anchor"],
-      "writes": ["transform2d.Position"]
-    },
-    {
       "name": "layout",
       "description": "Places the cells of every grid.",
       "stage": "FixedUpdate",
       "reads": ["Grid", "Cell"],
       "writes": ["transform2d.Position"],
-      "after": ["anchor"]
+      "after": ["transform2d.anchor"]
     },
     {
       "name": "bind",

@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "transform2d",
   "version": "0.1.0",
-  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding or switching it off, resizing its drawing, giving it an owner and letting it follow that owner.",
+  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding or switching it off, resizing its drawing, giving it an owner and letting it follow that owner, and placing it relative to the edges of the window.",
   "params": [
     {
       "name": "speed_scale",
@@ -79,6 +79,17 @@
         { "name": "factor", "type": "f32", "default": 1 },
         { "name": "ticks", "type": "u32", "default": 0 }
       ]
+    },
+    {
+      "name": "Anchor",
+      "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.",
+      "replicable": false,
+      "fields": [
+        { "name": "anchor_x", "type": "f32", "default": 0 },
+        { "name": "anchor_y", "type": "f32", "default": 0 },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -103,6 +114,14 @@
       "stage": "FixedUpdate",
       "reads": ["SpeedScale"],
       "after": ["integrate"]
+    },
+    {
+      "name": "anchor",
+      "description": "Puts every anchored entity where the window's size says.",
+      "stage": "FixedUpdate",
+      "reads": ["Anchor"],
+      "writes": ["Position"],
+      "after": ["attach"]
     }
   ]
 }

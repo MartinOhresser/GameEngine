@@ -12,7 +12,7 @@ On touche (ou on clique) une case libre pour y construire la tour choisie (le ca
 
 | Dans le jeu | Dans les fichiers |
 | --- | --- |
-| Un terrain de 14 × 9 cases, toujours en entier à l'écran, avec une barre d'état en haut et la boutique en bas | `grid2d.Grid`, `camera2d.CameraFit` (marges), `ui.Anchor` |
+| Un terrain de 14 × 9 cases, toujours en entier à l'écran, avec une barre d'état en haut et la boutique en bas | `grid2d.Grid`, `camera2d.CameraFit` (marges), `transform2d.Anchor` |
 | La route, qu'on ne peut pas couvrir de tours, et des rochers | une entité par case avec `grid2d.Blocked` ; la route elle-même est une suite de `path2d.Waypoint` |
 | Un monstre suit la route à sa vitesse ; au bout, il blesse la base et disparaît | `path2d.PathFollower` (`end_target` : l'entité de `tag.Tag` « base », `end_damage`) ; la base est une `health.Health` qui ne disparaît pas |
 | Quatre monstres : fantassin, coureur (rapide), blindé (solide, blesse deux fois), chef (400 points de vie, blesse dix fois) | quatre préfabs : `health.Health`, `economy.Bounty`, `path2d.PathFollower`, `collision2d.Collider` |

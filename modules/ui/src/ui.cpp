@@ -3,7 +3,6 @@
 #include "ge/app/lists.hpp"
 #include "ge/app/runtime_lists.hpp"
 #include "ge/app/scene.hpp"
-#include "ge/app/viewport.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/tag/find.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
@@ -209,20 +208,6 @@ void run_menu(ecs::World& world, Menu& menu, app::Actions& actions, const app::A
 }
 
 } // namespace
-
-void anchor(ecs::World& world) {
-    const auto* view = world.resource<app::Viewport>();
-    if (view == nullptr) {
-        return;
-    }
-    const auto width = static_cast<float>(view->width);
-    const auto height = static_cast<float>(view->height);
-    world.each<const Anchor, transform2d::Position>(
-        [width, height](ecs::Entity, const Anchor& at, transform2d::Position& position) {
-            position.x = width * at.anchor_x + at.offset_x;
-            position.y = height * at.anchor_y + at.offset_y;
-        });
-}
 
 void layout(ecs::World& world) {
     struct Placed {

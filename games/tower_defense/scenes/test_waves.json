@@ -6,7 +6,7 @@
       "name": "paper",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5
         },
@@ -1871,7 +1871,7 @@
       "name": "gold",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 14,
@@ -1898,7 +1898,7 @@
       "name": "wave",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0,
           "offset_x": -4,
@@ -1925,7 +1925,7 @@
       "name": "wave_last",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0,
           "offset_x": 4,
@@ -1952,7 +1952,7 @@
       "name": "lives",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 1,
           "anchor_y": 0,
           "offset_x": -14,
@@ -1979,7 +1979,7 @@
       "name": "victory",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0,
           "offset_x": 0,
@@ -2005,7 +2005,7 @@
       "name": "defeat",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0,
           "offset_x": 0,
@@ -2043,7 +2043,7 @@
       "name": "button_cannon",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": -250,
@@ -2070,7 +2070,7 @@
       "name": "button_mortar",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": -158,
@@ -2097,7 +2097,7 @@
       "name": "button_ice",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": -66,
@@ -2124,7 +2124,7 @@
       "name": "button_sniper",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": 26,
@@ -2151,7 +2151,7 @@
       "name": "button_upgrade",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": -200,
@@ -2181,7 +2181,7 @@
       "name": "button_sell",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": -60,
@@ -2211,7 +2211,7 @@
       "name": "button_next",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": 230,
@@ -2237,7 +2237,7 @@
       "name": "button_new",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_x": 0,

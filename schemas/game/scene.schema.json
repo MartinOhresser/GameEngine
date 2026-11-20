@@ -2423,6 +2423,24 @@
                 },
                 "additionalProperties": false
               },
+              "transform2d.Anchor": {
+                "type": "object",
+                "properties": {
+                  "anchor_x": {
+                    "type": "number"
+                  },
+                  "anchor_y": {
+                    "type": "number"
+                  },
+                  "offset_x": {
+                    "type": "number"
+                  },
+                  "offset_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "turns.Turn": {
                 "type": "object",
                 "properties": {
@@ -2538,24 +2556,6 @@
                   },
                   "on_owner": {
                     "type": "boolean"
-                  }
-                },
-                "additionalProperties": false
-              },
-              "ui.Anchor": {
-                "type": "object",
-                "properties": {
-                  "anchor_x": {
-                    "type": "number"
-                  },
-                  "anchor_y": {
-                    "type": "number"
-                  },
-                  "offset_x": {
-                    "type": "number"
-                  },
-                  "offset_y": {
-                    "type": "number"
                   }
                 },
                 "additionalProperties": false

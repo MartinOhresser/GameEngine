@@ -6,7 +6,7 @@
       "name": "paper",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5
         },
@@ -485,7 +485,7 @@
       "name": "hud_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 22,
@@ -508,7 +508,7 @@
       "name": "hud_score",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 1,
           "anchor_y": 0,
           "offset_x": -22,
@@ -535,7 +535,7 @@
       "name": "hud_best",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 1,
           "anchor_y": 0,
           "offset_x": -22,
@@ -562,7 +562,7 @@
       "name": "help",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1,
           "offset_x": 0,
@@ -588,7 +588,7 @@
       "name": "won_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1,
           "offset_x": 0,
@@ -614,7 +614,7 @@
       "name": "lost_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1,
           "offset_x": 0,
@@ -652,7 +652,7 @@
       "name": "button_new",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_y": -45
@@ -670,7 +670,7 @@
       "name": "button_continue",
       "prefab": "button",
       "components": {
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
           "offset_y": -100
