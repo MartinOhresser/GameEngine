@@ -217,7 +217,7 @@ constexpr std::array<std::string_view, 3> system_1_reads{"rules.OnAction", "ui.T
 constexpr std::array<std::string_view, 0> system_1_writes{};
 constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"rules.watch", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"rules.on_action", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
 
-constexpr std::array<std::string_view, 2> depends{"ui", "transform2d"};
+constexpr std::array<std::string_view, 4> depends{"ui", "sprite2d", "text2d", "transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
