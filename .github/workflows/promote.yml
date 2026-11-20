@@ -1,7 +1,7 @@
 name: Promote dev to main
 
-# Runs the whole CI on the tip of dev (a push to dev runs nothing: the pull requests that were
-# merged ran the light tier), then moves main to that commit and tags it. It is a fast-forward:
+# Runs the whole CI on the tip of dev (a push to dev runs only the light tier of the pull
+# requests, which also warms the caches), then moves main to that commit and tags it. It is a fast-forward:
 # main gets the exact commit that was just tested.
 # Run it from the Actions tab, with "Use workflow from: dev", once dev has been tried by hand.
 on:

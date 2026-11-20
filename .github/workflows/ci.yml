@@ -6,12 +6,14 @@ name: CI
 #    the export, the real exports and the emulator;
 #  - a pull request into `main`, a push to `main`, a merge group and the promotion workflow run
 #    everything: coverage, the launcher scripts, the three games of ADR 0013 exported.
-# Nothing runs on a push to `dev`: the pull request that was just merged already ran.
+# A push to `dev` (a merged pull request) runs the tier of a pull request again, for the caches:
+# what it compiles (ccache, .github/actions/ccache) and downloads (apt, Gradle) is what the next
+# pull requests into `dev` start from. Nobody waits on it.
 # What `./scripts/check.sh` checks locally (AddressSanitizer, clang-tidy, the GCC Debug build, the
 # scenarios of every game, including on a phone's screen) is not repeated here.
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
   merge_group:
   # Called by "Promote dev to main": the tip of dev gets the whole tier before it becomes main.
@@ -48,9 +50,13 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.base_ref }}
+          REF: ${{ github.ref }}
         run: |
           full=false; engine=false; launcher=false
-          if [[ "$EVENT" != "pull_request" || "$BASE" == "main" ]]; then
+          if [[ "$EVENT" == "push" && "$REF" == "refs/heads/dev" ]]; then
+            # Warms the caches of the exports and the emulator too.
+            engine=true
+          elif [[ "$EVENT" != "pull_request" || "$BASE" == "main" ]]; then
             full=true; engine=true; launcher=true
           else
             files="$(git diff --name-only "origin/$BASE...HEAD")"
@@ -105,6 +111,9 @@ jobs:
           - { name: "Windows MSVC Release", os: windows-latest, cxx: cl, preset: release }
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: build-${{ matrix.name }}
       - name: Install Ninja (macOS)
         if: runner.os == 'macOS'
         run: brew install ninja
@@ -133,6 +142,9 @@ jobs:
           - { name: "Windows", os: windows-latest, cxx: cl }
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: platform-${{ matrix.name }}
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
         uses: ./.github/actions/sdl-deps
@@ -180,6 +192,12 @@ jobs:
           - { name: "Linux", os: ubuntu-24.04, target: linux }
     steps:
       - uses: actions/checkout@v7
+      # Linux only: the Windows export uses the Visual Studio generator, which has no launcher
+      # (it compiles on every core instead, see the export).
+      - uses: ./.github/actions/ccache
+        if: runner.os == 'Linux'
+        with:
+          key: export-linux
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
         uses: ./.github/actions/sdl-deps
@@ -281,6 +299,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: coverage
       - name: Install gcovr
         run: pip install "gcovr>=8"
       - name: Configure
@@ -312,6 +333,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: wasm
       - uses: mymindstorm/setup-emsdk@v16
         with:
           version: "3.1.74"
@@ -327,6 +351,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: android
       - name: Configure
         run: |
           cmake -S . -B build/android -G Ninja \
@@ -372,6 +399,10 @@ jobs:
               touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
     steps:
       - uses: actions/checkout@v7
+      # One cache for the three games: gectl, SDL and the engine are the same for all of them.
+      - uses: ./.github/actions/ccache
+        with:
+          key: android-export
       # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
       # pull request to the next, so that they are not asked for again.
       - uses: actions/cache/restore@v4
@@ -455,6 +486,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: ios
       - name: Configure
         run: |
           cmake -S . -B build/ios \

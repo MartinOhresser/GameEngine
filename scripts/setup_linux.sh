@@ -99,6 +99,8 @@ is_debian_like() {
 
 base_packages=(
   build-essential cmake ninja-build git pkg-config python3
+  # a compiler cache: CMake uses it on its own, a second build of the same code takes seconds
+  ccache
   # what SDL3 needs to open a window, play sounds and read a pad
   libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev
   libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev libegl1-mesa-dev libdrm-dev

@@ -2,7 +2,7 @@
 
 ## Mise en place
 
-Prérequis : CMake 3.25 ou plus, Ninja, et un compilateur C++20 (GCC 13, Clang 18, MSVC 2022 ou AppleClang récent). Pour les contrôles complets : `clang-format` et `clang-tidy` en version 18.
+Prérequis : CMake 3.25 ou plus, Ninja, et un compilateur C++20 (GCC 13, Clang 18, MSVC 2022 ou AppleClang récent). Pour les contrôles complets : `clang-format` et `clang-tidy` en version 18. Conseillé : `ccache`, que CMake utilise tout seul quand il est installé (un nouveau dossier de build ou un changement de branche se recompile alors en secondes ; `-DGE_CCACHE=OFF` pour s'en passer).
 
 ```sh
 git clone <url-du-dépôt>

@@ -49,7 +49,7 @@ Modules (37) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `
 
 ```bash
 cmake --preset dev && cmake --build --preset dev && ctest --preset dev   # cycle rapide
-CLANG_FORMAT=clang-format-18 ./scripts/check.sh                          # équivalent local complet de la CI (long : ~25-30 min)
+CLANG_FORMAT=clang-format-18 ./scripts/check.sh                          # contrôles locaux complets (~25-30 min à froid ; incrémental + ccache ensuite)
 ./build/dev/tools/gectl catalog                  # modules, composants, réglages disponibles
 ./build/dev/tools/gectl new-module <nom> --depends a,b
 ./build/dev/tools/gectl generate                 # code généré des modules (obligatoire après toute modif de module.json)
@@ -69,11 +69,19 @@ Scénarios (`docs/TESTING.md`) : entrées scriptées et vérifications sans fen�
 - Avant chaque push : `CLANG_FORMAT=clang-format-18 ./scripts/check.sh` doit passer (AddressSanitizer, clang-tidy, tests, format, modules, skills, validité des jeux et scénarios ne tournent **pas** en CI). Pour un commit qui ne touche aucun C++ (workflows, docs), un contrôle ciblé suffit.
 - Commits en conventional commits (le titre de PR aussi, contrôlé par la CI). Pied de commit : `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` et `Claude-Session: <url de session>` ; corps de PR en français, terminé par `🤖 Generated with [Claude Code](https://claude.com/claude-code)` et l'URL de session.
 - Dépôt : `MartinOhresser/GameEngine`. Avec `gh`, GraphQL est bloqué dans l'environnement cloud : utiliser l'API REST (`gh api repos/MartinOhresser/GameEngine/pulls ...`, fusion par `gh api -X PUT .../pulls/N/merge -f merge_method=merge`).
-- **CI à deux niveaux** (`.github/workflows/ci.yml`, refonte de la PR #61) : une PR vers `dev` lance builds/tests (GCC, Clang, macOS, Windows MSVC, WebAssembly, NDK, iOS, SDL), format, modules, skills, lint des workflows ; exports réels et émulateur Android seulement si le moteur ou l'export changent (job `changes`). `main` / promotion / PR vers `main` : tout, avec couverture ≥ 90 % et exports des trois jeux d'essai. Pas de CI au push sur `dev`.
+- **CI à deux niveaux** (`.github/workflows/ci.yml`, refonte de la PR #61) : une PR vers `dev` lance builds/tests (GCC, Clang, macOS, Windows MSVC, WebAssembly, NDK, iOS, SDL), format, modules, skills, lint des workflows ; exports réels et émulateur Android seulement si le moteur ou l'export changent (job `changes`). `main` / promotion / PR vers `main` : tout, avec couverture ≥ 90 % et exports des trois jeux d'essai. Un push sur `dev` relance le niveau des PR, seulement pour réchauffer les caches (personne ne l'attend ; un échec y ouvre une issue `ci-failure`).
+- **Caches** : chaque job qui compile passe par `.github/actions/ccache` (ccache, utilisé tout seul par CMake via `cmake/GeCompilerCache.cmake`, y compris dans les builds lancés par `gectl export`) ; les paquets apt de SDL par `cache-apt-pkgs-action` dans `.github/actions/sdl-deps`. L'export Windows (générateur Visual Studio, pas de ccache) compile sur tous les cœurs (`--parallel`, `UseMultiToolTask`). Un nouveau job qui compile doit utiliser l'action `ccache`.
 - Échecs d'infrastructure fréquents : Maven Central « 429 », apt « 503 » → `scripts/ci_retry.sh`, cache Gradle, miroir Maven (`scripts/ci_gradle_mirror.sh`, CI seulement), action `.github/actions/sdl-deps`. Un job qui tombe pour cette raison se relance sans rien changer.
 - Un gabarit Android livré aux utilisateurs (`platform/android/template`) ne doit pas être modifié pour les besoins de la CI.
 
-## 5. Environnement de travail (sandbox cloud)
+## 5. Environnement de travail
+
+Depuis le 20 novembre 2026, Martin travaille dans **Claude Code (application de bureau) sur son PC Windows 11** :
+
+- Dépôt : `C:\Users\marti\Desktop\GameEngine`. Visual Studio 2026 Community (CMake fourni dans `Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`, pas dans le PATH d'un PowerShell ordinaire), WSL 2 Ubuntu pour `check.sh`, `gh` dans `C:\Program Files\GitHub CLI\gh.exe` (connecté). Pas de Python côté Windows (seulement dans WSL). L'exécution de scripts `.ps1` est désactivée : passer par des `.cmd` ou bash.
+- **Il veut voir les commandes longues dans un terminal visible** (panneau Terminal de l'app) : builds, tests, exports, `check.sh`.
+
+Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026), pour mémoire :
 
 - Réseau du shell coupé : **pas d'installation de paquets** (pip, npm, apt). Travailler avec les outils présents (clang-format-18, g++, cmake, gradle, Python). Si un outil manque, le dire.
 - Proxy sortant : ne jamais contourner un refus, le signaler. `sleep` long bloqué : attendre avec une boucle bornée ou une tâche de fond.
