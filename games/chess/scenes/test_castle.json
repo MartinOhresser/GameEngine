@@ -1,0 +1,6680 @@
+{
+  "schema_version": 1,
+  "name": "test_castle",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 247,
+          "blue": 239
+        }
+      }
+    },
+    {
+      "name": "frame",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 528,
+          "height": 528,
+          "layer": -3,
+          "red": 90,
+          "green": 62,
+          "blue": 44
+        }
+      }
+    },
+    {
+      "name": "square_0_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_4_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_5_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_6_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_7_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_0_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_4_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_6_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_7_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_0_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_1_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_3_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_4_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_5_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_6_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_7_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_0_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_1_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_2_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_3_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_4_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_5_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_6_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_7_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_0_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_1_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_2_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_3_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_4_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_5_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_6_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_7_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 32.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_0_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_1_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_2_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_3_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_4_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_5_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_6_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_7_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 96.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_0_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_1_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_2_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_3_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_4_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_5_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_6_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_7_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 160.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_0_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_1_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_2_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_3_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_4_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_5_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "square_6_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 181,
+          "green": 136,
+          "blue": 99
+        }
+      }
+    },
+    {
+      "name": "square_7_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 224.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": -2,
+          "red": 240,
+          "green": 217,
+          "blue": 181
+        }
+      }
+    },
+    {
+      "name": "quiet_0_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 1
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 2
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 3
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 32.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 4
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 5
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 160.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 6
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_0_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_0_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_1_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_1_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -160.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_2_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_2_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -96.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_3_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_3_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -32.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_4_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_4_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_5_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_5_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 96.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_6_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_6_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 160.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "quiet_7_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 5,
+          "width": 20,
+          "height": 20,
+          "layer": 1,
+          "red": 40,
+          "green": 120,
+          "blue": 60,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "capture_7_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 7
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 6,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 200
+        }
+      }
+    },
+    {
+      "name": "selected",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 2
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 250,
+          "green": 220,
+          "blue": 60,
+          "alpha": 130
+        }
+      }
+    },
+    {
+      "name": "last_from",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 3
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 130,
+          "green": 200,
+          "blue": 90,
+          "alpha": 110
+        }
+      }
+    },
+    {
+      "name": "last_to",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 4
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 130,
+          "green": 200,
+          "blue": 90,
+          "alpha": 150
+        }
+      }
+    },
+    {
+      "name": "danger",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 0
+        },
+        "grid_moves.Marker": {
+          "grid": "board",
+          "what": 5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": 1,
+          "red": 230,
+          "green": 60,
+          "blue": 50,
+          "alpha": 170
+        }
+      }
+    },
+    {
+      "name": "board",
+      "components": {
+        "transform2d.Position": {},
+        "grid2d.Grid": {
+          "id": "board",
+          "columns": 8,
+          "rows": 8,
+          "cell_width": 64,
+          "cell_height": 64
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "components": {
+        "transform2d.Position": {},
+        "camera2d.Camera": {
+          "zoom": 1
+        },
+        "camera2d.CameraFit": {
+          "width": 540,
+          "height": 540,
+          "margin_top": 96,
+          "margin_bottom": 196,
+          "max_zoom": 1.5
+        }
+      }
+    },
+    {
+      "name": "turn",
+      "components": {
+        "turns.Turn": {
+          "players": 2
+        },
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 0.0,
+          "offset_x": 34,
+          "offset_y": 76
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 3,
+          "width": 24,
+          "height": 24,
+          "screen": true,
+          "layer": 5
+        },
+        "sprite2d.FrameBind": {
+          "field": "turns.Turn.current",
+          "first_frame": 3,
+          "frame_count": 2
+        }
+      }
+    },
+    {
+      "name": "moves",
+      "components": {
+        "grid_moves.MoveRequest": {
+          "grid": "board",
+          "moved_action": "moved",
+          "refused_action": "refused"
+        }
+      }
+    },
+    {
+      "name": "cursor",
+      "components": {
+        "grid2d.GridCursor": {
+          "grid": "board",
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        },
+        "phase.ActiveIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "picker",
+      "components": {
+        "grid_moves.Picker": {
+          "grid": "board"
+        },
+        "phase.ActiveIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "side_white",
+      "components": {
+        "grid_moves.Side": {
+          "grid": "board",
+          "player": 0
+        },
+        "ui.Tag": {
+          "tag": "side_white"
+        }
+      }
+    },
+    {
+      "name": "side_black",
+      "components": {
+        "grid_moves.Side": {
+          "grid": "board",
+          "player": 1
+        },
+        "ui.Tag": {
+          "tag": "side_black"
+        }
+      }
+    },
+    {
+      "name": "white_mate",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_white",
+          "field": "grid_moves.Side.status",
+          "min": 3,
+          "max": 3,
+          "action": "white_mated"
+        }
+      }
+    },
+    {
+      "name": "white_stalemate",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_white",
+          "field": "grid_moves.Side.status",
+          "min": 2,
+          "max": 2,
+          "action": "stalemate"
+        }
+      }
+    },
+    {
+      "name": "white_check",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_white",
+          "field": "grid_moves.Side.status",
+          "min": 1,
+          "max": 1,
+          "action": "check_on"
+        }
+      }
+    },
+    {
+      "name": "white_clear",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_white",
+          "field": "grid_moves.Side.status",
+          "min": 0,
+          "max": 0,
+          "action": "check_off"
+        }
+      }
+    },
+    {
+      "name": "black_mate",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_black",
+          "field": "grid_moves.Side.status",
+          "min": 3,
+          "max": 3,
+          "action": "black_mated"
+        }
+      }
+    },
+    {
+      "name": "black_stalemate",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_black",
+          "field": "grid_moves.Side.status",
+          "min": 2,
+          "max": 2,
+          "action": "stalemate"
+        }
+      }
+    },
+    {
+      "name": "black_check",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_black",
+          "field": "grid_moves.Side.status",
+          "min": 1,
+          "max": 1,
+          "action": "check_on"
+        }
+      }
+    },
+    {
+      "name": "black_clear",
+      "components": {
+        "rules.Watch": {
+          "own": false,
+          "source": "side_black",
+          "field": "grid_moves.Side.status",
+          "min": 0,
+          "max": 0,
+          "action": "check_off"
+        }
+      }
+    },
+    {
+      "name": "promotion_top",
+      "components": {
+        "grid2d.Zone": {
+          "grid": "board",
+          "col": 0,
+          "row": 0,
+          "columns": 8,
+          "rows": 1,
+          "match_field": "grid_moves.Mover.kind",
+          "match_value": 0,
+          "action": "need_promotion"
+        },
+        "ui.Tag": {
+          "tag": "promotion_top"
+        }
+      }
+    },
+    {
+      "name": "promotion_bottom",
+      "components": {
+        "grid2d.Zone": {
+          "grid": "board",
+          "col": 0,
+          "row": 7,
+          "columns": 8,
+          "rows": 1,
+          "match_field": "grid_moves.Mover.kind",
+          "match_value": 0,
+          "action": "need_promotion"
+        },
+        "ui.Tag": {
+          "tag": "promotion_bottom"
+        }
+      }
+    },
+    {
+      "name": "game_phase",
+      "components": {
+        "phase.Phase": {
+          "current": "playing"
+        }
+      }
+    },
+    {
+      "name": "to_promotion",
+      "components": {
+        "phase.Transition": {
+          "action": "need_promotion",
+          "from_any": false,
+          "from": 1,
+          "to": "promotion"
+        }
+      }
+    },
+    {
+      "name": "to_black_won",
+      "components": {
+        "phase.Transition": {
+          "action": "white_mated",
+          "from_any": false,
+          "from": 3,
+          "to": "black_won"
+        }
+      }
+    },
+    {
+      "name": "to_white_won",
+      "components": {
+        "phase.Transition": {
+          "action": "black_mated",
+          "from_any": false,
+          "from": 3,
+          "to": "white_won"
+        }
+      }
+    },
+    {
+      "name": "to_draw",
+      "components": {
+        "phase.Transition": {
+          "action": "stalemate",
+          "from_any": false,
+          "from": 3,
+          "to": "draw"
+        }
+      }
+    },
+    {
+      "name": "white_resigns",
+      "components": {
+        "phase.Transition": {
+          "action": "resign_white",
+          "from_any": false,
+          "from": 1,
+          "to": "black_won"
+        }
+      }
+    },
+    {
+      "name": "black_resigns",
+      "components": {
+        "phase.Transition": {
+          "action": "resign_black",
+          "from_any": false,
+          "from": 1,
+          "to": "white_won"
+        }
+      }
+    },
+    {
+      "name": "back_after_queen",
+      "components": {
+        "phase.Transition": {
+          "action": "promote_queen",
+          "from_any": false,
+          "from": 2,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "make_queen_top",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_queen",
+          "source": "promotion_top",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 4
+        }
+      }
+    },
+    {
+      "name": "make_queen_bottom",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_queen",
+          "source": "promotion_bottom",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 4
+        }
+      }
+    },
+    {
+      "name": "back_after_rook",
+      "components": {
+        "phase.Transition": {
+          "action": "promote_rook",
+          "from_any": false,
+          "from": 2,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "make_rook_top",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_rook",
+          "source": "promotion_top",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "make_rook_bottom",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_rook",
+          "source": "promotion_bottom",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "back_after_bishop",
+      "components": {
+        "phase.Transition": {
+          "action": "promote_bishop",
+          "from_any": false,
+          "from": 2,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "make_bishop_top",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_bishop",
+          "source": "promotion_top",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "make_bishop_bottom",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_bishop",
+          "source": "promotion_bottom",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "back_after_knight",
+      "components": {
+        "phase.Transition": {
+          "action": "promote_knight",
+          "from_any": false,
+          "from": 2,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "make_knight_top",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_knight",
+          "source": "promotion_top",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "make_knight_bottom",
+      "components": {
+        "rules.OnAction": {
+          "action": "promote_knight",
+          "source": "promotion_bottom",
+          "link": "grid2d.Zone.entered",
+          "field": "grid_moves.Mover.kind",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_00",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": 1,
+          "dy": 2,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_01",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": 2,
+          "dy": 1,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_02",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": -1,
+          "dy": 2,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_03",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": -2,
+          "dy": 1,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_04",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": 1,
+          "dy": -2,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_05",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": 2,
+          "dy": -1,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_06",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": -1,
+          "dy": -2,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_07",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "knight",
+          "dx": -2,
+          "dy": -1,
+          "jump": true
+        }
+      }
+    },
+    {
+      "name": "pattern_08",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "bishop",
+          "dx": 1,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_09",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "bishop",
+          "dx": 1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_10",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "bishop",
+          "dx": -1,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_11",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "bishop",
+          "dx": -1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_12",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "rook",
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "name": "pattern_13",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "rook",
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "name": "pattern_14",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "rook",
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_15",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "rook",
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_16",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": 1,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_17",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 1,
+          "dy": 1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_18",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": 1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_19",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 1,
+          "dy": -1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_20",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": -1,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_21",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": -1,
+          "dy": 1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_22",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": -1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_23",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": -1,
+          "dy": -1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_24",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "name": "pattern_25",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 1,
+          "dy": 0,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_26",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "name": "pattern_27",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": -1,
+          "dy": 0,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_28",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_29",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 0,
+          "dy": 1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_30",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "queen",
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "name": "pattern_31",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 0,
+          "dy": -1,
+          "range": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_32",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": 1,
+          "dy": 0,
+          "range": 2,
+          "min_range": 2,
+          "mode": 1,
+          "first_move_only": true,
+          "safe_path": true,
+          "companion_kind": "rook",
+          "companion_from": 3,
+          "companion_to": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_33",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "king",
+          "dx": -1,
+          "dy": 0,
+          "range": 2,
+          "min_range": 2,
+          "mode": 1,
+          "first_move_only": true,
+          "safe_path": true,
+          "companion_kind": "rook",
+          "companion_from": 4,
+          "companion_to": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_34",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 0,
+          "dy": -1,
+          "player": 0,
+          "range": 1,
+          "mode": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_35",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 0,
+          "dy": -1,
+          "player": 0,
+          "range": 2,
+          "min_range": 2,
+          "mode": 1,
+          "first_move_only": true
+        }
+      }
+    },
+    {
+      "name": "pattern_36",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": -1,
+          "dy": -1,
+          "player": 0,
+          "range": 1,
+          "mode": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_37",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": -1,
+          "dy": -1,
+          "player": 0,
+          "range": 1,
+          "mode": 1,
+          "victim_kind": "pawn",
+          "victim_dx": 0,
+          "victim_dy": 1,
+          "victim_min_distance": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_38",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 1,
+          "dy": -1,
+          "player": 0,
+          "range": 1,
+          "mode": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_39",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 1,
+          "dy": -1,
+          "player": 0,
+          "range": 1,
+          "mode": 1,
+          "victim_kind": "pawn",
+          "victim_dx": 0,
+          "victim_dy": 1,
+          "victim_min_distance": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_40",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 0,
+          "dy": 1,
+          "player": 1,
+          "range": 1,
+          "mode": 1
+        }
+      }
+    },
+    {
+      "name": "pattern_41",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 0,
+          "dy": 1,
+          "player": 1,
+          "range": 2,
+          "min_range": 2,
+          "mode": 1,
+          "first_move_only": true
+        }
+      }
+    },
+    {
+      "name": "pattern_42",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": -1,
+          "dy": 1,
+          "player": 1,
+          "range": 1,
+          "mode": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_43",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": -1,
+          "dy": 1,
+          "player": 1,
+          "range": 1,
+          "mode": 1,
+          "victim_kind": "pawn",
+          "victim_dx": 0,
+          "victim_dy": -1,
+          "victim_min_distance": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_44",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 1,
+          "dy": 1,
+          "player": 1,
+          "range": 1,
+          "mode": 2
+        }
+      }
+    },
+    {
+      "name": "pattern_45",
+      "components": {
+        "grid_moves.Pattern": {
+          "kind": "pawn",
+          "dx": 1,
+          "dy": 1,
+          "player": 1,
+          "range": 1,
+          "mode": 1,
+          "victim_kind": "pawn",
+          "victim_dx": 0,
+          "victim_dy": -1,
+          "victim_min_distance": 2
+        }
+      }
+    },
+    {
+      "name": "title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 22,
+          "offset_y": 18
+        },
+        "text2d.Text": {
+          "string": "hud.title",
+          "font": "font",
+          "size": 34,
+          "screen": true,
+          "pivot_x": 0,
+          "pivot_y": 0,
+          "red": 60,
+          "green": 50,
+          "blue": 40
+        }
+      }
+    },
+    {
+      "name": "to_move",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 66,
+          "offset_y": 78
+        },
+        "text2d.Text": {
+          "string": "hud.to_move",
+          "font": "font",
+          "size": 18,
+          "screen": true,
+          "pivot_x": 0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 50,
+          "blue": 40
+        }
+      }
+    },
+    {
+      "name": "check_text",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1,
+          "anchor_y": 0,
+          "offset_x": -22,
+          "offset_y": 76
+        },
+        "text2d.Text": {
+          "string": "hud.check",
+          "font": "font",
+          "size": 24,
+          "screen": true,
+          "pivot_x": 1,
+          "pivot_y": 0.5,
+          "red": 200,
+          "green": 50,
+          "blue": 40,
+          "alpha": 0
+        },
+        "ui.Tag": {
+          "tag": "check_text"
+        }
+      }
+    },
+    {
+      "name": "show_check",
+      "components": {
+        "rules.OnAction": {
+          "action": "check_on",
+          "source": "check_text",
+          "field": "text2d.Text.alpha",
+          "value": 255
+        }
+      }
+    },
+    {
+      "name": "hide_check",
+      "components": {
+        "rules.OnAction": {
+          "action": "check_off",
+          "source": "check_text",
+          "field": "text2d.Text.alpha",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "help",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "hud.help",
+          "font": "font",
+          "size": 17,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 50,
+          "blue": 40
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "promotion_title",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "hud.promote",
+          "font": "font",
+          "size": 24,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 50,
+          "blue": 40
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "white_wins",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "end.white",
+          "font": "font",
+          "size": 26,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 60
+        },
+        "phase.ShowIn": {
+          "phases": 4
+        }
+      }
+    },
+    {
+      "name": "black_wins",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "end.black",
+          "font": "font",
+          "size": 26,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 60
+        },
+        "phase.ShowIn": {
+          "phases": 8
+        }
+      }
+    },
+    {
+      "name": "draw_text",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1,
+          "offset_x": 0,
+          "offset_y": -150
+        },
+        "text2d.Text": {
+          "string": "end.draw",
+          "font": "font",
+          "size": 26,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 90,
+          "blue": 150
+        },
+        "phase.ShowIn": {
+          "phases": 16
+        }
+      }
+    },
+    {
+      "name": "game_menu_input",
+      "components": {
+        "ui.Menu": {
+          "group": "game_menu",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "promotion_menu_input",
+      "components": {
+        "ui.Menu": {
+          "group": "promotion_menu",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "button_new",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_y": -45
+        },
+        "ui.Button": {
+          "order": 0,
+          "action": "new_game"
+        },
+        "text2d.Text": {
+          "string": "button.new"
+        }
+      }
+    },
+    {
+      "name": "button_resign_white",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -108,
+          "offset_y": -100
+        },
+        "ui.Button": {
+          "order": 1,
+          "action": "resign_white"
+        },
+        "text2d.Text": {
+          "string": "button.resign_white",
+          "size": 16
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "button_resign_black",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 108,
+          "offset_y": -100
+        },
+        "ui.Button": {
+          "order": 2,
+          "action": "resign_black"
+        },
+        "text2d.Text": {
+          "string": "button.resign_black",
+          "size": 16
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        }
+      }
+    },
+    {
+      "name": "button_queen",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -168.0,
+          "offset_y": -100
+        },
+        "sprite2d.Sprite": {
+          "width": 104
+        },
+        "ui.Button": {
+          "menu": "promotion_menu",
+          "order": 0,
+          "width": 104,
+          "action": "promote_queen"
+        },
+        "text2d.Text": {
+          "string": "button.queen",
+          "size": 18
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "button_rook",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -56.0,
+          "offset_y": -100
+        },
+        "sprite2d.Sprite": {
+          "width": 104
+        },
+        "ui.Button": {
+          "menu": "promotion_menu",
+          "order": 1,
+          "width": 104,
+          "action": "promote_rook"
+        },
+        "text2d.Text": {
+          "string": "button.rook",
+          "size": 18
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "button_bishop",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 56.0,
+          "offset_y": -100
+        },
+        "sprite2d.Sprite": {
+          "width": 104
+        },
+        "ui.Button": {
+          "menu": "promotion_menu",
+          "order": 2,
+          "width": 104,
+          "action": "promote_bishop"
+        },
+        "text2d.Text": {
+          "string": "button.bishop",
+          "size": 18
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "button_knight",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 168.0,
+          "offset_y": -100
+        },
+        "sprite2d.Sprite": {
+          "width": 104
+        },
+        "ui.Button": {
+          "menu": "promotion_menu",
+          "order": 3,
+          "width": 104,
+          "action": "promote_knight"
+        },
+        "text2d.Text": {
+          "string": "button.knight",
+          "size": 18
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        }
+      }
+    },
+    {
+      "name": "new_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "game",
+          "use_action": true,
+          "action": "new_game"
+        }
+      }
+    },
+    {
+      "name": "wk",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "col": 4,
+          "row": 7
+        },
+        "turns.Team": {
+          "player": 0
+        },
+        "grid_moves.Mover": {
+          "kind": "king"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 0
+        },
+        "grid_moves.Guard": {}
+      }
+    },
+    {
+      "name": "bk",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": 32.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "col": 4,
+          "row": 0
+        },
+        "turns.Team": {
+          "player": 1
+        },
+        "grid_moves.Mover": {
+          "kind": "king"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 6
+        },
+        "grid_moves.Guard": {}
+      }
+    },
+    {
+      "name": "wr_a",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "col": 0,
+          "row": 7
+        },
+        "turns.Team": {
+          "player": 0
+        },
+        "grid_moves.Mover": {
+          "kind": "rook"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 0
+        }
+      }
+    },
+    {
+      "name": "wr_h",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": 224.0
+        },
+        "grid2d.GridPos": {
+          "col": 7,
+          "row": 7
+        },
+        "turns.Team": {
+          "player": 0
+        },
+        "grid_moves.Mover": {
+          "kind": "rook"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 0
+        }
+      }
+    },
+    {
+      "name": "br_a",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": -224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "col": 0,
+          "row": 0
+        },
+        "turns.Team": {
+          "player": 1
+        },
+        "grid_moves.Mover": {
+          "kind": "rook"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 6
+        }
+      }
+    },
+    {
+      "name": "br_h",
+      "prefab": "piece",
+      "components": {
+        "transform2d.Position": {
+          "x": 224.0,
+          "y": -224.0
+        },
+        "grid2d.GridPos": {
+          "col": 7,
+          "row": 0
+        },
+        "turns.Team": {
+          "player": 1
+        },
+        "grid_moves.Mover": {
+          "kind": "rook"
+        },
+        "sprite2d.FrameBind": {
+          "first_frame": 6
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+// A square that is not one of the piece's moves does nothing (and lets the piece go): a
+// knight does not go straight ahead, but goes to c3.
+{
+  "schema_version": 1,
+  "name": "illegal_moves_are_not_played",
+  "scene": "game",
+  "ticks": 44,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 113
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 113
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 386
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 113
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 164
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 386
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 16,
+      "check": "b1.grid2d.GridPos.col == 1"
+    },
+    {
+      "at": 16,
+      "check": "b1.grid2d.GridPos.row == 7"
+    },
+    {
+      "at": 16,
+      "check": "moves.grid_moves.MoveRequest.moves == 0"
+    },
+    {
+      "at": 16,
+      "check": "turn.turns.Turn.current == 0"
+    },
+    {
+      "at": 44,
+      "check": "b1.grid2d.GridPos.col == 2"
+    },
+    {
+      "at": 44,
+      "check": "b1.grid2d.GridPos.row == 5"
+    },
+    {
+      "at": 44,
+      "check": "moves.grid_moves.MoveRequest.moves == 1"
+    }
+  ]
+}

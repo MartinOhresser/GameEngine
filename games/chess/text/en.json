@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "locale": "en",
+  "entries": {
+    "hud.title": "Chess",
+    "hud.to_move": "to move",
+    "hud.check": "Check!",
+    "hud.help": "Touch a piece, then where it goes",
+    "hud.promote": "Promote the pawn to",
+    "end.white": "Mate: white wins",
+    "end.black": "Mate: black wins",
+    "end.draw": "Stalemate: draw",
+    "button.new": "New game",
+    "button.resign_white": "White resigns",
+    "button.resign_black": "Black resigns",
+    "button.queen": "Queen",
+    "button.rook": "Rook",
+    "button.bishop": "Bishop",
+    "button.knight": "Knight"
+  }
+}

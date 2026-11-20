@@ -1,0 +1,124 @@
+// Touch a piece, then a square it can go to: a pawn goes two squares on its first move,
+// and the turn passes to the other player each time.
+{
+  "schema_version": 1,
+  "name": "pawn_moves_one_or_two",
+  "scene": "game",
+  "ticks": 44,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 335
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 20,
+      "check": "e2.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 20,
+      "check": "e2.grid2d.GridPos.row == 4"
+    },
+    {
+      "at": 20,
+      "check": "turn.turns.Turn.current == 1"
+    },
+    {
+      "at": 20,
+      "check": "e2.grid_moves.Mover.moves_made == 1"
+    },
+    {
+      "at": 44,
+      "check": "e7.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 44,
+      "check": "e7.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 44,
+      "check": "turn.turns.Turn.current == 0"
+    },
+    {
+      "at": 44,
+      "check": "moves.grid_moves.MoveRequest.moves == 2"
+    }
+  ]
+}

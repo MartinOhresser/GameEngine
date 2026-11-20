@@ -104,6 +104,35 @@ struct SpawnOnEmpty {
     [[nodiscard]] friend bool operator==(const SpawnOnEmpty&, const SpawnOnEmpty&) = default;
 };
 
+/// A rectangle of cells of the board grid (col and row for its top left cell, columns by rows) that watches what sits on it. With match_field (a number field of the game, "module.Component.field") only entities whose number equals match_value count, otherwise every entity on a cell counts (Disabled ones never do). count is how many there are now, entered the oldest of them (an entity link, 0 for none). Each time count goes up, the action is raised: a pawn reaching the far rank, a unit entering a goal, a creature stepping on a trap. A Disabled zone does nothing.
+struct Zone {
+    std::uint32_t grid = 0U;
+    std::int32_t col = 0;
+    std::int32_t row = 0;
+    std::uint32_t columns = 1U;
+    std::uint32_t rows = 1U;
+    std::uint32_t match_field = 4294967295U;
+    float match_value = 0.0F;
+    std::uint32_t action = 4294967295U;
+    std::uint64_t entered = 0ULL;
+    std::uint32_t count = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(grid);
+        hasher.add(col);
+        hasher.add(row);
+        hasher.add(columns);
+        hasher.add(rows);
+        hasher.add(match_field);
+        hasher.add(match_value);
+        hasher.add(action);
+        hasher.add(entered);
+        hasher.add(count);
+    }
+
+    [[nodiscard]] friend bool operator==(const Zone&, const Zone&) = default;
+};
+
 /// Gives each GridPos entity the cell it sits on (once, with from_position) and moves it to that cell's centre, at once or gliding.
 /// Runs in FixedUpdate.
 void place(::ge::ecs::World& world);
@@ -115,6 +144,10 @@ void point(::ge::ecs::World& world);
 /// Creates the entities of every SpawnOnEmpty whose trigger is pressed on random empty cells.
 /// Runs in FixedUpdate.
 void spawn(::ge::ecs::World& world);
+
+/// Counts what sits on every Zone, keeps the oldest matching entity in entered, and raises the zone's action when the count goes up.
+/// Runs in FixedUpdate.
+void watch_zones(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

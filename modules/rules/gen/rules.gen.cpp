@@ -141,6 +141,8 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.value = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "add") {
             component.add = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "link") {
+            component.link = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -169,6 +171,9 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     }
     if (field == "add") {
         return ::ge::app::Scalar{static_cast<bool>(component->add)};
+    }
+    if (field == "link") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->link)};
     }
     return std::nullopt;
 }
@@ -204,10 +209,14 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->add = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "link") {
+        component->link = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 6> component_1_fields{{{"action", "u32", "action", false}, {"source", "u32", "tag", false}, {"own", "bool", "", false}, {"field", "u32", "field", false}, {"value", "f32", "", false}, {"add", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 7> component_1_fields{{{"action", "u32", "action", false}, {"source", "u32", "tag", false}, {"own", "bool", "", false}, {"field", "u32", "field", false}, {"value", "f32", "", false}, {"add", "bool", "", false}, {"link", "u32", "field", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Watch", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"OnAction", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 

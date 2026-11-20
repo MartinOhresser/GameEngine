@@ -1,0 +1,11 @@
+// A touch or a click on a piece, then on a square: that is all the game asks of the pointer
+// (the first finger of a touch screen is also the mouse). R or N starts a new game.
+{
+  "schema_version": 1,
+  "bindings": [
+    { "action": "new_game", "sources": { "key:r": 1, "key:n": 1 } },
+    { "action": "pointer_x", "sources": { "mouse:x": 1 } },
+    { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "click", "sources": { "mouse:left": 1 } },
+  ],
+}

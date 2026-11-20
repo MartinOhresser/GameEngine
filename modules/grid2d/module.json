@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "grid2d",
   "version": "0.1.0",
-  "description": "Boards made of cells: a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, and the creation of entities on empty cells. A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
+  "description": "Boards made of cells: a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, the creation of entities on empty cells, and zones that notice what comes onto some cells (a far rank, a goal, a trap). A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
   "depends": ["transform2d", "camera2d"],
   "components": [
     {
@@ -64,6 +64,23 @@
         { "name": "alt_percent", "type": "u32", "default": 0 },
         { "name": "count", "type": "u32", "default": 1 }
       ]
+    },
+    {
+      "name": "Zone",
+      "description": "A rectangle of cells of the board grid (col and row for its top left cell, columns by rows) that watches what sits on it. With match_field (a number field of the game, \"module.Component.field\") only entities whose number equals match_value count, otherwise every entity on a cell counts (Disabled ones never do). count is how many there are now, entered the oldest of them (an entity link, 0 for none). Each time count goes up, the action is raised: a pawn reaching the far rank, a unit entering a goal, a creature stepping on a trap. A Disabled zone does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "columns", "type": "u32", "default": 1 },
+        { "name": "rows", "type": "u32", "default": 1 },
+        { "name": "match_field", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "match_value", "type": "f32", "default": 0 },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "entered", "type": "u64", "default": 0 },
+        { "name": "count", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -87,6 +104,14 @@
       "description": "Creates the entities of every SpawnOnEmpty whose trigger is pressed on random empty cells.",
       "stage": "FixedUpdate",
       "reads": ["SpawnOnEmpty", "Grid", "GridPos", "transform2d.Disabled"],
+      "after": ["place"]
+    },
+    {
+      "name": "watch_zones",
+      "description": "Counts what sits on every Zone, keeps the oldest matching entity in entered, and raises the zone's action when the count goes up.",
+      "stage": "FixedUpdate",
+      "reads": ["GridPos", "Grid", "transform2d.Disabled"],
+      "writes": ["Zone"],
       "after": ["place"]
     }
   ]

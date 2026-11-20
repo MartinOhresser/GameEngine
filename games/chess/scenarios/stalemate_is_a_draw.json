@@ -1,0 +1,59 @@
+// Black has no move and is not in check: the game is a draw.
+{
+  "schema_version": 1,
+  "name": "stalemate_is_a_draw",
+  "scene": "test_stalemate",
+  "ticks": 32,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 164
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 32,
+      "check": "game_phase.phase.Phase.current == 4"
+    },
+    {
+      "at": 32,
+      "check": "side_black.grid_moves.Side.status == 2"
+    }
+  ]
+}

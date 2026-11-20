@@ -1,0 +1,159 @@
+// The king may not castle across a square a rook watches (f1), but may on the other side.
+{
+  "schema_version": 1,
+  "name": "no_castling_through_a_threatened_square",
+  "scene": "test_castle_threat",
+  "ticks": 56,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 164
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 33,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 33,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 34,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 16,
+      "check": "wk.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 16,
+      "check": "wk.grid2d.GridPos.row == 7"
+    },
+    {
+      "at": 16,
+      "check": "moves.grid_moves.MoveRequest.moves == 0"
+    },
+    {
+      "at": 56,
+      "check": "wk.grid2d.GridPos.col == 2"
+    },
+    {
+      "at": 56,
+      "check": "wk.grid2d.GridPos.row == 7"
+    },
+    {
+      "at": 56,
+      "check": "wr_a.grid2d.GridPos.col == 3"
+    },
+    {
+      "at": 56,
+      "check": "wr_a.grid2d.GridPos.row == 7"
+    }
+  ]
+}

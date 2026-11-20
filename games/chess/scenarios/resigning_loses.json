@@ -1,0 +1,75 @@
+// A player can resign: the other one wins.
+{
+  "schema_version": 1,
+  "name": "resigning_loses",
+  "scene": "game",
+  "ticks": 52,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 335
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 31,
+      "action": "pointer_x",
+      "value": 348
+    },
+    {
+      "tick": 31,
+      "action": "pointer_y",
+      "value": 620
+    },
+    {
+      "tick": 32,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 33,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 52,
+      "check": "game_phase.phase.Phase.current == 2"
+    }
+  ]
+}

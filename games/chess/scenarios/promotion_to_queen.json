@@ -1,0 +1,100 @@
+// A pawn that reaches the far rank stops the game on a choice of four pieces; the
+// button of the queen turns it into one, and the game goes on.
+{
+  "schema_version": 1,
+  "name": "promotion_to_queen",
+  "scene": "test_promotion",
+  "ticks": 62,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 62
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 62
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 31,
+      "action": "pointer_x",
+      "value": 72
+    },
+    {
+      "tick": 31,
+      "action": "pointer_y",
+      "value": 620
+    },
+    {
+      "tick": 32,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 33,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 27,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 27,
+      "check": "wp.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 27,
+      "check": "wp.grid2d.GridPos.row == 0"
+    },
+    {
+      "at": 62,
+      "check": "wp.grid_moves.Mover.kind == 4"
+    },
+    {
+      "at": 62,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 62,
+      "check": "wp.sprite2d.Sprite.frame == 4"
+    },
+    {
+      "at": 62,
+      "check": "turn.turns.Turn.current == 1"
+    }
+  ]
+}

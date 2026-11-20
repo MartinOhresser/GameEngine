@@ -1,3 +1,4 @@
+#include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/spawn.hpp"
@@ -61,6 +62,34 @@ public:
 private:
     std::vector<Layout> layouts_;
 };
+
+/// Whether the entity counts for a zone: it has the number the zone looks for (any entity does
+/// when the zone looks for none).
+bool matches(const ecs::World& world, ecs::Entity entity, const app::FieldEntry* field,
+             float value) {
+    if (field == nullptr) {
+        return true;
+    }
+    if (field->component->read == nullptr) {
+        return false;
+    }
+    const auto read = field->component->read(world, entity, field->field);
+    return read && app::scalar_as<float>(*read) == value;
+}
+
+const app::FieldEntry* field_of(const app::FieldTable* table, std::uint32_t index) {
+    if (table == nullptr || index >= table->entries.size() ||
+        table->entries[index].component == nullptr) {
+        return nullptr;
+    }
+    return &table->entries[index];
+}
+
+bool in_zone(const Zone& zone, const GridPos& at) {
+    return at.grid == zone.grid && at.col >= zone.col && at.row >= zone.row &&
+           at.col < zone.col + static_cast<std::int32_t>(zone.columns) &&
+           at.row < zone.row + static_cast<std::int32_t>(zone.rows);
+}
 
 } // namespace
 
@@ -191,6 +220,38 @@ void spawn(ecs::World& world) {
         }
         taken.emplace_back(spawner.grid, std::move(chosen));
     });
+}
+
+void watch_zones(ecs::World& world) {
+    const auto* table = world.resource<app::FieldTable>();
+    const auto* names = world.resource<app::ActionNames>();
+    auto* actions = world.resource<app::Actions>();
+    std::vector<ecs::Entity> zones;
+    world.each<const Zone>([&](ecs::Entity entity, const Zone&) { zones.push_back(entity); });
+    for (const ecs::Entity entity : zones) {
+        auto* zone = world.get<Zone>(entity);
+        if (zone == nullptr || world.has<transform2d::Disabled>(entity)) {
+            continue;
+        }
+        const app::FieldEntry* field = field_of(table, zone->match_field);
+        std::uint32_t count = 0;
+        ecs::Entity first;
+        world.each<const GridPos>([&](ecs::Entity other, const GridPos& at) {
+            if (in_zone(*zone, at) && !world.has<transform2d::Disabled>(other) &&
+                matches(world, other, field, zone->match_value)) {
+                if (count == 0U) {
+                    first = other;
+                }
+                ++count;
+            }
+        });
+        const bool more = count > zone->count;
+        zone->count = count;
+        zone->entered = count == 0U ? 0U : first.to_link();
+        if (more) {
+            raise(actions, names, zone->action);
+        }
+    }
 }
 
 } // namespace ge::mod::grid2d

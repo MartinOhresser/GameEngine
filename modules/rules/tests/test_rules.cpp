@@ -174,3 +174,50 @@ TEST_CASE("rules: OnAction on its own entity, a missing target and a switched of
     scene.app.run_frames(2);
     CHECK(scene.x(entity) == 9.0F);
 }
+
+TEST_CASE("rules: OnAction with a link changes the entity that the source points to") {
+    Scene scene;
+    const auto target = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(target, transform2d::Position{0.0F, 0.0F}));
+    const auto bystander = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(bystander, transform2d::Position{0.0F, 0.0F}));
+    const auto holder = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(holder, transform2d::Position{0.0F, 0.0F}));
+    CHECK(scene.app.world().insert(holder, transform2d::Owner{target.to_link()}));
+    rules::OnAction rule;
+    rule.action = 1;
+    rule.own = true;
+    rule.link = scene.field("transform2d.Owner.entity");
+    rule.field = scene.field("transform2d.Position.x");
+    rule.value = 5.0F;
+    CHECK(scene.app.world().insert(holder, rule));
+    scene.app.world().resource<ge::app::Actions>()->raise("set_x");
+    scene.app.run_frames(2);
+    CHECK(scene.x(target) == 5.0F);
+    CHECK(scene.x(holder) == 0.0F);
+    CHECK(scene.x(bystander) == 0.0F);
+}
+
+TEST_CASE("rules: OnAction with a link to nobody, or to an entity that is gone, does nothing") {
+    Scene scene;
+    const auto target = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(target, transform2d::Position{0.0F, 0.0F}));
+    const auto holder = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(holder, transform2d::Position{0.0F, 0.0F}));
+    CHECK(scene.app.world().insert(holder, transform2d::Owner{0}));
+    rules::OnAction rule;
+    rule.action = 1;
+    rule.own = true;
+    rule.link = scene.field("transform2d.Owner.entity");
+    rule.field = scene.field("transform2d.Position.x");
+    rule.value = 5.0F;
+    CHECK(scene.app.world().insert(holder, rule));
+    scene.app.world().resource<ge::app::Actions>()->raise("set_x");
+    scene.app.run_frames(2);
+    CHECK(scene.x(holder) == 0.0F);
+    scene.app.world().get<transform2d::Owner>(holder)->entity = target.to_link();
+    CHECK(scene.app.world().despawn(target));
+    scene.app.world().resource<ge::app::Actions>()->raise("set_x");
+    scene.app.run_frames(2);
+    CHECK(scene.x(holder) == 0.0F);
+}

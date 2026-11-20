@@ -1,0 +1,228 @@
+// The shortest game: black mates in two moves. The game is over, and the board stops
+// answering.
+{
+  "schema_version": 1,
+  "name": "fools_mate",
+  "scene": "game",
+  "ticks": 78,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 316
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 316
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 386
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 33,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 33,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 34,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 335
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 45,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 45,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 46,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 47,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 51,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 51,
+      "action": "pointer_y",
+      "value": 335
+    },
+    {
+      "tick": 52,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 53,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 61,
+      "action": "pointer_x",
+      "value": 62
+    },
+    {
+      "tick": 61,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 62,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 63,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 67,
+      "action": "pointer_x",
+      "value": 62
+    },
+    {
+      "tick": 67,
+      "action": "pointer_y",
+      "value": 386
+    },
+    {
+      "tick": 68,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 69,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 68,
+      "check": "game_phase.phase.Phase.current == 3"
+    },
+    {
+      "at": 68,
+      "check": "side_white.grid_moves.Side.status == 3"
+    },
+    {
+      "at": 78,
+      "check": "a2.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 78,
+      "check": "a2.grid2d.GridPos.row == 6"
+    }
+  ]
+}
