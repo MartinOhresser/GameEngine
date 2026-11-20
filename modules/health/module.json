@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "health",
+  "description": "Things that can be hurt and die, whatever hurts them: a monster with three lives, a player, a base, a tower, a crate. Anything that hurts adds a Damage request to the entity it hurts (a projectile, a touch, a trap, an explosion, a script: sources need to know nothing about their targets); the module applies it, says so when the health reaches zero and, if the entity asks for it, removes the entity. Other modules and the game's rules react to the zero: a bounty is paid, a game over is shown.",
+  "components": [
+    {
+      "name": "Health",
+      "description": "How much the entity can take. amount is what is left (it never goes above max or below 0) and max what it started with. When damage brings amount to 0 the entity gets a Dead marker, and the action on_zero is raised once (none: no action). With despawn_on_zero the entity is then destroyed, in the same tick (a monster); without it, it stays, dead (a player the game wants to keep on screen).",
+      "replicable": true,
+      "fields": [
+        { "name": "amount", "type": "i32", "default": 1 },
+        { "name": "max", "type": "i32", "default": 1 },
+        { "name": "on_zero", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "despawn_on_zero", "type": "bool", "default": true }
+      ]
+    },
+    {
+      "name": "Damage",
+      "description": "A request: the entity loses amount points of health at the next application. Any source adds it (when there is one already, amounts are added together); the module applies it to the Health and removes it, or ignores it when the entity has no Health or is already Dead. A negative amount heals, up to max.",
+      "replicable": true,
+      "fields": [
+        { "name": "amount", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Dead",
+      "description": "The entity's Health has reached 0. Put there by the module, once; it stays on the entity (unless despawn_on_zero) so that other modules (a bounty, a rule) can react to the death in the tick it happens, and so that nothing hurts a dead entity again.",
+      "replicable": true,
+      "fields": []
+    }
+  ],
+  "systems": [
+    {
+      "name": "apply_damage",
+      "description": "Applies every Damage to the Health of its entity and removes it; an entity whose health reaches 0 gets Dead and raises its on_zero action.",
+      "stage": "FixedUpdate",
+      "reads": ["Damage"],
+      "writes": ["Health", "Dead"]
+    },
+    {
+      "name": "reap",
+      "description": "Destroys the Dead entities whose Health says despawn_on_zero.",
+      "stage": "FixedUpdate",
+      "reads": ["Health", "Dead"],
+      "after": ["apply_damage"]
+    }
+  ]
+}

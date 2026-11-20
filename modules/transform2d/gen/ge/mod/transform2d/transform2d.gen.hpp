@@ -100,13 +100,30 @@ struct Disabled {
     [[nodiscard]] friend bool operator==(const Disabled&, const Disabled&) = default;
 };
 
-/// Moves every entity that has a Velocity by velocity times the tick duration.
+/// A factor on the speed of this entity alone, on top of the game's speed_scale: 0.5 makes it move at half speed (a slowed enemy), 2 at double speed. With ticks above 0 the factor lasts that many ticks and the component is then removed; with 0 it lasts until it is removed or changed. Read by integrate, and by the modules that move entities by their own rules (a path follower).
+struct SpeedScale {
+    float factor = 1.0F;
+    std::uint32_t ticks = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(factor);
+        hasher.add(ticks);
+    }
+
+    [[nodiscard]] friend bool operator==(const SpeedScale&, const SpeedScale&) = default;
+};
+
+/// Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).
 /// Runs in FixedUpdate.
 void integrate(::ge::ecs::World& world);
 
 /// Moves every Attach entity onto its Owner's Position, plus its offset; removes the ones whose Owner is gone when despawn_with_owner is on.
 /// Runs in FixedUpdate.
 void attach(::ge::ecs::World& world);
+
+/// Counts down the ticks of every SpeedScale that has some, and removes it when they are over.
+/// Runs in FixedUpdate.
+void wear_off(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

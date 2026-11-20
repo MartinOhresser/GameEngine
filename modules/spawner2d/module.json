@@ -3,10 +3,11 @@
   "schema_version": 1,
   "name": "spawner2d",
   "version": "0.1.0",
-  "description": "Worlds that build themselves as the camera moves: a Generator lays out rows of things from prefabs ahead of the camera, in the direction the game chooses (up for the platforms, monsters and coins of an endless climb, right for the obstacles and coins of a runner), the things left far behind are removed (Cull), and a Shooter fires prefabs on an action (bullets, arrows). It all comes from the game's prefabs, the Random of the game and the camera, so the same seed always builds the same world. The y axis points down; going up means y gets smaller.",
+  "description": "Worlds that build themselves as the camera moves: a Generator lays out rows of things from prefabs ahead of the camera, in the direction the game chooses (up for the platforms, monsters and coins of an endless climb, right for the obstacles and coins of a runner), a Shooter fires prefabs on an action (bullets, arrows). It all comes from the game's prefabs, the Random of the game and the camera, so the same seed always builds the same world. The y axis points down; going up means y gets smaller.",
   "depends": [
     "transform2d",
-    "camera2d"
+    "camera2d",
+    "bounds2d"
   ],
   "components": [
     {
@@ -161,28 +162,6 @@
       ]
     },
     {
-      "name": "Cull",
-      "description": "The entity is destroyed when it is more than margin units outside the edge of the screen that side_x and side_y point to (0, 1: the bottom edge, as y grows downwards; 0, -1: the top; 1, 0: the right; -1, 0: the left; the axis with the bigger number counts): a platform the climber left behind, or whatever a runner left on its left (side_x -1, side_y 0). Needs a Position and a Camera.",
-      "replicable": false,
-      "fields": [
-        {
-          "name": "margin",
-          "type": "f32",
-          "default": 100
-        },
-        {
-          "name": "side_x",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "side_y",
-          "type": "f32",
-          "default": 1
-        }
-      ]
-    },
-    {
       "name": "Shooter",
       "description": "Fires prefab each time the action is pressed, at most once every cooldown ticks, from the entity's Position moved by (dx, dy), with the Velocity (dir_x, dir_y) times speed (units per second; y points down, so dir_y -1 fires upwards). Needs a Position.",
       "replicable": false,
@@ -249,19 +228,6 @@
       ],
       "writes": [
         "Generator"
-      ],
-      "after": [
-        "camera2d.follow"
-      ]
-    },
-    {
-      "name": "cull",
-      "description": "Destroys every Cull entity that fell below the screen.",
-      "stage": "FixedUpdate",
-      "reads": [
-        "Cull",
-        "camera2d.Camera",
-        "transform2d.Position"
       ],
       "after": [
         "camera2d.follow"

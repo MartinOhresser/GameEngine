@@ -4,7 +4,7 @@
 // is laid out to the right (spawner2d) with more and more difficulty, and the score is how far
 // right the jumper got. It exists to show that the modules do not know "up" and "down": every
 // direction is a setting (gravity2d.Gravity, bounce2d.Bouncer, camera2d.CameraFollow,
-// spawner2d.Generator and Cull, combat2d.Mortal, progress.Progress).
+// spawner2d.Generator, bounds2d.OutOfView, progress.Progress).
 {
   "schema_version": 1,
   "name": "sideways_jump",
@@ -12,7 +12,7 @@
   "description": "Up and Down (arrows or W and S) steer the jumper, which bounces by itself on every block it lands on. Run as far to the right as you can; leaving the screen on the left ends the game, and R starts again.",
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
-    "camera2d", "spawner2d", "combat2d", "progress", "scene_switch", "debug_draw",
+    "camera2d", "spawner2d", "bounds2d", "progress", "scene_switch", "debug_draw",
   ],
   "simulation": { "tick_rate": 60, "seed": 7 },
   // A wide window, as a phone held sideways: 480 high, and as wide as the screen is.

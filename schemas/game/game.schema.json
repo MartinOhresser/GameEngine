@@ -33,6 +33,7 @@
         "enum": [
           "action_control",
           "bounce2d",
+          "bounds2d",
           "camera2d",
           "collision2d",
           "combat2d",
@@ -41,6 +42,7 @@
           "gravity2d",
           "grid2d",
           "grid_moves",
+          "health",
           "host",
           "inventory",
           "lifetime",
@@ -129,6 +131,11 @@
           "properties": {},
           "additionalProperties": false
         },
+        "bounds2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "camera2d": {
           "type": "object",
           "properties": {},
@@ -165,6 +172,11 @@
           "additionalProperties": false
         },
         "grid_moves": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "health": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

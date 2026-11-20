@@ -69,6 +69,32 @@
           },
           "additionalProperties": false
         },
+        "bounds2d.OutOfView": {
+          "type": "object",
+          "properties": {
+            "side_x": {
+              "type": "number"
+            },
+            "side_y": {
+              "type": "number"
+            },
+            "margin": {
+              "type": "number"
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "despawn": {
+              "type": "boolean"
+            },
+            "fired": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "camera2d.Camera": {
           "type": "object",
           "properties": {
@@ -195,47 +221,28 @@
           },
           "additionalProperties": false
         },
-        "combat2d.Mortal": {
+        "combat2d.ContactDamage": {
           "type": "object",
           "properties": {
-            "hurt_layers": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 4294967295
-            },
-            "fall_death": {
-              "type": "boolean"
-            },
-            "fall_margin": {
-              "type": "number"
-            },
-            "fall_x": {
-              "type": "number"
-            },
-            "fall_y": {
-              "type": "number"
-            },
-            "on_death": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 4294967295
-            },
-            "dead": {
-              "type": "boolean"
-            },
-            "announced": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": false
-        },
-        "combat2d.Target": {
-          "type": "object",
-          "properties": {
-            "health": {
+            "amount": {
               "type": "integer",
               "minimum": -2147483648,
               "maximum": 2147483647
+            },
+            "layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "cooldown": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "wait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false
@@ -247,6 +254,34 @@
               "type": "integer",
               "minimum": -2147483648,
               "maximum": 2147483647
+            },
+            "layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "splash_radius": {
+              "type": "number"
+            },
+            "pierce": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "homing": {
+              "type": "number"
+            },
+            "on_hit_speed_factor": {
+              "type": "number"
+            },
+            "on_hit_speed_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "last_hit": {
+              "type": "integer",
+              "minimum": 0
             }
           },
           "additionalProperties": false
@@ -918,6 +953,46 @@
               "maximum": 4294967295
             }
           },
+          "additionalProperties": false
+        },
+        "health.Health": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "max": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "on_zero": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "despawn_on_zero": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "health.Damage": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "additionalProperties": false
+        },
+        "health.Dead": {
+          "type": "object",
+          "properties": {},
           "additionalProperties": false
         },
         "host.Quit": {
@@ -1682,21 +1757,6 @@
           },
           "additionalProperties": false
         },
-        "spawner2d.Cull": {
-          "type": "object",
-          "properties": {
-            "margin": {
-              "type": "number"
-            },
-            "side_x": {
-              "type": "number"
-            },
-            "side_y": {
-              "type": "number"
-            }
-          },
-          "additionalProperties": false
-        },
         "spawner2d.Shooter": {
           "type": "object",
           "properties": {
@@ -2088,6 +2148,20 @@
         "transform2d.Disabled": {
           "type": "object",
           "properties": {},
+          "additionalProperties": false
+        },
+        "transform2d.SpeedScale": {
+          "type": "object",
+          "properties": {
+            "factor": {
+              "type": "number"
+            },
+            "ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
           "additionalProperties": false
         },
         "turns.Turn": {

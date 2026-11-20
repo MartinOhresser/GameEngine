@@ -8,10 +8,25 @@ void integrate(ecs::World& world) {
     const float step =
         world.resource<app::Time>()->fixed_delta * world.resource<Params>()->speed_scale;
     world.each<Position, const Velocity>(
-        [step](ecs::Entity, Position& position, const Velocity& velocity) {
-            position.x += velocity.x * step;
-            position.y += velocity.y * step;
+        [&](ecs::Entity entity, Position& position, const Velocity& velocity) {
+            const auto* scale = world.get<SpeedScale>(entity);
+            const float own = scale == nullptr ? 1.0F : scale->factor;
+            position.x += velocity.x * step * own;
+            position.y += velocity.y * step * own;
         });
+}
+
+void wear_off(ecs::World& world) {
+    auto& commands = *world.resource<ecs::Commands>();
+    world.each<SpeedScale>([&commands](ecs::Entity entity, SpeedScale& scale) {
+        if (scale.ticks == 0U) {
+            return;
+        }
+        --scale.ticks;
+        if (scale.ticks == 0U) {
+            commands.remove<SpeedScale>(entity);
+        }
+    });
 }
 
 void attach(ecs::World& world) {

@@ -70,14 +70,23 @@
       "description": "The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.",
       "replicable": false,
       "fields": []
+    },
+    {
+      "name": "SpeedScale",
+      "description": "A factor on the speed of this entity alone, on top of the game's speed_scale: 0.5 makes it move at half speed (a slowed enemy), 2 at double speed. With ticks above 0 the factor lasts that many ticks and the component is then removed; with 0 it lasts until it is removed or changed. Read by integrate, and by the modules that move entities by their own rules (a path follower).",
+      "replicable": true,
+      "fields": [
+        { "name": "factor", "type": "f32", "default": 1 },
+        { "name": "ticks", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
     {
       "name": "integrate",
-      "description": "Moves every entity that has a Velocity by velocity times the tick duration.",
+      "description": "Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).",
       "stage": "FixedUpdate",
-      "reads": ["Velocity"],
+      "reads": ["Velocity", "SpeedScale"],
       "writes": ["Position"]
     },
     {
@@ -86,6 +95,13 @@
       "stage": "FixedUpdate",
       "reads": ["Owner", "Attach"],
       "writes": ["Position"],
+      "after": ["integrate"]
+    },
+    {
+      "name": "wear_off",
+      "description": "Counts down the ticks of every SpeedScale that has some, and removes it when they are over.",
+      "stage": "FixedUpdate",
+      "reads": ["SpeedScale"],
       "after": ["integrate"]
     }
   ]

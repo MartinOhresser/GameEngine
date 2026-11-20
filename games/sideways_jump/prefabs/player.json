@@ -13,7 +13,7 @@
     "screen_wrap.WrapArea": { "height": 480, "wrap_x": false },
     "collision2d.Collider": { "width": 24, "height": 24, "layer": ["player"], "mask": 0 },
     "bounce2d.Bouncer": { "fall_x": -1, "fall_y": 0 },
-    "combat2d.Mortal": { "fall_death": true, "fall_x": -1, "fall_y": 0, "fall_margin": 60, "on_death": "died" },
+    "bounds2d.OutOfView": { "side_x": -1, "side_y": 0, "margin": 60, "action": "died", "despawn": false },
     "progress.Progress": { "toward_x": 1, "toward_y": 0, "scale": 0.5 },
     "debug_draw.Square": { "size": 24, "red": 240, "green": 120, "blue": 60 },
     "camera2d.CameraTarget": {}

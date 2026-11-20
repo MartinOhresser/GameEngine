@@ -9,8 +9,8 @@
 | On dirige à gauche et à droite | On dirige en haut et en bas | `action_control.Controlled` : `horizontal` faux ; `screen_wrap.WrapArea` : `wrap_x` faux |
 | La caméra ne fait que monter | La caméra ne va qu'à droite | `camera2d.CameraFollow` : `follow_y` faux, `only_right`, `offset_x` -120 |
 | Le monde se construit vers le haut | Le monde se construit vers la droite | `spawner2d.Generator` : `toward_x` 1, `toward_y` 0 ; `across_min`/`across_max` bornent y |
-| Ce qui est sous l'écran disparaît | Ce qui est à gauche disparaît | `spawner2d.Cull` : `side_x` -1, `side_y` 0 |
-| Tomber sous l'écran tue | Sortir à gauche tue | `combat2d.Mortal` : `fall_x` -1, `fall_y` 0 |
+| Ce qui est sous l'écran disparaît | Ce qui est à gauche disparaît | `bounds2d.OutOfView` : `side_x` -1, `side_y` 0 |
+| Tomber sous l'écran tue | Sortir à gauche tue | `bounds2d.OutOfView` avec `despawn` faux et l'action `died` : `side_x` -1, `side_y` 0 |
 | Le score est la hauteur | Le score est la distance vers la droite | `progress.Progress` : `toward_x` 1, `toward_y` 0 |
 
 Pour un autre sens, on change ces nombres : un sens est lu par `app::Direction` (`(0, -1)` : haut, `(0, 1)` : bas, `(1, 0)` : droite, `(-1, 0)` : gauche ; l'axe du plus grand nombre compte, et `y` grandit vers le bas). La même génération sert à poser n'importe quelle entité (obstacles, pièces, ennemis) : un `Generator` par sorte d'entité, avec son préfab.

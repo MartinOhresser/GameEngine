@@ -4,6 +4,7 @@
 #include "ge/app/spawn.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/random.hpp"
+#include "ge/mod/bounds2d/bounds2d.gen.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/spawner2d/spawner2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -32,6 +33,7 @@ struct Setup {
     explicit Setup(std::uint64_t seed = 1) {
         transform2d::install(app);
         camera2d::install(app);
+        ge::mod::bounds2d::install(app);
         spawner2d::install(app);
         CHECK(app.module_problems().empty());
         CHECK(app.schedule().problems().empty());
@@ -269,28 +271,6 @@ TEST_CASE("spawner2d: a camera that jumped far does not freeze the game") {
     CHECK(setup.seen->size() <= 128U); // it catches up over the next ticks
 }
 
-TEST_CASE("spawner2d: what fell below the screen is removed, what is above stays") {
-    Setup setup;
-    const auto spawn_cull = [&setup](float y, float margin) {
-        const Entity entity = setup.app.world().spawn();
-        CHECK(setup.app.world().insert(entity, transform2d::Position{0.0F, y}));
-        CHECK(setup.app.world().insert(entity, spawner2d::Cull{margin}));
-        return entity;
-    };
-    const Entity inside = spawn_cull(700.0F, 100.0F);
-    const Entity in_margin = spawn_cull(800.0F, 100.0F); // 720 + 100 = 820
-    const Entity gone = spawn_cull(830.0F, 100.0F);
-    const Entity above = spawn_cull(-5000.0F, 100.0F);
-    setup.app.run_frames(1);
-    CHECK(setup.app.world().is_alive(inside));
-    CHECK(setup.app.world().is_alive(in_margin));
-    CHECK(!setup.app.world().is_alive(gone));
-    CHECK(setup.app.world().is_alive(above));
-    setup.move_camera_to(60.0F); // the screen climbs: 700 is now below its bottom edge
-    setup.app.run_frames(1);
-    CHECK(!setup.app.world().is_alive(inside));
-}
-
 /// Whether the requests are prefab 3 rows at `first_x`, then `step` further each, all with y in
 /// [`low`, `high`].
 bool rows_are_in_band(const std::vector<SpawnRequest>& rows, float first_x, float step, float low,
@@ -366,27 +346,6 @@ TEST_CASE("spawner2d: the difficulty ramp counts the distance along the directio
     setup.app.run_frames(1);
     REQUIRE(!setup.seen->empty());
     CHECK(setup.seen->front().x >= 650.0F); // the first row built is 250 or more past the origin
-}
-
-TEST_CASE("spawner2d: Cull destroys what is past the side of the screen it names") {
-    Setup setup; // the screen shows x 0 to 480
-    const auto spawn_cull = [&](float x, spawner2d::Cull cull) {
-        const Entity entity = setup.app.world().spawn();
-        CHECK(setup.app.world().insert(entity, transform2d::Position{x, 300.0F}));
-        CHECK(setup.app.world().insert(entity, cull));
-        return entity;
-    };
-    spawner2d::Cull behind; // a runner leaves things on its left
-    behind.side_x = -1.0F;
-    behind.side_y = 0.0F;
-    behind.margin = 100.0F;
-    const Entity near_left = spawn_cull(-50.0F, behind);
-    const Entity far_left = spawn_cull(-150.0F, behind);
-    const Entity right = spawn_cull(900.0F, behind);
-    setup.app.run_frames(1);
-    CHECK(setup.app.world().is_alive(near_left));
-    CHECK(!setup.app.world().is_alive(far_left));
-    CHECK(setup.app.world().is_alive(right));
 }
 
 TEST_CASE("spawner2d: a shooter fires when its action is pressed, with a cooldown") {
