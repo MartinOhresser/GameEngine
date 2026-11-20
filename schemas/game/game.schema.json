@@ -40,6 +40,7 @@
           "gesture",
           "gravity2d",
           "grid2d",
+          "grid_moves",
           "host",
           "inventory",
           "lifetime",
@@ -57,6 +58,7 @@
           "text2d",
           "touch_controls",
           "transform2d",
+          "turns",
           "tween2d",
           "ui"
         ]
@@ -162,6 +164,11 @@
           "properties": {},
           "additionalProperties": false
         },
+        "grid_moves": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "host": {
           "type": "object",
           "properties": {},
@@ -251,6 +258,11 @@
               "maximum": 10
             }
           },
+          "additionalProperties": false
+        },
+        "turns": {
+          "type": "object",
+          "properties": {},
           "additionalProperties": false
         },
         "tween2d": {
