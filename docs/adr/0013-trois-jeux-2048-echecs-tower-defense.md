@@ -1,6 +1,6 @@
 # ADR 0013 : trois jeux pour éprouver le moteur (2048, échecs, tower defense)
 
-Statut : proposé (plan ; les écarts constatés à l'implémentation s'ajoutent à la fin, comme pour les ADR 0011 et 0012). Révisé le 20 novembre : décisions de l'auteur (promotion à quatre pièces, tower defense plus grand avec amélioration des tours, 2048 en premier) et **revue de généricité** de `board_moves` et `combat2d` (sections 0, 1b et 3).
+Statut : **livré de G1 à G11** (les trois jeux, leurs modules, l'export et la CI ; seul G12, le son, facultatif, reste à faire). Le texte ci-dessous est le plan ; les écarts constatés à l'implémentation sont à la fin (« Écarts constatés à l'implémentation »), comme pour les ADR 0011 et 0012. Révisé le 20 novembre : décisions de l'auteur (promotion à quatre pièces, tower defense plus grand avec amélioration des tours, 2048 en premier) et **revue de généricité** de `board_moves` et `combat2d` (sections 0, 1b et 3).
 
 ## Contexte
 
