@@ -264,3 +264,11 @@ Valeurs par défaut proposées ; à corriger si besoin.
 - **`Attach` ne porte plus sa cible** : la cible est `Owner`, ce qui sert aussi à un projectile (son tireur) ou à un membre de vague (son contrôleur). `Attach` garde les décalages et `despawn_with_owner`.
 - **Ordre de dessin** : `debug_draw` dessine ses formes à l'endroit de la liste des modules du jeu ; il n'y a pas de couche entre modules. Les formes passent donc avant les images si `debug_draw` est listé avant `sprite2d` (un plateau, une portée) ; ce qui doit être au-dessus est une image ou un contour dans le sens du dessin.
 - `DrawCommand` gagne `x2`, `y2` et `thickness` ; le rendu SDL active le mélange alpha pour les formes.
+
+### G2 : `tween2d`, `rules`, `phase`
+
+- **Écrire un champ par son nom** n'existait pas (seulement `read`) ; `tween2d`, `rules.OnAction` et plus tard les prix en ont besoin. Chaque module généré a une fonction `write` (`ComponentInfo::write`), sœur de `read`.
+- **Une valeur animée par entité n'est pas assez** : un composant ne peut être posé qu'une fois sur une entité. Un `Tween` anime donc le nombre de **sa propre entité** ou, avec `on_owner`, celui de l'entité dont il est le `Owner` : on peut en poser plusieurs sur une cible, par des entités d'effet. `Settle` (un nombre qui s'approche d'un but à chaque tick) remplace le « pop » d'une fusion : la tuile passe à 1,25 et revient à 1.
+- **`transform2d.Scale`** (taille de dessin) a été ajouté : une seule animation de `Scale.factor` fait grossir à la fois l'image et le texte d'une tuile. **`transform2d.Disabled`** : une entité mise de côté (`phase.ActiveIn` la pose), lue par `rules` ; les autres modules la liront quand ils en auront besoin.
+- **`rules` dépend de `ui`** pour `ui.Tag` (viser l'entité qui porte un nom). `Watch` regarde l'entité elle-même par défaut. Pas de comparaison à six opérateurs : un intervalle `min`–`max` dit « atteint 2048 » (`min`), « tombe à 0 » (`max`) ou « devient exactement » (les deux).
+- **Les courbes de `Tween`** sont des nombres (0 linéaire, 1 départ lent, 2 arrivée lente, 3 les deux, 4 dépasse le but) : un champ de composant est un nombre.

@@ -151,3 +151,21 @@ TEST_CASE("debug_draw: a hidden shape is not drawn, and is again once shown") {
     app.run_frames(1);
     CHECK(renderer->commands().size() == 2U);
 }
+
+TEST_CASE("debug_draw: a scaled entity has its shapes drawn bigger") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{}));
+    CHECK(app.world().insert(entity, debug_draw::Square{10.0F, 255U, 255U, 255U}));
+    CHECK(
+        app.world().insert(entity, debug_draw::Circle{10.0F, 0.0F, 255U, 255U, 255U, 255U, false}));
+    CHECK(app.world().insert(entity, transform2d::Scale{2.0F}));
+    app.run_frames(1);
+    const ge::app::DrawCommand* square = find(*renderer, "square");
+    const ge::app::DrawCommand* circle = find(*renderer, "circle");
+    REQUIRE(square != nullptr);
+    REQUIRE(circle != nullptr);
+    CHECK(square->size == 20.0F);
+    CHECK(circle->size == 20.0F);
+}

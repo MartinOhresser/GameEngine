@@ -72,6 +72,48 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Mortal* component = world.get<Mortal>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "hurt_layers") {
+        component->hurt_layers = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "fall_death") {
+        component->fall_death = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "fall_margin") {
+        component->fall_margin = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "fall_x") {
+        component->fall_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "fall_y") {
+        component->fall_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "on_death") {
+        component->on_death = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "dead") {
+        component->dead = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "announced") {
+        component->announced = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"hurt_layers", "u32", "layer", true}, {"fall_death", "bool", "", false}, {"fall_margin", "f32", "", false}, {"fall_x", "f32", "", false}, {"fall_y", "f32", "", false}, {"on_death", "u32", "action", false}, {"dead", "bool", "", false}, {"announced", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -95,6 +137,20 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->health)};
     }
     return std::nullopt;
+}
+
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Target* component = world.get<Target>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "health") {
+        component->health = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 1> component_1_fields{{{"health", "i32", "", false}}};
@@ -122,9 +178,23 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Projectile* component = world.get<Projectile>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "damage") {
+        component->damage = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 1> component_2_fields{{{"damage", "i32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Mortal", true, component_0_fields, insert_component_0, read_component_0}, {"Target", true, component_1_fields, insert_component_1, read_component_1}, {"Projectile", true, component_2_fields, insert_component_2, read_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Mortal", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Target", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Projectile", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 3> system_0_reads{"combat2d.Projectile", "collision2d.Collider", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_0_writes{"combat2d.Target"};

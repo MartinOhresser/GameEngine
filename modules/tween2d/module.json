@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "tween2d",
+  "version": "0.1.0",
+  "description": "Smooth changes of a number over time: a value that slides from one number to another along a curve, or that settles towards a goal. Any numeric field of any component can be animated (a position, a size, a transparency, a colour, a bar), so a pop, a fade, a slide or a smooth gauge are data, not code. It runs in the simulation, so animations are the same on every run and machine.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Tween",
+      "description": "Moves a number from from to to in ticks simulation ticks, after waiting delay ticks. field names the number (\"module.Component.field\", for example \"transform2d.Scale.factor\") on the entity itself, or with on_owner on the entity that is this one's transform2d.Owner (a tween entity made for another one). easing is the curve: 0 linear, 1 slow start, 2 slow end, 3 slow start and end, 4 overshoots the goal a little before settling. With from_current the start is the number's value when the tween begins, and from is ignored. When it is done and use_action, the action is raised; with despawn_when_done the entity is destroyed, otherwise the Tween is removed (the entity stays). Components that are missing leave the tween with nothing to move: it still runs and ends.",
+      "replicable": false,
+      "fields": [
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" },
+        { "name": "from", "type": "f32", "default": 0 },
+        { "name": "to", "type": "f32", "default": 1 },
+        { "name": "ticks", "type": "u32", "default": 30 },
+        { "name": "delay", "type": "u32", "default": 0 },
+        { "name": "easing", "type": "u32", "default": 0 },
+        { "name": "from_current", "type": "bool", "default": false },
+        { "name": "on_owner", "type": "bool", "default": false },
+        { "name": "use_action", "type": "bool", "default": false },
+        { "name": "action", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "despawn_when_done", "type": "bool", "default": false },
+        { "name": "elapsed", "type": "u32", "default": 0 },
+        { "name": "started", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Settle",
+      "description": "Keeps a number going towards toward: every tick it covers the share rate (0 to 1) of what is left, so it slows down as it arrives, and it lands exactly once it is within a hundredth. field and on_owner as for Tween. Unlike a Tween it never ends: change toward (or the number) and it follows. A smooth gauge, a pop that relaxes back to 1, a value that eases to what the game sets.",
+      "replicable": false,
+      "fields": [
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" },
+        { "name": "toward", "type": "f32", "default": 0 },
+        { "name": "rate", "type": "f32", "default": 0.2 },
+        { "name": "on_owner", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "run",
+      "description": "Advances every Tween by one tick and writes the number it gives.",
+      "stage": "FixedUpdate",
+      "reads": ["Tween", "transform2d.Owner"],
+      "writes": ["Tween"],
+      "after": ["transform2d.integrate"]
+    },
+    {
+      "name": "settle",
+      "description": "Moves every Settle's number a share of the way to its goal.",
+      "stage": "FixedUpdate",
+      "reads": ["Settle", "transform2d.Owner"],
+      "writes": ["Settle"],
+      "after": ["transform2d.integrate"]
+    }
+  ]
+}

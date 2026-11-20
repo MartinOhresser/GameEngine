@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "transform2d",
   "version": "0.1.0",
-  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding it, giving it an owner and letting it follow that owner.",
+  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding or switching it off, resizing its drawing, giving it an owner and letting it follow that owner.",
   "params": [
     {
       "name": "speed_scale",
@@ -56,6 +56,20 @@
         { "name": "offset_y", "type": "f32", "default": 0 },
         { "name": "despawn_with_owner", "type": "bool", "default": true }
       ]
+    },
+    {
+      "name": "Scale",
+      "description": "How big the entity is drawn compared with its normal size: 1 is as it is, 2 twice as big, 0.5 half, around its Position. Sprites, texts and shapes (width, height, radius, text size and spacing) are multiplied by factor; it changes nothing else (not the collisions). Animate it for a pop, a grow, a shrink.",
+      "replicable": false,
+      "fields": [
+        { "name": "factor", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Disabled",
+      "description": "The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.",
+      "replicable": false,
+      "fields": []
     }
   ],
   "systems": [

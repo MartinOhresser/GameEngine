@@ -52,6 +52,32 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Square* component = world.get<Square>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "size") {
+        component->size = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "red") {
+        component->red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "green") {
+        component->green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "blue") {
+        component->blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"size", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -112,6 +138,48 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Rect* component = world.get<Rect>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "thickness") {
+        component->thickness = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "red") {
+        component->red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "green") {
+        component->green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "blue") {
+        component->blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alpha") {
+        component->alpha = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "screen") {
+        component->screen = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 8> component_1_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"thickness", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"screen", "bool", "", false}}};
 
 void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -165,6 +233,44 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<bool>(component->screen)};
     }
     return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Circle* component = world.get<Circle>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "radius") {
+        component->radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "thickness") {
+        component->thickness = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "red") {
+        component->red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "green") {
+        component->green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "blue") {
+        component->blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alpha") {
+        component->alpha = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "screen") {
+        component->screen = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 7> component_2_fields{{{"radius", "f32", "", false}, {"thickness", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"screen", "bool", "", false}}};
@@ -227,11 +333,53 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Line* component = world.get<Line>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "dx") {
+        component->dx = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dy") {
+        component->dy = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "thickness") {
+        component->thickness = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "red") {
+        component->red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "green") {
+        component->green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "blue") {
+        component->blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alpha") {
+        component->alpha = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "screen") {
+        component->screen = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 8> component_3_fields{{{"dx", "f32", "", false}, {"dy", "f32", "", false}, {"thickness", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"screen", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Square", false, component_0_fields, insert_component_0, read_component_0}, {"Rect", false, component_1_fields, insert_component_1, read_component_1}, {"Circle", false, component_2_fields, insert_component_2, read_component_2}, {"Line", false, component_3_fields, insert_component_3, read_component_3}}};
+constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Square", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Rect", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Circle", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Line", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
 
-constexpr std::array<std::string_view, 6> system_0_reads{"debug_draw.Square", "debug_draw.Rect", "debug_draw.Circle", "debug_draw.Line", "transform2d.Position", "transform2d.Hidden"};
+constexpr std::array<std::string_view, 7> system_0_reads{"debug_draw.Square", "debug_draw.Rect", "debug_draw.Circle", "debug_draw.Line", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"};
 constexpr std::array<std::string_view, 0> system_0_writes{};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"debug_draw.draw", ::ge::app::Stage::PostUpdate, system_0_reads, system_0_writes}}};
 

@@ -697,6 +697,63 @@
                 },
                 "additionalProperties": false
               },
+              "phase.Phase": {
+                "type": "object",
+                "properties": {
+                  "current": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "phase.Transition": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from_any": {
+                    "type": "boolean"
+                  },
+                  "to": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "phase.ShowIn": {
+                "type": "object",
+                "properties": {
+                  "phases": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "phase.ActiveIn": {
+                "type": "object",
+                "properties": {
+                  "phases": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
               "pickup.Collector": {
                 "type": "object",
                 "properties": {
@@ -783,6 +840,75 @@
                     "maximum": 2147483647
                   },
                   "loaded": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "rules.Watch": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "own": {
+                    "type": "boolean"
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "once": {
+                    "type": "boolean"
+                  },
+                  "inside": {
+                    "type": "boolean"
+                  },
+                  "fired": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "rules.OnAction": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "own": {
+                    "type": "boolean"
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "add": {
                     "type": "boolean"
                   }
                 },
@@ -1336,6 +1462,97 @@
                     "type": "number"
                   },
                   "despawn_with_owner": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "transform2d.Scale": {
+                "type": "object",
+                "properties": {
+                  "factor": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "transform2d.Disabled": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "tween2d.Tween": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from": {
+                    "type": "number"
+                  },
+                  "to": {
+                    "type": "number"
+                  },
+                  "ticks": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "delay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "easing": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from_current": {
+                    "type": "boolean"
+                  },
+                  "on_owner": {
+                    "type": "boolean"
+                  },
+                  "use_action": {
+                    "type": "boolean"
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "despawn_when_done": {
+                    "type": "boolean"
+                  },
+                  "elapsed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "started": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "tween2d.Settle": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "toward": {
+                    "type": "number"
+                  },
+                  "rate": {
+                    "type": "number"
+                  },
+                  "on_owner": {
                     "type": "boolean"
                   }
                 },

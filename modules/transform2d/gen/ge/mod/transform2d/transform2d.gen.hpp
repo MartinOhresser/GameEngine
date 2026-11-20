@@ -82,6 +82,24 @@ struct Attach {
     [[nodiscard]] friend bool operator==(const Attach&, const Attach&) = default;
 };
 
+/// How big the entity is drawn compared with its normal size: 1 is as it is, 2 twice as big, 0.5 half, around its Position. Sprites, texts and shapes (width, height, radius, text size and spacing) are multiplied by factor; it changes nothing else (not the collisions). Animate it for a pop, a grow, a shrink.
+struct Scale {
+    float factor = 1.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(factor);
+    }
+
+    [[nodiscard]] friend bool operator==(const Scale&, const Scale&) = default;
+};
+
+/// The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.
+struct Disabled {
+    void hash(::ge::Hasher& /*hasher*/) const {}
+
+    [[nodiscard]] friend bool operator==(const Disabled&, const Disabled&) = default;
+};
+
 /// Moves every entity that has a Velocity by velocity times the tick duration.
 /// Runs in FixedUpdate.
 void integrate(::ge::ecs::World& world);

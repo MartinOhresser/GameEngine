@@ -67,7 +67,7 @@
       "name": "draw",
       "description": "Asks the renderer to draw every Square, Rect, Circle and Line (squares first). Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.",
       "stage": "PostUpdate",
-      "reads": ["Square", "Rect", "Circle", "Line", "transform2d.Position", "transform2d.Hidden"]
+      "reads": ["Square", "Rect", "Circle", "Line", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"]
     }
   ]
 }

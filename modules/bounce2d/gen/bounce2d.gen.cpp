@@ -47,6 +47,28 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Bouncer* component = world.get<Bouncer>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "bounces") {
+        component->bounces = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "fall_x") {
+        component->fall_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "fall_y") {
+        component->fall_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"bounces", "u32", "", false}, {"fall_x", "f32", "", false}, {"fall_y", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -92,9 +114,39 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Bouncy* component = world.get<Bouncy>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "strength") {
+        component->strength = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "vanish") {
+        component->vanish = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "breaks") {
+        component->breaks = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "fall_speed") {
+        component->fall_speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "kills") {
+        component->kills = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 5> component_1_fields{{{"strength", "f32", "", false}, {"vanish", "bool", "", false}, {"breaks", "bool", "", false}, {"fall_speed", "f32", "", false}, {"kills", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Bouncer", true, component_0_fields, insert_component_0, read_component_0}, {"Bouncy", true, component_1_fields, insert_component_1, read_component_1}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Bouncer", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Bouncy", true, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"bounce2d.Bouncy", "collision2d.Collider"};
 constexpr std::array<std::string_view, 3> system_0_writes{"bounce2d.Bouncer", "transform2d.Position", "transform2d.Velocity"};
