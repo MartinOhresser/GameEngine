@@ -139,13 +139,35 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
     if [ "${changed:-0}" -le 0 ]; then
       fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
       python3 "$here/spike/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+      if [ -z "${probed:-}" ]; then
+      probed=1
       {
         echo "--- what the system says about the game's window"
         adb shell dumpsys activity activities | grep -iE "mResumedActivity|requestedOrientation|screenOrientation|configOrientation" | head -8
         adb shell dumpsys window windows | grep -E "mCurrentFocus|mFrame=|mRequestedWidth|isReadyForDisplay" | head -8
         echo "--- the log of the game"
-        adb logcat -d | grep -E "SDL|$package|ge::|touch|Input" | tail -30
+        adb logcat -d | grep -E "SDL|$package|WindowManager|ActivityTaskManager|Rotation|orientation" | grep -v Stylus | grep -iE "ge\.games|SDL|rotation|orientation" | tail -40
+        echo "--- the top activity"
+        adb shell dumpsys activity top | grep -iE "ACTIVITY|orientation|rotation|mBounds|config" | head -12
+        # Does the game answer at all? A key (space calls the next wave), then a sweep of taps.
+        adb exec-out screencap -p > "$out/probe0.png"
+        adb shell input keyevent KEYCODE_SPACE
+        sleep 3
+        adb exec-out screencap -p > "$out/probe1.png"
+        echo "key space: $(python3 "$here/spike/pixel.py" "$out/probe0.png" differs "$out/probe1.png") of 6400 points changed"
+        echo "--- a sweep of taps: the places where something changed"
+        for gy in 1 2 3 4 5 6 7 8 9; do
+          for gx in 1 2 3 4; do
+            adb exec-out screencap -p > "$out/sweep_before.png"
+            adb shell input tap "$((width * gx / 5))" "$((height * gy / 10))"
+            sleep 1
+            adb exec-out screencap -p > "$out/sweep_after.png"
+            moved="$(python3 "$here/spike/pixel.py" "$out/sweep_before.png" differs "$out/sweep_after.png")"
+            [ "${moved:-0}" -gt 0 ] && echo "tap at $((width * gx / 5)) $((height * gy / 10)): $moved points changed"
+          done
+        done
       } 2>&1 | cut -c1-200 | tee -a "$out/summary.md"
+      fi
     fi
   done
   adb shell pidof "$package" > "$out/pid4.txt" || true
