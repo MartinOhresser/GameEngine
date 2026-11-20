@@ -1,0 +1,144 @@
+// A pawn that has just made a double step next to an enemy pawn is taken as if it had
+// made one: the capturing pawn lands behind it.
+{
+  "schema_version": 1,
+  "name": "en_passant",
+  "scene": "test_en_passant",
+  "ticks": 56,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 33,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 33,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 34,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 234
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 56,
+      "check": "bp gone"
+    },
+    {
+      "at": 56,
+      "check": "wp.grid2d.GridPos.col == 3"
+    },
+    {
+      "at": 56,
+      "check": "wp.grid2d.GridPos.row == 2"
+    }
+  ]
+}

@@ -7,6 +7,7 @@
 #include "registry.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -18,6 +19,25 @@ namespace {
 
 const std::string root = GE_SOURCE_DIR;
 const std::string launcher_path = root + "/tools/launcher/game.json";
+
+/// A folder with two games (coin_dash, then doodle_jump), as a copy of those of the repository:
+/// the tests count on the order and the names of the games of the list, which must not change
+/// each time a game is added to games/.
+const std::string& games_folder() {
+    static const std::string folder = [] {
+        namespace fs = std::filesystem;
+        const fs::path target = fs::temp_directory_path() / "ge_launcher_test_games";
+        std::error_code ignored;
+        fs::remove_all(target, ignored);
+        fs::create_directories(target, ignored);
+        for (const char* name : {"coin_dash", "doodle_jump"}) {
+            fs::copy(fs::path(root) / "games" / name, target / name,
+                     fs::copy_options::recursive | fs::copy_options::overwrite_existing, ignored);
+        }
+        return target.generic_string();
+    }();
+    return folder;
+}
 
 ge::game::LoadedGame launcher() {
     return ge::game::load_game(launcher_path, ge::game::disk_reader(),
@@ -34,7 +54,7 @@ Run run_launcher_on(ge::platform::ScriptedBackend& backend) {
     const ge::game::LoadedGame loaded = launcher();
     CHECK(loaded.ok());
     sdl::LauncherOptions options;
-    options.games_dir = root + "/games";
+    options.games_dir = games_folder();
     std::ostringstream err;
     Run done;
     done.result = sdl::run_launcher(backend, loaded, launcher_path, ge::runner::linked_modules(),
@@ -178,7 +198,7 @@ TEST_CASE("launcher: a launcher that is not a game of this program does not star
     ge::platform::ScriptedBackend backend(60, 10);
     const ge::game::LoadedGame empty;
     sdl::LauncherOptions options;
-    options.games_dir = root + "/games";
+    options.games_dir = games_folder();
     std::ostringstream err;
     const auto result = sdl::run_launcher(backend, empty, "nowhere/game.json",
                                           ge::runner::linked_modules(), options, err);
@@ -193,13 +213,13 @@ TEST_CASE("launcher: the export screen asks the service to export the chosen gam
     press(backend, 25, "key:return"); // the first platform
     const ge::game::LoadedGame loaded = launcher();
     sdl::LauncherOptions options;
-    options.games_dir = root + "/games";
+    options.games_dir = games_folder();
     options.exporter = &exporter;
     std::ostringstream err;
     const auto result = sdl::run_launcher(backend, loaded, launcher_path,
                                           ge::runner::linked_modules(), options, err);
     REQUIRE(exporter.started.size() == 1U);
-    CHECK(exporter.started[0].first == root + "/games/coin_dash/game.json");
+    CHECK(exporter.started[0].first == games_folder() + "/coin_dash/game.json");
     CHECK(exporter.started[0].second == 0U);
     // What the service said ends up on the screen: the heading, the state, the lines.
     REQUIRE(result.export_lines.size() == sdl::export_line_count);
@@ -218,7 +238,7 @@ TEST_CASE("launcher: an export that cannot start says why") {
     press(backend, 25, "key:return");
     const ge::game::LoadedGame loaded = launcher();
     sdl::LauncherOptions options;
-    options.games_dir = root + "/games";
+    options.games_dir = games_folder();
     options.exporter = &exporter;
     std::ostringstream err;
     const auto result = sdl::run_launcher(backend, loaded, launcher_path,
@@ -261,7 +281,7 @@ TEST_CASE("launcher: Escape does not leave the launcher while an export is going
     press(backend, 24, "key:return");
     const ge::game::LoadedGame loaded = launcher();
     sdl::LauncherOptions options;
-    options.games_dir = root + "/games";
+    options.games_dir = games_folder();
     options.exporter = &exporter;
     std::ostringstream err;
     const auto result = sdl::run_launcher(backend, loaded, launcher_path,

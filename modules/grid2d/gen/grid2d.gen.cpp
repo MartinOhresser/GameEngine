@@ -386,7 +386,127 @@ bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 6> component_4_fields{{{"grid", "u32", "grid", false}, {"trigger", "u32", "action", false}, {"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_percent", "u32", "", false}, {"count", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Grid", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"GridPos", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Blocked", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"GridCursor", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"SpawnOnEmpty", false, component_4_fields, insert_component_4, read_component_4, write_component_4}}};
+void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Zone component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "grid") {
+            component.grid = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "col") {
+            component.col = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "row") {
+            component.row = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "columns") {
+            component.columns = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "rows") {
+            component.rows = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "match_field") {
+            component.match_field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "match_value") {
+            component.match_value = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "action") {
+            component.action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "entered") {
+            component.entered = ::ge::app::scalar_as<std::uint64_t>(field.value);
+        } else if (field.name == "count") {
+            component.count = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Zone* component = world.get<Zone>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "grid") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->grid)};
+    }
+    if (field == "col") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->col)};
+    }
+    if (field == "row") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->row)};
+    }
+    if (field == "columns") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->columns)};
+    }
+    if (field == "rows") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->rows)};
+    }
+    if (field == "match_field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->match_field)};
+    }
+    if (field == "match_value") {
+        return ::ge::app::Scalar{static_cast<double>(component->match_value)};
+    }
+    if (field == "action") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->action)};
+    }
+    if (field == "entered") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->entered)};
+    }
+    if (field == "count") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->count)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Zone* component = world.get<Zone>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "grid") {
+        component->grid = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "col") {
+        component->col = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "row") {
+        component->row = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "columns") {
+        component->columns = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "rows") {
+        component->rows = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "match_field") {
+        component->match_field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "match_value") {
+        component->match_value = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "entered") {
+        component->entered = ::ge::app::scalar_as<std::uint64_t>(value);
+        return true;
+    }
+    if (field == "count") {
+        component->count = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 10> component_5_fields{{{"grid", "u32", "grid", false}, {"col", "i32", "", false}, {"row", "i32", "", false}, {"columns", "u32", "", false}, {"rows", "u32", "", false}, {"match_field", "u32", "field", false}, {"match_value", "f32", "", false}, {"action", "u32", "action", false}, {"entered", "u64", "", false}, {"count", "u32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 6> components{{{"Grid", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"GridPos", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Blocked", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"GridCursor", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"SpawnOnEmpty", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Zone", false, component_5_fields, insert_component_5, read_component_5, write_component_5}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"grid2d.Grid", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 2> system_0_writes{"grid2d.GridPos", "transform2d.Position"};
@@ -394,7 +514,9 @@ constexpr std::array<std::string_view, 4> system_1_reads{"grid2d.Grid", "camera2
 constexpr std::array<std::string_view, 1> system_1_writes{"grid2d.GridCursor"};
 constexpr std::array<std::string_view, 4> system_2_reads{"grid2d.SpawnOnEmpty", "grid2d.Grid", "grid2d.GridPos", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 0> system_2_writes{};
-constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"grid2d.place", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"grid2d.point", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"grid2d.spawn", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
+constexpr std::array<std::string_view, 3> system_3_reads{"grid2d.GridPos", "grid2d.Grid", "transform2d.Disabled"};
+constexpr std::array<std::string_view, 1> system_3_writes{"grid2d.Zone"};
+constexpr std::array<::ge::app::SystemInfo, 4> systems{{{"grid2d.place", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"grid2d.point", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"grid2d.spawn", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"grid2d.watch_zones", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}}};
 
 constexpr std::array<std::string_view, 2> depends{"transform2d", "camera2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -411,6 +533,7 @@ void install(::ge::app::App& app) {
     app.add_system(::ge::app::Stage::FixedUpdate, &place, "grid2d.place", ::ge::app::Order::between({"transform2d.attach"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &point, "grid2d.point");
     app.add_system(::ge::app::Stage::FixedUpdate, &spawn, "grid2d.spawn", ::ge::app::Order::between({"grid2d.place"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &watch_zones, "grid2d.watch_zones", ::ge::app::Order::between({"grid2d.place"}, {}));
 }
 
 } // namespace ge::mod::grid2d

@@ -1,0 +1,27 @@
+// A piece: it sits on a cell, glides to the cell it is sent to, and shows the
+// picture of its kind (it changes with the kind: a promoted pawn changes
+// picture). The side and the kind are set where the piece is placed.
+{
+  "schema_version": 1,
+  "name": "piece",
+  "components": {
+    "transform2d.Position": {},
+    "grid2d.GridPos": {
+      "grid": "board",
+      "glide": 0.4
+    },
+    "turns.Team": {},
+    "grid_moves.Mover": {},
+    "sprite2d.Sprite": {
+      "atlas": "pieces",
+      "frame": 0,
+      "width": 60,
+      "height": 60,
+      "layer": 2
+    },
+    "sprite2d.FrameBind": {
+      "field": "grid_moves.Mover.kind",
+      "frame_count": 6
+    }
+  }
+}

@@ -1,0 +1,131 @@
+// The far rank of black is the first one: its pawn is promoted the same way.
+{
+  "schema_version": 1,
+  "name": "black_promotes_too",
+  "scene": "test_promotion",
+  "ticks": 74,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 43,
+      "action": "pointer_x",
+      "value": 72
+    },
+    {
+      "tick": 43,
+      "action": "pointer_y",
+      "value": 620
+    },
+    {
+      "tick": 44,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 45,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 39,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 74,
+      "check": "bp.grid_moves.Mover.kind == 4"
+    },
+    {
+      "at": 74,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 74,
+      "check": "bp.grid2d.GridPos.col == 7"
+    },
+    {
+      "at": 74,
+      "check": "bp.grid2d.GridPos.row == 7"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 #include "ge/app/app.hpp"
+#include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/spawn.hpp"
@@ -11,6 +12,8 @@
 
 #include "mini_test.hpp"
 
+#include <algorithm>
+#include <string>
 #include <vector>
 
 namespace {
@@ -52,6 +55,35 @@ struct Scene {
         at.glide = glide;
         CHECK(app.world().insert(entity, at));
         return entity;
+    }
+
+    [[nodiscard]] std::uint32_t field(const std::string& name) const {
+        const auto* table = app.world().resource<ge::app::FieldTable>();
+        const auto found = std::find_if(table->entries.begin(), table->entries.end(),
+                                        [&name](const auto& entry) { return entry.name == name; });
+        CHECK(found != table->entries.end());
+        return static_cast<std::uint32_t>(found - table->entries.begin());
+    }
+
+    ge::ecs::Entity zone(std::int32_t col, std::int32_t row, std::uint32_t columns,
+                         std::uint32_t rows, bool matching = false) {
+        const auto entity = app.world().spawn();
+        grid2d::Zone area;
+        area.col = col;
+        area.row = row;
+        area.columns = columns;
+        area.rows = rows;
+        area.action = 3;
+        if (matching) {
+            area.match_field = field("grid2d.GridPos.glide");
+            area.match_value = 0.5F;
+        }
+        CHECK(app.world().insert(entity, area));
+        return entity;
+    }
+
+    [[nodiscard]] grid2d::Zone area(ge::ecs::Entity entity) const {
+        return *app.world().get<grid2d::Zone>(entity);
     }
 
     [[nodiscard]] transform2d::Position where(ge::ecs::Entity entity) const {
@@ -287,4 +319,68 @@ TEST_CASE("grid2d: the same seed chooses the same cells") {
             CHECK(xs == first);
         }
     }
+}
+
+TEST_CASE("grid2d: a Zone counts what sits on its cells and raises its action when more come") {
+    Scene scene;
+    const auto zone = scene.zone(0, 2, 4, 1);
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 0U);
+    CHECK(scene.area(zone).entered == 0U);
+    CHECK(!scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+    const auto first = scene.piece(1, 2);
+    scene.piece(1, 1); // a row above: not in the zone
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 1U);
+    CHECK(scene.area(zone).entered == first.to_link());
+    scene.app.run_frames(1);
+    CHECK(scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+    scene.app.run_frames(1);
+    CHECK(!scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+}
+
+TEST_CASE(
+    "grid2d: a Zone raises its action again for each entity that comes, not when one leaves") {
+    Scene scene;
+    const auto zone = scene.zone(0, 0, 2, 2);
+    const auto first = scene.piece(0, 0);
+    scene.app.run_frames(2);
+    CHECK(scene.area(zone).count == 1U);
+    const auto second = scene.piece(1, 1);
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 2U);
+    CHECK(scene.area(zone).entered == first.to_link()); // the oldest one
+    scene.app.run_frames(1);
+    CHECK(scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+    scene.app.world().get<grid2d::GridPos>(first)->col = 3;
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 1U);
+    CHECK(scene.area(zone).entered == second.to_link());
+    scene.app.run_frames(1);
+    CHECK(!scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+}
+
+TEST_CASE("grid2d: a Zone with a field only counts the entities that have that number") {
+    Scene scene;
+    const auto zone = scene.zone(0, 0, 4, 3, true);
+    scene.piece(0, 0, 0.0F);
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 0U);
+    const auto wanted = scene.piece(2, 1, 0.5F);
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 1U);
+    CHECK(scene.area(zone).entered == wanted.to_link());
+}
+
+TEST_CASE("grid2d: Disabled entities are not in a zone, and a Disabled zone does nothing") {
+    Scene scene;
+    const auto zone = scene.zone(0, 0, 4, 3);
+    const auto hidden = scene.piece(1, 1);
+    CHECK(scene.app.world().insert(hidden, transform2d::Disabled{}));
+    scene.app.run_frames(1);
+    CHECK(scene.area(zone).count == 0U);
+    CHECK(scene.app.world().remove<transform2d::Disabled>(hidden));
+    CHECK(scene.app.world().insert(zone, transform2d::Disabled{}));
+    scene.app.run_frames(2);
+    CHECK(scene.area(zone).count == 0U);
 }

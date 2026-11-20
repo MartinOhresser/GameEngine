@@ -55,6 +55,16 @@ float number(const ecs::World& world, ecs::Entity entity, const app::FieldEntry*
     return value ? app::scalar_as<float>(*value) : 0.0F;
 }
 
+/// The entity that `holder` points to with a field that holds an entity link (none if the
+/// holder has no such field).
+ecs::Entity linked(const ecs::World& world, ecs::Entity holder, const app::FieldEntry* link) {
+    if (link->component->read == nullptr || !world.is_alive(holder)) {
+        return ecs::Entity{};
+    }
+    const auto value = link->component->read(world, holder, link->field);
+    return value ? ecs::Entity::from_link(app::scalar_as<std::uint64_t>(*value)) : ecs::Entity{};
+}
+
 void raise(const app::ActionNames* names, app::Actions* actions, std::uint32_t action) {
     if (names != nullptr && actions != nullptr && action < names->names.size()) {
         actions->raise(names->names[action]);
@@ -97,7 +107,10 @@ void on_action(ecs::World& world) {
             return;
         }
         const app::FieldEntry* field = field_of(table, rule.field);
-        const ecs::Entity target = rule.own ? entity : find(tagged, rule.source);
+        ecs::Entity target = rule.own ? entity : find(tagged, rule.source);
+        if (const app::FieldEntry* link = field_of(table, rule.link)) {
+            target = linked(world, target, link);
+        }
         if (field == nullptr || field->component->write == nullptr || !world.is_alive(target)) {
             return;
         }

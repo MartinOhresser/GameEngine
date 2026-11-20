@@ -38,7 +38,7 @@ struct Watch {
     [[nodiscard]] friend bool operator==(const Watch&, const Watch&) = default;
 };
 
-/// When the action is pressed, sets the number field of the target to value, or with add adds value to it. The target is this entity with own, otherwise the oldest entity with the tag source. Choose what a shop button places (the Placer's prefab), double the speed, empty a score, count something up. Raise the action from a button, a key, a Watch or another module. A missing target or component is ignored.
+/// When the action is pressed, sets the number field of the target to value, or with add adds value to it. The target is this entity with own, otherwise the oldest entity with the tag source. Choose what a shop button places (the Placer's prefab), double the speed, empty a score, count something up. Raise the action from a button, a key, a Watch or another module. With link (a field holding an entity link, such as grid2d.Zone.entered), the target is instead the entity that this entity (or the tagged one) points to with that field: the piece a zone has just seen, the enemy a tower aims at. A missing target or component is ignored.
 struct OnAction {
     std::uint32_t action = 0U;
     std::uint32_t source = 0U;
@@ -46,6 +46,7 @@ struct OnAction {
     std::uint32_t field = 0U;
     float value = 0.0F;
     bool add = false;
+    std::uint32_t link = 4294967295U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(action);
@@ -54,6 +55,7 @@ struct OnAction {
         hasher.add(field);
         hasher.add(value);
         hasher.add(add);
+        hasher.add(link);
     }
 
     [[nodiscard]] friend bool operator==(const OnAction&, const OnAction&) = default;

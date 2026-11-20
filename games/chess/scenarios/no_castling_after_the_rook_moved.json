@@ -1,0 +1,231 @@
+// A rook that has moved (even back to its square) can no longer castle.
+{
+  "schema_version": 1,
+  "name": "no_castling_after_the_rook_moved",
+  "scene": "test_castle",
+  "ticks": 80,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 33,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 33,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 34,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 418
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 45,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 45,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 46,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 47,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 51,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 51,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 52,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 53,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 57,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 57,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 58,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 59,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 63,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 63,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 64,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 65,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 80,
+      "check": "wk.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 80,
+      "check": "wk.grid2d.GridPos.row == 7"
+    },
+    {
+      "at": 80,
+      "check": "wr_h.grid2d.GridPos.col == 7"
+    },
+    {
+      "at": 80,
+      "check": "wr_h.grid2d.GridPos.row == 7"
+    },
+    {
+      "at": 80,
+      "check": "moves.grid_moves.MoveRequest.moves == 4"
+    }
+  ]
+}

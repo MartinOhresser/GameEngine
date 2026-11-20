@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "locale": "fr",
+  "entries": {
+    "hud.title": "Échecs",
+    "hud.to_move": "au trait",
+    "hud.check": "Échec !",
+    "hud.help": "Touchez une pièce, puis sa destination",
+    "hud.promote": "Promouvoir le pion en",
+    "end.white": "Mat : les blancs gagnent",
+    "end.black": "Mat : les noirs gagnent",
+    "end.draw": "Pat : partie nulle",
+    "button.new": "Nouvelle partie",
+    "button.resign_white": "Blancs abandonnent",
+    "button.resign_black": "Noirs abandonnent",
+    "button.queen": "Dame",
+    "button.rook": "Tour",
+    "button.bishop": "Fou",
+    "button.knight": "Cavalier"
+  }
+}
