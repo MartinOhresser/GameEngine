@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "autofire",
+  "description": "Things that aim and shoot by themselves: every so often the entity picks a target in range among what has a Health on the layers it is for, and fires a prefab (a projectile, from the combat2d module for instance) towards it. A turret, an enemy that shoots at the player, a hero that attacks alone, a guard. How it chooses is a setting: the closest, the one furthest along its path (or the least advanced), the strongest or the weakest.",
+  "depends": ["transform2d", "collision2d", "health", "path2d", "ui", "sprite2d", "text2d"],
+  "components": [
+    {
+      "name": "AutoFire",
+      "description": "Every cooldown ticks, if some entity with a Health and a Collider on one of target_layer (a set of names or bits of the game's layer list, all by default) is within range units of this entity's Position, creates prefab there with a Velocity of projectile_speed units per second towards the chosen target, and raises action (none: nothing; for a sound). targeting chooses among the entities in range: 0 the closest, 1 the first (the one with the biggest PathFollower progress), 2 the last (the smallest), 3 the strongest (the most health left), 4 the weakest. Dead and Disabled entities are never chosen. wait is the cooldown left. A Disabled shooter does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "range", "type": "f32", "default": 150 },
+        { "name": "cooldown", "type": "u32", "default": 30 },
+        { "name": "wait", "type": "u32", "default": 0 },
+        { "name": "prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "projectile_speed", "type": "f32", "default": 400 },
+        { "name": "targeting", "type": "u32", "default": 0 },
+        { "name": "target_layer", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "aim_and_fire",
+      "description": "Lets every AutoFire entity whose cooldown is over choose a target in range and fire at it.",
+      "stage": "FixedUpdate",
+      "reads": ["health.Health", "collision2d.Collider", "path2d.PathFollower", "transform2d.Position"],
+      "writes": ["AutoFire"],
+      "after": ["path2d.follow"]
+    }
+  ]
+}

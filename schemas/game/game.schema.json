@@ -32,12 +32,14 @@
         "type": "string",
         "enum": [
           "action_control",
+          "autofire",
           "bounce2d",
           "bounds2d",
           "camera2d",
           "collision2d",
           "combat2d",
           "debug_draw",
+          "economy",
           "gesture",
           "gravity2d",
           "grid2d",
@@ -46,6 +48,7 @@
           "host",
           "inventory",
           "lifetime",
+          "path2d",
           "patrol2d",
           "phase",
           "pickup",
@@ -62,7 +65,8 @@
           "transform2d",
           "turns",
           "tween2d",
-          "ui"
+          "ui",
+          "waves"
         ]
       }
     },
@@ -126,6 +130,11 @@
           "properties": {},
           "additionalProperties": false
         },
+        "autofire": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "bounce2d": {
           "type": "object",
           "properties": {},
@@ -152,6 +161,11 @@
           "additionalProperties": false
         },
         "debug_draw": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "economy": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -192,6 +206,11 @@
           "additionalProperties": false
         },
         "lifetime": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "path2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -283,6 +302,11 @@
           "additionalProperties": false
         },
         "ui": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "waves": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

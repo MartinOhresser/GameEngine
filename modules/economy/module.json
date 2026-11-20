@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "economy",
+  "description": "Money and what it buys on a board: a purse, a reward for what dies, buying and placing something on a free cell, improving it (it is replaced by the next version, which may be improved again) and selling it back. A tower defense, a farm or a city builder, a shop on a map. The module knows no game: what is bought is a prefab, its price a number, what it is a name in the game's files.",
+  "depends": ["transform2d", "grid2d", "health", "camera2d"],
+  "components": [
+    {
+      "name": "Wallet",
+      "description": "The money of the game: amount. The first Wallet of the world is the one that pays and is paid; give it a tag so that an interface can show it.",
+      "replicable": true,
+      "fields": [
+        { "name": "amount", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Bounty",
+      "description": "What the entity gives to the Wallet when it dies (when it gets a health.Dead): amount, once (paid says it was). A monster killed, a crate broken.",
+      "replicable": true,
+      "fields": [
+        { "name": "amount", "type": "i32", "default": 0 },
+        { "name": "paid", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Upgradable",
+      "description": "The entity can be improved: for price the entity is replaced, on the same cell, by next_prefab (which may be Upgradable too: three levels are two improvements). Needs a GridPos.",
+      "replicable": false,
+      "fields": [
+        { "name": "next_prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "price", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Sellable",
+      "description": "The entity can be sold: the Wallet gets refund and the entity is destroyed.",
+      "replicable": false,
+      "fields": [
+        { "name": "refund", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Placer",
+      "description": "Buys and places things on the cells a GridCursor of the same entity is clicked on (give both to one entity), and selects what is already there. A click on a free cell of the board grid, when prefab is something (an item of the game's prefab list) and the Wallet holds price, creates prefab on that cell (the prefab should carry a GridPos of that grid with from_position on) for price, and raises placed_action; with too little money it raises refused_action. A click on a cell that holds an Upgradable or Sellable entity selects it (selected is its link, upgrade_price and sell_value what the buttons ask) and raises selected_action, or final_action when it cannot be improved any more; a click anywhere else lets go (deselected_action). While upgrade_action is pressed, the selected entity is replaced by its next version if the Wallet holds the price (else refused_action), and while sell_action is pressed it is sold; either way the new or former cell is selected again as soon as it is there, if it can be. The entity follows the selection with its Position and is Hidden when nothing is selected. Needs a Position.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "prefab", "type": "u32", "default": 4294967295, "ref": "prefab" },
+        { "name": "price", "type": "i32", "default": 0 },
+        { "name": "selected", "type": "u64", "default": 0 },
+        { "name": "upgrade_price", "type": "i32", "default": 0 },
+        { "name": "sell_value", "type": "i32", "default": 0 },
+        { "name": "placed_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "refused_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "selected_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "final_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "deselected_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "upgrade_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "sell_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "reselect_col", "type": "i32", "default": 0 },
+        { "name": "reselect_row", "type": "i32", "default": 0 },
+        { "name": "reselect_in", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "pay_bounties",
+      "description": "Pays the Wallet the Bounty of every entity that has just died.",
+      "stage": "FixedUpdate",
+      "reads": ["Bounty", "health.Dead"],
+      "writes": ["Wallet", "Bounty"],
+      "after": ["health.apply_damage"],
+      "before": ["health.reap"]
+    },
+    {
+      "name": "build",
+      "description": "Handles the clicks, the upgrades and the sales of every Placer.",
+      "stage": "FixedUpdate",
+      "reads": ["grid2d.GridCursor", "grid2d.GridPos", "Upgradable", "Sellable"],
+      "writes": ["Placer", "Wallet", "transform2d.Position", "transform2d.Hidden"],
+      "after": ["grid2d.point", "grid2d.place"]
+    }
+  ]
+}
