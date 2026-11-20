@@ -209,7 +209,7 @@ TEST_CASE("sdl: rectangles, circles and lines are drawn, filled or as outlines")
     frame.x = 300.0F;
     frame.thickness = 4.0F;
     renderer->draw(frame);
-    ge::app::DrawCommand disc{"circle", 100.0F, 300.0F, 30.0F, orange};
+    const ge::app::DrawCommand disc{"circle", 100.0F, 300.0F, 30.0F, orange};
     renderer->draw(disc);
     ge::app::DrawCommand ring = disc;
     ring.x = 300.0F;

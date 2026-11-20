@@ -81,7 +81,7 @@ const ge::app::DrawCommand* find(const ge::app::RecordingRenderer& renderer, con
 
 } // namespace
 
-TEST_CASE("debug_draw: rectangles, circles and lines are drawn with their own size") {
+TEST_CASE("debug_draw: a rectangle is drawn with its own width, height and outline") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);
     const ge::ecs::Entity frame = app.world().spawn();
@@ -95,35 +95,46 @@ TEST_CASE("debug_draw: rectangles, circles and lines are drawn with their own si
     rect.blue = 0U;
     rect.alpha = 128U;
     CHECK(app.world().insert(frame, rect));
+    app.run_frames(1);
+    const ge::app::DrawCommand* drawn = find(*renderer, "rect");
+    REQUIRE(drawn != nullptr);
+    ge::app::DrawCommand expected{"rect", 10.0F, 20.0F, 0.0F, 0x00FF0080U};
+    expected.width = 64.0F;
+    expected.height = 32.0F;
+    expected.thickness = 2.0F;
+    CHECK(*drawn == expected);
+}
+
+TEST_CASE("debug_draw: a circle is drawn with its radius and ring thickness") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
     const ge::ecs::Entity ring = app.world().spawn();
-    CHECK(app.world().insert(ring, transform2d::Position{0.0F, 0.0F}));
+    CHECK(app.world().insert(ring, transform2d::Position{1.0F, 2.0F}));
     CHECK(app.world().insert(ring, debug_draw::Circle{40.0F, 3.0F, 255U, 255U, 255U, 255U, false}));
+    app.run_frames(1);
+    const ge::app::DrawCommand* drawn = find(*renderer, "circle");
+    REQUIRE(drawn != nullptr);
+    ge::app::DrawCommand expected{"circle", 1.0F, 2.0F, 40.0F, 0xFFFFFFFFU};
+    expected.thickness = 3.0F;
+    CHECK(*drawn == expected);
+}
+
+TEST_CASE("debug_draw: a line goes from the position to the position plus its offset") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
     const ge::ecs::Entity beam = app.world().spawn();
     CHECK(app.world().insert(beam, transform2d::Position{5.0F, 5.0F}));
     CHECK(
         app.world().insert(beam, debug_draw::Line{30.0F, -10.0F, 4.0F, 255U, 0U, 0U, 255U, true}));
     app.run_frames(1);
-    REQUIRE(renderer->commands().size() == 3U);
-    const ge::app::DrawCommand* drawn_rect = find(*renderer, "rect");
-    const ge::app::DrawCommand* drawn_circle = find(*renderer, "circle");
-    const ge::app::DrawCommand* drawn_line = find(*renderer, "line");
-    REQUIRE(drawn_rect != nullptr);
-    REQUIRE(drawn_circle != nullptr);
-    REQUIRE(drawn_line != nullptr);
-    CHECK(drawn_rect->x == 10.0F);
-    CHECK(drawn_rect->y == 20.0F);
-    CHECK(drawn_rect->width == 64.0F);
-    CHECK(drawn_rect->height == 32.0F);
-    CHECK(drawn_rect->thickness == 2.0F);
-    CHECK(drawn_rect->color == 0x00FF0080U);
-    CHECK(!drawn_rect->screen);
-    CHECK(drawn_circle->size == 40.0F);
-    CHECK(drawn_circle->thickness == 3.0F);
-    CHECK(drawn_line->x == 5.0F);
-    CHECK(drawn_line->x2 == 35.0F);
-    CHECK(drawn_line->y2 == -5.0F);
-    CHECK(drawn_line->thickness == 4.0F);
-    CHECK(drawn_line->screen);
+    const ge::app::DrawCommand* drawn = find(*renderer, "line");
+    REQUIRE(drawn != nullptr);
+    ge::app::DrawCommand expected{"line", 5.0F, 5.0F, 0.0F, 0xFF0000FFU};
+    expected.x2 = 35.0F;
+    expected.y2 = -5.0F;
+    expected.thickness = 4.0F;
+    expected.screen = true;
+    CHECK(*drawn == expected);
 }
 
 TEST_CASE("debug_draw: a hidden shape is not drawn, and is again once shown") {

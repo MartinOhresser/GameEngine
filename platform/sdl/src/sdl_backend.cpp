@@ -262,18 +262,20 @@ private:
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);
-        for (float dy = -radius + 0.5F; dy < radius; dy += 1.0F) {
+        const int rows = static_cast<int>(std::ceil(radius * 2.0F));
+        for (int row = 0; row < rows; ++row) {
+            const float dy = -radius + 0.5F + static_cast<float>(row);
             const float outer_half = std::sqrt(std::max(radius * radius - dy * dy, 0.0F));
             const float inner_square = inner * inner - dy * dy;
             if (inner_square <= 0.0F) {
-                const SDL_FRect row{x - outer_half, y + dy - 0.5F, 2.0F * outer_half, 1.0F};
-                SDL_RenderFillRect(renderer_, &row);
+                const SDL_FRect span{x - outer_half, y + dy - 0.5F, 2.0F * outer_half, 1.0F};
+                SDL_RenderFillRect(renderer_, &span);
             } else {
                 const float inner_half = std::sqrt(inner_square);
-                const std::array<SDL_FRect, 2> rows{
+                const std::array<SDL_FRect, 2> spans{
                     {{x - outer_half, y + dy - 0.5F, outer_half - inner_half, 1.0F},
                      {x + inner_half, y + dy - 0.5F, outer_half - inner_half, 1.0F}}};
-                SDL_RenderFillRects(renderer_, rows.data(), static_cast<int>(rows.size()));
+                SDL_RenderFillRects(renderer_, spans.data(), static_cast<int>(spans.size()));
             }
         }
     }
