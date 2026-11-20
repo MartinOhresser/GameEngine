@@ -239,19 +239,18 @@ void read_screen(Checker& checker, const json::Value& root, ScenarioData& scenar
         return;
     }
     checker.reject_unknown(*screen, "screen", {"width", "height"});
-    int sizes[2] = {0, 0};
-    const char* const keys[2] = {"width", "height"};
-    for (std::size_t i = 0; i < 2; ++i) {
-        const json::Value* size = screen->find(keys[i]);
+    // Width then height, each read the same way.
+    const auto read_size = [&](const char* key) {
+        const json::Value* size = screen->find(key);
         if (size == nullptr || !size->is_int() || size->as_int() < 1 || size->as_int() > 16384) {
-            checker.error(join_path("screen", keys[i]),
+            checker.error(join_path("screen", key),
                           "expected a number of pixels between 1 and 16384");
-        } else {
-            sizes[i] = static_cast<int>(size->as_int());
+            return 0;
         }
-    }
-    scenario.screen_width = sizes[0];
-    scenario.screen_height = sizes[1];
+        return static_cast<int>(size->as_int());
+    };
+    scenario.screen_width = read_size("width");
+    scenario.screen_height = read_size("height");
 }
 
 /// The optional "lists": run-time lists a host would fill, as `name: [texts]`.
