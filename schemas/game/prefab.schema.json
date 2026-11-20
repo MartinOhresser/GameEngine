@@ -31,6 +31,48 @@
           },
           "additionalProperties": false
         },
+        "autofire.AutoFire": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "number"
+            },
+            "cooldown": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "wait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "projectile_speed": {
+              "type": "number"
+            },
+            "targeting": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "target_layer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "bounce2d.Bouncer": {
           "type": "object",
           "properties": {
@@ -417,6 +459,143 @@
             },
             "screen": {
               "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "economy.Wallet": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "additionalProperties": false
+        },
+        "economy.Bounty": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "paid": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "economy.Upgradable": {
+          "type": "object",
+          "properties": {
+            "next_prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "price": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "additionalProperties": false
+        },
+        "economy.Sellable": {
+          "type": "object",
+          "properties": {
+            "refund": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "additionalProperties": false
+        },
+        "economy.Placer": {
+          "type": "object",
+          "properties": {
+            "grid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "price": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "selected": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "upgrade_price": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "sell_value": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "placed_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "refused_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "selected_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "final_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "deselected_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "upgrade_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "sell_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "reselect_col": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "reselect_row": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "reselect_in": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false
@@ -1254,6 +1433,59 @@
               "type": "integer",
               "minimum": -2147483648,
               "maximum": 2147483647
+            }
+          },
+          "additionalProperties": false
+        },
+        "path2d.Waypoint": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "path2d.PathFollower": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "speed": {
+              "type": "number"
+            },
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "progress": {
+              "type": "number"
+            },
+            "end_target": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "end_damage": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "reached_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false
@@ -2588,6 +2820,113 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "waves.WaveGroup": {
+          "type": "object",
+          "properties": {
+            "wave": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "interval_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "delay_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "spawned": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "waves.WaveController": {
+          "type": "object",
+          "properties": {
+            "current": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "last": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "running": {
+              "type": "boolean"
+            },
+            "auto_next": {
+              "type": "boolean"
+            },
+            "rest_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "spawn_x": {
+              "type": "number"
+            },
+            "spawn_y": {
+              "type": "number"
+            },
+            "start_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "started_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "cleared_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "all_cleared_action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "elapsed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "quiet": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "rest": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "finished": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
