@@ -139,6 +139,13 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
     if [ "${changed:-0}" -le 0 ]; then
       fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
       python3 "$here/spike/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+      {
+        echo "--- what the system says about the game's window"
+        adb shell dumpsys activity activities | grep -iE "mResumedActivity|requestedOrientation|screenOrientation|configOrientation" | head -8
+        adb shell dumpsys window windows | grep -E "mCurrentFocus|mFrame=|mRequestedWidth|isReadyForDisplay" | head -8
+        echo "--- the log of the game"
+        adb logcat -d | grep -E "SDL|$package|ge::|touch|Input" | tail -30
+      } 2>&1 | cut -c1-200 | tee -a "$out/summary.md"
     fi
   done
   adb shell pidof "$package" > "$out/pid4.txt" || true
