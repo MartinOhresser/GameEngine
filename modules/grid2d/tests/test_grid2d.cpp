@@ -514,3 +514,20 @@ TEST_CASE("grid2d: with wrap the keys go round, and a moving pointer takes the c
     CHECK(cursor_of(scene, cursor).col == 2);
     CHECK(cursor_of(scene, cursor).row == 0);
 }
+
+TEST_CASE("grid2d: after the keys, a click where the pointer stands acts on the pointer's cell") {
+    Scene scene;
+    const auto cursor = add_key_cursor(scene, false);
+    script(scene, 0, "pointer_x", 95.0F);
+    script(scene, 0, "pointer_y", 40.0F);
+    tap(scene, 2, "down");
+    scene.app.run_frames(4);
+    CHECK(cursor_of(scene, cursor).keyed);
+    CHECK(cursor_of(scene, cursor).row == 1);
+    tap(scene, 4, "click");
+    scene.app.run_frames(1);
+    CHECK(!cursor_of(scene, cursor).keyed);
+    CHECK(cursor_of(scene, cursor).clicked);
+    CHECK(cursor_of(scene, cursor).col == 1);
+    CHECK(cursor_of(scene, cursor).row == 0);
+}

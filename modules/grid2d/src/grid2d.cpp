@@ -214,7 +214,7 @@ void point(ecs::World& world) {
         cursor.last_y = y;
         if (steer_with_keys(cursor, *layout, actions, names)) {
             cursor.keyed = true;
-        } else if (pointer_moved) {
+        } else if (pointer_moved || pressed(actions, names, cursor.click)) {
             cursor.keyed = false;
         }
         if (cursor.keyed) {
