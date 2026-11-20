@@ -144,13 +144,55 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
 
 constexpr std::array<::ge::app::FieldInfo, 5> component_1_fields{{{"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"elapsed", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Sprite", false, component_0_fields, insert_component_0, read_component_0}, {"SpriteAnimation", true, component_1_fields, insert_component_1, read_component_1}}};
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    FrameBind component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "field") {
+            component.field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "first_frame") {
+            component.first_frame = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "log2") {
+            component.log2 = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "frame_count") {
+            component.frame_count = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const FrameBind* component = world.get<FrameBind>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->field)};
+    }
+    if (field == "first_frame") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->first_frame)};
+    }
+    if (field == "log2") {
+        return ::ge::app::Scalar{static_cast<bool>(component->log2)};
+    }
+    if (field == "frame_count") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->frame_count)};
+    }
+    return std::nullopt;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 4> component_2_fields{{{"field", "u32", "field", false}, {"first_frame", "u32", "", false}, {"log2", "bool", "", false}, {"frame_count", "u32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Sprite", false, component_0_fields, insert_component_0, read_component_0}, {"SpriteAnimation", true, component_1_fields, insert_component_1, read_component_1}, {"FrameBind", false, component_2_fields, insert_component_2, read_component_2}}};
 
 constexpr std::array<std::string_view, 0> system_0_reads{};
 constexpr std::array<std::string_view, 2> system_0_writes{"sprite2d.Sprite", "sprite2d.SpriteAnimation"};
-constexpr std::array<std::string_view, 2> system_1_reads{"sprite2d.Sprite", "transform2d.Position"};
+constexpr std::array<std::string_view, 3> system_1_reads{"sprite2d.Sprite", "transform2d.Position", "transform2d.Hidden"};
 constexpr std::array<std::string_view, 0> system_1_writes{};
-constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"sprite2d.animate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"sprite2d.draw", ::ge::app::Stage::PostUpdate, system_1_reads, system_1_writes}}};
+constexpr std::array<std::string_view, 0> system_2_reads{};
+constexpr std::array<std::string_view, 1> system_2_writes{"sprite2d.Sprite"};
+constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"sprite2d.animate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"sprite2d.draw", ::ge::app::Stage::PostUpdate, system_1_reads, system_1_writes}, {"sprite2d.bind_frame", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
 
 constexpr std::array<std::string_view, 1> depends{"transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -166,6 +208,7 @@ void install(::ge::app::App& app) {
     app.add_module(info());
     app.add_system(::ge::app::Stage::FixedUpdate, &animate, "sprite2d.animate");
     app.add_system(::ge::app::Stage::PostUpdate, &draw, "sprite2d.draw");
+    app.add_system(::ge::app::Stage::FixedUpdate, &bind_frame, "sprite2d.bind_frame", ::ge::app::Order::between({"sprite2d.animate"}, {}));
 }
 
 } // namespace ge::mod::sprite2d

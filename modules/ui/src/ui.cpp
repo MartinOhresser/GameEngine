@@ -56,7 +56,7 @@ std::vector<Candidate> buttons_of(ecs::World& world, std::uint32_t menu) {
     std::vector<Candidate> found;
     world.each<const Button, const transform2d::Position>(
         [&](ecs::Entity entity, const Button& button, const transform2d::Position& position) {
-            if (button.menu == menu && button.enabled) {
+            if (button.menu == menu && button.enabled && !world.has<transform2d::Hidden>(entity)) {
                 found.push_back(Candidate{entity, button.order, button.action, position.x,
                                           position.y, button.width / 2.0F, button.height / 2.0F});
             }
@@ -271,10 +271,12 @@ void bind(ecs::World& world) {
         const auto source =
             std::find_if(tagged.begin(), tagged.end(),
                          [&binding](const auto& item) { return item.first == binding.source; });
-        if (source != tagged.end() && binding.field < table->entries.size()) {
+        const bool found = binding.own || source != tagged.end();
+        if (found && binding.field < table->entries.size()) {
+            const ecs::Entity from = binding.own ? entity : source->second;
             const app::FieldEntry& field = table->entries[binding.field];
             if (field.component != nullptr && field.component->read != nullptr) {
-                if (const auto read = field.component->read(world, source->second, field.field)) {
+                if (const auto read = field.component->read(world, from, field.field)) {
                     value = app::scalar_as<float>(*read);
                 }
             }

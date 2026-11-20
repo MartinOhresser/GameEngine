@@ -167,6 +167,9 @@ void draw(ecs::World& world) {
     app::Renderer& renderer = backend->renderer();
     world.each<const Text, const transform2d::Position>([&](ecs::Entity entity, const Text& text,
                                                             const transform2d::Position& position) {
+        if (world.has<transform2d::Hidden>(entity)) {
+            return;
+        }
         if (const std::optional<std::string> words = words_of(world, entity, *table, text); words) {
             draw_text(renderer, *table, text, *words, position);
         }

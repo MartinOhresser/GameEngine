@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "debug_draw",
   "version": "0.1.0",
-  "description": "Draws a coloured square for every entity that has a Square and a position: the simplest way to see a game before it has art.",
+  "description": "Flat shapes with no art: a coloured square, rectangle, circle or line for every entity that has the shape and a position. The simplest way to see a game before it has art, and what boards, highlights, ranges and bars are made of. Shapes are drawn in the order of the game's module list, relative to sprites and texts: list debug_draw before sprite2d for shapes behind the pictures. An entity with transform2d.Hidden is not drawn.",
   "depends": ["transform2d"],
   "components": [
     {
@@ -16,14 +16,58 @@
         { "name": "green", "type": "u32", "default": 255 },
         { "name": "blue", "type": "u32", "default": 255 }
       ]
+    },
+    {
+      "name": "Rect",
+      "description": "A rectangle centred on the entity's Position, width by height in world units. thickness 0 fills it; a bigger thickness draws only an outline that thick (the highlight of a cell, a frame). red, green, blue and alpha are 0 to 255. With screen, the Position and the size are pixels of the window and the camera does not move or zoom it (an interface).",
+      "replicable": false,
+      "fields": [
+        { "name": "width", "type": "f32", "default": 16 },
+        { "name": "height", "type": "f32", "default": 16 },
+        { "name": "thickness", "type": "f32", "default": 0 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "screen", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Circle",
+      "description": "A circle centred on the entity's Position, radius in world units. thickness 0 fills it; a bigger thickness draws a ring that thick (the range of a tower, an area of effect). Colours and screen as for Rect.",
+      "replicable": false,
+      "fields": [
+        { "name": "radius", "type": "f32", "default": 16 },
+        { "name": "thickness", "type": "f32", "default": 0 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "screen", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Line",
+      "description": "A line from the entity's Position to that Position moved by dx and dy, thickness thick (at least one pixel). A laser beam, a link between two things, a trail. Colours and screen as for Rect.",
+      "replicable": false,
+      "fields": [
+        { "name": "dx", "type": "f32", "default": 16 },
+        { "name": "dy", "type": "f32", "default": 0 },
+        { "name": "thickness", "type": "f32", "default": 1 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "screen", "type": "bool", "default": false }
+      ]
     }
   ],
   "systems": [
     {
       "name": "draw",
-      "description": "Asks the renderer to draw every Square. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.",
+      "description": "Asks the renderer to draw every Square, Rect, Circle and Line (squares first). Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.",
       "stage": "PostUpdate",
-      "reads": ["Square", "transform2d.Position"]
+      "reads": ["Square", "Rect", "Circle", "Line", "transform2d.Position", "transform2d.Hidden"]
     }
   ]
 }

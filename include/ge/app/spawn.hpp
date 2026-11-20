@@ -16,6 +16,10 @@ struct SpawnRequest {
     bool has_velocity = false;
     float vx = 0.0F;
     float vy = 0.0F;
+    /// The entity that asks for this one (`Entity::to_link`), 0 for none. The new
+    /// entity gets it as its `transform2d.Owner` when the game uses that module: a bar
+    /// that belongs to a monster, a bullet that belongs to its gun.
+    std::uint64_t owner = 0;
 };
 
 /// Entities that systems want created from prefabs: a generator of platforms,
@@ -26,11 +30,16 @@ struct SpawnRequests {
     std::vector<SpawnRequest> queue;
 
     void spawn(std::uint32_t prefab, float x, float y) {
-        queue.push_back(SpawnRequest{prefab, x, y, false, 0.0F, 0.0F});
+        queue.push_back(SpawnRequest{prefab, x, y, false, 0.0F, 0.0F, 0U});
+    }
+
+    /// Like `spawn`, for an entity that belongs to `owner` (a link, see `Entity::to_link`).
+    void spawn_owned(std::uint32_t prefab, float x, float y, std::uint64_t owner) {
+        queue.push_back(SpawnRequest{prefab, x, y, false, 0.0F, 0.0F, owner});
     }
 
     void spawn_moving(std::uint32_t prefab, float x, float y, float vx, float vy) {
-        queue.push_back(SpawnRequest{prefab, x, y, true, vx, vy});
+        queue.push_back(SpawnRequest{prefab, x, y, true, vx, vy, 0U});
     }
 };
 

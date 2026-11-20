@@ -195,6 +195,47 @@ TEST_CASE("sdl: the window can take another size, and the frame follows it") {
     CHECK(frame.at(240, 400) == 0xFF8000FFU);
 }
 
+TEST_CASE("sdl: rectangles, circles and lines are drawn, filled or as outlines") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    constexpr std::uint32_t orange = 0xFF8000FFU;
+    constexpr std::uint32_t background = 0x121420FFU;
+    ge::app::DrawCommand filled{"rect", 100.0F, 100.0F, 0.0F, orange};
+    filled.width = 40.0F;
+    filled.height = 20.0F;
+    renderer->draw(filled);
+    ge::app::DrawCommand frame = filled;
+    frame.x = 300.0F;
+    frame.thickness = 4.0F;
+    renderer->draw(frame);
+    const ge::app::DrawCommand disc{"circle", 100.0F, 300.0F, 30.0F, orange};
+    renderer->draw(disc);
+    ge::app::DrawCommand ring = disc;
+    ring.x = 300.0F;
+    ring.thickness = 4.0F;
+    renderer->draw(ring);
+    ge::app::DrawCommand line{"line", 500.0F, 100.0F, 0.0F, orange};
+    line.x2 = 500.0F;
+    line.y2 = 200.0F;
+    line.thickness = 6.0F;
+    renderer->draw(line);
+    renderer->end_frame();
+    const sdl::Frame& image = backend->last_frame();
+    CHECK(image.at(100, 100) == orange); // a filled rectangle
+    CHECK(image.at(81, 91) == orange);
+    CHECK(image.at(79, 100) == background);
+    CHECK(image.at(300, 100) == background); // an outline is hollow...
+    CHECK(image.at(281, 100) == orange);     // ...with an edge
+    CHECK(image.at(100, 300) == orange);     // a disc
+    CHECK(image.at(100, 275) == orange);
+    CHECK(image.at(100, 335) == background);
+    CHECK(image.at(300, 300) == background); // a ring is hollow too
+    CHECK(image.at(300, 273) == orange);
+    CHECK(image.at(500, 150) == orange); // a line
+    CHECK(image.at(520, 150) == background);
+}
+
 TEST_CASE("sdl: a game that follows the screen takes the shape of the window") {
     auto backend = open(true);
     REQUIRE(backend != nullptr);

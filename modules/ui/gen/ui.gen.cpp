@@ -167,6 +167,8 @@ void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.source = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "field") {
             component.field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "own") {
+            component.own = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -184,10 +186,13 @@ std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world,
     if (field == "field") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->field)};
     }
+    if (field == "own") {
+        return ::ge::app::Scalar{static_cast<bool>(component->own)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_4_fields{{{"source", "u32", "tag", false}, {"field", "u32", "field", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_4_fields{{{"source", "u32", "tag", false}, {"field", "u32", "field", false}, {"own", "bool", "", false}}};
 
 void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

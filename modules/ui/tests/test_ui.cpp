@@ -188,6 +188,39 @@ TEST_CASE("ui: a text and a bar show a number of the game through a tag") {
     CHECK(scene.app.world().get<text2d::Text>(empty)->value == 0.0F);
 }
 
+TEST_CASE("ui: with own, a text and a bar show a number of the entity itself") {
+    Scene scene;
+    ui::Bind bind;
+    bind.own = true;
+    bind.field = field_index(scene.app, "transform2d.Position.x");
+    ui::Bar bar;
+    bar.max = 10.0F;
+    bar.length = 100.0F;
+    const auto tile = scene.spawn(transform2d::Position{4.0F, 0.0F}, text2d::Text{}, bind);
+    const auto gauge =
+        scene.spawn(transform2d::Position{5.0F, 0.0F}, sprite2d::Sprite{}, bar, bind);
+    scene.spawn(transform2d::Position{99.0F, 0.0F}, ui::Tag{0}); // a tag is not needed
+    scene.app.run_frames(1);
+    CHECK(scene.app.world().get<text2d::Text>(tile)->value == 4.0F);
+    CHECK(scene.app.world().get<sprite2d::Sprite>(gauge)->width == 50.0F);
+}
+
+TEST_CASE("ui: a hidden button is not part of its menu") {
+    Scene scene;
+    scene.spawn(menu_with_keys());
+    const auto start =
+        scene.spawn(transform2d::Position{0.0F, 0.0F}, sprite2d::Sprite{}, button(0, play));
+    const auto leave =
+        scene.spawn(transform2d::Position{0.0F, 40.0F}, sprite2d::Sprite{}, button(1, quit));
+    CHECK(scene.app.world().insert(start, transform2d::Hidden{}));
+    auto* script = scene.app.world().resource<ge::app::ScriptedInput>();
+    script->add(1, "accept", 1.0F);
+    script->add(2, "accept", 0.0F);
+    scene.app.run_frames(4);
+    CHECK(!scene.app.world().resource<ge::app::Actions>()->pressed("play"));
+    CHECK(scene.app.world().is_alive(leave));
+}
+
 TEST_CASE("ui: the keys move the focus through the buttons and accept raises the action") {
     Scene scene;
     scene.spawn(menu_with_keys());

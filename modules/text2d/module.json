@@ -41,7 +41,7 @@
       "name": "draw",
       "description": "Asks the renderer to draw every Text, one letter at a time. Presentation only: it never changes the simulation.",
       "stage": "PostUpdate",
-      "reads": ["Text", "Dynamic", "transform2d.Position"]
+      "reads": ["Text", "Dynamic", "transform2d.Position", "transform2d.Hidden"]
     }
   ]
 }

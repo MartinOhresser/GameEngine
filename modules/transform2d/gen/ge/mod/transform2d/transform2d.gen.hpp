@@ -49,9 +49,46 @@ struct Velocity {
     [[nodiscard]] friend bool operator==(const Velocity&, const Velocity&) = default;
 };
 
+/// The entity is not shown and does not take part in an interface: the drawing systems (sprites, texts, shapes) skip it and a menu ignores its button. Insert it to hide, remove it to show again. It has no effect on the simulation otherwise.
+struct Hidden {
+    void hash(::ge::Hasher& /*hasher*/) const {}
+
+    [[nodiscard]] friend bool operator==(const Hidden&, const Hidden&) = default;
+};
+
+/// The entity this one belongs to: the monster whose health bar this is, the gun that fired this bullet. entity holds a link (an entity's identifier plus one, 0 for none): the spawner fills it when a system asks for an entity with an owner. A link to an entity that is gone stays, and finds nothing.
+struct Owner {
+    std::uint64_t entity = 0ULL;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(entity);
+    }
+
+    [[nodiscard]] friend bool operator==(const Owner&, const Owner&) = default;
+};
+
+/// The entity follows its Owner: each tick its Position is the Owner's Position moved by offset_x and offset_y, and it disappears with the Owner (a health bar, a range circle, a shadow, a shield). Without an Owner, or while its Owner has no Position, it stays where it is.
+struct Attach {
+    float offset_x = 0.0F;
+    float offset_y = 0.0F;
+    bool despawn_with_owner = true;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(offset_x);
+        hasher.add(offset_y);
+        hasher.add(despawn_with_owner);
+    }
+
+    [[nodiscard]] friend bool operator==(const Attach&, const Attach&) = default;
+};
+
 /// Moves every entity that has a Velocity by velocity times the tick duration.
 /// Runs in FixedUpdate.
 void integrate(::ge::ecs::World& world);
+
+/// Moves every Attach entity onto its Owner's Position, plus its offset; removes the ones whose Owner is gone when despawn_with_owner is on.
+/// Runs in FixedUpdate.
+void attach(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

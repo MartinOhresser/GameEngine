@@ -43,15 +43,18 @@
       "name": "Tag",
       "description": "A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's \"tag\" list. When several entities share a tag, the oldest one is found.",
       "replicable": false,
-      "fields": [{ "name": "tag", "type": "u32", "default": 0, "ref": "tag" }]
+      "fields": [
+        { "name": "tag", "type": "u32", "default": 0, "ref": "tag" }
+      ]
     },
     {
       "name": "Bind",
-      "description": "Shows a number of the game: every tick, the value of field (written \"module.Component.field\", for example \"pickup.Collector.score\") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. A missing source or component leaves the value at 0.",
+      "description": "Shows a number of the game: every tick, the value of field (written \"module.Component.field\", for example \"pickup.Collector.score\") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. With own, the entity reads the field of itself instead of the entity tagged source: the number written on a tile, the health bar of a monster (put a Bind on the entity that has the Bar and the Health). A missing source or component leaves the value at 0.",
       "replicable": false,
       "fields": [
         { "name": "source", "type": "u32", "default": 0, "ref": "tag" },
-        { "name": "field", "type": "u32", "default": 0, "ref": "field" }
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" },
+        { "name": "own", "type": "bool", "default": false }
       ]
     },
     {

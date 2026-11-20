@@ -28,7 +28,80 @@ struct Square {
     [[nodiscard]] friend bool operator==(const Square&, const Square&) = default;
 };
 
-/// Asks the renderer to draw every Square. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
+/// A rectangle centred on the entity's Position, width by height in world units. thickness 0 fills it; a bigger thickness draws only an outline that thick (the highlight of a cell, a frame). red, green, blue and alpha are 0 to 255. With screen, the Position and the size are pixels of the window and the camera does not move or zoom it (an interface).
+struct Rect {
+    float width = 16.0F;
+    float height = 16.0F;
+    float thickness = 0.0F;
+    std::uint32_t red = 255U;
+    std::uint32_t green = 255U;
+    std::uint32_t blue = 255U;
+    std::uint32_t alpha = 255U;
+    bool screen = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(width);
+        hasher.add(height);
+        hasher.add(thickness);
+        hasher.add(red);
+        hasher.add(green);
+        hasher.add(blue);
+        hasher.add(alpha);
+        hasher.add(screen);
+    }
+
+    [[nodiscard]] friend bool operator==(const Rect&, const Rect&) = default;
+};
+
+/// A circle centred on the entity's Position, radius in world units. thickness 0 fills it; a bigger thickness draws a ring that thick (the range of a tower, an area of effect). Colours and screen as for Rect.
+struct Circle {
+    float radius = 16.0F;
+    float thickness = 0.0F;
+    std::uint32_t red = 255U;
+    std::uint32_t green = 255U;
+    std::uint32_t blue = 255U;
+    std::uint32_t alpha = 255U;
+    bool screen = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(radius);
+        hasher.add(thickness);
+        hasher.add(red);
+        hasher.add(green);
+        hasher.add(blue);
+        hasher.add(alpha);
+        hasher.add(screen);
+    }
+
+    [[nodiscard]] friend bool operator==(const Circle&, const Circle&) = default;
+};
+
+/// A line from the entity's Position to that Position moved by dx and dy, thickness thick (at least one pixel). A laser beam, a link between two things, a trail. Colours and screen as for Rect.
+struct Line {
+    float dx = 16.0F;
+    float dy = 0.0F;
+    float thickness = 1.0F;
+    std::uint32_t red = 255U;
+    std::uint32_t green = 255U;
+    std::uint32_t blue = 255U;
+    std::uint32_t alpha = 255U;
+    bool screen = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(dx);
+        hasher.add(dy);
+        hasher.add(thickness);
+        hasher.add(red);
+        hasher.add(green);
+        hasher.add(blue);
+        hasher.add(alpha);
+        hasher.add(screen);
+    }
+
+    [[nodiscard]] friend bool operator==(const Line&, const Line&) = default;
+};
+
+/// Asks the renderer to draw every Square, Rect, Circle and Line (squares first). Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
 /// Runs in PostUpdate.
 void draw(::ge::ecs::World& world);
 
