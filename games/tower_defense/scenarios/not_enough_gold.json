@@ -1,0 +1,68 @@
+// A tower that costs more than the gold left is not built.
+{
+  "schema_version": 1,
+  "name": "not_enough_gold",
+  "ticks": 60,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 20,
+      "action": "pick_sniper",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "pick_sniper",
+      "value": 0
+    },
+    {
+      "tick": 29,
+      "action": "pointer_x",
+      "value": 298
+    },
+    {
+      "tick": 29,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 30,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 60,
+      "check": "wallet.economy.Wallet.amount == 100"
+    },
+    {
+      "at": 60,
+      "check": "entities == 145"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+// A touch or a click on a cell builds, or selects a tower; the buttons of the bottom bar do
+// the rest. 1 to 4 choose the tower to build, space calls the next wave, R starts again. The
+// first finger of a touch screen is also the mouse.
+{
+  "schema_version": 1,
+  "bindings": [
+    { "action": "pick_cannon", "sources": { "key:1": 1 } },
+    { "action": "pick_mortar", "sources": { "key:2": 1 } },
+    { "action": "pick_ice", "sources": { "key:3": 1 } },
+    { "action": "pick_sniper", "sources": { "key:4": 1 } },
+    { "action": "start_wave", "sources": { "key:space": 1 } },
+    { "action": "upgrade", "sources": { "key:u": 1 } },
+    { "action": "sell", "sources": { "key:s": 1 } },
+    { "action": "new_game", "sources": { "key:r": 1 } },
+    { "action": "pointer_x", "sources": { "mouse:x": 1 } },
+    { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "click", "sources": { "mouse:left": 1 } },
+  ],
+}

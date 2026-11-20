@@ -1,0 +1,39 @@
+// When the game is lost, a touch builds nothing.
+{
+  "schema_version": 1,
+  "name": "nothing_is_built_after_the_defeat",
+  "scene": "test_defeat",
+  "ticks": 500,
+  "inputs": [
+    {
+      "tick": 449,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 449,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 450,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 451,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 500,
+      "check": "wallet.economy.Wallet.amount == 150"
+    },
+    {
+      "at": 500,
+      "check": "game_phase.phase.Phase.current == 4"
+    }
+  ]
+}

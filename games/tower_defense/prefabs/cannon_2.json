@@ -1,0 +1,39 @@
+// A cannon of level 2: it picks a target in range and shoots at it. Click it to improve it or to sell it.
+{
+  "schema_version": 1,
+  "name": "cannon_2",
+  "components": {
+    "transform2d.Position": {},
+    "grid2d.GridPos": {
+      "grid": "board",
+      "from_position": true
+    },
+    "sprite2d.Sprite": {
+      "atlas": "towers",
+      "frame": 1,
+      "width": 44,
+      "height": 44,
+      "layer": 3
+    },
+    "autofire.AutoFire": {
+      "range": 150,
+      "cooldown": 38,
+      "prefab": "shot_cannon_2",
+      "projectile_speed": 440,
+      "targeting": 1,
+      "target_layer": [
+        "enemy"
+      ]
+    },
+    "economy.Sellable": {
+      "refund": 54
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    },
+    "economy.Upgradable": {
+      "next_prefab": "cannon_3",
+      "price": 70
+    }
+  }
+}

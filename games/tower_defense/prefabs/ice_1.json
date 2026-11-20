@@ -1,0 +1,39 @@
+// A ice of level 1: it picks a target in range and shoots at it. Click it to improve it or to sell it.
+{
+  "schema_version": 1,
+  "name": "ice_1",
+  "components": {
+    "transform2d.Position": {},
+    "grid2d.GridPos": {
+      "grid": "board",
+      "from_position": true
+    },
+    "sprite2d.Sprite": {
+      "atlas": "towers",
+      "frame": 6,
+      "width": 44,
+      "height": 44,
+      "layer": 3
+    },
+    "autofire.AutoFire": {
+      "range": 110,
+      "cooldown": 50,
+      "prefab": "shot_ice_1",
+      "projectile_speed": 360,
+      "targeting": 0,
+      "target_layer": [
+        "enemy"
+      ]
+    },
+    "economy.Sellable": {
+      "refund": 42
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    },
+    "economy.Upgradable": {
+      "next_prefab": "ice_2",
+      "price": 55
+    }
+  }
+}

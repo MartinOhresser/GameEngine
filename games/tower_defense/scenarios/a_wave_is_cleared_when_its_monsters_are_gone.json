@@ -1,0 +1,45 @@
+// The wave starts when it is asked for, and is over when its monsters are all dead; the next one waits to be asked for.
+{
+  "schema_version": 1,
+  "name": "a_wave_is_cleared_when_its_monsters_are_gone",
+  "scene": "test_waves",
+  "ticks": 400,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "start_wave",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "start_wave",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 20,
+      "check": "waves.waves.WaveController.current == 1"
+    },
+    {
+      "at": 20,
+      "check": "waves.waves.WaveController.running == true"
+    },
+    {
+      "at": 400,
+      "check": "waves.waves.WaveController.current == 1"
+    },
+    {
+      "at": 400,
+      "check": "waves.waves.WaveController.running == false"
+    },
+    {
+      "at": 400,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 400,
+      "check": "base.health.Health.amount == 20"
+    }
+  ]
+}

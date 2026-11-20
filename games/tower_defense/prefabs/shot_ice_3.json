@@ -1,0 +1,39 @@
+// What a ice of level 3 shoots.
+{
+  "schema_version": 1,
+  "name": "shot_ice_3",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "sprite2d.Sprite": {
+      "atlas": "world",
+      "frame": 4,
+      "width": 18,
+      "height": 18,
+      "layer": 6
+    },
+    "collision2d.Collider": {
+      "width": 10,
+      "height": 10,
+      "layer": [
+        "shot"
+      ],
+      "mask": 0
+    },
+    "combat2d.Projectile": {
+      "damage": 2,
+      "layers": [
+        "enemy"
+      ],
+      "homing": 0.2,
+      "on_hit_speed_factor": 0.35,
+      "on_hit_speed_ticks": 180
+    },
+    "lifetime.Lifetime": {
+      "ticks": 42
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

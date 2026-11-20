@@ -14,9 +14,17 @@ namespace ge::mod::health {
 inline void deal(ecs::World& world, ecs::Entity entity, std::int32_t amount) {
     if (auto* pending = world.get<Damage>(entity)) {
         pending->amount += amount;
-    } else {
-        world.resource<ecs::Commands>()->insert(entity, Damage{amount});
+        return;
     }
+    // Not yet there: when the request is queued, another one may be queued before it is applied
+    // (two monsters reaching the base in the same tick), so the merge happens at apply time.
+    world.resource<ecs::Commands>()->push([entity, amount](ecs::World& target) {
+        if (auto* pending = target.get<Damage>(entity)) {
+            pending->amount += amount;
+        } else {
+            static_cast<void>(target.insert(entity, Damage{amount}));
+        }
+    });
 }
 
 } // namespace ge::mod::health

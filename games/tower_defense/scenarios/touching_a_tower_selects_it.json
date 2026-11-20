@@ -1,0 +1,90 @@
+// A touch on a tower selects it: the phase shows what can be done with it, and a touch elsewhere lets it go.
+{
+  "schema_version": 1,
+  "name": "touching_a_tower_selects_it",
+  "ticks": 70,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 420
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 63
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 30,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 30,
+      "check": "hand.economy.Placer.upgrade_price == 40"
+    },
+    {
+      "at": 30,
+      "check": "hand.economy.Placer.sell_value == 30"
+    },
+    {
+      "at": 70,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 70,
+      "check": "hand.economy.Placer.sell_value == 0"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+// The New game button of the end screen does the same.
+{
+  "schema_version": 1,
+  "name": "new_game_with_the_button",
+  "scene": "test_defeat",
+  "ticks": 500,
+  "inputs": [
+    {
+      "tick": 399,
+      "action": "pointer_x",
+      "value": 400
+    },
+    {
+      "tick": 399,
+      "action": "pointer_y",
+      "value": 448
+    },
+    {
+      "tick": 400,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 401,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 500,
+      "check": "scene is game"
+    },
+    {
+      "at": 500,
+      "check": "base.health.Health.amount == 20"
+    }
+  ]
+}
