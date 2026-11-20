@@ -11,13 +11,16 @@
 
 namespace ge::mod::grid2d {
 
-/// A board of columns by rows cells, each cell_width by cell_height world units, centred on the entity's Position. id names an item of the game's "grid" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards.
+/// A board of columns by rows cells, each cell_width by cell_height units, spacing_x and spacing_y apart, the whole board centred on the entity's Position. id names an item of the game's "grid" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards. A screen board is in pixels of the window and is not seen through the camera: a hotbar, an inventory or a table of buttons (give its entity a transform2d.Anchor to keep it at an edge of the window, and its entities screen sprites); otherwise the board is in the world.
 struct Grid {
     std::uint32_t id = 0U;
     std::uint32_t columns = 8U;
     std::uint32_t rows = 8U;
     float cell_width = 64.0F;
     float cell_height = 64.0F;
+    float spacing_x = 0.0F;
+    float spacing_y = 0.0F;
+    bool screen = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(id);
@@ -25,6 +28,9 @@ struct Grid {
         hasher.add(rows);
         hasher.add(cell_width);
         hasher.add(cell_height);
+        hasher.add(spacing_x);
+        hasher.add(spacing_y);
+        hasher.add(screen);
     }
 
     [[nodiscard]] friend bool operator==(const Grid&, const Grid&) = default;
@@ -56,7 +62,7 @@ struct Blocked {
     [[nodiscard]] friend bool operator==(const Blocked&, const Blocked&) = default;
 };
 
-/// Follows the pointer or the finger over the board grid: pointer_x and pointer_y are the actions that carry its position in pixels of the window (as for a menu), converted through the camera. over says whether it is above a cell, col and row which one. While the click action is pressed over a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's.
+/// A cursor over the cells of the board grid, moved by the pointer or the finger and by keys or a pad. pointer_x and pointer_y are the actions that carry the pointer's position in pixels of the window (as for a menu), converted through the camera unless the board is on the screen. left, right, up and down move the cursor to the next cell (wrap makes it go round at the edges, otherwise it stops there); after a key, the cursor stays where the keys put it until the pointer moves. over says whether it is on a cell, col and row which one. When the click action is pressed with the pointer over a cell, or accept with the cursor on a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). An action left out is none: it does nothing. A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's. keyed, last_x and last_y are kept by the module.
 struct GridCursor {
     std::uint32_t grid = 0U;
     std::uint32_t pointer_x = 4294967295U;
@@ -67,6 +73,15 @@ struct GridCursor {
     std::int32_t col = 0;
     std::int32_t row = 0;
     bool clicked = false;
+    std::uint32_t left = 4294967295U;
+    std::uint32_t right = 4294967295U;
+    std::uint32_t up = 4294967295U;
+    std::uint32_t down = 4294967295U;
+    std::uint32_t accept = 4294967295U;
+    bool wrap = false;
+    bool keyed = false;
+    float last_x = 0.0F;
+    float last_y = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(grid);
@@ -78,6 +93,15 @@ struct GridCursor {
         hasher.add(col);
         hasher.add(row);
         hasher.add(clicked);
+        hasher.add(left);
+        hasher.add(right);
+        hasher.add(up);
+        hasher.add(down);
+        hasher.add(accept);
+        hasher.add(wrap);
+        hasher.add(keyed);
+        hasher.add(last_x);
+        hasher.add(last_y);
     }
 
     [[nodiscard]] friend bool operator==(const GridCursor&, const GridCursor&) = default;
@@ -137,7 +161,7 @@ struct Zone {
 /// Runs in FixedUpdate.
 void place(::ge::ecs::World& world);
 
-/// Updates every GridCursor from the pointer, the camera and the board, and raises the action of a click on a cell.
+/// Updates every GridCursor from the pointer (through the camera for a board in the world), the keys and the board, and raises the action of a click or an accept on a cell.
 /// Runs in FixedUpdate.
 void point(::ge::ecs::World& world);
 

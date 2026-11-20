@@ -708,6 +708,15 @@
             },
             "cell_height": {
               "type": "number"
+            },
+            "spacing_x": {
+              "type": "number"
+            },
+            "spacing_y": {
+              "type": "number"
+            },
+            "screen": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -787,6 +796,43 @@
             },
             "clicked": {
               "type": "boolean"
+            },
+            "left": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "right": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "up": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "down": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "accept": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "wrap": {
+              "type": "boolean"
+            },
+            "keyed": {
+              "type": "boolean"
+            },
+            "last_x": {
+              "type": "number"
+            },
+            "last_y": {
+              "type": "number"
             }
           },
           "additionalProperties": false

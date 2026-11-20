@@ -91,6 +91,76 @@ bool in_zone(const Zone& zone, const GridPos& at) {
            at.row < zone.row + static_cast<std::int32_t>(zone.rows);
 }
 
+/// Where the window's centre is in the world, and how enlarged: the oldest camera.
+struct View {
+    bool has_camera = false;
+    float x = 0.0F;
+    float y = 0.0F;
+    float zoom = 1.0F;
+    float width = 0.0F;
+    float height = 0.0F;
+
+    explicit View(ecs::World& world) {
+        if (const auto* viewport = world.resource<app::Viewport>(); viewport != nullptr) {
+            width = static_cast<float>(viewport->width);
+            height = static_cast<float>(viewport->height);
+        }
+        world.each<const camera2d::Camera, const transform2d::Position>(
+            [this](ecs::Entity, const camera2d::Camera& camera,
+                   const transform2d::Position& position) {
+                if (!has_camera) {
+                    has_camera = true;
+                    x = position.x;
+                    y = position.y;
+                    zoom = camera.zoom > 0.0F ? camera.zoom : 1.0F;
+                }
+            });
+        has_camera = has_camera && width > 0.0F && height > 0.0F;
+    }
+};
+
+/// One step of a cursor along an axis: it goes round with wrap, otherwise it stops at the edge.
+std::int32_t step(std::int32_t at, std::int32_t delta, std::int32_t count, bool wrap) {
+    const std::int32_t next = at + delta;
+    if (wrap) {
+        return ((next % count) + count) % count;
+    }
+    return std::clamp(next, 0, count - 1);
+}
+
+/// Moves the cursor with its keys; true when a key moved it.
+bool steer_with_keys(GridCursor& cursor, const Layout& layout, const app::Actions* actions,
+                     const app::ActionNames* names) {
+    const std::int32_t dx = (pressed(actions, names, cursor.right) ? 1 : 0) -
+                            (pressed(actions, names, cursor.left) ? 1 : 0);
+    const std::int32_t dy = (pressed(actions, names, cursor.down) ? 1 : 0) -
+                            (pressed(actions, names, cursor.up) ? 1 : 0);
+    if (dx == 0 && dy == 0) {
+        return false;
+    }
+    const std::int32_t col = std::clamp(cursor.col, 0, layout.columns - 1);
+    const std::int32_t row = std::clamp(cursor.row, 0, layout.rows - 1);
+    cursor.col = step(col, dx, layout.columns, cursor.wrap);
+    cursor.row = step(row, dy, layout.rows, cursor.wrap);
+    return true;
+}
+
+/// Puts the cursor on the cell under the pointer (through the camera for a board in the
+/// world); over is false when the pointer is on no cell.
+void follow_pointer(GridCursor& cursor, const Layout& layout, const View& view, float x, float y) {
+    if (!layout.screen && view.has_camera) {
+        x = (x - view.width / 2.0F) / view.zoom + view.x;
+        y = (y - view.height / 2.0F) / view.zoom + view.y;
+    }
+    const std::int32_t col = layout.col_at(x);
+    const std::int32_t row = layout.row_at(y);
+    cursor.over = layout.contains(col, row);
+    if (cursor.over) {
+        cursor.col = col;
+        cursor.row = row;
+    }
+}
+
 } // namespace
 
 void place(ecs::World& world) {
@@ -128,44 +198,35 @@ void point(ecs::World& world) {
     const auto* actions = world.resource<app::Actions>();
     auto* raising = world.resource<app::Actions>();
     const auto* names = world.resource<app::ActionNames>();
-    const auto* viewport = world.resource<app::Viewport>();
-    // The oldest camera: where the window's centre is in the world, and how enlarged.
-    float camera_x = 0.0F;
-    float camera_y = 0.0F;
-    float zoom = 1.0F;
-    bool has_camera = false;
-    world.each<const camera2d::Camera, const transform2d::Position>(
-        [&](ecs::Entity, const camera2d::Camera& camera, const transform2d::Position& position) {
-            if (!has_camera) {
-                has_camera = true;
-                camera_x = position.x;
-                camera_y = position.y;
-                zoom = camera.zoom > 0.0F ? camera.zoom : 1.0F;
-            }
-        });
+    const View view(world);
     const Boards boards(world);
     world.each<GridCursor>([&](ecs::Entity entity, GridCursor& cursor) {
         cursor.clicked = false;
-        cursor.over = false;
         const Layout* layout = boards.find(cursor.grid);
         if (layout == nullptr || world.has<transform2d::Disabled>(entity)) {
+            cursor.over = false;
             return;
         }
-        float x = value_of(actions, names, cursor.pointer_x);
-        float y = value_of(actions, names, cursor.pointer_y);
-        if (has_camera && viewport != nullptr) {
-            x = (x - static_cast<float>(viewport->width) / 2.0F) / zoom + camera_x;
-            y = (y - static_cast<float>(viewport->height) / 2.0F) / zoom + camera_y;
+        const float x = value_of(actions, names, cursor.pointer_x);
+        const float y = value_of(actions, names, cursor.pointer_y);
+        const bool pointer_moved = x != cursor.last_x || y != cursor.last_y;
+        cursor.last_x = x;
+        cursor.last_y = y;
+        if (steer_with_keys(cursor, *layout, actions, names)) {
+            cursor.keyed = true;
+        } else if (pointer_moved) {
+            cursor.keyed = false;
         }
-        const std::int32_t col = layout->col_at(x);
-        const std::int32_t row = layout->row_at(y);
-        if (!layout->contains(col, row)) {
-            return;
+        if (cursor.keyed) {
+            cursor.col = std::clamp(cursor.col, 0, layout->columns - 1);
+            cursor.row = std::clamp(cursor.row, 0, layout->rows - 1);
+            cursor.over = true;
+        } else {
+            follow_pointer(cursor, *layout, view, x, y);
         }
-        cursor.over = true;
-        cursor.col = col;
-        cursor.row = row;
-        if (pressed(actions, names, cursor.click)) {
+        const bool clicked = (!cursor.keyed && pressed(actions, names, cursor.click)) ||
+                             pressed(actions, names, cursor.accept);
+        if (cursor.over && clicked) {
             cursor.clicked = true;
             raise(raising, names, cursor.action);
         }

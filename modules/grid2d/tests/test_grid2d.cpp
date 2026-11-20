@@ -34,7 +34,8 @@ struct Scene {
         CHECK(app.module_problems().empty());
         CHECK(app.schedule().problems().empty());
         app.world().insert_resource(
-            ge::app::ActionNames{{"pointer_x", "pointer_y", "click", "cell", "grow"}});
+            ge::app::ActionNames{{"pointer_x", "pointer_y", "click", "cell", "grow", "left",
+                                  "right", "up", "down", "accept"}});
         app.world().insert_resource(ge::Random{7});
         const auto board = app.world().spawn();
         CHECK(app.world().insert(board, transform2d::Position{100.0F, 50.0F}));
@@ -383,4 +384,133 @@ TEST_CASE("grid2d: Disabled entities are not in a zone, and a Disabled zone does
     CHECK(scene.app.world().insert(zone, transform2d::Disabled{}));
     scene.app.run_frames(2);
     CHECK(scene.area(zone).count == 0U);
+}
+
+namespace {
+
+ge::ecs::Entity add_key_cursor(Scene& scene, bool wrap) {
+    const auto cursor = add_cursor(scene);
+    auto* keys = scene.app.world().get<grid2d::GridCursor>(cursor);
+    keys->left = 5;
+    keys->right = 6;
+    keys->up = 7;
+    keys->down = 8;
+    keys->accept = 9;
+    keys->wrap = wrap;
+    return cursor;
+}
+
+/// Presses a key on a tick and lets it go on the next.
+void tap(Scene& scene, std::uint64_t tick, const char* action) {
+    script(scene, tick, action, 1.0F);
+    script(scene, tick + 1, action, 0.0F);
+}
+
+grid2d::GridCursor cursor_of(const Scene& scene, ge::ecs::Entity cursor) {
+    const auto* now = scene.app.world().get<grid2d::GridCursor>(cursor);
+    CHECK(now != nullptr);
+    return now != nullptr ? *now : grid2d::GridCursor{};
+}
+
+} // namespace
+
+namespace {
+
+/// A second board, id 1: 3 cells of 10 with 4 between them, centred on (0, 0): centres at -14,
+/// 0 and 14.
+void add_spaced_row(Scene& scene) {
+    const auto board = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(board, transform2d::Position{0.0F, 0.0F}));
+    grid2d::Grid row;
+    row.id = 1;
+    row.columns = 3;
+    row.rows = 1;
+    row.cell_width = 10.0F;
+    row.cell_height = 10.0F;
+    row.spacing_x = 4.0F;
+    CHECK(scene.app.world().insert(board, row));
+}
+
+} // namespace
+
+TEST_CASE("grid2d: spacing puts space between the cells") {
+    Scene scene;
+    add_spaced_row(scene);
+    const auto last = scene.piece(2, 0);
+    scene.app.world().get<grid2d::GridPos>(last)->grid = 1;
+    scene.app.run_frames(1);
+    CHECK(scene.where(last).x == 14.0F);
+    CHECK(scene.where(last).y == 0.0F);
+}
+
+TEST_CASE("grid2d: the space between two cells is on no cell") {
+    Scene scene;
+    add_spaced_row(scene);
+    const auto layout = grid2d::layout_of(scene.app.world(), 1);
+    REQUIRE(layout.has_value());
+    CHECK(layout->col_at(-14.0F) == 0);
+    CHECK(layout->col_at(-8.0F) == -1); // between the first and the second cell
+    CHECK(layout->col_at(0.0F) == 1);
+    CHECK(layout->col_at(18.0F) == 2);
+}
+
+TEST_CASE("grid2d: the pointer over a screen board is not seen through the camera") {
+    Scene scene;
+    const auto camera = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(camera, transform2d::Position{-500.0F, 0.0F}));
+    CHECK(scene.app.world().insert(camera, camera2d::Camera{3.0F}));
+    scene.app.world().each<grid2d::Grid>(
+        [](ge::ecs::Entity, grid2d::Grid& grid) { grid.screen = true; });
+    const auto cursor = add_cursor(scene);
+    script(scene, 0, "pointer_x", 105.0F); // pixels of the window, the board's own units
+    script(scene, 0, "pointer_y", 50.0F);
+    scene.app.run_frames(2);
+    CHECK(cursor_of(scene, cursor).over);
+    CHECK(cursor_of(scene, cursor).col == 2);
+    CHECK(cursor_of(scene, cursor).row == 1);
+}
+
+TEST_CASE("grid2d: keys move the cursor from cell to cell and stop at the edges") {
+    Scene scene;
+    const auto cursor = add_key_cursor(scene, false);
+    tap(scene, 0, "right");
+    tap(scene, 2, "down");
+    scene.app.run_frames(4);
+    CHECK(cursor_of(scene, cursor).over);
+    CHECK(cursor_of(scene, cursor).col == 1);
+    CHECK(cursor_of(scene, cursor).row == 1);
+    tap(scene, 4, "left");
+    tap(scene, 6, "left");
+    tap(scene, 8, "up");
+    tap(scene, 10, "up");
+    scene.app.run_frames(8);
+    CHECK(cursor_of(scene, cursor).col == 0); // stopped at the edge
+    CHECK(cursor_of(scene, cursor).row == 0);
+    tap(scene, 12, "accept");
+    scene.app.run_frames(1);
+    CHECK(cursor_of(scene, cursor).clicked);
+    scene.app.run_frames(1);
+    CHECK(scene.app.world().resource<ge::app::Actions>()->pressed("cell"));
+}
+
+TEST_CASE("grid2d: with wrap the keys go round, and a moving pointer takes the cursor back") {
+    Scene scene;
+    const auto cursor = add_key_cursor(scene, true);
+    tap(scene, 0, "left");
+    tap(scene, 2, "up");
+    scene.app.run_frames(4);
+    CHECK(cursor_of(scene, cursor).col == 3);
+    CHECK(cursor_of(scene, cursor).row == 2);
+    script(scene, 4, "pointer_x", 95.0F);
+    script(scene, 4, "pointer_y", 40.0F);
+    scene.app.run_frames(2);
+    CHECK(!cursor_of(scene, cursor).keyed);
+    CHECK(cursor_of(scene, cursor).col == 1);
+    CHECK(cursor_of(scene, cursor).row == 0);
+    // A key moves it again, and the pointer that does not move leaves it there.
+    tap(scene, 6, "right");
+    scene.app.run_frames(4);
+    CHECK(cursor_of(scene, cursor).keyed);
+    CHECK(cursor_of(scene, cursor).col == 2);
+    CHECK(cursor_of(scene, cursor).row == 0);
 }

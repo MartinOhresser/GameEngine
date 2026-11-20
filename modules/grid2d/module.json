@@ -3,19 +3,22 @@
   "schema_version": 1,
   "name": "grid2d",
   "version": "0.1.0",
-  "description": "Boards made of cells: a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, the creation of entities on empty cells, and zones that notice what comes onto some cells (a far rank, a goal, a trap). A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
+  "description": "Boards made of cells, in the world or on the screen (a hotbar, an inventory, a table of buttons): a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, the creation of entities on empty cells, and zones that notice what comes onto some cells (a far rank, a goal, a trap). A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
   "depends": ["transform2d", "camera2d"],
   "components": [
     {
       "name": "Grid",
-      "description": "A board of columns by rows cells, each cell_width by cell_height world units, centred on the entity's Position. id names an item of the game's \"grid\" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards.",
+      "description": "A board of columns by rows cells, each cell_width by cell_height units, spacing_x and spacing_y apart, the whole board centred on the entity's Position. id names an item of the game's \"grid\" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards. A screen board is in pixels of the window and is not seen through the camera: a hotbar, an inventory or a table of buttons (give its entity a transform2d.Anchor to keep it at an edge of the window, and its entities screen sprites); otherwise the board is in the world.",
       "replicable": false,
       "fields": [
         { "name": "id", "type": "u32", "default": 0, "ref": "grid" },
         { "name": "columns", "type": "u32", "default": 8 },
         { "name": "rows", "type": "u32", "default": 8 },
         { "name": "cell_width", "type": "f32", "default": 64 },
-        { "name": "cell_height", "type": "f32", "default": 64 }
+        { "name": "cell_height", "type": "f32", "default": 64 },
+        { "name": "spacing_x", "type": "f32", "default": 0 },
+        { "name": "spacing_y", "type": "f32", "default": 0 },
+        { "name": "screen", "type": "bool", "default": false }
       ]
     },
     {
@@ -38,7 +41,7 @@
     },
     {
       "name": "GridCursor",
-      "description": "Follows the pointer or the finger over the board grid: pointer_x and pointer_y are the actions that carry its position in pixels of the window (as for a menu), converted through the camera. over says whether it is above a cell, col and row which one. While the click action is pressed over a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's.",
+      "description": "A cursor over the cells of the board grid, moved by the pointer or the finger and by keys or a pad. pointer_x and pointer_y are the actions that carry the pointer's position in pixels of the window (as for a menu), converted through the camera unless the board is on the screen. left, right, up and down move the cursor to the next cell (wrap makes it go round at the edges, otherwise it stops there); after a key, the cursor stays where the keys put it until the pointer moves. over says whether it is on a cell, col and row which one. When the click action is pressed with the pointer over a cell, or accept with the cursor on a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). An action left out is none: it does nothing. A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's. keyed, last_x and last_y are kept by the module.",
       "replicable": false,
       "fields": [
         { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
@@ -49,7 +52,16 @@
         { "name": "over", "type": "bool", "default": false },
         { "name": "col", "type": "i32", "default": 0 },
         { "name": "row", "type": "i32", "default": 0 },
-        { "name": "clicked", "type": "bool", "default": false }
+        { "name": "clicked", "type": "bool", "default": false },
+        { "name": "left", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "up", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "down", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "accept", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "wrap", "type": "bool", "default": false },
+        { "name": "keyed", "type": "bool", "default": false },
+        { "name": "last_x", "type": "f32", "default": 0 },
+        { "name": "last_y", "type": "f32", "default": 0 }
       ]
     },
     {
@@ -90,14 +102,15 @@
       "stage": "FixedUpdate",
       "reads": ["Grid", "transform2d.Disabled"],
       "writes": ["GridPos", "transform2d.Position"],
-      "after": ["transform2d.attach"]
+      "after": ["transform2d.anchor"]
     },
     {
       "name": "point",
-      "description": "Updates every GridCursor from the pointer, the camera and the board, and raises the action of a click on a cell.",
+      "description": "Updates every GridCursor from the pointer (through the camera for a board in the world), the keys and the board, and raises the action of a click or an accept on a cell.",
       "stage": "FixedUpdate",
       "reads": ["Grid", "camera2d.Camera", "transform2d.Position", "transform2d.Disabled"],
-      "writes": ["GridCursor"]
+      "writes": ["GridCursor"],
+      "after": ["transform2d.anchor"]
     },
     {
       "name": "spawn",
