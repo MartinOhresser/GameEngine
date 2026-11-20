@@ -359,9 +359,12 @@ jobs:
       - uses: ./.github/actions/ccache
         with:
           key: wasm-${{ env.EMSDK_VERSION }}
+      # In a folder of the workspace, not in a temporary one with a new name on every run: its
+      # path is in every compile command, and ccache would miss them all. Kept in the cache too.
       - uses: mymindstorm/setup-emsdk@v16
         with:
           version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: emsdk-cache
       - name: Configure
         run: emcmake cmake -S . -B build/wasm -G Ninja -DCMAKE_BUILD_TYPE=Release -DGE_WARNINGS_AS_ERRORS=ON
       - name: Build
