@@ -251,3 +251,13 @@ TEST_CASE("sprite2d: FrameBind can use the base 2 logarithm of the number") {
     CHECK(frame_after(0.0F, true, 0U, 0U) == 0U);
     CHECK(frame_after(4096.0F, true, 0U, 5U) == 4U);
 }
+
+TEST_CASE("sprite2d: a scaled sprite is drawn bigger") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, 1.0F, 2.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, transform2d::Scale{1.5F}));
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 1U);
+    CHECK(renderer->commands()[0].scale == 1.5F);
+}

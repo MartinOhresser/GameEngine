@@ -52,6 +52,32 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Anchor* component = world.get<Anchor>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "anchor_x") {
+        component->anchor_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "anchor_y") {
+        component->anchor_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "offset_x") {
+        component->offset_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "offset_y") {
+        component->offset_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"anchor_x", "f32", "", false}, {"anchor_y", "f32", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -102,6 +128,40 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Grid* component = world.get<Grid>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "group") {
+        component->group = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "columns") {
+        component->columns = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "cell_width") {
+        component->cell_width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "cell_height") {
+        component->cell_height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "spacing_x") {
+        component->spacing_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "spacing_y") {
+        component->spacing_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 6> component_1_fields{{{"group", "u32", "group", false}, {"columns", "u32", "", false}, {"cell_width", "f32", "", false}, {"cell_height", "f32", "", false}, {"spacing_x", "f32", "", false}, {"spacing_y", "f32", "", false}}};
 
 void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -132,6 +192,24 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Cell* component = world.get<Cell>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "group") {
+        component->group = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "index") {
+        component->index = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"group", "u32", "group", false}, {"index", "u32", "", false}}};
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -155,6 +233,20 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->tag)};
     }
     return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Tag* component = world.get<Tag>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "tag") {
+        component->tag = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 1> component_3_fields{{{"tag", "u32", "tag", false}}};
@@ -190,6 +282,28 @@ std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<bool>(component->own)};
     }
     return std::nullopt;
+}
+
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Bind* component = world.get<Bind>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "source") {
+        component->source = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "field") {
+        component->field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "own") {
+        component->own = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 3> component_4_fields{{{"source", "u32", "tag", false}, {"field", "u32", "field", false}, {"own", "bool", "", false}}};
@@ -235,6 +349,36 @@ std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<bool>(component->vertical)};
     }
     return std::nullopt;
+}
+
+bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Bar* component = world.get<Bar>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "value") {
+        component->value = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "max") {
+        component->max = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "length") {
+        component->length = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "thickness") {
+        component->thickness = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "vertical") {
+        component->vertical = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 5> component_5_fields{{{"value", "f32", "", false}, {"max", "f32", "", false}, {"length", "f32", "", false}, {"thickness", "f32", "", false}, {"vertical", "bool", "", false}}};
@@ -327,6 +471,72 @@ std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Menu* component = world.get<Menu>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "group") {
+        component->group = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "focused") {
+        component->focused = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "wrap") {
+        component->wrap = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "up") {
+        component->up = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "down") {
+        component->down = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "left") {
+        component->left = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "right") {
+        component->right = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "accept") {
+        component->accept = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "use_pointer") {
+        component->use_pointer = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "pointer_x") {
+        component->pointer_x = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "pointer_y") {
+        component->pointer_y = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "click") {
+        component->click = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "last_x") {
+        component->last_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "last_y") {
+        component->last_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 14> component_6_fields{{{"group", "u32", "menu", false}, {"focused", "u32", "", false}, {"wrap", "bool", "", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"accept", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
 
 void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -392,6 +602,52 @@ std::optional<::ge::app::Scalar> read_component_7(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Button* component = world.get<Button>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "menu") {
+        component->menu = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "order") {
+        component->order = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "normal_frame") {
+        component->normal_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "focus_frame") {
+        component->focus_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "enabled") {
+        component->enabled = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "disabled_frame") {
+        component->disabled_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 9> component_7_fields{{{"menu", "u32", "menu", false}, {"order", "u32", "", false}, {"action", "u32", "action", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"normal_frame", "u32", "", false}, {"focus_frame", "u32", "", false}, {"enabled", "bool", "", false}, {"disabled_frame", "u32", "", false}}};
 
 void insert_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -447,6 +703,44 @@ std::optional<::ge::app::Scalar> read_component_8(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Pager* component = world.get<Pager>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "list") {
+        component->list = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "menu") {
+        component->menu = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "page") {
+        component->page = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "page_size") {
+        component->page_size = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "previous") {
+        component->previous = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "next") {
+        component->next = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "pages") {
+        component->pages = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 7> component_8_fields{{{"list", "u32", "runtime_list", false}, {"menu", "u32", "menu", false}, {"page", "u32", "", false}, {"page_size", "u32", "", false}, {"previous", "u32", "action", false}, {"next", "u32", "action", false}, {"pages", "u32", "", false}}};
 
 void insert_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -480,6 +774,28 @@ std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->item)};
     }
     return std::nullopt;
+}
+
+bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Row* component = world.get<Row>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "list") {
+        component->list = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "row") {
+        component->row = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "item") {
+        component->item = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 3> component_9_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
@@ -517,9 +833,31 @@ std::optional<::ge::app::Scalar> read_component_10(const ::ge::ecs::World& world
     return std::nullopt;
 }
 
+bool write_component_10(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    RowButton* component = world.get<RowButton>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "list") {
+        component->list = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "row") {
+        component->row = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "item") {
+        component->item = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 3> component_10_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 11> components{{{"Anchor", false, component_0_fields, insert_component_0, read_component_0}, {"Grid", false, component_1_fields, insert_component_1, read_component_1}, {"Cell", false, component_2_fields, insert_component_2, read_component_2}, {"Tag", false, component_3_fields, insert_component_3, read_component_3}, {"Bind", false, component_4_fields, insert_component_4, read_component_4}, {"Bar", false, component_5_fields, insert_component_5, read_component_5}, {"Menu", false, component_6_fields, insert_component_6, read_component_6}, {"Button", false, component_7_fields, insert_component_7, read_component_7}, {"Pager", false, component_8_fields, insert_component_8, read_component_8}, {"Row", false, component_9_fields, insert_component_9, read_component_9}, {"RowButton", false, component_10_fields, insert_component_10, read_component_10}}};
+constexpr std::array<::ge::app::ComponentInfo, 11> components{{{"Anchor", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Grid", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Cell", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Tag", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Bind", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Bar", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Menu", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"Button", false, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"Pager", false, component_8_fields, insert_component_8, read_component_8, write_component_8}, {"Row", false, component_9_fields, insert_component_9, read_component_9, write_component_9}, {"RowButton", false, component_10_fields, insert_component_10, read_component_10, write_component_10}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"ui.Anchor"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};

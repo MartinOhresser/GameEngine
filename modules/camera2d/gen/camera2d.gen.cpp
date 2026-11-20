@@ -37,6 +37,20 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Camera* component = world.get<Camera>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "zoom") {
+        component->zoom = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 1> component_0_fields{{{"zoom", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -52,6 +66,16 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
         return std::nullopt;
     }
     return std::nullopt;
+}
+
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    CameraTarget* component = world.get<CameraTarget>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 0> component_1_fields{};
@@ -119,6 +143,52 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    CameraFollow* component = world.get<CameraFollow>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "stiffness") {
+        component->stiffness = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "follow_x") {
+        component->follow_x = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "follow_y") {
+        component->follow_y = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "offset_y") {
+        component->offset_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "only_up") {
+        component->only_up = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "offset_x") {
+        component->offset_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "only_down") {
+        component->only_down = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "only_left") {
+        component->only_left = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "only_right") {
+        component->only_right = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 9> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}, {"offset_x", "f32", "", false}, {"only_down", "bool", "", false}, {"only_left", "bool", "", false}, {"only_right", "bool", "", false}}};
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -184,9 +254,55 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    CameraFit* component = world.get<CameraFit>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "center_x") {
+        component->center_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "center_y") {
+        component->center_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "margin_left") {
+        component->margin_left = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "margin_right") {
+        component->margin_right = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "margin_top") {
+        component->margin_top = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "margin_bottom") {
+        component->margin_bottom = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "max_zoom") {
+        component->max_zoom = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 9> component_3_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"center_x", "f32", "", false}, {"center_y", "f32", "", false}, {"margin_left", "f32", "", false}, {"margin_right", "f32", "", false}, {"margin_top", "f32", "", false}, {"margin_bottom", "f32", "", false}, {"max_zoom", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2}, {"CameraFit", false, component_3_fields, insert_component_3, read_component_3}}};
+constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"CameraFit", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"camera2d.CameraFollow", "camera2d.CameraTarget"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};

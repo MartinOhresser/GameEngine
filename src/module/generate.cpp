@@ -186,6 +186,26 @@ std::string read_function(const ComponentSpec& component, const std::string& ind
     return out;
 }
 
+/// A function that sets one field of a component by name; false when the entity has no such
+/// component or the component no such field.
+std::string write_function(const ComponentSpec& component, const std::string& index) {
+    std::string out = "bool write_component_" + index +
+                      "(::ge::ecs::World& world, ::ge::ecs::Entity entity,\n"
+                      "                      [[maybe_unused]] std::string_view field,\n"
+                      "                      [[maybe_unused]] const ::ge::app::Scalar& value) {\n"
+                      "    " +
+                      component.name + "* component = world.get<" + component.name +
+                      ">(entity);\n"
+                      "    if (component == nullptr) {\n        return false;\n    }\n";
+    for (const FieldSpec& field : component.fields) {
+        out += "    if (field == " + quoted(field.name) + ") {\n        component->" + field.name +
+               " = ::ge::app::scalar_as<" + cpp_type(field.type) +
+               ">(value);\n        return true;\n    }\n";
+    }
+    out += "    return false;\n}\n\n";
+    return out;
+}
+
 std::vector<FieldSpec> param_fields(const ModuleSpec& module) {
     std::vector<FieldSpec> fields;
     fields.reserve(module.params.size());
@@ -260,6 +280,7 @@ std::string components_text(const ModuleSpec& module) {
                component.name + " component;\n" + assign_fields(component.fields, "component") +
                "    static_cast<void>(world.insert(entity, std::move(component)));\n}\n\n";
         out += read_function(component, index);
+        out += write_function(component, index);
         out += "constexpr std::array<::ge::app::FieldInfo, " +
                std::to_string(component.fields.size()) + "> component_" + index + "_fields{";
         for (std::size_t f = 0; f < component.fields.size(); ++f) {
@@ -281,6 +302,8 @@ std::string components_text(const ModuleSpec& module) {
         out += "_fields, insert_component_";
         out += index;
         out += ", read_component_";
+        out += index;
+        out += ", write_component_";
         out += index;
         out += "}";
     }

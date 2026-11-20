@@ -62,6 +62,40 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    GoToScene* component = world.get<GoToScene>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "scene") {
+        component->scene = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "use_action") {
+        component->use_action = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "touch_layers") {
+        component->touch_layers = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "after_ticks") {
+        component->after_ticks = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "elapsed") {
+        component->elapsed = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 6> component_0_fields{{{"scene", "u32", "scene", false}, {"use_action", "bool", "", false}, {"action", "u32", "action", false}, {"touch_layers", "u32", "layer", true}, {"after_ticks", "u32", "", false}, {"elapsed", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -87,9 +121,23 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Persistent* component = world.get<Persistent>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "keep") {
+        component->keep = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 1> component_1_fields{{{"keep", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"GoToScene", false, component_0_fields, insert_component_0, read_component_0}, {"Persistent", false, component_1_fields, insert_component_1, read_component_1}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"GoToScene", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Persistent", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"scene_switch.GoToScene", "collision2d.Contacts"};
 constexpr std::array<std::string_view, 1> system_0_writes{"scene_switch.GoToScene"};

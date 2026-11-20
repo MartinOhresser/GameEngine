@@ -172,6 +172,128 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Generator* component = world.get<Generator>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "prefab") {
+        component->prefab = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alt_prefab") {
+        component->alt_prefab = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alt_chance") {
+        component->alt_chance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "alt_chance_end") {
+        component->alt_chance_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "alt2_prefab") {
+        component->alt2_prefab = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alt2_chance") {
+        component->alt2_chance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "alt2_chance_end") {
+        component->alt2_chance_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "extra_prefab") {
+        component->extra_prefab = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "extra_chance") {
+        component->extra_chance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "extra_chance_end") {
+        component->extra_chance_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "extra_across") {
+        component->extra_across = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "extra_along") {
+        component->extra_along = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "extra_on_alt") {
+        component->extra_on_alt = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "across_min") {
+        component->across_min = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "across_max") {
+        component->across_max = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "toward_x") {
+        component->toward_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "toward_y") {
+        component->toward_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "gap_min") {
+        component->gap_min = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "gap_max") {
+        component->gap_max = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "gap_min_end") {
+        component->gap_min_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "gap_max_end") {
+        component->gap_max_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "ramp_distance") {
+        component->ramp_distance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "origin") {
+        component->origin = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "from_distance") {
+        component->from_distance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "row_chance") {
+        component->row_chance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "row_chance_end") {
+        component->row_chance_end = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "ahead") {
+        component->ahead = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "next") {
+        component->next = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 28> component_0_fields{{{"prefab", "u32", "prefab", false}, {"alt_prefab", "u32", "prefab", false}, {"alt_chance", "f32", "", false}, {"alt_chance_end", "f32", "", false}, {"alt2_prefab", "u32", "prefab", false}, {"alt2_chance", "f32", "", false}, {"alt2_chance_end", "f32", "", false}, {"extra_prefab", "u32", "prefab", false}, {"extra_chance", "f32", "", false}, {"extra_chance_end", "f32", "", false}, {"extra_across", "f32", "", false}, {"extra_along", "f32", "", false}, {"extra_on_alt", "bool", "", false}, {"across_min", "f32", "", false}, {"across_max", "f32", "", false}, {"toward_x", "f32", "", false}, {"toward_y", "f32", "", false}, {"gap_min", "f32", "", false}, {"gap_max", "f32", "", false}, {"gap_min_end", "f32", "", false}, {"gap_max_end", "f32", "", false}, {"ramp_distance", "f32", "", false}, {"origin", "f32", "", false}, {"from_distance", "f32", "", false}, {"row_chance", "f32", "", false}, {"row_chance_end", "f32", "", false}, {"ahead", "f32", "", false}, {"next", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -205,6 +327,28 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<double>(component->side_y)};
     }
     return std::nullopt;
+}
+
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Cull* component = world.get<Cull>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "margin") {
+        component->margin = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "side_x") {
+        component->side_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "side_y") {
+        component->side_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 3> component_1_fields{{{"margin", "f32", "", false}, {"side_x", "f32", "", false}, {"side_y", "f32", "", false}}};
@@ -272,9 +416,55 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Shooter* component = world.get<Shooter>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "prefab") {
+        component->prefab = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "cooldown") {
+        component->cooldown = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "speed") {
+        component->speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dir_x") {
+        component->dir_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dir_y") {
+        component->dir_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dx") {
+        component->dx = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dy") {
+        component->dy = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "wait") {
+        component->wait = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 9> component_2_fields{{{"prefab", "u32", "prefab", false}, {"action", "u32", "action", false}, {"cooldown", "u32", "", false}, {"speed", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}, {"dx", "f32", "", false}, {"dy", "f32", "", false}, {"wait", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Generator", false, component_0_fields, insert_component_0, read_component_0}, {"Cull", false, component_1_fields, insert_component_1, read_component_1}, {"Shooter", false, component_2_fields, insert_component_2, read_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Generator", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Cull", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Shooter", false, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 3> system_0_reads{"spawner2d.Generator", "camera2d.Camera", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_0_writes{"spawner2d.Generator"};

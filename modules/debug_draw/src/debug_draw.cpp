@@ -25,6 +25,11 @@ std::uint32_t pack(const Square& square) {
 
 } // namespace
 
+float scale_of(const ecs::World& world, ecs::Entity entity) {
+    const auto* scale = world.get<transform2d::Scale>(entity);
+    return scale == nullptr ? 1.0F : scale->factor;
+}
+
 void draw(ecs::World& world) {
     auto* backend = world.resource<app::RenderBackend>();
     if (backend == nullptr) {
@@ -34,8 +39,9 @@ void draw(ecs::World& world) {
     world.each<const Square, const transform2d::Position>(
         [&](ecs::Entity entity, const Square& square, const transform2d::Position& position) {
             if (!world.has<transform2d::Hidden>(entity)) {
-                renderer.draw(
-                    app::DrawCommand{"square", position.x, position.y, square.size, pack(square)});
+                renderer.draw(app::DrawCommand{"square", position.x, position.y,
+                                               square.size * scale_of(world, entity),
+                                               pack(square)});
             }
         });
     world.each<const Rect, const transform2d::Position>(
@@ -45,8 +51,8 @@ void draw(ecs::World& world) {
             }
             app::DrawCommand command{"rect", position.x, position.y, 0.0F,
                                      pack(rect.red, rect.green, rect.blue, rect.alpha)};
-            command.width = rect.width;
-            command.height = rect.height;
+            command.width = rect.width * scale_of(world, entity);
+            command.height = rect.height * scale_of(world, entity);
             command.thickness = rect.thickness;
             command.screen = rect.screen;
             renderer.draw(command);
@@ -56,7 +62,8 @@ void draw(ecs::World& world) {
             if (world.has<transform2d::Hidden>(entity)) {
                 return;
             }
-            app::DrawCommand command{"circle", position.x, position.y, circle.radius,
+            app::DrawCommand command{"circle", position.x, position.y,
+                                     circle.radius * scale_of(world, entity),
                                      pack(circle.red, circle.green, circle.blue, circle.alpha)};
             command.thickness = circle.thickness;
             command.screen = circle.screen;

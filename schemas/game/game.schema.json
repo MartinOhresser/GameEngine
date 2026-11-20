@@ -42,9 +42,11 @@
           "inventory",
           "lifetime",
           "patrol2d",
+          "phase",
           "pickup",
           "progress",
           "records",
+          "rules",
           "scene_switch",
           "screen_wrap",
           "spawner2d",
@@ -52,6 +54,7 @@
           "text2d",
           "touch_controls",
           "transform2d",
+          "tween2d",
           "ui"
         ]
       }
@@ -166,6 +169,11 @@
           "properties": {},
           "additionalProperties": false
         },
+        "phase": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "pickup": {
           "type": "object",
           "properties": {},
@@ -177,6 +185,11 @@
           "additionalProperties": false
         },
         "records": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "rules": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -220,6 +233,11 @@
               "maximum": 10
             }
           },
+          "additionalProperties": false
+        },
+        "tween2d": {
+          "type": "object",
+          "properties": {},
           "additionalProperties": false
         },
         "ui": {

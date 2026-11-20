@@ -67,9 +67,47 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Progress* component = world.get<Progress>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "toward_x") {
+        component->toward_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "toward_y") {
+        component->toward_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "scale") {
+        component->scale = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "origin") {
+        component->origin = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "started") {
+        component->started = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "distance") {
+        component->distance = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "score") {
+        component->score = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 7> component_0_fields{{{"toward_x", "f32", "", false}, {"toward_y", "f32", "", false}, {"scale", "f32", "", false}, {"origin", "f32", "", false}, {"started", "bool", "", false}, {"distance", "f32", "", false}, {"score", "i32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Progress", true, component_0_fields, insert_component_0, read_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Progress", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_0_writes{"progress.Progress"};

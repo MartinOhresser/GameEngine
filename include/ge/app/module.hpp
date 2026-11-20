@@ -61,12 +61,17 @@ using ComponentRead = std::optional<Scalar> (*)(const ecs::World&, ecs::Entity, 
 /// Sets the module's settings (its `Params` resource) from a game file.
 using ParamsApply = void (*)(ecs::World&, std::span<const FieldValue>);
 
+/// Sets one field of a component from a `Scalar` (converted to the field's type). Returns false
+/// when the entity has no such component or the component no such field.
+using ComponentWrite = bool (*)(ecs::World&, ecs::Entity, std::string_view, const Scalar&);
+
 struct ComponentInfo {
     std::string_view name;
     bool replicable = false;
     std::span<const FieldInfo> fields;
     ComponentInsert insert = nullptr;
     ComponentRead read = nullptr;
+    ComponentWrite write = nullptr;
 };
 
 struct SystemInfo {

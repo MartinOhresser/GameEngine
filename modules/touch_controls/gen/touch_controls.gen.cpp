@@ -72,6 +72,48 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    TouchButton* component = world.get<TouchButton>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "normal_frame") {
+        component->normal_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "pressed_frame") {
+        component->pressed_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "finger") {
+        component->finger = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "was_held") {
+        component->was_held = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "opacity") {
+        component->opacity = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"action", "u32", "action", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"normal_frame", "u32", "", false}, {"pressed_frame", "u32", "", false}, {"finger", "u32", "", false}, {"was_held", "bool", "", false}, {"opacity", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -137,6 +179,52 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    TouchStick* component = world.get<TouchStick>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "group") {
+        component->group = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action_x") {
+        component->action_x = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action_y") {
+        component->action_y = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "radius") {
+        component->radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "zone") {
+        component->zone = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dead_zone") {
+        component->dead_zone = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "finger") {
+        component->finger = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "was_held") {
+        component->was_held = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "opacity") {
+        component->opacity = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 9> component_1_fields{{{"group", "u32", "group", false}, {"action_x", "u32", "action", false}, {"action_y", "u32", "action", false}, {"radius", "f32", "", false}, {"zone", "f32", "", false}, {"dead_zone", "f32", "", false}, {"finger", "u32", "", false}, {"was_held", "bool", "", false}, {"opacity", "u32", "", false}}};
 
 void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -167,9 +255,27 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    TouchKnob* component = world.get<TouchKnob>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "group") {
+        component->group = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "opacity") {
+        component->opacity = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"group", "u32", "group", false}, {"opacity", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"TouchButton", false, component_0_fields, insert_component_0, read_component_0}, {"TouchStick", false, component_1_fields, insert_component_1, read_component_1}, {"TouchKnob", false, component_2_fields, insert_component_2, read_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"TouchButton", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"TouchStick", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"TouchKnob", false, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"transform2d.Position"};
 constexpr std::array<std::string_view, 5> system_0_writes{"touch_controls.TouchButton", "touch_controls.TouchStick", "touch_controls.TouchKnob", "transform2d.Position", "sprite2d.Sprite"};

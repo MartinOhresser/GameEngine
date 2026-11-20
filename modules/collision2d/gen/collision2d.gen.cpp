@@ -57,6 +57,36 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Collider* component = world.get<Collider>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "layer") {
+        component->layer = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "mask") {
+        component->mask = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "solid") {
+        component->solid = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "u32", "layer", true}, {"mask", "u32", "layer", true}, {"solid", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -72,6 +102,16 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
         return std::nullopt;
     }
     return std::nullopt;
+}
+
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Body* component = world.get<Body>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 0> component_1_fields{};
@@ -104,9 +144,27 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Contacts* component = world.get<Contacts>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "count") {
+        component->count = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "layers") {
+        component->layers = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"count", "u32", "", false}, {"layers", "u32", "layer", true}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"collision2d.Collider"};
 constexpr std::array<std::string_view, 2> system_0_writes{"transform2d.Position", "transform2d.Velocity"};

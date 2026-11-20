@@ -329,10 +329,10 @@ private:
                                static_cast<float>(atlas.cell_height)};
         const float width =
             (command.width > 0.0F ? command.width : static_cast<float>(atlas.cell_width)) *
-            zoom(command);
+            zoom(command) * command.scale;
         const float height =
             (command.height > 0.0F ? command.height : static_cast<float>(atlas.cell_height)) *
-            zoom(command);
+            zoom(command) * command.scale;
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);

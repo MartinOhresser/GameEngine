@@ -39,6 +39,9 @@ struct DrawCommand {
     /// Lines: the end point, in world units.
     float x2 = 0.0F;
     float y2 = 0.0F;
+    /// How much bigger than its size it is drawn, around its centre (1: as it is). A sprite
+    /// of size 0 is drawn at its cell's size times this.
+    float scale = 1.0F;
     /// Outline or line thickness, in world units; 0 fills a shape.
     float thickness = 0.0F;
 

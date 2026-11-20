@@ -92,6 +92,9 @@ void draw(ecs::World& world) {
             command.height = sprite.height;
             command.flip_x = sprite.flip_x;
             command.screen = sprite.screen;
+            if (const auto* scale = world.get<transform2d::Scale>(entity); scale != nullptr) {
+                command.scale = scale->factor;
+            }
             queue.push_back({sprite.layer, command});
         });
     // Stable: sprites of one layer keep the order the world visits them in.
