@@ -47,7 +47,7 @@
     {
       "tick": 29,
       "action": "pointer_x",
-      "value": 150
+      "value": 200
     },
     {
       "tick": 29,
@@ -67,7 +67,7 @@
     {
       "tick": 59,
       "action": "pointer_x",
-      "value": 320
+      "value": 340
     },
     {
       "tick": 59,

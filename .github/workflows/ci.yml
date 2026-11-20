@@ -174,6 +174,35 @@ jobs:
           cmake --preset release
           cmake --build --preset release --target gectl
           ./build/release/tools/gectl export games/doodle_jump/game.json --target linux --out dist
+      # The three games made to try the engine (ADR 0013) are exported the same way.
+      - name: Export 2048, chess and the tower defense (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call scripts\export.cmd games\game_2048\game.json --out dist-games
+          if errorlevel 1 exit /b 1
+          call scripts\export.cmd games\chess\game.json --out dist-games
+          if errorlevel 1 exit /b 1
+          call scripts\export.cmd games\tower_defense\game.json --out dist-games
+          if errorlevel 1 exit /b 1
+      - name: Export 2048, chess and the tower defense (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          for game in game_2048 chess tower_defense; do
+            ./build/release/tools/gectl export games/$game/game.json --target linux --out dist-games
+          done
+      - name: Check the packages of the three games
+        shell: bash
+        run: |
+          set -e
+          zips=(dist-games/*.zip)
+          test "${#zips[@]}" -eq 3
+          for zip in "${zips[@]}"; do
+            echo "== $zip"
+            cmake -E tar tf "$zip" > contents-one.txt
+            grep -q "data/game.json" contents-one.txt
+            if grep -q "scenarios" contents-one.txt; then echo "::error::scenarios are shipped in $zip"; exit 1; fi
+          done
       - name: Check the package and unpack it in a folder with spaces and an accent
         shell: bash
         run: |
@@ -306,6 +335,14 @@ jobs:
         include:
           - { game: doodle_jump, window: "480 720", adapt: "0.4 0.8", tap: "W/2 H/2-40" }
           - { game: treasure_run, window: "800 600", tap: "" }
+          # The three games made to try the engine (ADR 0013), played with touches: a piece chosen
+          # then moved (chess), two swipes (2048), a tower built then the next wave called.
+          - { game: chess, window: "480 720", adapt: "0.4 0.8",
+              touches: "W/2+32*min(W/540,(H-292)/540):(96+H-196)/2+160*min(W/540,(H-292)/540);W/2+32*min(W/540,(H-292)/540):(96+H-196)/2+32*min(W/540,(H-292)/540)" }
+          - { game: game_2048, window: "480 720", adapt: "0.4 0.8",
+              swipes: "W/2+120:H/2:W/2-120:H/2;W/2:H/2+120:W/2:H/2-120;W/2-120:H/2:W/2+120:H/2" }
+          - { game: tower_defense, window: "800 480", adapt: "1.25 2.4",
+              touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
     steps:
       - uses: actions/checkout@v7
       - name: Build gectl
@@ -315,8 +352,15 @@ jobs:
       - name: Export the game for Android (x86_64 for the emulator, arm64-v8a for phones)
         run: |
           started=$(date +%s)
-          ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
-            --abi x86_64,arm64-v8a --out dist
+          # Gradle downloads its own tools from Maven Central, which answers "429, too many
+          # requests" now and then when several jobs ask together: try again before failing.
+          for attempt in 1 2 3; do
+            ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
+              --abi x86_64,arm64-v8a --out dist && break
+            [ "$attempt" -lt 3 ] || exit 1
+            echo "the export failed (attempt $attempt of 3), trying again in 60 s"
+            sleep 60
+          done
           echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_ENV"
       - name: What is in the APK
         run: |
@@ -343,6 +387,8 @@ jobs:
           GAME_WINDOW: ${{ matrix.window }}
           GAME_ADAPT: ${{ matrix.adapt }}
           MENU_TAP: ${{ matrix.tap }}
+          GAME_TOUCHES: ${{ matrix.touches }}
+          GAME_SWIPES: ${{ matrix.swipes }}
         with:
           api-level: 34
           arch: x86_64

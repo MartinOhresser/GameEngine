@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        game: [doodle_jump, treasure_run, coin_dash]
+        game: [doodle_jump, treasure_run, coin_dash, game_2048, chess, tower_defense]
     steps:
       - uses: actions/checkout@v7
       - name: Export
@@ -83,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        game: [doodle_jump, treasure_run, coin_dash]
+        game: [doodle_jump, treasure_run, coin_dash, game_2048, chess, tower_defense]
     steps:
       - uses: actions/checkout@v7
       - name: Export

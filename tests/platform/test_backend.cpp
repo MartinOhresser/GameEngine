@@ -99,6 +99,23 @@ TEST_CASE("backend: pressed and released are seen on the tick the key changes") 
     CHECK(released_ticks == 1);
 }
 
+TEST_CASE("backend: a tap shorter than a frame is still seen, for one tick") {
+    ge::app::App app;
+    int pressed_ticks = 0;
+    int down_ticks = 0;
+    app.add_system(ge::app::Stage::FixedUpdate, [&](ge::ecs::World& world) {
+        const auto* actions = world.resource<ge::app::Actions>();
+        pressed_ticks += actions->pressed("move_x") ? 1 : 0;
+        down_ticks += actions->down("move_x") ? 1 : 0;
+    });
+    ScriptedBackend backend(60, 10);
+    backend.at(3, "key:right", 1.0F); // down and up in the same frame
+    backend.at(3, "key:right", 0.0F);
+    ge::platform::run_loop(app, backend, arrows());
+    CHECK(pressed_ticks == 1);
+    CHECK(down_ticks == 1);
+}
+
 TEST_CASE("backend: the game draws and plays through the backend's devices") {
     ge::app::App app;
     app.add_system(ge::app::Stage::Update, [](ge::ecs::World& world) {

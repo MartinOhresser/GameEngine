@@ -1,6 +1,6 @@
 # ADR 0013 : trois jeux pour éprouver le moteur (2048, échecs, tower defense)
 
-Statut : proposé (plan ; les écarts constatés à l'implémentation s'ajoutent à la fin, comme pour les ADR 0011 et 0012). Révisé le 20 novembre : décisions de l'auteur (promotion à quatre pièces, tower defense plus grand avec amélioration des tours, 2048 en premier) et **revue de généricité** de `board_moves` et `combat2d` (sections 0, 1b et 3).
+Statut : **livré de G1 à G11** (les trois jeux, leurs modules, l'export et la CI ; seul G12, le son, facultatif, reste à faire). Le texte ci-dessous est le plan ; les écarts constatés à l'implémentation sont à la fin (« Écarts constatés à l'implémentation »), comme pour les ADR 0011 et 0012. Révisé le 20 novembre : décisions de l'auteur (promotion à quatre pièces, tower defense plus grand avec amélioration des tours, 2048 en premier) et **revue de généricité** de `board_moves` et `combat2d` (sections 0, 1b et 3).
 
 ## Contexte
 
@@ -334,3 +334,9 @@ Valeurs par défaut proposées ; à corriger si besoin.
 - **Phases** : `playing`, `tower`, `tower_final`, `won`, `lost`. La sélection d'une tour passe de `playing` à `tower` (ou `tower_final` s'il n'y a plus d'amélioration) ; `phase.ActiveIn` fige tours, monstres et tirs à la fin, et ne laisse plus rien construire.
 - **Un défaut de `health::deal` trouvé par un scénario** : deux demandes de dégâts faites avant que la file de commandes soit appliquée (deux monstres au même tick) se remplaçaient au lieu de s'additionner ; la fusion se fait maintenant à l'application. Un test de `health` le couvre.
 - **Scénarios** (22) : achat, refus (or, route, rocher), boutique par touche et par bouton, prime, sélection, amélioration, vente, dernier niveau, mortier, glace, vague finie, dernière vague, chef, défaite, nouvelle partie.
+
+### G11 : export et CI des trois jeux
+
+- **Windows et Linux** : le job `export` de la CI exporte aussi `game_2048`, `chess` et `tower_defense` (par `scripts\export.cmd` sous Windows, `gectl export` sous Linux) et vérifie chaque zip (`data/game.json` dedans, aucun scénario). La release ajoute les trois zips et les trois APK.
+- **Android** : le job `android-export` fait un vrai export des trois jeux (x86_64 pour l'émulateur, arm64-v8a pour les téléphones). `platform/android/run_game_on_device.sh` apprend à jouer sans bouton « Jouer » : `GAME_TOUCHES` (des touchers, dont chacun doit changer l'écran : une pièce d'échecs choisie puis jouée, une tour construite puis la vague suivante appelée) et `GAME_SWIPES` (des glissés : 2048). Les positions s'écrivent en pixels du jeu avec `W`, `H`, `min` et `max`, et suivent la forme de l'écran (`GAME_ADAPT`). `spike/pixel.py differs` compte les points qui diffèrent entre deux captures.
+- **Vérifié ici** : l'export Linux des trois jeux (`gectl export --target linux` : les scénarios passent, un seul `data/game.json`, aucun scénario dans le zip) et le démarrage sans fenêtre des trois programmes exportés. **Pas vérifié ici** (ni NDK, ni émulateur, ni Windows dans l'espace de travail) : l'export Android, l'émulateur et Windows tournent pour la première fois dans la CI de cette PR. Les positions des touchers sont calculées depuis la mise en page des jeux (zoom de `CameraFit`, ancres) et essayées sur la fonction de conversion seulement : si l'émulateur dit qu'un toucher n'a rien changé, c'est la première chose à regarder.

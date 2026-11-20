@@ -10,6 +10,11 @@
 # bottom left and checks that the controls show, then presses Back and checks that the game ends.
 # A game that follows the screen's shape (`adapt` in its window) says so with GAME_ADAPT="0.4 0.8"
 # (the limits of the shape), and W and H are then those of this screen.
+#
+# A game without a Play button plays with touches: GAME_TOUCHES="x:y;x:y" are taps (in the same
+# pixels, with min and max available in the expressions), after each of which the picture must
+# have changed (a piece chosen, a tower built); GAME_SWIPES="x1:y1:x2:y2;..." are swipes of a
+# finger (2048), after which the picture must differ from the one before the first.
 set -uo pipefail
 apk="$1"
 out="$2"
@@ -66,7 +71,7 @@ if adapt:
         vh = round(gw / aspect)
     else:
         vw = round(gh * aspect)
-env = {"__builtins__": {}, "W": vw, "H": vh}
+env = {"__builtins__": {}, "W": vw, "H": vh, "min": min, "max": max}
 x, y = eval(ex, env), eval(ey, env)
 if inside:
     print(x / vw, y / vh)
@@ -108,6 +113,83 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
   if [ "${r:-255}" -lt 235 ]; then note "- the touch controls show"; else fail "the touch controls do not show"; fi
   adb shell pidof "$package" > "$out/pid3.txt" || true
   [ -s "$out/pid3.txt" ] && note "- the game plays on after the swipe" || fail "the game ended during the swipe"
+fi
+
+# Taps and swipes of a game that has no menu: each tap changes what the screen shows.
+if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
+  IFS=';' read -ra touches <<< "$GAME_TOUCHES"
+  adb exec-out screencap -p > "$out/touch0.png"
+  # The screen can have turned since the first look (a game that asks for the landscape): measure
+  # it again, and say what it is, so that a failure can be read from the log.
+  read -r width height < <(python3 "$here/spike/pixel.py" "$out/touch0.png" size)
+  note "- screen before the touches: ${width}x${height}"
+  adb shell dumpsys window displays | grep -E "mCurrentRotation|mUserRotation|cur=" | head -4 | tee -a "$out/summary.md" || true
+  adb shell settings get system accelerometer_rotation | sed 's/^/accelerometer_rotation=/' | tee -a "$out/summary.md" || true
+  python3 "$here/spike/pixel.py" "$out/touch0.png" ascii | tee -a "$out/summary.md"
+  number=0
+  for item in "${touches[@]}"; do
+    IFS=':' read -r tx ty <<< "$item"
+    read -r fx fy < <(fraction "$tx" "$ty")
+    adb shell input tap "$(python3 -c "print(int($fx * $width))")" "$(python3 -c "print(int($fy * $height))")"
+    sleep 3
+    number=$((number + 1))
+    adb exec-out screencap -p > "$out/touch$number.png"
+    changed="$(python3 "$here/spike/pixel.py" "$out/touch$((number - 1)).png" differs "$out/touch$number.png")"
+    note "- touch $number: $changed of 6400 points changed"
+    if [ "${changed:-0}" -le 0 ]; then
+      fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
+      python3 "$here/spike/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+      if [ -z "${probed:-}" ]; then
+      probed=1
+      {
+        echo "--- what the system says about the game's window"
+        adb shell dumpsys activity activities | grep -iE "mResumedActivity|requestedOrientation|screenOrientation|configOrientation" | head -8
+        adb shell dumpsys window windows | grep -E "mCurrentFocus|mFrame=|mRequestedWidth|isReadyForDisplay" | head -8
+        echo "--- the log of the game"
+        adb logcat -d | grep -E "SDL|$package|WindowManager|ActivityTaskManager|Rotation|orientation" | grep -v Stylus | grep -iE "ge\.games|SDL|rotation|orientation" | tail -40
+        echo "--- the top activity"
+        adb shell dumpsys activity top | grep -iE "ACTIVITY|orientation|rotation|mBounds|config" | head -12
+        # Does the game answer at all? A key (space calls the next wave), then a sweep of taps.
+        adb exec-out screencap -p > "$out/probe0.png"
+        adb shell input keyevent KEYCODE_SPACE
+        sleep 3
+        adb exec-out screencap -p > "$out/probe1.png"
+        echo "key space: $(python3 "$here/spike/pixel.py" "$out/probe0.png" differs "$out/probe1.png") of 6400 points changed"
+        echo "--- a sweep of taps: the places where something changed"
+        for gy in 1 2 3 4 5 6 7 8 9; do
+          for gx in 1 2 3 4; do
+            adb exec-out screencap -p > "$out/sweep_before.png"
+            adb shell input tap "$((width * gx / 5))" "$((height * gy / 10))"
+            sleep 1
+            adb exec-out screencap -p > "$out/sweep_after.png"
+            moved="$(python3 "$here/spike/pixel.py" "$out/sweep_before.png" differs "$out/sweep_after.png")"
+            [ "${moved:-0}" -gt 0 ] && echo "tap at $((width * gx / 5)) $((height * gy / 10)): $moved points changed"
+          done
+        done
+      } 2>&1 | cut -c1-200 | tee -a "$out/summary.md"
+      fi
+    fi
+  done
+  adb shell pidof "$package" > "$out/pid4.txt" || true
+  [ -s "$out/pid4.txt" ] && note "- the game plays on after the touches" || fail "the game ended during the touches"
+fi
+if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_SWIPES:-}" ]; then
+  IFS=';' read -ra swipes <<< "$GAME_SWIPES"
+  adb exec-out screencap -p > "$out/swipe0.png"
+  for item in "${swipes[@]}"; do
+    IFS=':' read -r ax ay bx2 by2 <<< "$item"
+    read -r fax fay < <(fraction "$ax" "$ay")
+    read -r fbx fby < <(fraction "$bx2" "$by2")
+    adb shell input swipe "$(python3 -c "print(int($fax * $width))")" "$(python3 -c "print(int($fay * $height))")" \
+      "$(python3 -c "print(int($fbx * $width))")" "$(python3 -c "print(int($fby * $height))")" 250
+    sleep 2
+  done
+  adb exec-out screencap -p > "$out/swipe1.png"
+  changed="$(python3 "$here/spike/pixel.py" "$out/swipe0.png" differs "$out/swipe1.png")"
+  note "- after ${#swipes[@]} swipes: $changed of 6400 points changed"
+  [ "${changed:-0}" -gt 0 ] || fail "the swipes changed nothing on the screen"
+  adb shell pidof "$package" > "$out/pid5.txt" || true
+  [ -s "$out/pid5.txt" ] && note "- the game plays on after the swipes" || fail "the game ended during the swipes"
 fi
 
 adb shell input keyevent KEYCODE_BACK
