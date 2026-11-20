@@ -1,0 +1,39 @@
+// A monster (footman): it walks the road, is worth its bounty when it dies, and hurts the base when it gets there.
+{
+  "schema_version": 1,
+  "name": "footman",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "monsters",
+      "frame": 0,
+      "width": 32,
+      "height": 32,
+      "layer": 2
+    },
+    "collision2d.Collider": {
+      "width": 24,
+      "height": 24,
+      "layer": [
+        "enemy"
+      ],
+      "mask": 0
+    },
+    "health.Health": {
+      "amount": 8,
+      "max": 8
+    },
+    "economy.Bounty": {
+      "amount": 5
+    },
+    "path2d.PathFollower": {
+      "path": "road",
+      "speed": 40,
+      "end_target": "base",
+      "end_damage": 1
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

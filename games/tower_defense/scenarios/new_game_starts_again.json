@@ -1,0 +1,57 @@
+// After a defeat, new game brings back the first scene.
+{
+  "schema_version": 1,
+  "name": "new_game_starts_again",
+  "scene": "test_defeat",
+  "ticks": 500,
+  "inputs": [
+    {
+      "tick": 400,
+      "action": "new_game",
+      "value": 1
+    },
+    {
+      "tick": 401,
+      "action": "new_game",
+      "value": 0
+    },
+    {
+      "tick": 449,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 449,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 450,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 451,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 500,
+      "check": "scene is game"
+    },
+    {
+      "at": 500,
+      "check": "wallet.economy.Wallet.amount == 100"
+    },
+    {
+      "at": 500,
+      "check": "base.health.Health.amount == 20"
+    },
+    {
+      "at": 500,
+      "check": "game_phase.phase.Phase.current == 0"
+    }
+  ]
+}

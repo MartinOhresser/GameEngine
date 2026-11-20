@@ -1,0 +1,35 @@
+// A sniper of level 3: it picks a target in range and shoots at it. Click it to improve it or to sell it.
+{
+  "schema_version": 1,
+  "name": "sniper_3",
+  "components": {
+    "transform2d.Position": {},
+    "grid2d.GridPos": {
+      "grid": "board",
+      "from_position": true
+    },
+    "sprite2d.Sprite": {
+      "atlas": "towers",
+      "frame": 11,
+      "width": 44,
+      "height": 44,
+      "layer": 3
+    },
+    "autofire.AutoFire": {
+      "range": 340,
+      "cooldown": 100,
+      "prefab": "shot_sniper_3",
+      "projectile_speed": 900,
+      "targeting": 3,
+      "target_layer": [
+        "enemy"
+      ]
+    },
+    "economy.Sellable": {
+      "refund": 210
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

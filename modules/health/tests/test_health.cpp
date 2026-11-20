@@ -91,6 +91,17 @@ TEST_CASE("health: damage requests of one tick add up, from any source") {
     CHECK(app.world().get<health::Health>(monster)->amount == 5);
 }
 
+TEST_CASE("health: requests made before the first one is applied add up too") {
+    // Two monsters reaching the base in the same tick: both ask before the queue is applied.
+    auto app = game();
+    const Entity base = with_health(app, 10);
+    health::deal(app.world(), base, 1);
+    health::deal(app.world(), base, 1);
+    app.world().resource<ge::ecs::Commands>()->apply(app.world());
+    app.run_frames(1);
+    CHECK(app.world().get<health::Health>(base)->amount == 8);
+}
+
 TEST_CASE("health: damage on something that has no health is ignored and removed") {
     auto app = game();
     const Entity rock = app.world().spawn();

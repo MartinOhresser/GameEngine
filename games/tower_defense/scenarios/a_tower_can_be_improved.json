@@ -1,0 +1,80 @@
+// Improving a tower takes the price, replaces it with the next level and selects that one.
+{
+  "schema_version": 1,
+  "name": "a_tower_can_be_improved",
+  "ticks": 60,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 30,
+      "action": "upgrade",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "upgrade",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 60,
+      "check": "wallet.economy.Wallet.amount == 60"
+    },
+    {
+      "at": 60,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 60,
+      "check": "entities == 145"
+    },
+    {
+      "at": 60,
+      "check": "hand.economy.Placer.upgrade_price == 70"
+    },
+    {
+      "at": 60,
+      "check": "hand.economy.Placer.sell_value == 54"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+// A new game: gold, lives, no wave yet, the first phase.
+{
+  "schema_version": 1,
+  "name": "start_state",
+  "ticks": 5,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 5,
+      "check": "wallet.economy.Wallet.amount == 150"
+    },
+    {
+      "at": 5,
+      "check": "base.health.Health.amount == 20"
+    },
+    {
+      "at": 5,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 5,
+      "check": "waves.waves.WaveController.current == 0"
+    },
+    {
+      "at": 5,
+      "check": "waves.waves.WaveController.last == 12"
+    },
+    {
+      "at": 5,
+      "check": "waves.waves.WaveController.running == false"
+    },
+    {
+      "at": 5,
+      "check": "entities == 144"
+    }
+  ]
+}

@@ -1,0 +1,2301 @@
+{
+  "schema_version": 1,
+  "name": "test_boss",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 30,
+          "green": 36,
+          "blue": 44
+        }
+      }
+    },
+    {
+      "name": "frame",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 688,
+          "height": 448,
+          "layer": -4,
+          "red": 62,
+          "green": 48,
+          "blue": 36
+        }
+      }
+    },
+    {
+      "name": "field",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 672,
+          "height": 432,
+          "layer": -3,
+          "red": 96,
+          "green": 150,
+          "blue": 80
+        }
+      }
+    },
+    {
+      "name": "board",
+      "components": {
+        "transform2d.Position": {},
+        "grid2d.Grid": {
+          "id": "board",
+          "columns": 14,
+          "rows": 9,
+          "cell_width": 48,
+          "cell_height": 48
+        }
+      }
+    },
+    {
+      "name": "camera",
+      "components": {
+        "transform2d.Position": {},
+        "camera2d.Camera": {
+          "zoom": 1
+        },
+        "camera2d.CameraFit": {
+          "width": 688,
+          "height": 448,
+          "margin_top": 36,
+          "margin_bottom": 64,
+          "max_zoom": 1.5
+        }
+      }
+    },
+    {
+      "name": "road_0_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -312.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -264.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 1,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -168.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_4_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -120.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -72.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_6_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -24.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_7_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 24.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_8_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 72.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 8,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_9_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 120.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 9,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_10_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 168.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 10,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_11_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": -144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 1
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_11_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 2
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_11_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": -48.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 3
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_11_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_10_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 168.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 10,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_9_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 120.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 9,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_8_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 72.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 8,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_7_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 24.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_6_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -24.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_5_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -72.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_4_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -120.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_3_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -168.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_2_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 0.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 4
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_2_5",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 48.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 5
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_2_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 6
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_2_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 2,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_3_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -168.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 3,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_4_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -120.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 4,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_5_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -72.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 5,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_6_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -24.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_7_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 24.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_8_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 72.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 8,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_9_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 120.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 9,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_10_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 168.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 10,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_11_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_12_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 264.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 12,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "road_13_7",
+      "components": {
+        "transform2d.Position": {
+          "x": 312.0,
+          "y": 144.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 13,
+          "row": 7
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 49,
+          "height": 49,
+          "layer": -2,
+          "red": 214,
+          "green": 190,
+          "blue": 140
+        }
+      }
+    },
+    {
+      "name": "rock_0_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -312.0,
+          "y": -48.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 0,
+          "row": 3
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "rock_7_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 24.0,
+          "y": -192.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 7,
+          "row": 0
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "rock_9_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 120.0,
+          "y": -96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 9,
+          "row": 2
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "rock_6_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -24.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 6,
+          "row": 6
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "rock_11_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": 96.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 11,
+          "row": 6
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "rock_13_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 312.0,
+          "y": -48.0
+        },
+        "grid2d.GridPos": {
+          "grid": "board",
+          "col": 13,
+          "row": 3
+        },
+        "grid2d.Blocked": {},
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 1,
+          "width": 42,
+          "height": 42,
+          "layer": 1
+        }
+      }
+    },
+    {
+      "name": "waypoint_0",
+      "components": {
+        "transform2d.Position": {
+          "x": -312.0,
+          "y": -144.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 0
+        }
+      }
+    },
+    {
+      "name": "waypoint_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": -144.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 1
+        }
+      }
+    },
+    {
+      "name": "waypoint_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 216.0,
+          "y": 0.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 2
+        }
+      }
+    },
+    {
+      "name": "waypoint_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 0.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 3
+        }
+      }
+    },
+    {
+      "name": "waypoint_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -216.0,
+          "y": 144.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 4
+        }
+      }
+    },
+    {
+      "name": "waypoint_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 312.0,
+          "y": 144.0
+        },
+        "path2d.Waypoint": {
+          "path": "road",
+          "index": 5
+        }
+      }
+    },
+    {
+      "name": "base",
+      "components": {
+        "transform2d.Position": {
+          "x": 312.0,
+          "y": 144.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "world",
+          "frame": 0,
+          "width": 44,
+          "height": 44,
+          "layer": 2
+        },
+        "health.Health": {
+          "amount": 20,
+          "max": 20,
+          "on_zero": "lost",
+          "despawn_on_zero": false
+        },
+        "ui.Tag": {
+          "tag": "base"
+        }
+      }
+    },
+    {
+      "name": "game_phase",
+      "components": {
+        "phase.Phase": {
+          "current": "playing"
+        }
+      }
+    },
+    {
+      "name": "to_tower",
+      "components": {
+        "phase.Transition": {
+          "action": "selected",
+          "from_any": false,
+          "from": 7,
+          "to": "tower"
+        }
+      }
+    },
+    {
+      "name": "to_tower_final",
+      "components": {
+        "phase.Transition": {
+          "action": "final",
+          "from_any": false,
+          "from": 7,
+          "to": "tower_final"
+        }
+      }
+    },
+    {
+      "name": "to_playing",
+      "components": {
+        "phase.Transition": {
+          "action": "deselected",
+          "from_any": false,
+          "from": 6,
+          "to": "playing"
+        }
+      }
+    },
+    {
+      "name": "to_won",
+      "components": {
+        "phase.Transition": {
+          "action": "all_cleared",
+          "from_any": false,
+          "from": 7,
+          "to": "won"
+        }
+      }
+    },
+    {
+      "name": "to_lost",
+      "components": {
+        "phase.Transition": {
+          "action": "lost",
+          "from_any": false,
+          "from": 7,
+          "to": "lost"
+        }
+      }
+    },
+    {
+      "name": "waves",
+      "components": {
+        "waves.WaveController": {
+          "current": 11,
+          "spawn_x": -312.0,
+          "spawn_y": -144.0,
+          "start_action": "start_wave",
+          "started_action": "wave_started",
+          "cleared_action": "wave_cleared",
+          "all_cleared_action": "all_cleared"
+        },
+        "phase.ActiveIn": {
+          "phases": 7
+        },
+        "ui.Tag": {
+          "tag": "waves"
+        }
+      }
+    },
+    {
+      "name": "group_00",
+      "components": {
+        "waves.WaveGroup": {
+          "wave": 12,
+          "prefab": "boss",
+          "count": 1,
+          "interval_ticks": 0,
+          "delay_ticks": 0
+        }
+      }
+    },
+    {
+      "name": "wallet",
+      "components": {
+        "economy.Wallet": {
+          "amount": 150
+        },
+        "ui.Tag": {
+          "tag": "wallet"
+        }
+      }
+    },
+    {
+      "name": "hand",
+      "components": {
+        "transform2d.Position": {},
+        "grid2d.GridCursor": {
+          "grid": "board",
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        },
+        "economy.Placer": {
+          "grid": "board",
+          "prefab": "cannon_1",
+          "price": 50,
+          "placed_action": "placed",
+          "refused_action": "refused",
+          "selected_action": "selected",
+          "final_action": "final",
+          "deselected_action": "deselected",
+          "upgrade_action": "upgrade",
+          "sell_action": "sell"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 54,
+          "height": 54,
+          "layer": 5,
+          "red": 255,
+          "green": 224,
+          "blue": 70
+        },
+        "phase.ActiveIn": {
+          "phases": 7
+        },
+        "ui.Tag": {
+          "tag": "hand"
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_prefab",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "hand",
+          "field": "economy.Placer.prefab",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_price",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "hand",
+          "field": "economy.Placer.price",
+          "value": 50
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_cannon_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_cannon",
+          "field": "ui.Button.normal_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_cannon_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_cannon",
+          "field": "ui.Button.focus_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_mortar_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_mortar",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_mortar_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_mortar",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_ice_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_ice",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_ice_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_ice",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_sniper_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_sniper",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_cannon_marks_sniper_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_cannon",
+          "source": "button_sniper",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_prefab",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "hand",
+          "field": "economy.Placer.prefab",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_price",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "hand",
+          "field": "economy.Placer.price",
+          "value": 90
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_cannon_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_cannon",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_cannon_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_cannon",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_mortar_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_mortar",
+          "field": "ui.Button.normal_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_mortar_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_mortar",
+          "field": "ui.Button.focus_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_ice_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_ice",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_ice_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_ice",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_sniper_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_sniper",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_mortar_marks_sniper_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_mortar",
+          "source": "button_sniper",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_ice_prefab",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "hand",
+          "field": "economy.Placer.prefab",
+          "value": 6
+        }
+      }
+    },
+    {
+      "name": "pick_ice_price",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "hand",
+          "field": "economy.Placer.price",
+          "value": 70
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_cannon_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_cannon",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_cannon_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_cannon",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_mortar_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_mortar",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_mortar_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_mortar",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_ice_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_ice",
+          "field": "ui.Button.normal_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_ice_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_ice",
+          "field": "ui.Button.focus_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_sniper_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_sniper",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_ice_marks_sniper_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_ice",
+          "source": "button_sniper",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_prefab",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "hand",
+          "field": "economy.Placer.prefab",
+          "value": 9
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_price",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "hand",
+          "field": "economy.Placer.price",
+          "value": 120
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_cannon_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_cannon",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_cannon_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_cannon",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_mortar_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_mortar",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_mortar_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_mortar",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_ice_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_ice",
+          "field": "ui.Button.normal_frame",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_ice_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_ice",
+          "field": "ui.Button.focus_frame",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_sniper_normal_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_sniper",
+          "field": "ui.Button.normal_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "pick_sniper_marks_sniper_focus_frame",
+      "components": {
+        "rules.OnAction": {
+          "action": "pick_sniper",
+          "source": "button_sniper",
+          "field": "ui.Button.focus_frame",
+          "value": 3
+        }
+      }
+    },
+    {
+      "name": "gold",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 14,
+          "offset_y": 8
+        },
+        "text2d.Text": {
+          "string": "hud.gold",
+          "font": "font",
+          "size": 20,
+          "screen": true,
+          "pivot_x": 0,
+          "pivot_y": 0,
+          "red": 240,
+          "green": 240,
+          "blue": 235
+        },
+        "ui.Bind": {
+          "source": "wallet",
+          "field": "economy.Wallet.amount"
+        }
+      }
+    },
+    {
+      "name": "wave",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0,
+          "offset_x": -4,
+          "offset_y": 8
+        },
+        "text2d.Text": {
+          "string": "hud.wave",
+          "font": "font",
+          "size": 20,
+          "screen": true,
+          "pivot_x": 1,
+          "pivot_y": 0,
+          "red": 240,
+          "green": 240,
+          "blue": 235
+        },
+        "ui.Bind": {
+          "source": "waves",
+          "field": "waves.WaveController.current"
+        }
+      }
+    },
+    {
+      "name": "wave_last",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0,
+          "offset_x": 4,
+          "offset_y": 8
+        },
+        "text2d.Text": {
+          "string": "hud.wave_last",
+          "font": "font",
+          "size": 20,
+          "screen": true,
+          "pivot_x": 0,
+          "pivot_y": 0,
+          "red": 240,
+          "green": 240,
+          "blue": 235
+        },
+        "ui.Bind": {
+          "source": "waves",
+          "field": "waves.WaveController.last"
+        }
+      }
+    },
+    {
+      "name": "lives",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 1,
+          "anchor_y": 0,
+          "offset_x": -14,
+          "offset_y": 8
+        },
+        "text2d.Text": {
+          "string": "hud.lives",
+          "font": "font",
+          "size": 20,
+          "screen": true,
+          "pivot_x": 1,
+          "pivot_y": 0,
+          "red": 240,
+          "green": 240,
+          "blue": 235
+        },
+        "ui.Bind": {
+          "source": "base",
+          "field": "health.Health.amount"
+        }
+      }
+    },
+    {
+      "name": "victory",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0,
+          "offset_x": 0,
+          "offset_y": 150
+        },
+        "text2d.Text": {
+          "string": "end.won",
+          "font": "font",
+          "size": 34,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 255,
+          "green": 224,
+          "blue": 90
+        },
+        "phase.ShowIn": {
+          "phases": 8
+        }
+      }
+    },
+    {
+      "name": "defeat",
+      "components": {
+        "transform2d.Position": {},
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0,
+          "offset_x": 0,
+          "offset_y": 150
+        },
+        "text2d.Text": {
+          "string": "end.lost",
+          "font": "font",
+          "size": 34,
+          "screen": true,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "red": 240,
+          "green": 100,
+          "blue": 90
+        },
+        "phase.ShowIn": {
+          "phases": 16
+        }
+      }
+    },
+    {
+      "name": "game_menu_input",
+      "components": {
+        "ui.Menu": {
+          "group": "game_menu",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "button_cannon",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -300,
+          "offset_y": -32
+        },
+        "ui.Button": {
+          "order": 0,
+          "action": "pick_cannon",
+          "normal_frame": 3,
+          "focus_frame": 3
+        },
+        "text2d.Text": {
+          "string": "button.cannon"
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        },
+        "ui.Tag": {
+          "tag": "button_cannon"
+        }
+      }
+    },
+    {
+      "name": "button_mortar",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -186,
+          "offset_y": -32
+        },
+        "ui.Button": {
+          "order": 1,
+          "action": "pick_mortar",
+          "normal_frame": 1,
+          "focus_frame": 2
+        },
+        "text2d.Text": {
+          "string": "button.mortar"
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        },
+        "ui.Tag": {
+          "tag": "button_mortar"
+        }
+      }
+    },
+    {
+      "name": "button_ice",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -72,
+          "offset_y": -32
+        },
+        "ui.Button": {
+          "order": 2,
+          "action": "pick_ice",
+          "normal_frame": 1,
+          "focus_frame": 2
+        },
+        "text2d.Text": {
+          "string": "button.ice"
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        },
+        "ui.Tag": {
+          "tag": "button_ice"
+        }
+      }
+    },
+    {
+      "name": "button_sniper",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 42,
+          "offset_y": -32
+        },
+        "ui.Button": {
+          "order": 3,
+          "action": "pick_sniper",
+          "normal_frame": 1,
+          "focus_frame": 2
+        },
+        "text2d.Text": {
+          "string": "button.sniper"
+        },
+        "phase.ShowIn": {
+          "phases": 1
+        },
+        "ui.Tag": {
+          "tag": "button_sniper"
+        }
+      }
+    },
+    {
+      "name": "button_upgrade",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -250,
+          "offset_y": -32
+        },
+        "sprite2d.Sprite": {
+          "width": 150
+        },
+        "ui.Button": {
+          "order": 4,
+          "action": "upgrade",
+          "width": 150
+        },
+        "text2d.Text": {
+          "string": "button.upgrade"
+        },
+        "phase.ShowIn": {
+          "phases": 2
+        },
+        "ui.Bind": {
+          "source": "hand",
+          "field": "economy.Placer.upgrade_price"
+        }
+      }
+    },
+    {
+      "name": "button_sell",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": -80,
+          "offset_y": -32
+        },
+        "sprite2d.Sprite": {
+          "width": 150
+        },
+        "ui.Button": {
+          "order": 5,
+          "action": "sell",
+          "width": 150
+        },
+        "text2d.Text": {
+          "string": "button.sell"
+        },
+        "phase.ShowIn": {
+          "phases": 6
+        },
+        "ui.Bind": {
+          "source": "hand",
+          "field": "economy.Placer.sell_value"
+        }
+      }
+    },
+    {
+      "name": "button_next",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 290,
+          "offset_y": -32
+        },
+        "sprite2d.Sprite": {
+          "width": 150
+        },
+        "ui.Button": {
+          "order": 6,
+          "action": "start_wave",
+          "width": 150
+        },
+        "text2d.Text": {
+          "string": "button.next"
+        },
+        "phase.ShowIn": {
+          "phases": 7
+        }
+      }
+    },
+    {
+      "name": "button_new",
+      "prefab": "button",
+      "components": {
+        "ui.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 1.0,
+          "offset_x": 0,
+          "offset_y": -32
+        },
+        "sprite2d.Sprite": {
+          "width": 170
+        },
+        "ui.Button": {
+          "order": 7,
+          "action": "new_game",
+          "width": 170
+        },
+        "text2d.Text": {
+          "string": "button.new"
+        },
+        "phase.ShowIn": {
+          "phases": 24
+        }
+      }
+    },
+    {
+      "name": "new_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "game",
+          "use_action": true,
+          "action": "new_game"
+        }
+      }
+    },
+    {
+      "name": "tower_3_2",
+      "prefab": "sniper_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -168.0,
+          "y": -96.0
+        }
+      }
+    },
+    {
+      "name": "tower_4_2",
+      "prefab": "sniper_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -120.0,
+          "y": -96.0
+        }
+      }
+    },
+    {
+      "name": "tower_5_2",
+      "prefab": "sniper_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -72.0,
+          "y": -96.0
+        }
+      }
+    },
+    {
+      "name": "tower_6_2",
+      "prefab": "sniper_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -24.0,
+          "y": -96.0
+        }
+      }
+    }
+  ]
+}

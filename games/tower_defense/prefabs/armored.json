@@ -1,0 +1,39 @@
+// A monster (armored): it walks the road, is worth its bounty when it dies, and hurts the base when it gets there.
+{
+  "schema_version": 1,
+  "name": "armored",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "monsters",
+      "frame": 2,
+      "width": 32,
+      "height": 32,
+      "layer": 2
+    },
+    "collision2d.Collider": {
+      "width": 24,
+      "height": 24,
+      "layer": [
+        "enemy"
+      ],
+      "mask": 0
+    },
+    "health.Health": {
+      "amount": 30,
+      "max": 30
+    },
+    "economy.Bounty": {
+      "amount": 12
+    },
+    "path2d.PathFollower": {
+      "path": "road",
+      "speed": 32,
+      "end_target": "base",
+      "end_damage": 2
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

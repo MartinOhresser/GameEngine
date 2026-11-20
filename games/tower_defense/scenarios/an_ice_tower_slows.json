@@ -1,0 +1,14 @@
+// What an ice tower hits is slowed down for a while.
+{
+  "schema_version": 1,
+  "name": "an_ice_tower_slows",
+  "scene": "test_slow",
+  "ticks": 60,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 60,
+      "check": "m1.transform2d.SpeedScale.factor < 0.6"
+    }
+  ]
+}
