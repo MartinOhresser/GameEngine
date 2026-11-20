@@ -94,21 +94,25 @@ TEST_CASE("tween2d: every curve starts and ends on the same values") {
     }
 }
 
+namespace {
+
+/// Where a number going from 0 to 100 in 10 ticks is after 5 ticks, with this curve.
+float halfway_with(std::uint32_t easing) {
+    ge::app::App app = game();
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    tween2d::Tween tween = slide(app, 0.0F, 100.0F, 10);
+    tween.easing = easing;
+    CHECK(app.world().insert(entity, tween));
+    app.run_frames(5);
+    return x_of(app, entity);
+}
+
+} // namespace
+
 TEST_CASE("tween2d: the curves differ: a slow start lags a linear one, a slow end leads it") {
-    float halfway[3] = {0.0F, 0.0F, 0.0F};
-    const std::uint32_t curves[3] = {0U, 1U, 2U};
-    for (std::size_t i = 0; i < 3U; ++i) {
-        ge::app::App app = game();
-        const ge::ecs::Entity entity = app.world().spawn();
-        CHECK(app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
-        tween2d::Tween tween = slide(app, 0.0F, 100.0F, 10);
-        tween.easing = curves[i];
-        CHECK(app.world().insert(entity, tween));
-        app.run_frames(5);
-        halfway[i] = x_of(app, entity);
-    }
-    CHECK(halfway[1] < halfway[0]);
-    CHECK(halfway[2] > halfway[0]);
+    CHECK(halfway_with(1) < halfway_with(0));
+    CHECK(halfway_with(2) > halfway_with(0));
 }
 
 TEST_CASE("tween2d: the overshooting curve goes past the goal before settling on it") {

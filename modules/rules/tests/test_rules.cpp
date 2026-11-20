@@ -33,7 +33,7 @@ struct Scene {
         app.world().insert_resource(ge::app::ActionNames{{"reached", "set_x", "add_x", "other"}});
     }
 
-    std::uint32_t field(const std::string& name) const {
+    [[nodiscard]] std::uint32_t field(const std::string& name) const {
         const auto* table = app.world().resource<ge::app::FieldTable>();
         const auto found = std::find_if(table->entries.begin(), table->entries.end(),
                                         [&name](const auto& entry) { return entry.name == name; });
@@ -68,39 +68,38 @@ TEST_CASE("rules: a Watch raises its action when the number comes into its range
     CHECK(scene.pressed("reached"));
 }
 
-TEST_CASE("rules: a Watch raises again after the number left the range, unless it is once") {
-    Scene scene;
-    const auto again = scene.app.world().spawn();
-    CHECK(scene.app.world().insert(again, transform2d::Position{0.0F, 0.0F}));
-    rules::Watch watch;
-    watch.field = scene.field("transform2d.Position.x");
-    watch.max = 0.0F; // "falls to 0 or less"
-    CHECK(scene.app.world().insert(again, watch));
+namespace {
+
+/// How many ticks raise the action while the number of the entity takes these values in turn.
+int raised_while(Scene& scene, ge::ecs::Entity entity) {
     int raised = 0;
     for (const float value : {5.0F, 0.0F, 3.0F, -1.0F}) {
-        scene.app.world().get<transform2d::Position>(again)->x = value;
+        scene.app.world().get<transform2d::Position>(entity)->x = value;
         for (int i = 0; i < 3; ++i) {
             scene.app.run_frames(1);
             raised += scene.pressed("reached") ? 1 : 0;
         }
     }
-    CHECK(raised == 2);
+    return raised;
+}
 
-    Scene once;
-    const auto single = once.app.world().spawn();
-    CHECK(once.app.world().insert(single, transform2d::Position{0.0F, 0.0F}));
-    watch.field = once.field("transform2d.Position.x");
-    watch.once = true;
-    CHECK(once.app.world().insert(single, watch));
-    raised = 0;
-    for (const float value : {5.0F, 0.0F, 3.0F, -1.0F}) {
-        once.app.world().get<transform2d::Position>(single)->x = value;
-        for (int i = 0; i < 3; ++i) {
-            once.app.run_frames(1);
-            raised += once.pressed("reached") ? 1 : 0;
-        }
-    }
-    CHECK(raised == 1);
+int raised_by_falling(bool once) {
+    Scene scene;
+    const auto entity = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    rules::Watch watch;
+    watch.field = scene.field("transform2d.Position.x");
+    watch.max = 0.0F; // "falls to 0 or less"
+    watch.once = once;
+    CHECK(scene.app.world().insert(entity, watch));
+    return raised_while(scene, entity);
+}
+
+} // namespace
+
+TEST_CASE("rules: a Watch raises again after the number left the range, unless it is once") {
+    CHECK(raised_by_falling(false) == 2);
+    CHECK(raised_by_falling(true) == 1);
 }
 
 TEST_CASE("rules: a Watch can look at the entity that has a tag") {

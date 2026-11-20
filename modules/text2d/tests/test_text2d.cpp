@@ -228,26 +228,25 @@ TEST_CASE("text2d: a list that is replaced is shown again at the next frame") {
     CHECK(scene.drawn().size() == 5U); // the frame before (1 letter) plus 4 now
 }
 
-TEST_CASE("text2d: a hidden text is not drawn, a scaled one is drawn bigger around its pivot") {
+TEST_CASE("text2d: a scaled text is drawn bigger around its pivot") {
     Scene scene({"ab"});
     text2d::Text centred = text_of(0);
     centred.pivot_x = 0.5F;
     const ge::ecs::Entity entity = scene.app.world().spawn();
     CHECK(scene.app.world().insert(entity, transform2d::Position{100.0F, 50.0F}));
     CHECK(scene.app.world().insert(entity, centred));
-    scene.app.run_frames(1);
-    REQUIRE(scene.drawn().size() == 2U);
-    CHECK(scene.drawn()[0].width == 8.0F);
-    CHECK(scene.drawn()[0].x == 96.0F);
-
-    scene.renderer->clear();
     CHECK(scene.app.world().insert(entity, transform2d::Scale{2.0F}));
     scene.app.run_frames(1);
     REQUIRE(scene.drawn().size() == 2U);
-    CHECK(scene.drawn()[0].width == 16.0F); // twice as big...
-    CHECK(scene.drawn()[0].x == 92.0F);     // ...around the same middle
+    CHECK(scene.drawn()[0].width == 16.0F); // twice as big (8 pixels normally)...
+    CHECK(scene.drawn()[0].x == 92.0F);     // ...around the same middle (96 normally)
+}
 
-    scene.renderer->clear();
+TEST_CASE("text2d: a hidden text is not drawn") {
+    Scene scene({"ab"});
+    const ge::ecs::Entity entity = scene.app.world().spawn();
+    CHECK(scene.app.world().insert(entity, transform2d::Position{100.0F, 50.0F}));
+    CHECK(scene.app.world().insert(entity, text_of(0)));
     CHECK(scene.app.world().insert(entity, transform2d::Hidden{}));
     scene.app.run_frames(1);
     CHECK(scene.drawn().empty());

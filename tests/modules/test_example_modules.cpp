@@ -255,5 +255,7 @@ TEST_CASE("modules: a field can be read and written by name through the module's
     CHECK(app.world().get<transform2d::Position>(entity)->x == 1.0F);
     CHECK(!position.write(app.world(), entity, "nothing", ge::app::Scalar{1.0}));
     CHECK(!position.write(app.world(), app.world().spawn(), "x", ge::app::Scalar{1.0}));
-    CHECK(ge::app::scalar_as<float>(*position.read(app.world(), entity, "y")) == 7.5F);
+    const auto read_back = position.read(app.world(), entity, "y");
+    REQUIRE(read_back.has_value());
+    CHECK(ge::app::scalar_as<float>(*read_back) == 7.5F);
 }

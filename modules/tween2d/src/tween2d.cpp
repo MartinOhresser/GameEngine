@@ -42,8 +42,8 @@ std::optional<float> read_number(const ecs::World& world, ecs::Entity target,
 void write_number(ecs::World& world, ecs::Entity target, const app::FieldEntry& field,
                   float value) {
     if (field.component->write != nullptr && world.is_alive(target)) {
-        static_cast<void>(
-            field.component->write(world, target, field.field, app::Scalar{double{value}}));
+        static_cast<void>(field.component->write(world, target, field.field,
+                                                 app::Scalar{static_cast<double>(value)}));
     }
 }
 

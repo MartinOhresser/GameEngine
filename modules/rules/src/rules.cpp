@@ -102,8 +102,8 @@ void on_action(ecs::World& world) {
             return;
         }
         const float next = rule.add ? number(world, target, field) + rule.value : rule.value;
-        static_cast<void>(
-            field->component->write(world, target, field->field, app::Scalar{double{next}}));
+        static_cast<void>(field->component->write(world, target, field->field,
+                                                  app::Scalar{static_cast<double>(next)}));
     });
 }
 
