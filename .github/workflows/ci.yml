@@ -192,21 +192,39 @@ jobs:
           - { name: "Linux", os: ubuntu-24.04, target: linux }
     steps:
       - uses: actions/checkout@v7
-      # Linux only: the Windows export uses the Visual Studio generator, which has no launcher
-      # (it compiles on every core instead, see the export).
+      # Not for the Windows export of a promotion: the Visual Studio generator has no launcher.
       - uses: ./.github/actions/ccache
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' || needs.changes.outputs.full != 'true'
         with:
-          key: export-linux
+          key: export-${{ matrix.target }}
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
         uses: ./.github/actions/sdl-deps
-      # On Windows the way a person does it: scripts\export.cmd, from a plain prompt (no Visual
-      # Studio developer environment, no Ninja).
-      - name: Export Doodle Jump (Windows)
-        if: runner.os == 'Windows'
+      # On a promotion, the way a person does it: scripts\export.cmd, from a plain prompt (no
+      # Visual Studio developer environment, no Ninja), with the Visual Studio generator.
+      - name: Export Doodle Jump (Windows, as a person does)
+        if: runner.os == 'Windows' && needs.changes.outputs.full == 'true'
         shell: cmd
         run: scripts\export.cmd games\doodle_jump\game.json --out dist
+      # On a pull request, the same `gectl export` built with Ninja, so that ccache keeps what it
+      # compiled (6 minutes with the Visual Studio generator, about 1 with a warm cache). The zip
+      # is checked and played the same way below.
+      - name: Set up MSVC environment (Windows, pull request)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Ninja (Windows, pull request)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        run: choco install ninja -y
+      - name: Export Doodle Jump (Windows, Ninja)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        shell: bash
+        env:
+          # Read by the CMake that `gectl export` starts for the program.
+          CMAKE_GENERATOR: Ninja
+        run: |
+          cmake --preset release -DCMAKE_CXX_COMPILER=cl -DGE_BUILD_TESTS=OFF
+          cmake --build --preset release --target gectl
+          ./build/release/tools/gectl.exe export games/doodle_jump/game.json --target windows --out dist
       # The scripts that open the launcher, the way a person does it: they build it, then start it
       # without a window for a few frames.
       - name: Open the launcher with gameEngine.cmd (Windows)
@@ -331,14 +349,22 @@ jobs:
   wasm:
     name: WebAssembly (Emscripten)
     runs-on: ubuntu-24.04
+    env:
+      EMSDK_VERSION: "3.1.74"
+      # emsdk is installed again on every run: a new date on em++ would make ccache take it for
+      # another compiler and miss everything. The version names the compiler instead.
+      CCACHE_COMPILERCHECK: "string:emsdk-3.1.74"
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ccache
         with:
-          key: wasm
+          key: wasm-${{ env.EMSDK_VERSION }}
+      # In a folder of the workspace, not in a temporary one with a new name on every run: its
+      # path is in every compile command, and ccache would miss them all. Kept in the cache too.
       - uses: mymindstorm/setup-emsdk@v16
         with:
-          version: "3.1.74"
+          version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: emsdk-cache
       - name: Configure
         run: emcmake cmake -S . -B build/wasm -G Ninja -DCMAKE_BUILD_TYPE=Release -DGE_WARNINGS_AS_ERRORS=ON
       - name: Build
@@ -353,7 +379,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ccache
         with:
-          key: android
+          # Not "android": a key must not be the start of another one (android-export-...), or
+          # its cache is taken for this one.
+          key: ndk-arm64
       - name: Configure
         run: |
           cmake -S . -B build/android -G Ninja \
@@ -399,10 +427,11 @@ jobs:
               touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
     steps:
       - uses: actions/checkout@v7
-      # One cache for the three games: gectl, SDL and the engine are the same for all of them.
+      # One cache per game: with a shared one, the last game to save it replaced what the others
+      # had compiled.
       - uses: ./.github/actions/ccache
         with:
-          key: android-export
+          key: apk-${{ matrix.game }}
       # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
       # pull request to the next, so that they are not asked for again.
       - uses: actions/cache/restore@v4

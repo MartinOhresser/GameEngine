@@ -6,7 +6,10 @@ description: >
   did not use is dropped before saving, so the cache stays the size of one build.
 inputs:
   key:
-    description: Name of the cache, one per kind of build (compiler, preset, target).
+    description: >
+      Name of the cache, one per kind of build (compiler, preset, target). A key must not be
+      the start of another one ("android" and "android-export"): a cache is restored by prefix,
+      so the job would take the other job's cache and miss everything.
     required: true
 runs:
   using: composite
