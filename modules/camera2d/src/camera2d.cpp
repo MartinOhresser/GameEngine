@@ -1,4 +1,5 @@
 #include "ge/app/render.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -54,6 +55,33 @@ void follow(ecs::World& world) {
                 const float next = position.y + (goal - position.y) * stiffness;
                 position.y = limited(position.y, next, follow.only_up, follow.only_down);
             }
+        });
+}
+
+void fit(ecs::World& world) {
+    const auto* viewport = world.resource<app::Viewport>();
+    if (viewport == nullptr) {
+        return;
+    }
+    const auto screen_width = static_cast<float>(viewport->width);
+    const auto screen_height = static_cast<float>(viewport->height);
+    world.each<const CameraFit, Camera, transform2d::Position>(
+        [&](ecs::Entity, const CameraFit& area, Camera& camera, transform2d::Position& position) {
+            const float room_x =
+                std::max(screen_width - area.margin_left - area.margin_right, 1.0F);
+            const float room_y =
+                std::max(screen_height - area.margin_top - area.margin_bottom, 1.0F);
+            float zoom = std::min(room_x / std::max(area.width, 0.001F),
+                                  room_y / std::max(area.height, 0.001F));
+            if (area.max_zoom > 0.0F) {
+                zoom = std::min(zoom, area.max_zoom);
+            }
+            camera.zoom = zoom;
+            // The area's centre goes to the middle of what the margins leave.
+            const float middle_x = (area.margin_left + screen_width - area.margin_right) / 2.0F;
+            const float middle_y = (area.margin_top + screen_height - area.margin_bottom) / 2.0F;
+            position.x = area.center_x - (middle_x - screen_width / 2.0F) / zoom;
+            position.y = area.center_y - (middle_y - screen_height / 2.0F) / zoom;
         });
 }
 

@@ -73,14 +73,16 @@ struct Tag {
     [[nodiscard]] friend bool operator==(const Tag&, const Tag&) = default;
 };
 
-/// Shows a number of the game: every tick, the value of field (written "module.Component.field", for example "pickup.Collector.score") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. A missing source or component leaves the value at 0.
+/// Shows a number of the game: every tick, the value of field (written "module.Component.field", for example "pickup.Collector.score") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. With own, the entity reads the field of itself instead of the entity tagged source: the number written on a tile, the health bar of a monster (put a Bind on the entity that has the Bar and the Health). A missing source or component leaves the value at 0.
 struct Bind {
     std::uint32_t source = 0U;
     std::uint32_t field = 0U;
+    bool own = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(source);
         hasher.add(field);
+        hasher.add(own);
     }
 
     [[nodiscard]] friend bool operator==(const Bind&, const Bind&) = default;

@@ -116,6 +116,39 @@
           },
           "additionalProperties": false
         },
+        "camera2d.CameraFit": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "center_x": {
+              "type": "number"
+            },
+            "center_y": {
+              "type": "number"
+            },
+            "margin_left": {
+              "type": "number"
+            },
+            "margin_right": {
+              "type": "number"
+            },
+            "margin_top": {
+              "type": "number"
+            },
+            "margin_bottom": {
+              "type": "number"
+            },
+            "max_zoom": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
         "collision2d.Collider": {
           "type": "object",
           "properties": {
@@ -238,6 +271,117 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "debug_draw.Rect": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alpha": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "debug_draw.Circle": {
+          "type": "object",
+          "properties": {
+            "radius": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alpha": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "debug_draw.Line": {
+          "type": "object",
+          "properties": {
+            "dx": {
+              "type": "number"
+            },
+            "dy": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alpha": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -938,6 +1082,30 @@
           },
           "additionalProperties": false
         },
+        "sprite2d.FrameBind": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "first_frame": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "log2": {
+              "type": "boolean"
+            },
+            "frame_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "text2d.Text": {
           "type": "object",
           "properties": {
@@ -1134,6 +1302,36 @@
           },
           "additionalProperties": false
         },
+        "transform2d.Hidden": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "transform2d.Owner": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "transform2d.Attach": {
+          "type": "object",
+          "properties": {
+            "offset_x": {
+              "type": "number"
+            },
+            "offset_y": {
+              "type": "number"
+            },
+            "despawn_with_owner": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "ui.Anchor": {
           "type": "object",
           "properties": {
@@ -1219,6 +1417,9 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "own": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

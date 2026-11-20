@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "transform2d",
   "version": "0.1.0",
-  "description": "Position and velocity in the 2D plane, and the movement that links them.",
+  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding it, giving it an owner and letting it follow that owner.",
   "params": [
     {
       "name": "speed_scale",
@@ -32,6 +32,30 @@
         { "name": "x", "type": "f32", "default": 0 },
         { "name": "y", "type": "f32", "default": 0 }
       ]
+    },
+    {
+      "name": "Hidden",
+      "description": "The entity is not shown and does not take part in an interface: the drawing systems (sprites, texts, shapes) skip it and a menu ignores its button. Insert it to hide, remove it to show again. It has no effect on the simulation otherwise.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "Owner",
+      "description": "The entity this one belongs to: the monster whose health bar this is, the gun that fired this bullet. entity holds a link (an entity's identifier plus one, 0 for none): the spawner fills it when a system asks for an entity with an owner. A link to an entity that is gone stays, and finds nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "entity", "type": "u64", "default": 0 }
+      ]
+    },
+    {
+      "name": "Attach",
+      "description": "The entity follows its Owner: each tick its Position is the Owner's Position moved by offset_x and offset_y, and it disappears with the Owner (a health bar, a range circle, a shadow, a shield). Without an Owner, or while its Owner has no Position, it stays where it is.",
+      "replicable": false,
+      "fields": [
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 },
+        { "name": "despawn_with_owner", "type": "bool", "default": true }
+      ]
     }
   ],
   "systems": [
@@ -41,6 +65,14 @@
       "stage": "FixedUpdate",
       "reads": ["Velocity"],
       "writes": ["Position"]
+    },
+    {
+      "name": "attach",
+      "description": "Moves every Attach entity onto its Owner's Position, plus its offset; removes the ones whose Owner is gone when despawn_with_owner is on.",
+      "stage": "FixedUpdate",
+      "reads": ["Owner", "Attach"],
+      "writes": ["Position"],
+      "after": ["integrate"]
     }
   ]
 }

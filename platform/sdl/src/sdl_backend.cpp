@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cmath>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -108,6 +109,12 @@ public:
         open_frame();
         if (command.atlas >= 0) {
             draw_sprite(command);
+        } else if (command.what == "rect") {
+            draw_rect(command);
+        } else if (command.what == "circle") {
+            draw_circle(command);
+        } else if (command.what == "line") {
+            draw_line(command);
         } else {
             draw_square(command);
         }
@@ -197,18 +204,110 @@ private:
         return camera_ && !command.screen ? camera_->zoom : 1.0F;
     }
 
-    void draw_square(const app::DrawCommand& command) {
+    void set_color(const app::DrawCommand& command) {
         const std::uint32_t c = command.color;
         SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 8U) & 0xFFU),
                                static_cast<std::uint8_t>(c & 0xFFU));
+    }
+
+    void draw_square(const app::DrawCommand& command) {
+        set_color(command);
         const float size = (command.size > 0.0F ? command.size : default_size) * zoom(command);
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);
         const SDL_FRect rect{x - size / 2.0F, y - size / 2.0F, size, size};
         SDL_RenderFillRect(renderer_, &rect);
+    }
+
+    /// A rectangle: filled, or four bars of `thickness` along its edges.
+    void draw_rect(const app::DrawCommand& command) {
+        set_color(command);
+        const float width = command.width * zoom(command);
+        const float height = command.height * zoom(command);
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command, x, y);
+        const float left = x - width / 2.0F;
+        const float top = y - height / 2.0F;
+        if (command.thickness <= 0.0F) {
+            const SDL_FRect rect{left, top, width, height};
+            SDL_RenderFillRect(renderer_, &rect);
+            return;
+        }
+        const float edge = std::min(std::max(command.thickness * zoom(command), 1.0F),
+                                    std::min(width, height) / 2.0F);
+        const std::array<SDL_FRect, 4> bars{
+            {{left, top, width, edge},
+             {left, top + height - edge, width, edge},
+             {left, top + edge, edge, height - 2.0F * edge},
+             {left + width - edge, top + edge, edge, height - 2.0F * edge}}};
+        SDL_RenderFillRects(renderer_, bars.data(), static_cast<int>(bars.size()));
+    }
+
+    /// A disc or a ring, drawn one pixel row at a time.
+    void draw_circle(const app::DrawCommand& command) {
+        set_color(command);
+        const float radius = command.size * zoom(command);
+        if (radius <= 0.0F) {
+            return;
+        }
+        const float edge =
+            command.thickness <= 0.0F
+                ? radius
+                : std::min(std::max(command.thickness * zoom(command), 1.0F), radius);
+        const float inner = radius - edge;
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command, x, y);
+        for (float dy = -radius + 0.5F; dy < radius; dy += 1.0F) {
+            const float outer_half = std::sqrt(std::max(radius * radius - dy * dy, 0.0F));
+            const float inner_square = inner * inner - dy * dy;
+            if (inner_square <= 0.0F) {
+                const SDL_FRect row{x - outer_half, y + dy - 0.5F, 2.0F * outer_half, 1.0F};
+                SDL_RenderFillRect(renderer_, &row);
+            } else {
+                const float inner_half = std::sqrt(inner_square);
+                const std::array<SDL_FRect, 2> rows{
+                    {{x - outer_half, y + dy - 0.5F, outer_half - inner_half, 1.0F},
+                     {x + inner_half, y + dy - 0.5F, outer_half - inner_half, 1.0F}}};
+                SDL_RenderFillRects(renderer_, rows.data(), static_cast<int>(rows.size()));
+            }
+        }
+    }
+
+    /// A line of `thickness`, as a thin quad.
+    void draw_line(const app::DrawCommand& command) {
+        app::DrawCommand end = command;
+        end.x = command.x2;
+        end.y = command.y2;
+        float x1 = 0.0F;
+        float y1 = 0.0F;
+        float x2 = 0.0F;
+        float y2 = 0.0F;
+        to_screen(command, x1, y1);
+        to_screen(end, x2, y2);
+        const float half = std::max(command.thickness * zoom(command), 1.0F) / 2.0F;
+        const float length = std::hypot(x2 - x1, y2 - y1);
+        if (length <= 0.0F) {
+            return;
+        }
+        const float nx = -(y2 - y1) / length * half;
+        const float ny = (x2 - x1) / length * half;
+        const std::uint32_t c = command.color;
+        const SDL_FColor color{static_cast<float>((c >> 24U) & 0xFFU) / 255.0F,
+                               static_cast<float>((c >> 16U) & 0xFFU) / 255.0F,
+                               static_cast<float>((c >> 8U) & 0xFFU) / 255.0F,
+                               static_cast<float>(c & 0xFFU) / 255.0F};
+        const std::array<SDL_Vertex, 4> corners{{{{x1 + nx, y1 + ny}, color, {0.0F, 0.0F}},
+                                                 {{x1 - nx, y1 - ny}, color, {0.0F, 0.0F}},
+                                                 {{x2 - nx, y2 - ny}, color, {0.0F, 0.0F}},
+                                                 {{x2 + nx, y2 + ny}, color, {0.0F, 0.0F}}}};
+        const std::array<int, 6> order{0, 1, 2, 0, 2, 3};
+        SDL_RenderGeometry(renderer_, nullptr, corners.data(), static_cast<int>(corners.size()),
+                           order.data(), static_cast<int>(order.size()));
     }
 
     void draw_sprite(const app::DrawCommand& command) {
@@ -247,6 +346,7 @@ private:
 
     void open_frame() {
         if (!open_) {
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer_, 18, 20, 32, 255);
             SDL_RenderClear(renderer_);
             open_ = true;

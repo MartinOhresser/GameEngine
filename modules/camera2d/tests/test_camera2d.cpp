@@ -1,5 +1,6 @@
 #include "ge/app/app.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -228,4 +229,62 @@ TEST_CASE("camera2d: offset_x puts the camera beside the target") {
     const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
     app.run_frames(1);
     CHECK(position_of(app, camera).x == 20.0F);
+}
+
+namespace {
+
+ge::ecs::Entity spawn_fit(ge::app::App& app, const camera2d::CameraFit& fit) {
+    const ge::ecs::Entity entity = spawn_camera(app, 0.0F, 0.0F, 1.0F);
+    CHECK(app.world().insert(entity, fit));
+    return entity;
+}
+
+camera2d::CameraFit area(float width, float height) {
+    camera2d::CameraFit fit;
+    fit.width = width;
+    fit.height = height;
+    return fit;
+}
+
+} // namespace
+
+TEST_CASE("camera2d: a fitted camera shows the whole area, whatever the shape of the window") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    app.world().resource<ge::app::Viewport>()->width = 400U;
+    app.world().resource<ge::app::Viewport>()->height = 800U;
+    camera2d::CameraFit fit = area(200.0F, 200.0F);
+    fit.center_x = 100.0F;
+    fit.center_y = 100.0F;
+    const ge::ecs::Entity camera = spawn_fit(app, fit);
+    app.run_frames(1);
+    // A tall window: the width is the limit, so 400 pixels for 200 units.
+    CHECK(view_of(*renderer).zoom == 2.0F);
+    CHECK(position_of(app, camera).x == 100.0F);
+    CHECK(position_of(app, camera).y == 100.0F);
+
+    app.world().resource<ge::app::Viewport>()->width = 800U;
+    app.world().resource<ge::app::Viewport>()->height = 400U;
+    app.run_frames(1);
+    CHECK(view_of(*renderer).zoom == 2.0F); // a wide window: now the height is
+}
+
+TEST_CASE("camera2d: margins leave room for an interface and max_zoom keeps a small area small") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    app.world().resource<ge::app::Viewport>()->width = 500U;
+    app.world().resource<ge::app::Viewport>()->height = 700U;
+    camera2d::CameraFit fit = area(100.0F, 100.0F);
+    fit.margin_top = 100.0F;
+    fit.margin_bottom = 0.0F;
+    const ge::ecs::Entity camera = spawn_fit(app, fit);
+    app.run_frames(1);
+    // 500 wide and 600 high are free: the width limits, zoom 5; the area is centred in the free
+    // part, whose middle is 50 pixels below the middle of the window, so the camera is 10 above.
+    CHECK(view_of(*renderer).zoom == 5.0F);
+    CHECK(position_of(app, camera).y == -10.0F);
+
+    app.world().get<camera2d::CameraFit>(camera)->max_zoom = 3.0F;
+    app.run_frames(1);
+    CHECK(view_of(*renderer).zoom == 3.0F);
 }

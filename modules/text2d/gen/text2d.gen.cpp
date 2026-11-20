@@ -131,7 +131,7 @@ constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"list", "u32"
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Text", false, component_0_fields, insert_component_0, read_component_0}, {"Dynamic", false, component_1_fields, insert_component_1, read_component_1}}};
 
-constexpr std::array<std::string_view, 3> system_0_reads{"text2d.Text", "text2d.Dynamic", "transform2d.Position"};
+constexpr std::array<std::string_view, 4> system_0_reads{"text2d.Text", "text2d.Dynamic", "transform2d.Position", "transform2d.Hidden"};
 constexpr std::array<std::string_view, 0> system_0_writes{};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"text2d.draw", ::ge::app::Stage::PostUpdate, system_0_reads, system_0_writes}}};
 
