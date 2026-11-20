@@ -3,9 +3,12 @@ name: Security
 on:
   schedule:
     - cron: "17 5 * * 1"
+  # The analysis takes a build of its own: weekly, on main, and on a promotion to main, not on
+  # every pull request into dev.
   push:
-    branches: [dev]
+    branches: [main]
   pull_request:
+    branches: [main]
     paths: ["include/**", "src/**", "CMakeLists.txt", "cmake/**", ".github/workflows/**"]
   workflow_dispatch:
 

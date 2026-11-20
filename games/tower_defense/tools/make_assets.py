@@ -716,12 +716,30 @@ def at_tick(tick, *checks):
     return [{"at": tick, "check": check} for check in checks]
 
 
-def scenario(name, comment, ticks, inputs, expect, scene_name=None):
+def scenario(name, comment, ticks, inputs, expect, scene_name=None, screen=None):
     data = {"schema_version": 1, "name": name}
     if scene_name:
         data["scene"] = scene_name
+    if screen:
+        data["screen"] = {"width": screen[0], "height": screen[1]}
     data.update({"ticks": ticks, "inputs": inputs, "expect": expect})
     return name, comment, data
+
+
+# A phone held upright (320 x 640): the game is wider than tall, so it takes its narrowest shape,
+# 600 x 480, with bars above and below. The same touches, in pixels of that smaller area.
+PHONE = (320, 640)
+PHONE_WIDTH = 600
+PHONE_ZOOM = min(PHONE_WIDTH / AREA_W, (HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / AREA_H)
+
+
+def phone_touch(tick, col, row):
+    x, y = centre(col, row)
+    return touch_pixel(tick, round(PHONE_WIDTH / 2 + x * PHONE_ZOOM), round(MIDDLE_Y + y * PHONE_ZOOM))
+
+
+def phone_button(tick, offset_x):
+    return touch_pixel(tick, round(PHONE_WIDTH / 2 + offset_x), HEIGHT - 32)
 
 
 GOLD = "wallet.economy.Wallet.amount == %d"
@@ -764,6 +782,16 @@ def scenarios():
         900, touch(10, 3, 2) + tap(20, "start_wave"),
         at_tick(900, "wallet.economy.Wallet.amount > 100", LIVES % START_LIVES,
                 "waves.waves.WaveController.current == 1")))
+    out.append(scenario(
+        "played_on_a_phone_held_upright", "On a 320 x 640 screen the game takes its narrowest shape "
+        "(600 x 480, bars above and below): a cannon is built with a touch, a mortar chosen with "
+        "its shop button, the next wave called with its button, and every one of them is within "
+        "reach.", 900,
+        phone_touch(10, 3, 2) + phone_button(20, SHOP_X + SHOP_STEP) + phone_touch(30, 4, 2) +
+        phone_button(40, NEXT_X),
+        at_tick(35, GOLD % (START_GOLD - 50 - 90), "entities == %d" % (size + 2)) +
+        at_tick(900, "waves.waves.WaveController.current == 1", LIVES % START_LIVES),
+        screen=PHONE))
     out += improving_and_selling(size)
     out += rules_of_the_waves()
     out += the_end(size)

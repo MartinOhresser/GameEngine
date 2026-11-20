@@ -37,10 +37,10 @@ adb shell pidof "$package" > "$out/pid.txt" || true
 if [ -s "$out/pid.txt" ]; then note "- the game runs (pid $(cat "$out/pid.txt"))"; else fail "the game is not running twelve seconds after the start"; fi
 
 adb exec-out screencap -p > "$out/shot1.png"
-read -r width height < <(python3 "$here/spike/pixel.py" "$out/shot1.png" size)
+read -r width height < <(python3 "$here/pixel.py" "$out/shot1.png" size)
 note "- screen: ${width}x${height}"
 # A game that draws is not one flat colour: count the distinct colours of a grid of points.
-colours="$(python3 "$here/spike/pixel.py" "$out/shot1.png" colours)"
+colours="$(python3 "$here/pixel.py" "$out/shot1.png" colours)"
 note "- distinct colours on screen: $colours"
 [ "${colours:-0}" -ge 4 ] && note "- the game draws" || fail "the screen is blank (fewer than 4 colours)"
 
@@ -80,7 +80,7 @@ else:
     print((w - vw * scale) / 2 / w + x * scale / w, (h - vh * scale) / 2 / h + y * scale / h)
 PY
 }
-pixel() { python3 "$here/spike/pixel.py" "$1" $2; }
+pixel() { python3 "$here/pixel.py" "$1" $2; }
 
 if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
   read -r px py < <(fraction $MENU_TAP)
@@ -121,11 +121,11 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
   adb exec-out screencap -p > "$out/touch0.png"
   # The screen can have turned since the first look (a game that asks for the landscape): measure
   # it again, and say what it is, so that a failure can be read from the log.
-  read -r width height < <(python3 "$here/spike/pixel.py" "$out/touch0.png" size)
+  read -r width height < <(python3 "$here/pixel.py" "$out/touch0.png" size)
   note "- screen before the touches: ${width}x${height}"
   adb shell dumpsys window displays | grep -E "mCurrentRotation|mUserRotation|cur=" | head -4 | tee -a "$out/summary.md" || true
   adb shell settings get system accelerometer_rotation | sed 's/^/accelerometer_rotation=/' | tee -a "$out/summary.md" || true
-  python3 "$here/spike/pixel.py" "$out/touch0.png" ascii | tee -a "$out/summary.md"
+  python3 "$here/pixel.py" "$out/touch0.png" ascii | tee -a "$out/summary.md"
   number=0
   for item in "${touches[@]}"; do
     IFS=':' read -r tx ty <<< "$item"
@@ -134,11 +134,11 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
     sleep 3
     number=$((number + 1))
     adb exec-out screencap -p > "$out/touch$number.png"
-    changed="$(python3 "$here/spike/pixel.py" "$out/touch$((number - 1)).png" differs "$out/touch$number.png")"
+    changed="$(python3 "$here/pixel.py" "$out/touch$((number - 1)).png" differs "$out/touch$number.png")"
     note "- touch $number: $changed of 6400 points changed"
     if [ "${changed:-0}" -le 0 ]; then
       fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
-      python3 "$here/spike/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+      python3 "$here/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
       if [ -z "${probed:-}" ]; then
       probed=1
       {
@@ -154,7 +154,7 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
         adb shell input keyevent KEYCODE_SPACE
         sleep 3
         adb exec-out screencap -p > "$out/probe1.png"
-        echo "key space: $(python3 "$here/spike/pixel.py" "$out/probe0.png" differs "$out/probe1.png") of 6400 points changed"
+        echo "key space: $(python3 "$here/pixel.py" "$out/probe0.png" differs "$out/probe1.png") of 6400 points changed"
         echo "--- a sweep of taps: the places where something changed"
         for gy in 1 2 3 4 5 6 7 8 9; do
           for gx in 1 2 3 4; do
@@ -162,7 +162,7 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
             adb shell input tap "$((width * gx / 5))" "$((height * gy / 10))"
             sleep 1
             adb exec-out screencap -p > "$out/sweep_after.png"
-            moved="$(python3 "$here/spike/pixel.py" "$out/sweep_before.png" differs "$out/sweep_after.png")"
+            moved="$(python3 "$here/pixel.py" "$out/sweep_before.png" differs "$out/sweep_after.png")"
             [ "${moved:-0}" -gt 0 ] && echo "tap at $((width * gx / 5)) $((height * gy / 10)): $moved points changed"
           done
         done
@@ -185,7 +185,7 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_SWIPES:-}" ]; then
     sleep 2
   done
   adb exec-out screencap -p > "$out/swipe1.png"
-  changed="$(python3 "$here/spike/pixel.py" "$out/swipe0.png" differs "$out/swipe1.png")"
+  changed="$(python3 "$here/pixel.py" "$out/swipe0.png" differs "$out/swipe1.png")"
   note "- after ${#swipes[@]} swipes: $changed of 6400 points changed"
   [ "${changed:-0}" -gt 0 ] || fail "the swipes changed nothing on the screen"
   adb shell pidof "$package" > "$out/pid5.txt" || true

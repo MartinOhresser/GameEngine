@@ -245,6 +245,13 @@ Value scenario_schema() {
     properties.set("description", type_only("string"));
     properties.set("scene", name_schema());
     properties.set("ticks", integer_between(1, 10'000'000));
+    // The screen it is played on (a phone's, say): a game that follows the screen takes its shape.
+    Value screen = Value::object();
+    screen.set("width", integer_between(1, 16384));
+    screen.set("height", integer_between(1, 16384));
+    Value screen_object = closed_object(std::move(screen));
+    screen_object.set("required", required({"width", "height"}));
+    properties.set("screen", std::move(screen_object));
     properties.set("inputs", array_of(input_object));
     // Run-time lists a host would fill: a name, then texts (any text, not names).
     Value filled = type_only("object");

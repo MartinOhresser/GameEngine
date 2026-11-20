@@ -1,0 +1,110 @@
+// On a 320 x 640 screen the game takes its narrowest shape (600 x 480, bars above and below): a cannon is built with a touch, a mortar chosen with its shop button, the next wave called with its button, and every one of them is within reach.
+{
+  "schema_version": 1,
+  "name": "played_on_a_phone_held_upright",
+  "screen": {
+    "width": 320,
+    "height": 640
+  },
+  "ticks": 900,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 158
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 142
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 448
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 29,
+      "action": "pointer_x",
+      "value": 198
+    },
+    {
+      "tick": 29,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 30,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 530
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 448
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 35,
+      "check": "wallet.economy.Wallet.amount == 10"
+    },
+    {
+      "at": 35,
+      "check": "entities == 146"
+    },
+    {
+      "at": 900,
+      "check": "waves.waves.WaveController.current == 1"
+    },
+    {
+      "at": 900,
+      "check": "base.health.Health.amount == 20"
+    }
+  ]
+}

@@ -1,10 +1,21 @@
 name: CI
 
+# Two tiers, to keep the wait short:
+#  - a pull request into `dev` runs the checks that other machines are needed for (compilers,
+#    systems, the SDL player, the compile-only targets) and, only when it touches the engine or
+#    the export, the real exports and the emulator;
+#  - a pull request into `main`, a push to `main`, a merge group and the promotion workflow run
+#    everything: coverage, the launcher scripts, the three games of ADR 0013 exported.
+# Nothing runs on a push to `dev`: the pull request that was just merged already ran.
+# What `./scripts/check.sh` checks locally (AddressSanitizer, clang-tidy, the GCC Debug build, the
+# scenarios of every game, including on a phone's screen) is not repeated here.
 on:
   push:
-    branches: [dev]
+    branches: [main]
   pull_request:
   merge_group:
+  # Called by "Promote dev to main": the tip of dev gets the whole tier before it becomes main.
+  workflow_call:
 
 permissions:
   contents: read
@@ -17,11 +28,39 @@ env:
   # Minimum line coverage of the engine code (include/ and src/), in percent.
   COVERAGE_MIN: "90"
 
-# AddressSanitizer, clang-tidy and the GCC Debug build are not repeated here:
-# ./scripts/check.sh runs them locally before every pull request. This workflow
-# keeps what only another machine can check (other compilers and systems,
-# coverage) and the fast checks that guard contributions from outside.
 jobs:
+  # Decides how much to run. `full`: promotion, push to main, merge group. `engine`: the engine,
+  # the platforms, the export or this workflow changed, so the exports and the emulator are worth
+  # their minutes (a new game or module is proven by its scenarios and the builds). `launcher`: the
+  # scripts that open the launcher changed.
+  changes:
+    name: What changed
+    runs-on: ubuntu-24.04
+    outputs:
+      full: ${{ steps.diff.outputs.full }}
+      engine: ${{ steps.diff.outputs.engine }}
+      launcher: ${{ steps.diff.outputs.launcher }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          full=false; engine=false; launcher=false
+          if [[ "$EVENT" != "pull_request" || "$BASE" == "main" ]]; then
+            full=true; engine=true; launcher=true
+          else
+            files="$(git diff --name-only "origin/$BASE...HEAD")"
+            echo "$files"
+            grep -qE '^(include/|src/|platform/|tools/gectl/|runner/|cmake/|CMakeLists\.txt|CMakePresets\.json|scripts/(export|ci_retry)|\.github/)' <<<"$files" && engine=true
+            grep -qE '^(gameEngine\.|scripts/launcher|tools/launcher/|platform/sdl/src/launcher\.cpp)' <<<"$files" && launcher=true
+          fi
+          echo "full=$full engine=$engine launcher=$launcher"
+          { echo "full=$full"; echo "engine=$engine"; echo "launcher=$launcher"; } >> "$GITHUB_OUTPUT"
+
   workflow-lint:
     name: Lint workflows
     runs-on: ubuntu-24.04
@@ -96,12 +135,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
-        run: |
-          sudo apt-get -o Acquire::Retries=5 update
-          sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
-            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
-            libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
-            libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
+        uses: ./.github/actions/sdl-deps
       - name: Install Ninja (macOS)
         if: runner.os == 'macOS'
         run: brew install ninja
@@ -129,11 +163,14 @@ jobs:
           name: screenshot-${{ matrix.name }}
           path: screenshot.bmp
 
-  # `gectl export` makes the zip that players receive. This job makes it for real, unpacks it in a
-  # folder with spaces and an accent, checks that nothing but system libraries is needed, and
-  # plays it without a window.
+  # `gectl export` makes the zip that players receive. This job makes it for real (one game, the
+  # export is the same for all of them), unpacks it in a folder with spaces and an accent, checks
+  # that nothing but system libraries is needed, and plays it without a window. On a promotion the
+  # three games of ADR 0013 are exported too, and the scripts that open the launcher are run.
   export:
     name: Export ${{ matrix.name }}
+    needs: changes
+    if: needs.changes.outputs.engine == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -145,12 +182,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
-        run: |
-          sudo apt-get -o Acquire::Retries=5 update
-          sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
-            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
-            libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
-            libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
+        uses: ./.github/actions/sdl-deps
       # On Windows the way a person does it: scripts\export.cmd, from a plain prompt (no Visual
       # Studio developer environment, no Ninja).
       - name: Export Doodle Jump (Windows)
@@ -160,12 +192,12 @@ jobs:
       # The scripts that open the launcher, the way a person does it: they build it, then start it
       # without a window for a few frames.
       - name: Open the launcher with gameEngine.cmd (Windows)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.changes.outputs.launcher == 'true'
         shell: cmd
         timeout-minutes: 30
         run: gameEngine.cmd --headless --frames 3
       - name: Open the launcher with gameEngine.sh (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && needs.changes.outputs.launcher == 'true'
         timeout-minutes: 30
         run: ./gameEngine.sh --headless --frames 3
       - name: Export Doodle Jump (Linux)
@@ -174,25 +206,15 @@ jobs:
           cmake --preset release
           cmake --build --preset release --target gectl
           ./build/release/tools/gectl export games/doodle_jump/game.json --target linux --out dist
-      # The three games made to try the engine (ADR 0013) are exported the same way.
-      - name: Export 2048, chess and the tower defense (Windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-          call scripts\export.cmd games\game_2048\game.json --out dist-games
-          if errorlevel 1 exit /b 1
-          call scripts\export.cmd games\chess\game.json --out dist-games
-          if errorlevel 1 exit /b 1
-          call scripts\export.cmd games\tower_defense\game.json --out dist-games
-          if errorlevel 1 exit /b 1
+      # The three games made to try the engine (ADR 0013) are exported the same way, once.
       - name: Export 2048, chess and the tower defense (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && needs.changes.outputs.full == 'true'
         run: |
           for game in game_2048 chess tower_defense; do
             ./build/release/tools/gectl export games/$game/game.json --target linux --out dist-games
           done
       - name: Check the packages of the three games
-        shell: bash
+        if: runner.os == 'Linux' && needs.changes.outputs.full == 'true'
         run: |
           set -e
           zips=(dist-games/*.zip)
@@ -250,8 +272,12 @@ jobs:
           name: export-${{ matrix.name }}
           path: dist/*.zip
 
+  # Only on a promotion (and push to main): it takes a build of its own, and a threshold that falls
+  # is a matter of tests missing for what a pull request added (see the skill add-module).
   coverage:
     name: Coverage
+    needs: changes
+    if: needs.changes.outputs.full == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -323,10 +349,16 @@ jobs:
           ls -l build/android-player/platform/sdl/libmain.so
 
   # The Android export for real (ADR 0012): `gectl export --target android` makes the APK of a
-  # reference game with the NDK and Gradle, aapt2 reads its identity back, and an emulator
-  # (Android 14, x86_64) installs it, plays it with taps and a held finger and presses Back.
+  # game with the NDK and Gradle, aapt2 reads its identity back, and an emulator (Android 14,
+  # x86_64) installs it and plays it. Three games, each for what only a device shows: a tap, a held
+  # finger and a screen taller than the game (doodle_jump), swipes (game_2048), a game wider than
+  # the phone held upright, so bars, a smaller area and touches within it (tower_defense). What a
+  # game does with its inputs and its layout on a phone's screen is a scenario with `screen`
+  # (docs/TESTING.md), played by ./scripts/check.sh; the other games are exported at release.
   android-export:
     name: Android APK of ${{ matrix.game }}
+    needs: changes
+    if: needs.changes.outputs.engine == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
@@ -334,17 +366,21 @@ jobs:
       matrix:
         include:
           - { game: doodle_jump, window: "480 720", adapt: "0.4 0.8", tap: "W/2 H/2-40" }
-          - { game: treasure_run, window: "800 600", tap: "" }
-          # The three games made to try the engine (ADR 0013), played with touches: a piece chosen
-          # then moved (chess), two swipes (2048), a tower built then the next wave called.
-          - { game: chess, window: "480 720", adapt: "0.4 0.8",
-              touches: "W/2+32*min(W/540,(H-292)/540):(96+H-196)/2+160*min(W/540,(H-292)/540);W/2+32*min(W/540,(H-292)/540):(96+H-196)/2+32*min(W/540,(H-292)/540)" }
           - { game: game_2048, window: "480 720", adapt: "0.4 0.8",
               swipes: "W/2+120:H/2:W/2-120:H/2;W/2:H/2+120:W/2:H/2-120;W/2-120:H/2:W/2+120:H/2" }
           - { game: tower_defense, window: "800 480", adapt: "1.25 2.4",
               touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
     steps:
       - uses: actions/checkout@v7
+      # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
+      # pull request to the next, so that they are not asked for again.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('platform/android/template/**') }}
+          restore-keys: gradle-${{ runner.os }}-
       - name: Build gectl
         run: |
           cmake --preset release -DGE_BUILD_TESTS=OFF
@@ -352,15 +388,9 @@ jobs:
       - name: Export the game for Android (x86_64 for the emulator, arm64-v8a for phones)
         run: |
           started=$(date +%s)
-          # Gradle downloads its own tools from Maven Central, which answers "429, too many
-          # requests" now and then when several jobs ask together: try again before failing.
-          for attempt in 1 2 3; do
-            ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
-              --abi x86_64,arm64-v8a --out dist && break
-            [ "$attempt" -lt 3 ] || exit 1
-            echo "the export failed (attempt $attempt of 3), trying again in 60 s"
-            sleep 60
-          done
+          # Maven Central answers "429, too many requests" now and then: try again, longer each time.
+          ./scripts/ci_retry.sh 3 60 ./build/release/tools/gectl export \
+            games/${{ matrix.game }}/game.json --target android --abi x86_64,arm64-v8a --out dist
           echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_ENV"
       - name: What is in the APK
         run: |
@@ -425,11 +455,12 @@ jobs:
         run: cmake --build build/ios
 
   # Single required check for branch protection: it fails unless every job above
-  # succeeded (failed, cancelled and skipped jobs all count as failures).
+  # succeeded or was left out on purpose (failed and cancelled jobs count as failures).
   ci-success:
     name: CI success
     if: always()
     needs:
+      - changes
       - workflow-lint
       - format
       - modules
@@ -449,7 +480,10 @@ jobs:
         run: |
           echo "Job results: $RESULTS"
           for result in $RESULTS; do
-            if [[ "$result" != "success" ]]; then
+            # skipped: coverage, the exports and the emulator are left out of a small pull request
+            # on purpose (`changes`); a job that cannot start because `changes` failed shows up as
+            # a failure of `changes` itself.
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
               echo "::error::A required job finished with result '$result'"
               exit 1
             fi

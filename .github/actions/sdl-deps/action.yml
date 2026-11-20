@@ -1,0 +1,17 @@
+name: SDL3 build dependencies (Linux)
+description: >
+  The system libraries SDL3 needs to be built from source on Ubuntu. apt mirrors answer 503 or do
+  not answer now and then (and IPv6 is often unreachable on the runners): IPv4 only, and the
+  whole install is tried again.
+runs:
+  using: composite
+  steps:
+    - name: Install the libraries
+      shell: bash
+      run: |
+        "$GITHUB_ACTION_PATH/../../../scripts/ci_retry.sh" 4 20 bash -c '
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true update &&
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true install -y --no-install-recommends \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+            libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
+            libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev'

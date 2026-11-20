@@ -484,3 +484,53 @@ TEST_CASE("scenario: a scenario fills a run-time list, selects a row and a host 
         "lists": {"gamez": ["Alpha"]}, "expect": ["list gamez selected == 0"]})";
     CHECK(mentions(load(files), "no run-time list is named \"gamez\""));
 }
+
+namespace {
+
+/// A game whose window follows the screen, with a bar stuck to the bottom edge of the window.
+Files phone_sample(const std::string& screen) {
+    return {
+        {"g/game.json", R"({
+            "schema_version": 1, "name": "phone",
+            "modules": ["transform2d", "sprite2d", "text2d", "ui"],
+            "window": {"width": 480, "height": 720, "adapt": true},
+            "scenes": ["main.json"], "scenarios": ["look.json"], "start_scene": "main"
+        })"},
+        {"g/main.json", R"({
+            "schema_version": 1, "name": "main",
+            "entities": [{"name": "bar", "components": {
+                "transform2d.Position": {}, "ui.Anchor": {"anchor_y": 1}}}]
+        })"},
+        {"g/look.json", R"({"schema_version": 1, "name": "look", "ticks": 3)" + screen + R"(,
+            "expect": ["bar.transform2d.Position.y == 960"]})"},
+    };
+}
+
+} // namespace
+
+TEST_CASE("scenario: a screen makes the window follow its shape, as a phone's would") {
+    // A screen of 320 x 640 (1 : 2) is taller than the 480 x 720 window: the area is 480 x 960.
+    const auto tall = load(phone_sample(R"(, "screen": {"width": 320, "height": 640})"));
+    for (const auto& diagnostic : tall.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(tall.ok());
+    CHECK(tall.game.scenarios[0].screen_width == 320);
+    CHECK(tall.game.scenarios[0].screen_height == 640);
+    CHECK(ge::game::run_scenario(tall.game, tall.game.scenarios[0], linked).passed());
+    // Without a screen the area is the window's own: the bar is at 720, not 960.
+    const auto plain = load(phone_sample(""));
+    REQUIRE(plain.ok());
+    CHECK(plain.game.scenarios[0].screen_width == 0);
+    CHECK(!ge::game::run_scenario(plain.game, plain.game.scenarios[0], linked).passed());
+}
+
+TEST_CASE("scenario: a screen without sense is refused") {
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 0, "height": 640})")),
+                   "screen.width: expected a number of pixels"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 320})")),
+                   "screen.height: expected a number of pixels"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 320, "height": 640, "dpi": 2})")),
+                   "unknown key"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": 5)")), "expected an object"));
+}

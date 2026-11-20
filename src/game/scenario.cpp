@@ -232,6 +232,28 @@ void read_inputs(Checker& checker, const json::Value& root, ScenarioData& scenar
     }
 }
 
+/// The optional "screen": the size of the screen the game is played on.
+void read_screen(Checker& checker, const json::Value& root, ScenarioData& scenario) {
+    const json::Value* screen = root.find("screen");
+    if (screen == nullptr || checker.object(*screen, "screen") == nullptr) {
+        return;
+    }
+    checker.reject_unknown(*screen, "screen", {"width", "height"});
+    int sizes[2] = {0, 0};
+    const char* const keys[2] = {"width", "height"};
+    for (std::size_t i = 0; i < 2; ++i) {
+        const json::Value* size = screen->find(keys[i]);
+        if (size == nullptr || !size->is_int() || size->as_int() < 1 || size->as_int() > 16384) {
+            checker.error(join_path("screen", keys[i]),
+                          "expected a number of pixels between 1 and 16384");
+        } else {
+            sizes[i] = static_cast<int>(size->as_int());
+        }
+    }
+    scenario.screen_width = sizes[0];
+    scenario.screen_height = sizes[1];
+}
+
 /// The optional "lists": run-time lists a host would fill, as `name: [texts]`.
 void read_lists(Checker& checker, const json::Value& root, ScenarioData& scenario) {
     const json::Value* lists = root.find("lists");
@@ -299,7 +321,7 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     }
     checker.reject_unknown(*object, "",
                            {"$schema", "schema_version", "name", "description", "scene", "ticks",
-                            "inputs", "lists", "expect"});
+                            "screen", "inputs", "lists", "expect"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -317,6 +339,7 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     } else {
         scenario.ticks = static_cast<std::uint64_t>(ticks->as_int());
     }
+    read_screen(checker, *object, scenario);
     read_inputs(checker, *object, scenario);
     read_lists(checker, *object, scenario);
     if (const json::Value* expect = checker.array(*object, "expect", ""); expect != nullptr) {

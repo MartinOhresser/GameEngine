@@ -86,6 +86,11 @@ struct ScenarioData {
     /// The scene it starts; empty means the game's `start_scene`.
     std::string scene;
     std::uint64_t ticks = 0;
+    /// The size in pixels of the screen the game is played on, as a phone would have it (0: the
+    /// game's own window). A game that follows the screen (`window.adapt`) takes its shape, and the
+    /// pointer inputs of the scenario are in pixels of that drawing area.
+    int screen_width = 0;
+    int screen_height = 0;
     std::vector<ScenarioInput> inputs;
     /// Run-time lists (`RuntimeLists`) filled before the first tick, as a host would: name, items.
     std::vector<std::pair<std::string, std::vector<std::string>>> lists;
