@@ -107,6 +107,37 @@ bool back_pressed(const std::vector<std::string>& sources, const std::vector<Raw
     });
 }
 
+/// A pointer coordinate, not a button.
+bool is_position(const std::string& source) {
+    return source.ends_with(":x") || source.ends_with(":y");
+}
+
+/// Puts the events of a frame into `raw`. A button that is pressed and released in the same
+/// frame (a quick tap on a slow device) would never be seen down: its release waits for the next
+/// frame, so that the game sees the press for one tick.
+void apply_events(RawState& raw, const std::vector<RawEvent>& events, std::vector<RawEvent>& held) {
+    for (const RawEvent& release : held) {
+        raw.set(release.source, release.value);
+    }
+    held.clear();
+    std::vector<std::string> pressed_now; // buttons that went down in this frame
+    for (const RawEvent& event : events) {
+        const bool down = event.value > 0.5F;
+        const bool button = !is_position(event.source);
+        if (button && down && raw.value(event.source) <= 0.5F) {
+            pressed_now.push_back(event.source);
+        }
+        const bool tapped =
+            button && !down &&
+            std::find(pressed_now.begin(), pressed_now.end(), event.source) != pressed_now.end();
+        if (tapped) {
+            held.push_back(event);
+        } else {
+            raw.set(event.source, event.value);
+        }
+    }
+}
+
 } // namespace
 
 LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
@@ -117,6 +148,7 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
     LoopResult result;
     RawState raw;
     std::vector<RawEvent> events;
+    std::vector<RawEvent> held; // releases that wait for the next frame
     std::chrono::nanoseconds last = backend.now();
     while (options.max_frames == 0 || result.frames < options.max_frames) {
         events.clear();
@@ -128,9 +160,7 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
             result.back_requested = true;
             break;
         }
-        for (const RawEvent& event : events) {
-            raw.set(event.source, event.value);
-        }
+        apply_events(raw, events, held);
         follow_view(app, backend);
         if (auto* live = app.world().resource<app::LiveInput>(); live != nullptr) {
             map.apply(raw, *live);

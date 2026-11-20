@@ -6,6 +6,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- Une pression plus courte qu'une image (un toucher très bref sur un appareil lent, ou `adb shell input tap`) n'était jamais vue par le jeu : le bouton montait avant que la simulation le lise. Le bouton reste maintenant enfoncé pendant un tick, puis se relâche à l'image suivante (`run_loop`). Le tower defense range aussi sa barre du bas dans 600 pixels de large (la forme la plus étroite qu'il prend), pour que rien ne soit coupé sur un téléphone tenu droit.
+
 - ADR 0013, G11 : les trois jeux d'essai (`game_2048`, `chess`, `tower_defense`) entrent dans la CI et la release. Job `export` : zips Windows et Linux vérifiés ; job `android-export` : vrai export Android puis jeu dans l'émulateur par des touchers (une pièce choisie puis jouée, une tour construite puis la vague suivante) et des glissés (2048) ; release : zips et APK des six jeux. `platform/android/run_game_on_device.sh` apprend `GAME_TOUCHES` et `GAME_SWIPES` (chaque toucher doit changer l'écran), `spike/pixel.py differs` compare deux captures.
 
 - ADR 0013, G10 : le jeu **`games/tower_defense`**, sans C++ : une route, quatre tours (canon, mortier, glace, sniper) à trois niveaux qu'on construit, améliore et vend avec l'or des monstres, quatre monstres, douze vagues dont un chef, victoire et défaite, nouvelle partie. Touche ou clic sur une case pour construire, sur une tour pour la sélectionner ; boutons de la boutique, touches 1 à 4 et espace. 22 scénarios, `docs/GAME_TOWER_DEFENSE.md`. Corrigé en chemin : `health::deal` perdait une demande de dégâts quand deux sources frappaient la même entité dans le même tick (un test de `health` le couvre).

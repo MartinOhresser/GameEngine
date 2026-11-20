@@ -7,21 +7,21 @@
     "sprite2d.Sprite": {
       "atlas": "ui",
       "frame": 1,
-      "width": 108,
+      "width": 88,
       "height": 40,
       "screen": true,
       "layer": 10
     },
     "text2d.Text": {
       "font": "font",
-      "size": 17,
+      "size": 15,
       "pivot_x": 0.5,
       "pivot_y": 0.5,
       "screen": true
     },
     "ui.Button": {
       "menu": "game_menu",
-      "width": 108,
+      "width": 88,
       "height": 40,
       "normal_frame": 1,
       "focus_frame": 2

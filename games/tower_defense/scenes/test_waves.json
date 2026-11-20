@@ -2046,7 +2046,7 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": -300,
+          "offset_x": -250,
           "offset_y": -32
         },
         "ui.Button": {
@@ -2073,7 +2073,7 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": -186,
+          "offset_x": -158,
           "offset_y": -32
         },
         "ui.Button": {
@@ -2100,7 +2100,7 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": -72,
+          "offset_x": -66,
           "offset_y": -32
         },
         "ui.Button": {
@@ -2127,7 +2127,7 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": 42,
+          "offset_x": 26,
           "offset_y": -32
         },
         "ui.Button": {
@@ -2154,16 +2154,16 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": -250,
+          "offset_x": -200,
           "offset_y": -32
         },
         "sprite2d.Sprite": {
-          "width": 150
+          "width": 130
         },
         "ui.Button": {
           "order": 4,
           "action": "upgrade",
-          "width": 150
+          "width": 130
         },
         "text2d.Text": {
           "string": "button.upgrade"
@@ -2184,16 +2184,16 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": -80,
+          "offset_x": -60,
           "offset_y": -32
         },
         "sprite2d.Sprite": {
-          "width": 150
+          "width": 130
         },
         "ui.Button": {
           "order": 5,
           "action": "sell",
-          "width": 150
+          "width": 130
         },
         "text2d.Text": {
           "string": "button.sell"
@@ -2214,16 +2214,16 @@
         "ui.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1.0,
-          "offset_x": 290,
+          "offset_x": 230,
           "offset_y": -32
         },
         "sprite2d.Sprite": {
-          "width": 150
+          "width": 120
         },
         "ui.Button": {
           "order": 6,
           "action": "start_wave",
-          "width": 150
+          "width": 120
         },
         "text2d.Text": {
           "string": "button.next"

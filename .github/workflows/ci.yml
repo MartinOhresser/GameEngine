@@ -179,9 +179,12 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
-          scripts\export.cmd games\game_2048\game.json --out dist-games
-          scripts\export.cmd games\chess\game.json --out dist-games
-          scripts\export.cmd games\tower_defense\game.json --out dist-games
+          call scripts\export.cmd games\game_2048\game.json --out dist-games
+          if errorlevel 1 exit /b 1
+          call scripts\export.cmd games\chess\game.json --out dist-games
+          if errorlevel 1 exit /b 1
+          call scripts\export.cmd games\tower_defense\game.json --out dist-games
+          if errorlevel 1 exit /b 1
       - name: Export 2048, chess and the tower defense (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -192,8 +195,9 @@ jobs:
         shell: bash
         run: |
           set -e
-          test "$(ls dist-games/*.zip | wc -l)" -eq 3
-          for zip in dist-games/*.zip; do
+          zips=(dist-games/*.zip)
+          test "${#zips[@]}" -eq 3
+          for zip in "${zips[@]}"; do
             echo "== $zip"
             cmake -E tar tf "$zip" > contents-one.txt
             grep -q "data/game.json" contents-one.txt
@@ -338,7 +342,7 @@ jobs:
           - { game: game_2048, window: "480 720", adapt: "0.4 0.8",
               swipes: "W/2+120:H/2:W/2-120:H/2;W/2:H/2+120:W/2:H/2-120;W/2-120:H/2:W/2+120:H/2" }
           - { game: tower_defense, window: "800 480", adapt: "1.25 2.4",
-              touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+290:H-32" }
+              touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
     steps:
       - uses: actions/checkout@v7
       - name: Build gectl

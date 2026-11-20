@@ -47,6 +47,12 @@ INDEX = {"playing": 0, "tower": 1, "tower_final": 2, "won": 3, "lost": 4}
 START_GOLD, START_LIVES = 150, 20
 
 
+# The bottom bar, in pixels from the middle of the window: it must fit the narrowest shape the
+# game takes (600 wide, a 5:4 screen), so that nothing is cut off on a phone held upright.
+SHOP_X, SHOP_STEP = -250, 92
+UPGRADE_X, SELL_X, NEXT_X = -200, -60, 230
+
+
 def centre(col, row):
     return (col - (COLS - 1) / 2) * CELL, (row - (ROWS - 1) / 2) * CELL
 
@@ -417,11 +423,11 @@ def prefabs():
     out["button"] = ("A button of the bottom bar: a picture and its text.", {
         "schema_version": 1, "name": "button", "components": {
             "transform2d.Position": {},
-            "sprite2d.Sprite": {"atlas": "ui", "frame": 1, "width": 108, "height": 40,
+            "sprite2d.Sprite": {"atlas": "ui", "frame": 1, "width": 88, "height": 40,
                                 "screen": True, "layer": 10},
-            "text2d.Text": {"font": "font", "size": 17, "pivot_x": 0.5, "pivot_y": 0.5,
+            "text2d.Text": {"font": "font", "size": 15, "pivot_x": 0.5, "pivot_y": 0.5,
                             "screen": True},
-            "ui.Button": {"menu": "game_menu", "width": 108, "height": 40, "normal_frame": 1,
+            "ui.Button": {"menu": "game_menu", "width": 88, "height": 40, "normal_frame": 1,
                           "focus_frame": 2}}})
     return out
 
@@ -603,7 +609,7 @@ def interface_entities():
     ]
     for index, name in enumerate(TOWERS):
         out.append({"name": "button_" + name, "prefab": "button", "components": tagged({
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": -300 + index * 114,
+            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SHOP_X + index * SHOP_STEP,
                           "offset_y": -32},
             "ui.Button": {"order": index, "action": "pick_" + name,
                           "normal_frame": 3 if name == "cannon" else 1,
@@ -611,21 +617,21 @@ def interface_entities():
             "text2d.Text": {"string": "button." + name},
             "phase.ShowIn": {"phases": PLAYING}}, "button_" + name)})
     out.append({"name": "button_upgrade", "prefab": "button", "components": bound({
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": -250, "offset_y": -32},
-        "sprite2d.Sprite": {"width": 150},
-        "ui.Button": {"order": 4, "action": "upgrade", "width": 150},
+        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": UPGRADE_X, "offset_y": -32},
+        "sprite2d.Sprite": {"width": 130},
+        "ui.Button": {"order": 4, "action": "upgrade", "width": 130},
         "text2d.Text": {"string": "button.upgrade"},
         "phase.ShowIn": {"phases": TOWER}}, "hand", "economy.Placer.upgrade_price")})
     out.append({"name": "button_sell", "prefab": "button", "components": bound({
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": -80, "offset_y": -32},
-        "sprite2d.Sprite": {"width": 150},
-        "ui.Button": {"order": 5, "action": "sell", "width": 150},
+        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SELL_X, "offset_y": -32},
+        "sprite2d.Sprite": {"width": 130},
+        "ui.Button": {"order": 5, "action": "sell", "width": 130},
         "text2d.Text": {"string": "button.sell"},
         "phase.ShowIn": {"phases": TOWER | TOWER_FINAL}}, "hand", "economy.Placer.sell_value")})
     out.append({"name": "button_next", "prefab": "button", "components": {
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": 290, "offset_y": -32},
-        "sprite2d.Sprite": {"width": 150},
-        "ui.Button": {"order": 6, "action": "start_wave", "width": 150},
+        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": NEXT_X, "offset_y": -32},
+        "sprite2d.Sprite": {"width": 120},
+        "ui.Button": {"order": 6, "action": "start_wave", "width": 120},
         "text2d.Text": {"string": "button.next"},
         "phase.ShowIn": {"phases": ALIVE}}})
     out.append({"name": "button_new", "prefab": "button", "components": {
@@ -750,7 +756,7 @@ def scenarios():
         at_tick(40, GOLD % (START_GOLD - 90 - 50), "entities == %d" % (size + 2))))
     out.append(scenario(
         "the_buttons_of_the_shop_work", "The buttons of the bottom bar choose the tower too: "
-        "the second is the mortar.", 40, press_button(5, -300 + 114) + touch(20, 3, 2),
+        "the second is the mortar.", 40, press_button(5, SHOP_X + SHOP_STEP) + touch(20, 3, 2),
         at_tick(40, GOLD % (START_GOLD - 90), "entities == %d" % (size + 1))))
     out.append(scenario(
         "a_tower_kills_and_the_bounty_is_paid", "A cannon beside the road shoots the first "
@@ -805,7 +811,7 @@ def improving_and_selling(size):
         scenario(
             "the_buttons_improve_and_sell", "The Upgrade and Sell buttons of the bottom bar do the "
             "same as their actions.", 100,
-            selected + press_button(30, -250) + press_button(60, -80),
+            selected + press_button(30, UPGRADE_X) + press_button(60, SELL_X),
             at_tick(100, GOLD % (START_GOLD - 50 - 40 + 54), PHASE % INDEX["playing"],
                     "entities == %d" % size)),
     ]
