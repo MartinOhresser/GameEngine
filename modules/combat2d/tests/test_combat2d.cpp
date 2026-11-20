@@ -1,75 +1,71 @@
 #include "ge/app/app.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
-#include "ge/app/viewport.hpp"
-#include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/collision2d/collision2d.gen.hpp"
 #include "ge/mod/combat2d/combat2d.gen.hpp"
+#include "ge/mod/health/health.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include "mini_test.hpp"
 
+#include <cmath>
+
 namespace {
 
-namespace camera2d = ge::mod::camera2d;
 namespace collision2d = ge::mod::collision2d;
 namespace combat2d = ge::mod::combat2d;
+namespace health = ge::mod::health;
 namespace transform2d = ge::mod::transform2d;
 
 using ge::ecs::Entity;
 
 constexpr std::uint32_t player_layer = 1U;
 constexpr std::uint32_t monster_layer = 2U;
+constexpr std::uint32_t shot_layer = 4U;
 
 ge::app::App game() {
     ge::app::App app;
     transform2d::install(app);
     collision2d::install(app);
-    camera2d::install(app);
+    health::install(app);
     combat2d::install(app);
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().problems().empty());
-    app.world().insert_resource(ge::app::Viewport{480, 720});
     app.world().insert_resource(ge::app::ActionNames{{"died", "other"}});
     return app;
-}
-
-Entity spawn_camera(ge::app::App& app, float y) {
-    const Entity camera = app.world().spawn();
-    CHECK(app.world().insert(camera, transform2d::Position{240.0F, y}));
-    CHECK(app.world().insert(camera, camera2d::Camera{}));
-    return camera;
 }
 
 Entity spawn_box(ge::app::App& app, float x, float y, std::uint32_t layer) {
     const Entity entity = app.world().spawn();
     CHECK(app.world().insert(entity, transform2d::Position{x, y}));
-    CHECK(
-        app.world().insert(entity, collision2d::Collider{20.0F, 20.0F, layer, 0xFFFFFFFFU, false}));
-    CHECK(app.world().insert(entity, collision2d::Contacts{}));
+    CHECK(app.world().insert(entity, collision2d::Collider{20.0F, 20.0F, layer, 0U, false}));
     return entity;
 }
 
-Entity spawn_shot(ge::app::App& app, float x, float y, int damage) {
-    const Entity entity = spawn_box(app, x, y, 4U);
-    CHECK(app.world().insert(entity, combat2d::Projectile{damage}));
+Entity spawn_target(ge::app::App& app, float x, float y, std::int32_t amount,
+                    std::uint32_t layer = monster_layer) {
+    const Entity entity = spawn_box(app, x, y, layer);
+    health::Health life;
+    life.amount = amount;
+    life.max = amount;
+    CHECK(app.world().insert(entity, life));
     return entity;
 }
 
-Entity spawn_target(ge::app::App& app, float x, float y, int health) {
-    const Entity entity = spawn_box(app, x, y, monster_layer);
-    CHECK(app.world().insert(entity, combat2d::Target{health}));
+Entity spawn_shot(ge::app::App& app, float x, float y, combat2d::Projectile shot) {
+    const Entity entity = spawn_box(app, x, y, shot_layer);
+    CHECK(app.world().insert(entity, shot));
     return entity;
 }
 
-Entity spawn_mortal(ge::app::App& app, float x, float y, combat2d::Mortal mortal) {
-    const Entity entity = spawn_box(app, x, y, player_layer);
-    CHECK(app.world().insert(entity, mortal));
-    return entity;
+combat2d::Projectile damage_of(std::int32_t damage) {
+    combat2d::Projectile shot;
+    shot.damage = damage;
+    return shot;
 }
 
-bool dead(ge::app::App& app, Entity entity) {
-    return app.world().get<combat2d::Mortal>(entity)->dead;
+std::int32_t life_of(ge::app::App& app, Entity entity) {
+    return app.world().get<health::Health>(entity)->amount;
 }
 
 } // namespace
@@ -77,7 +73,7 @@ bool dead(ge::app::App& app, Entity entity) {
 TEST_CASE("combat2d: a projectile destroys a target with one life, and itself") {
     auto app = game();
     const Entity target = spawn_target(app, 100.0F, 100.0F, 1);
-    const Entity shot = spawn_shot(app, 105.0F, 95.0F, 1);
+    const Entity shot = spawn_shot(app, 105.0F, 95.0F, damage_of(1));
     app.run_frames(1);
     CHECK(!app.world().is_alive(target));
     CHECK(!app.world().is_alive(shot));
@@ -86,12 +82,12 @@ TEST_CASE("combat2d: a projectile destroys a target with one life, and itself") 
 TEST_CASE("combat2d: a target with several lives loses one per hit") {
     auto app = game();
     const Entity target = spawn_target(app, 100.0F, 100.0F, 3);
-    const Entity first = spawn_shot(app, 100.0F, 100.0F, 1);
+    const Entity first = spawn_shot(app, 100.0F, 100.0F, damage_of(1));
     app.run_frames(1);
     REQUIRE(app.world().is_alive(target));
-    CHECK(app.world().get<combat2d::Target>(target)->health == 2);
+    CHECK(life_of(app, target) == 2);
     CHECK(!app.world().is_alive(first));
-    static_cast<void>(spawn_shot(app, 100.0F, 100.0F, 2));
+    static_cast<void>(spawn_shot(app, 100.0F, 100.0F, damage_of(2)));
     app.run_frames(1);
     CHECK(!app.world().is_alive(target));
 }
@@ -101,104 +97,145 @@ TEST_CASE("combat2d: a projectile that misses goes on, and hits only one target"
     const Entity far = spawn_target(app, 300.0F, 300.0F, 1);
     const Entity near_a = spawn_target(app, 100.0F, 100.0F, 1);
     const Entity near_b = spawn_target(app, 105.0F, 100.0F, 1);
-    const Entity shot = spawn_shot(app, 102.0F, 100.0F, 1);
+    const Entity shot = spawn_shot(app, 102.0F, 100.0F, damage_of(1));
     app.run_frames(1);
     CHECK(app.world().is_alive(far));
     CHECK(!app.world().is_alive(shot));
     CHECK(app.world().is_alive(near_a) != app.world().is_alive(near_b)); // exactly one died
 }
 
-TEST_CASE("combat2d: a mortal dies on touching a harmful layer, not another one") {
+TEST_CASE("combat2d: a projectile only hurts the layers it is for") {
     auto app = game();
-    static_cast<void>(spawn_camera(app, 360.0F));
-    combat2d::Mortal hurtable;
-    hurtable.hurt_layers = monster_layer;
-    const Entity safe = spawn_mortal(app, 50.0F, 100.0F, hurtable);
-    const Entity unlucky = spawn_mortal(app, 300.0F, 100.0F, hurtable);
-    static_cast<void>(spawn_box(app, 305.0F, 100.0F, monster_layer));
-    static_cast<void>(spawn_box(app, 50.0F, 105.0F, 8U)); // touches `safe`, but is harmless
-    app.run_frames(1);
-    CHECK(!dead(app, safe));
-    CHECK(dead(app, unlucky));
+    const Entity ally = spawn_target(app, 100.0F, 100.0F, 1, player_layer);
+    combat2d::Projectile shot = damage_of(1);
+    shot.layers = monster_layer;
+    const Entity bullet = spawn_shot(app, 100.0F, 100.0F, shot);
+    app.run_frames(2);
+    CHECK(app.world().is_alive(ally));
+    CHECK(app.world().is_alive(bullet)); // it goes on
 }
 
-TEST_CASE("combat2d: with fall_death a mortal dies under the bottom edge of the screen") {
+TEST_CASE("combat2d: a splash hurts everything around the hit, and nothing farther") {
     auto app = game();
-    const Entity camera = spawn_camera(app, 360.0F); // the screen shows y 0 to 720
-    combat2d::Mortal climber;
-    climber.fall_death = true;
-    climber.fall_margin = 50.0F;
-    const Entity inside = spawn_mortal(app, 100.0F, 700.0F, climber);
-    const Entity margin = spawn_mortal(app, 200.0F, 760.0F, climber); // 770 is the limit
-    const Entity below = spawn_mortal(app, 300.0F, 780.0F, climber);
-    const combat2d::Mortal stays;
-    const Entity careless = spawn_mortal(app, 400.0F, 5000.0F, stays); // fall_death is off
+    const Entity centre = spawn_target(app, 100.0F, 100.0F, 5);
+    const Entity near = spawn_target(app, 140.0F, 100.0F, 5);
+    const Entity far = spawn_target(app, 200.0F, 100.0F, 5);
+    combat2d::Projectile shell = damage_of(2);
+    shell.splash_radius = 50.0F;
+    static_cast<void>(spawn_shot(app, 100.0F, 100.0F, shell));
     app.run_frames(1);
-    CHECK(!dead(app, inside));
-    CHECK(!dead(app, margin));
-    CHECK(dead(app, below));
-    CHECK(!dead(app, careless));
-    app.world().get<transform2d::Position>(camera)->y =
-        100.0F; // the screen climbs: its bottom is at 460
-    app.run_frames(1);
-    CHECK(dead(app, inside));
+    CHECK(life_of(app, centre) == 3);
+    CHECK(life_of(app, near) == 3);
+    CHECK(life_of(app, far) == 5);
 }
 
-TEST_CASE("combat2d: fall_x and fall_y say which edge of the screen a mortal dies past") {
+TEST_CASE("combat2d: a piercing projectile goes through several targets, one hit each") {
     auto app = game();
-    static_cast<void>(spawn_camera(app, 360.0F)); // the screen shows x 0 to 480 and y 0 to 720
-    combat2d::Mortal runner; // loses the race when it is left behind: past the left edge
-    runner.fall_death = true;
-    runner.fall_x = -1.0F;
-    runner.fall_y = 0.0F;
-    runner.fall_margin = 30.0F;
-    const Entity inside = spawn_mortal(app, 10.0F, 5000.0F, runner); // far below: that is allowed
-    const Entity behind = spawn_mortal(app, -40.0F, 300.0F, runner);
-    const Entity ahead = spawn_mortal(app, 900.0F, 300.0F, runner);
-    combat2d::Mortal diver; // falls up
-    diver.fall_death = true;
-    diver.fall_y = -1.0F;
-    const Entity above = spawn_mortal(app, 100.0F, -20.0F, diver);
-    const Entity on_screen = spawn_mortal(app, 100.0F, 20.0F, diver);
-    combat2d::Mortal sideways; // dies past the right edge
-    sideways.fall_death = true;
-    sideways.fall_x = 1.0F;
-    sideways.fall_y = 0.0F;
-    const Entity past_right = spawn_mortal(app, 500.0F, 300.0F, sideways);
+    const Entity first = spawn_target(app, 100.0F, 100.0F, 5);
+    const Entity second = spawn_target(app, 200.0F, 100.0F, 5);
+    combat2d::Projectile arrow = damage_of(1);
+    arrow.pierce = 1;
+    const Entity shot = spawn_shot(app, 100.0F, 100.0F, arrow);
+    CHECK(app.world().insert(shot, transform2d::Velocity{0.0F, 0.0F}));
     app.run_frames(1);
-    CHECK(!dead(app, inside));
-    CHECK(dead(app, behind));
-    CHECK(!dead(app, ahead));
-    CHECK(dead(app, above));
-    CHECK(!dead(app, on_screen));
-    CHECK(dead(app, past_right));
+    CHECK(life_of(app, first) == 4);
+    REQUIRE(app.world().is_alive(shot));
+    app.run_frames(3); // still on the first one: it does not hit it again
+    CHECK(life_of(app, first) == 4);
+    app.world().get<transform2d::Position>(shot)->x = 200.0F;
+    app.run_frames(1);
+    CHECK(life_of(app, second) == 4);
+    CHECK(!app.world().is_alive(shot)); // the pierce is used up
 }
 
-TEST_CASE("combat2d: a death raises its action once, for the whole next tick") {
+TEST_CASE("combat2d: a projectile can slow what it hits for a while") {
     auto app = game();
-    static_cast<void>(spawn_camera(app, 360.0F));
-    combat2d::Mortal climber;
-    climber.fall_death = true;
-    climber.on_death = 0; // "died"
-    static_cast<void>(spawn_mortal(app, 100.0F, 2000.0F, climber));
-    int pressed_ticks = 0;
-    app.add_system(ge::app::Stage::FixedUpdate, [&pressed_ticks](ge::ecs::World& world) {
-        if (world.resource<ge::app::Actions>()->pressed("died")) {
-            ++pressed_ticks;
-        }
-    });
-    app.run_frames(6);
-    CHECK(pressed_ticks == 1);
+    const Entity target = spawn_target(app, 100.0F, 100.0F, 5);
+    combat2d::Projectile ice = damage_of(1);
+    ice.on_hit_speed_factor = 0.4F;
+    ice.on_hit_speed_ticks = 90;
+    static_cast<void>(spawn_shot(app, 100.0F, 100.0F, ice));
+    app.run_frames(1);
+    REQUIRE(app.world().has<transform2d::SpeedScale>(target));
+    CHECK(app.world().get<transform2d::SpeedScale>(target)->factor == 0.4F);
+    CHECK(app.world().get<transform2d::SpeedScale>(target)->ticks > 80U);
 }
 
-TEST_CASE("combat2d: a mortal with no death action still dies quietly") {
+TEST_CASE("combat2d: a homing projectile turns towards its target and keeps its speed") {
     auto app = game();
-    static_cast<void>(spawn_camera(app, 360.0F));
-    combat2d::Mortal climber;
-    climber.fall_death = true; // on_death is "none"
-    const Entity entity = spawn_mortal(app, 100.0F, 2000.0F, climber);
-    app.run_frames(3);
-    CHECK(dead(app, entity));
-    CHECK(app.world().get<combat2d::Mortal>(entity)->announced);
-    CHECK(!app.world().resource<ge::app::Actions>()->down("died"));
+    static_cast<void>(spawn_target(app, 100.0F, 0.0F, 5));
+    combat2d::Projectile missile = damage_of(1);
+    missile.homing = 0.5F;
+    const Entity shot = spawn_shot(app, 0.0F, 0.0F, missile);
+    CHECK(app.world().insert(shot, transform2d::Velocity{0.0F, 100.0F})); // not at it: down
+    app.run_frames(1);
+    const auto* velocity = app.world().get<transform2d::Velocity>(shot);
+    CHECK(velocity->x > 20.0F); // it turned towards the target on its right
+    CHECK(std::fabs(std::sqrt(velocity->x * velocity->x + velocity->y * velocity->y) - 100.0F) <
+          0.5F);
+}
+
+TEST_CASE("combat2d: touching hurts what has health, on the layers asked for") {
+    auto app = game();
+    const Entity player = spawn_target(app, 100.0F, 100.0F, 3, player_layer);
+    const Entity monster_friend = spawn_target(app, 300.0F, 100.0F, 3, monster_layer);
+    const Entity biter = spawn_box(app, 105.0F, 100.0F, monster_layer);
+    combat2d::ContactDamage bite;
+    bite.layers = player_layer;
+    CHECK(app.world().insert(biter, bite));
+    const Entity biter_two = spawn_box(app, 300.0F, 105.0F, monster_layer);
+    CHECK(app.world().insert(biter_two, bite));
+    app.run_frames(1);
+    CHECK(life_of(app, player) == 2);
+    CHECK(life_of(app, monster_friend) == 3); // not a layer it hurts
+}
+
+TEST_CASE(
+    "combat2d: a monster with three lives hurts a three-lives player on contact, now and then") {
+    auto app = game();
+    health::Health player_life;
+    player_life.amount = 3;
+    player_life.max = 3;
+    player_life.despawn_on_zero = false;
+    player_life.on_zero = 0;
+    const Entity player = spawn_box(app, 100.0F, 100.0F, player_layer);
+    CHECK(app.world().insert(player, player_life));
+    const Entity monster = spawn_target(app, 105.0F, 100.0F, 3);
+    combat2d::ContactDamage bite;
+    bite.layers = player_layer;
+    bite.cooldown = 9;
+    CHECK(app.world().insert(monster, bite));
+    app.run_frames(1);
+    CHECK(life_of(app, player) == 2);
+    app.run_frames(9); // the bite recovers during its cooldown
+    CHECK(life_of(app, player) == 2);
+    app.run_frames(1);
+    CHECK(life_of(app, player) == 1);
+    app.run_frames(10);
+    CHECK(life_of(app, player) == 0);
+    CHECK(app.world().has<health::Dead>(player));
+    CHECK(app.world().is_alive(player)); // kept, dead
+}
+
+TEST_CASE("combat2d: that monster, with three lives too, is killed by three shots") {
+    auto app = game();
+    const Entity monster = spawn_target(app, 105.0F, 100.0F, 3);
+    for (int i = 0; i < 3; ++i) {
+        CHECK(app.world().is_alive(monster));
+        static_cast<void>(spawn_shot(app, 105.0F, 100.0F, damage_of(1)));
+        app.run_frames(1);
+    }
+    CHECK(!app.world().is_alive(monster));
+}
+
+TEST_CASE("combat2d: the dead are not hurt again, and do not hurt") {
+    auto app = game();
+    const Entity target = spawn_target(app, 100.0F, 100.0F, 1);
+    app.world().get<health::Health>(target)->despawn_on_zero = false;
+    static_cast<void>(spawn_shot(app, 100.0F, 100.0F, damage_of(1)));
+    app.run_frames(1);
+    REQUIRE(app.world().has<health::Dead>(target));
+    const Entity shot = spawn_shot(app, 100.0F, 100.0F, damage_of(1));
+    app.run_frames(2);
+    CHECK(app.world().is_alive(shot)); // a dead target is not a target
 }

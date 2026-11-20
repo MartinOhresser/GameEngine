@@ -10,7 +10,7 @@
   "description": "Left and right (arrows or A and D) steer the jumper, which bounces by itself on every platform it lands on. Space or Up shoots upwards. The score is the height; the best one is kept between two runs.",
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
-    "patrol2d", "camera2d", "spawner2d", "combat2d", "progress", "lifetime",
+    "patrol2d", "camera2d", "spawner2d", "health", "bounds2d", "combat2d", "progress", "lifetime",
     "sprite2d", "text2d", "scene_switch", "ui", "records", "host", "touch_controls",
   ],
   "simulation": { "tick_rate": 60, "seed": 2024 },

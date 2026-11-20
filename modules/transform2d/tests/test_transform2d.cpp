@@ -24,6 +24,13 @@ ge::ecs::Entity owned(ge::app::App& app, ge::ecs::Entity owner, float dx, float 
     return entity;
 }
 
+ge::ecs::Entity runner(ge::app::App& app, float speed) {
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    CHECK(app.world().insert(entity, transform2d::Velocity{speed, 0.0F}));
+    return entity;
+}
+
 } // namespace
 
 TEST_CASE("transform2d: an entity moves by its velocity") {
@@ -95,4 +102,35 @@ TEST_CASE("transform2d: a spawn request carries its owner") {
     REQUIRE(requests.queue.size() == 2U);
     CHECK(requests.queue[0].owner == 77U);
     CHECK(requests.queue[1].owner == 0U);
+}
+
+TEST_CASE("transform2d: a SpeedScale changes the speed of one entity, and not of the others") {
+    ge::app::App app = game();
+    const ge::ecs::Entity slow = runner(app, 60.0F);
+    CHECK(app.world().insert(slow, transform2d::SpeedScale{0.5F, 0}));
+    const ge::ecs::Entity usual = runner(app, 60.0F);
+    app.run_frames(30); // half a second at half speed: 15 units, the other one went 30
+    CHECK(app.world().get<transform2d::Position>(slow)->x > 14.5F);
+    CHECK(app.world().get<transform2d::Position>(slow)->x < 15.5F);
+    CHECK(app.world().get<transform2d::Position>(usual)->x > 29.5F);
+}
+
+TEST_CASE("transform2d: a SpeedScale with ticks wears off, and the speed comes back") {
+    ge::app::App app = game();
+    const ge::ecs::Entity slow = runner(app, 60.0F);
+    CHECK(app.world().insert(slow, transform2d::SpeedScale{0.5F, 30}));
+    app.run_frames(30);
+    CHECK(app.world().get<transform2d::Position>(slow)->x < 15.5F);
+    CHECK(!app.world().has<transform2d::SpeedScale>(slow)); // its 30 ticks are over
+    app.run_frames(30);
+    CHECK(app.world().get<transform2d::Position>(slow)->x > 44.0F);
+}
+
+TEST_CASE("transform2d: a SpeedScale without ticks lasts") {
+    ge::app::App app = game();
+    const ge::ecs::Entity entity = runner(app, 60.0F);
+    CHECK(app.world().insert(entity, transform2d::SpeedScale{2.0F, 0}));
+    app.run_frames(60);
+    CHECK(app.world().get<transform2d::Position>(entity)->x > 119.0F);
+    CHECK(app.world().has<transform2d::SpeedScale>(entity));
 }

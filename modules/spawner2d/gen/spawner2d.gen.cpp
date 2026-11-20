@@ -298,63 +298,6 @@ constexpr std::array<::ge::app::FieldInfo, 28> component_0_fields{{{"prefab", "u
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
-    Cull component;
-    for (const ::ge::app::FieldValue& field : values) {
-        if (field.name == "margin") {
-            component.margin = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "side_x") {
-            component.side_x = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "side_y") {
-            component.side_y = ::ge::app::scalar_as<float>(field.value);
-        }
-    }
-    static_cast<void>(world.insert(entity, std::move(component)));
-}
-
-std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field) {
-    const Cull* component = world.get<Cull>(entity);
-    if (component == nullptr) {
-        return std::nullopt;
-    }
-    if (field == "margin") {
-        return ::ge::app::Scalar{static_cast<double>(component->margin)};
-    }
-    if (field == "side_x") {
-        return ::ge::app::Scalar{static_cast<double>(component->side_x)};
-    }
-    if (field == "side_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->side_y)};
-    }
-    return std::nullopt;
-}
-
-bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field,
-                      [[maybe_unused]] const ::ge::app::Scalar& value) {
-    Cull* component = world.get<Cull>(entity);
-    if (component == nullptr) {
-        return false;
-    }
-    if (field == "margin") {
-        component->margin = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "side_x") {
-        component->side_x = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "side_y") {
-        component->side_y = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    return false;
-}
-
-constexpr std::array<::ge::app::FieldInfo, 3> component_1_fields{{{"margin", "f32", "", false}, {"side_x", "f32", "", false}, {"side_y", "f32", "", false}}};
-
-void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Shooter component;
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "prefab") {
@@ -380,7 +323,7 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Shooter* component = world.get<Shooter>(entity);
     if (component == nullptr) {
@@ -416,7 +359,7 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Shooter* component = world.get<Shooter>(entity);
@@ -462,19 +405,17 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_2_fields{{{"prefab", "u32", "prefab", false}, {"action", "u32", "action", false}, {"cooldown", "u32", "", false}, {"speed", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}, {"dx", "f32", "", false}, {"dy", "f32", "", false}, {"wait", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 9> component_1_fields{{{"prefab", "u32", "prefab", false}, {"action", "u32", "action", false}, {"cooldown", "u32", "", false}, {"speed", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}, {"dx", "f32", "", false}, {"dy", "f32", "", false}, {"wait", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Generator", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Cull", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Shooter", false, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Generator", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Shooter", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
 constexpr std::array<std::string_view, 3> system_0_reads{"spawner2d.Generator", "camera2d.Camera", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_0_writes{"spawner2d.Generator"};
-constexpr std::array<std::string_view, 3> system_1_reads{"spawner2d.Cull", "camera2d.Camera", "transform2d.Position"};
-constexpr std::array<std::string_view, 0> system_1_writes{};
-constexpr std::array<std::string_view, 2> system_2_reads{"spawner2d.Shooter", "transform2d.Position"};
-constexpr std::array<std::string_view, 1> system_2_writes{"spawner2d.Shooter"};
-constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"spawner2d.generate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"spawner2d.cull", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"spawner2d.shoot", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
+constexpr std::array<std::string_view, 2> system_1_reads{"spawner2d.Shooter", "transform2d.Position"};
+constexpr std::array<std::string_view, 1> system_1_writes{"spawner2d.Shooter"};
+constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"spawner2d.generate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"spawner2d.shoot", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
 
-constexpr std::array<std::string_view, 2> depends{"transform2d", "camera2d"};
+constexpr std::array<std::string_view, 3> depends{"transform2d", "camera2d", "bounds2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
@@ -487,7 +428,6 @@ const ::ge::app::ModuleInfo& info() noexcept {
 void install(::ge::app::App& app) {
     app.add_module(info());
     app.add_system(::ge::app::Stage::FixedUpdate, &generate, "spawner2d.generate", ::ge::app::Order::between({"camera2d.follow"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &cull, "spawner2d.cull", ::ge::app::Order::between({"camera2d.follow"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &shoot, "spawner2d.shoot");
 }
 

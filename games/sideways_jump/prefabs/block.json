@@ -8,6 +8,6 @@
     "debug_draw.Square": { "size": 40, "red": 110, "green": 200, "blue": 90 },
     "collision2d.Collider": { "width": 40, "height": 40, "layer": ["block"], "mask": 0 },
     "bounce2d.Bouncy": { "strength": 760 },
-    "spawner2d.Cull": { "margin": 120, "side_x": -1, "side_y": 0 }
+    "bounds2d.OutOfView": { "margin": 120, "side_x": -1, "side_y": 0 }
   }
 }

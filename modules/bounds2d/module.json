@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "bounds2d",
+  "description": "What leaves the screen: an entity that goes more than a margin past an edge of the screen is announced (an action) and/or destroyed. The platform a climber left behind, the bullet that missed, the enemy that escaped, the player who fell, the thing a runner left on its left. The edge of the screen is the one the camera sees; the module has no idea of what the entity is. Other modules ask it where an edge is through ge/mod/bounds2d/edge.hpp.",
+  "depends": ["transform2d", "camera2d"],
+  "components": [
+    {
+      "name": "OutOfView",
+      "description": "The entity is out of view when it is more than margin units outside the edge of the screen that side_x and side_y point to (0, 1: the bottom edge, as y grows downwards; 0, -1: the top; 1, 0: the right; -1, 0: the left; the axis with the bigger number counts). Then, once, the action is raised (none: nothing), and with despawn the entity is destroyed (without it, it stays; fired says it was announced). Needs a Position and a Camera.",
+      "replicable": false,
+      "fields": [
+        { "name": "side_x", "type": "f32", "default": 0 },
+        { "name": "side_y", "type": "f32", "default": 1 },
+        { "name": "margin", "type": "f32", "default": 100 },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "despawn", "type": "bool", "default": true },
+        { "name": "fired", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "check",
+      "description": "Announces and/or destroys every OutOfView entity that is past its edge of the screen.",
+      "stage": "FixedUpdate",
+      "reads": ["OutOfView", "camera2d.Camera", "transform2d.Position"],
+      "writes": ["OutOfView"],
+      "after": ["transform2d.integrate", "camera2d.follow"]
+    }
+  ]
+}

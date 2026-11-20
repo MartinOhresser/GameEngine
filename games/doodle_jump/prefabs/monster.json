@@ -1,5 +1,5 @@
-// A monster: it kills the jumper that touches it, but dies when jumped on (and throws the
-// jumper high) or shot.
+// A monster: it kills the jumper that touches it (contact damage), but dies when jumped on (and
+// throws the jumper high) or shot (it has one life).
 {
   "schema_version": 1,
   "name": "monster",
@@ -11,7 +11,8 @@
     },
     "collision2d.Collider": { "width": 44, "height": 38, "layer": ["monster"], "mask": 0 },
     "bounce2d.Bouncy": { "strength": 900, "kills": true },
-    "combat2d.Target": { "health": 1 },
-    "spawner2d.Cull": { "margin": 120 }
+    "health.Health": { "amount": 1, "max": 1 },
+    "combat2d.ContactDamage": { "amount": 1, "layers": ["player"] },
+    "bounds2d.OutOfView": { "margin": 120 }
   }
 }

@@ -76,21 +76,6 @@ struct Generator {
     [[nodiscard]] friend bool operator==(const Generator&, const Generator&) = default;
 };
 
-/// The entity is destroyed when it is more than margin units outside the edge of the screen that side_x and side_y point to (0, 1: the bottom edge, as y grows downwards; 0, -1: the top; 1, 0: the right; -1, 0: the left; the axis with the bigger number counts): a platform the climber left behind, or whatever a runner left on its left (side_x -1, side_y 0). Needs a Position and a Camera.
-struct Cull {
-    float margin = 100.0F;
-    float side_x = 0.0F;
-    float side_y = 1.0F;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(margin);
-        hasher.add(side_x);
-        hasher.add(side_y);
-    }
-
-    [[nodiscard]] friend bool operator==(const Cull&, const Cull&) = default;
-};
-
 /// Fires prefab each time the action is pressed, at most once every cooldown ticks, from the entity's Position moved by (dx, dy), with the Velocity (dir_x, dir_y) times speed (units per second; y points down, so dir_y -1 fires upwards). Needs a Position.
 struct Shooter {
     std::uint32_t prefab = 0U;
@@ -121,10 +106,6 @@ struct Shooter {
 /// Builds the rows of every Generator that the camera has not yet gone past, and asks the app to create them (they appear between two ticks).
 /// Runs in FixedUpdate.
 void generate(::ge::ecs::World& world);
-
-/// Destroys every Cull entity that fell below the screen.
-/// Runs in FixedUpdate.
-void cull(::ge::ecs::World& world);
 
 /// Fires the prefab of every Shooter whose action is pressed and whose cooldown is over.
 /// Runs in FixedUpdate.

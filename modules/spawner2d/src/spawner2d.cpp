@@ -4,6 +4,7 @@
 #include "ge/app/spawn.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/core/random.hpp"
+#include "ge/mod/bounds2d/edge.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/spawner2d/spawner2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -22,26 +23,6 @@ constexpr std::uint32_t no_prefab = 0xFFFFFFFFU;
 
 /// Most rows one generator builds in one tick: a camera that jumped far must not freeze the game.
 constexpr int max_rows_per_tick = 64;
-
-/// How far the edge of the screen that `direction` points to is, along that direction (see
-/// app::Direction: for up it is minus the y of the top edge), from the first camera.
-std::optional<float> screen_edge(ecs::World& world, const app::Direction& direction) {
-    std::optional<float> edge;
-    const auto* viewport = world.resource<app::Viewport>();
-    if (viewport == nullptr) {
-        return edge;
-    }
-    world.each<const camera2d::Camera, const transform2d::Position>(
-        [&](ecs::Entity, const camera2d::Camera& camera, const transform2d::Position& position) {
-            if (!edge) {
-                const float zoom = camera.zoom > 0.0F ? camera.zoom : 1.0F;
-                const auto size =
-                    static_cast<float>(direction.vertical ? viewport->height : viewport->width);
-                edge = direction.along(position.x, position.y) + size / (2.0F * zoom);
-            }
-        });
-    return edge;
-}
 
 /// `first` at the bottom of the ramp, `last` at the top; a negative `last` means "same as first".
 float ramped(float first, float last, float progress) {
@@ -132,26 +113,11 @@ void generate(ecs::World& world) {
     }
     world.each<Generator>([&](ecs::Entity, Generator& generator) {
         const app::Direction toward = app::Direction::of(generator.toward_x, generator.toward_y);
-        const std::optional<float> edge = screen_edge(world, toward);
+        const std::optional<float> edge = bounds2d::screen_edge(world, toward);
         if (edge) {
             run_generator(generator, *edge + generator.ahead, *random, *requests);
         }
     });
-}
-
-void cull(ecs::World& world) {
-    std::vector<ecs::Entity> behind;
-    world.each<const Cull, const transform2d::Position>(
-        [&](ecs::Entity entity, const Cull& cull, const transform2d::Position& position) {
-            const app::Direction side = app::Direction::of(cull.side_x, cull.side_y);
-            const std::optional<float> edge = screen_edge(world, side);
-            if (edge && side.along(position.x, position.y) > *edge + cull.margin) {
-                behind.push_back(entity);
-            }
-        });
-    for (const ecs::Entity entity : behind) {
-        world.resource<ecs::Commands>()->despawn(entity);
-    }
 }
 
 void shoot(ecs::World& world) {

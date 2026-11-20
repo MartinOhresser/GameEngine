@@ -16,24 +16,16 @@ namespace {
 
 void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
-    Mortal component;
+    ContactDamage component;
     for (const ::ge::app::FieldValue& field : values) {
-        if (field.name == "hurt_layers") {
-            component.hurt_layers = ::ge::app::scalar_as<std::uint32_t>(field.value);
-        } else if (field.name == "fall_death") {
-            component.fall_death = ::ge::app::scalar_as<bool>(field.value);
-        } else if (field.name == "fall_margin") {
-            component.fall_margin = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "fall_x") {
-            component.fall_x = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "fall_y") {
-            component.fall_y = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "on_death") {
-            component.on_death = ::ge::app::scalar_as<std::uint32_t>(field.value);
-        } else if (field.name == "dead") {
-            component.dead = ::ge::app::scalar_as<bool>(field.value);
-        } else if (field.name == "announced") {
-            component.announced = ::ge::app::scalar_as<bool>(field.value);
+        if (field.name == "amount") {
+            component.amount = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "layers") {
+            component.layers = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "cooldown") {
+            component.cooldown = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "wait") {
+            component.wait = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -41,33 +33,21 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
-    const Mortal* component = world.get<Mortal>(entity);
+    const ContactDamage* component = world.get<ContactDamage>(entity);
     if (component == nullptr) {
         return std::nullopt;
     }
-    if (field == "hurt_layers") {
-        return ::ge::app::Scalar{static_cast<std::int64_t>(component->hurt_layers)};
+    if (field == "amount") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->amount)};
     }
-    if (field == "fall_death") {
-        return ::ge::app::Scalar{static_cast<bool>(component->fall_death)};
+    if (field == "layers") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->layers)};
     }
-    if (field == "fall_margin") {
-        return ::ge::app::Scalar{static_cast<double>(component->fall_margin)};
+    if (field == "cooldown") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->cooldown)};
     }
-    if (field == "fall_x") {
-        return ::ge::app::Scalar{static_cast<double>(component->fall_x)};
-    }
-    if (field == "fall_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->fall_y)};
-    }
-    if (field == "on_death") {
-        return ::ge::app::Scalar{static_cast<std::int64_t>(component->on_death)};
-    }
-    if (field == "dead") {
-        return ::ge::app::Scalar{static_cast<bool>(component->dead)};
-    }
-    if (field == "announced") {
-        return ::ge::app::Scalar{static_cast<bool>(component->announced)};
+    if (field == "wait") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->wait)};
     }
     return std::nullopt;
 }
@@ -75,98 +55,57 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
 bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
-    Mortal* component = world.get<Mortal>(entity);
+    ContactDamage* component = world.get<ContactDamage>(entity);
     if (component == nullptr) {
         return false;
     }
-    if (field == "hurt_layers") {
-        component->hurt_layers = ::ge::app::scalar_as<std::uint32_t>(value);
+    if (field == "amount") {
+        component->amount = ::ge::app::scalar_as<std::int32_t>(value);
         return true;
     }
-    if (field == "fall_death") {
-        component->fall_death = ::ge::app::scalar_as<bool>(value);
+    if (field == "layers") {
+        component->layers = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
-    if (field == "fall_margin") {
-        component->fall_margin = ::ge::app::scalar_as<float>(value);
+    if (field == "cooldown") {
+        component->cooldown = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
-    if (field == "fall_x") {
-        component->fall_x = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "fall_y") {
-        component->fall_y = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "on_death") {
-        component->on_death = ::ge::app::scalar_as<std::uint32_t>(value);
-        return true;
-    }
-    if (field == "dead") {
-        component->dead = ::ge::app::scalar_as<bool>(value);
-        return true;
-    }
-    if (field == "announced") {
-        component->announced = ::ge::app::scalar_as<bool>(value);
+    if (field == "wait") {
+        component->wait = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"hurt_layers", "u32", "layer", true}, {"fall_death", "bool", "", false}, {"fall_margin", "f32", "", false}, {"fall_x", "f32", "", false}, {"fall_y", "f32", "", false}, {"on_death", "u32", "action", false}, {"dead", "bool", "", false}, {"announced", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"amount", "i32", "", false}, {"layers", "u32", "layer", true}, {"cooldown", "u32", "", false}, {"wait", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
-    Target component;
+    Projectile component;
     for (const ::ge::app::FieldValue& field : values) {
-        if (field.name == "health") {
-            component.health = ::ge::app::scalar_as<std::int32_t>(field.value);
+        if (field.name == "damage") {
+            component.damage = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "layers") {
+            component.layers = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "splash_radius") {
+            component.splash_radius = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "pierce") {
+            component.pierce = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "homing") {
+            component.homing = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "on_hit_speed_factor") {
+            component.on_hit_speed_factor = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "on_hit_speed_ticks") {
+            component.on_hit_speed_ticks = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "last_hit") {
+            component.last_hit = ::ge::app::scalar_as<std::uint64_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
 std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field) {
-    const Target* component = world.get<Target>(entity);
-    if (component == nullptr) {
-        return std::nullopt;
-    }
-    if (field == "health") {
-        return ::ge::app::Scalar{static_cast<std::int64_t>(component->health)};
-    }
-    return std::nullopt;
-}
-
-bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field,
-                      [[maybe_unused]] const ::ge::app::Scalar& value) {
-    Target* component = world.get<Target>(entity);
-    if (component == nullptr) {
-        return false;
-    }
-    if (field == "health") {
-        component->health = ::ge::app::scalar_as<std::int32_t>(value);
-        return true;
-    }
-    return false;
-}
-
-constexpr std::array<::ge::app::FieldInfo, 1> component_1_fields{{{"health", "i32", "", false}}};
-
-void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
-    Projectile component;
-    for (const ::ge::app::FieldValue& field : values) {
-        if (field.name == "damage") {
-            component.damage = ::ge::app::scalar_as<std::int32_t>(field.value);
-        }
-    }
-    static_cast<void>(world.insert(entity, std::move(component)));
-}
-
-std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Projectile* component = world.get<Projectile>(entity);
     if (component == nullptr) {
@@ -175,10 +114,31 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     if (field == "damage") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->damage)};
     }
+    if (field == "layers") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->layers)};
+    }
+    if (field == "splash_radius") {
+        return ::ge::app::Scalar{static_cast<double>(component->splash_radius)};
+    }
+    if (field == "pierce") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->pierce)};
+    }
+    if (field == "homing") {
+        return ::ge::app::Scalar{static_cast<double>(component->homing)};
+    }
+    if (field == "on_hit_speed_factor") {
+        return ::ge::app::Scalar{static_cast<double>(component->on_hit_speed_factor)};
+    }
+    if (field == "on_hit_speed_ticks") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->on_hit_speed_ticks)};
+    }
+    if (field == "last_hit") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->last_hit)};
+    }
     return std::nullopt;
 }
 
-bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Projectile* component = world.get<Projectile>(entity);
@@ -189,22 +149,50 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->damage = ::ge::app::scalar_as<std::int32_t>(value);
         return true;
     }
+    if (field == "layers") {
+        component->layers = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "splash_radius") {
+        component->splash_radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "pierce") {
+        component->pierce = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "homing") {
+        component->homing = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "on_hit_speed_factor") {
+        component->on_hit_speed_factor = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "on_hit_speed_ticks") {
+        component->on_hit_speed_ticks = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "last_hit") {
+        component->last_hit = ::ge::app::scalar_as<std::uint64_t>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 1> component_2_fields{{{"damage", "i32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 8> component_1_fields{{{"damage", "i32", "", false}, {"layers", "u32", "layer", true}, {"splash_radius", "f32", "", false}, {"pierce", "u32", "", false}, {"homing", "f32", "", false}, {"on_hit_speed_factor", "f32", "", false}, {"on_hit_speed_ticks", "u32", "", false}, {"last_hit", "u64", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Mortal", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Target", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Projectile", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"ContactDamage", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Projectile", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
-constexpr std::array<std::string_view, 3> system_0_reads{"combat2d.Projectile", "collision2d.Collider", "transform2d.Position"};
-constexpr std::array<std::string_view, 1> system_0_writes{"combat2d.Target"};
-constexpr std::array<std::string_view, 3> system_1_reads{"collision2d.Contacts", "camera2d.Camera", "transform2d.Position"};
-constexpr std::array<std::string_view, 1> system_1_writes{"combat2d.Mortal"};
-constexpr std::array<std::string_view, 1> system_2_reads{"combat2d.Mortal"};
-constexpr std::array<std::string_view, 1> system_2_writes{"combat2d.Mortal"};
-constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"combat2d.shots", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"combat2d.hurt", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"combat2d.announce", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
+constexpr std::array<std::string_view, 4> system_0_reads{"combat2d.Projectile", "health.Health", "collision2d.Collider", "transform2d.Position"};
+constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Velocity"};
+constexpr std::array<std::string_view, 3> system_1_reads{"health.Health", "collision2d.Collider", "transform2d.Position"};
+constexpr std::array<std::string_view, 3> system_1_writes{"combat2d.Projectile", "health.Damage", "transform2d.SpeedScale"};
+constexpr std::array<std::string_view, 3> system_2_reads{"collision2d.Collider", "transform2d.Position", "health.Health"};
+constexpr std::array<std::string_view, 2> system_2_writes{"combat2d.ContactDamage", "health.Damage"};
+constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"combat2d.steer", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"combat2d.shots", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"combat2d.touch", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
 
-constexpr std::array<std::string_view, 3> depends{"transform2d", "collision2d", "camera2d"};
+constexpr std::array<std::string_view, 3> depends{"transform2d", "collision2d", "health"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
@@ -216,9 +204,9 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &shots, "combat2d.shots", ::ge::app::Order::between({"transform2d.integrate"}, {"collision2d.detect"}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &hurt, "combat2d.hurt", ::ge::app::Order::between({"collision2d.detect", "camera2d.follow"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &announce, "combat2d.announce", ::ge::app::Order::between({"combat2d.hurt"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &steer, "combat2d.steer", ::ge::app::Order::between({"transform2d.integrate"}, {"combat2d.shots"}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &shots, "combat2d.shots", ::ge::app::Order::between({"transform2d.integrate"}, {"collision2d.detect", "health.apply_damage"}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &touch, "combat2d.touch", ::ge::app::Order::between({"collision2d.detect"}, {"health.apply_damage"}));
 }
 
 } // namespace ge::mod::combat2d

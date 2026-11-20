@@ -11,7 +11,7 @@
       "red": 255, "green": 120, "blue": 40
     },
     "collision2d.Collider": { "width": 10, "height": 14, "layer": ["bullet"], "mask": 0 },
-    "combat2d.Projectile": { "damage": 1 },
+    "combat2d.Projectile": { "damage": 1, "layers": ["monster"] },
     "lifetime.Lifetime": { "ticks": 90 }
   }
 }
