@@ -119,6 +119,13 @@ fi
 if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
   IFS=';' read -ra touches <<< "$GAME_TOUCHES"
   adb exec-out screencap -p > "$out/touch0.png"
+  # The screen can have turned since the first look (a game that asks for the landscape): measure
+  # it again, and say what it is, so that a failure can be read from the log.
+  read -r width height < <(python3 "$here/spike/pixel.py" "$out/touch0.png" size)
+  note "- screen before the touches: ${width}x${height}"
+  adb shell dumpsys window displays | grep -E "mCurrentRotation|mUserRotation|cur=" | head -4 | tee -a "$out/summary.md" || true
+  adb shell settings get system accelerometer_rotation | sed 's/^/accelerometer_rotation=/' | tee -a "$out/summary.md" || true
+  python3 "$here/spike/pixel.py" "$out/touch0.png" ascii | tee -a "$out/summary.md"
   number=0
   for item in "${touches[@]}"; do
     IFS=':' read -r tx ty <<< "$item"
@@ -129,7 +136,10 @@ if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
     adb exec-out screencap -p > "$out/touch$number.png"
     changed="$(python3 "$here/spike/pixel.py" "$out/touch$((number - 1)).png" differs "$out/touch$number.png")"
     note "- touch $number: $changed of 6400 points changed"
-    [ "${changed:-0}" -gt 0 ] || fail "touch $number changed nothing on the screen"
+    if [ "${changed:-0}" -le 0 ]; then
+      fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
+      python3 "$here/spike/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+    fi
   done
   adb shell pidof "$package" > "$out/pid4.txt" || true
   [ -s "$out/pid4.txt" ] && note "- the game plays on after the touches" || fail "the game ended during the touches"
