@@ -68,6 +68,19 @@ TEST_CASE("debug_draw: without a renderer resource nothing happens") {
     CHECK(app.tick_count() == 1U);
 }
 
+namespace {
+
+const ge::app::DrawCommand* find(const ge::app::RecordingRenderer& renderer, const char* what) {
+    for (const ge::app::DrawCommand& command : renderer.commands()) {
+        if (command.what == what) {
+            return &command;
+        }
+    }
+    return nullptr;
+}
+
+} // namespace
+
 TEST_CASE("debug_draw: rectangles, circles and lines are drawn with their own size") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);
@@ -91,24 +104,26 @@ TEST_CASE("debug_draw: rectangles, circles and lines are drawn with their own si
         app.world().insert(beam, debug_draw::Line{30.0F, -10.0F, 4.0F, 255U, 0U, 0U, 255U, true}));
     app.run_frames(1);
     REQUIRE(renderer->commands().size() == 3U);
-    bool saw_rect = false;
-    bool saw_circle = false;
-    bool saw_line = false;
-    for (const ge::app::DrawCommand& command : renderer->commands()) {
-        if (command.what == "rect") {
-            saw_rect = command.x == 10.0F && command.y == 20.0F && command.width == 64.0F &&
-                       command.height == 32.0F && command.thickness == 2.0F &&
-                       command.color == 0x00FF0080U && !command.screen;
-        } else if (command.what == "circle") {
-            saw_circle = command.size == 40.0F && command.thickness == 3.0F;
-        } else if (command.what == "line") {
-            saw_line = command.x == 5.0F && command.x2 == 35.0F && command.y2 == -5.0F &&
-                       command.thickness == 4.0F && command.screen;
-        }
-    }
-    CHECK(saw_rect);
-    CHECK(saw_circle);
-    CHECK(saw_line);
+    const ge::app::DrawCommand* drawn_rect = find(*renderer, "rect");
+    const ge::app::DrawCommand* drawn_circle = find(*renderer, "circle");
+    const ge::app::DrawCommand* drawn_line = find(*renderer, "line");
+    REQUIRE(drawn_rect != nullptr);
+    REQUIRE(drawn_circle != nullptr);
+    REQUIRE(drawn_line != nullptr);
+    CHECK(drawn_rect->x == 10.0F);
+    CHECK(drawn_rect->y == 20.0F);
+    CHECK(drawn_rect->width == 64.0F);
+    CHECK(drawn_rect->height == 32.0F);
+    CHECK(drawn_rect->thickness == 2.0F);
+    CHECK(drawn_rect->color == 0x00FF0080U);
+    CHECK(!drawn_rect->screen);
+    CHECK(drawn_circle->size == 40.0F);
+    CHECK(drawn_circle->thickness == 3.0F);
+    CHECK(drawn_line->x == 5.0F);
+    CHECK(drawn_line->x2 == 35.0F);
+    CHECK(drawn_line->y2 == -5.0F);
+    CHECK(drawn_line->thickness == 4.0F);
+    CHECK(drawn_line->screen);
 }
 
 TEST_CASE("debug_draw: a hidden shape is not drawn, and is again once shown") {
