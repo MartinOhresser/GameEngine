@@ -2,7 +2,9 @@
 #include "ge/app/input.hpp"
 #include "ge/app/lists.hpp"
 #include "ge/app/runtime_lists.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/game/scenario.hpp"
+#include "ge/platform/backend.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -190,6 +192,17 @@ std::optional<std::uint64_t> run_once(const Game& game, const ScenarioData& scen
     if (!run.setup.ok()) {
         setup_problems = run.setup.problems;
         return std::nullopt;
+    }
+    if (scenario.screen_width > 0 && started.manifest.window_adapt) {
+        // The drawing area takes the shape of the screen, as the window of a player does.
+        auto* view = run.app.world().resource<app::Viewport>();
+        const Manifest& manifest = started.manifest;
+        const auto [width, height] = platform::adapted_view(
+            static_cast<int>(manifest.window_width), static_cast<int>(manifest.window_height),
+            manifest.window_min_aspect, manifest.window_max_aspect, scenario.screen_width,
+            scenario.screen_height);
+        view->width = static_cast<std::uint32_t>(width);
+        view->height = static_cast<std::uint32_t>(height);
     }
     if (auto* lists = run.app.world().resource<app::RuntimeLists>(); lists != nullptr) {
         for (const auto& list : scenario.lists) {

@@ -150,6 +150,7 @@
     "scenarios/the_shop_chooses_what_is_bought.json",
     "scenarios/the_buttons_of_the_shop_work.json",
     "scenarios/a_tower_kills_and_the_bounty_is_paid.json",
+    "scenarios/played_on_a_phone_held_upright.json",
     "scenarios/touching_a_tower_selects_it.json",
     "scenarios/a_tower_can_be_improved.json",
     "scenarios/an_improvement_needs_the_gold.json",

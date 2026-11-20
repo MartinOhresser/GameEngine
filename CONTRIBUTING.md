@@ -22,19 +22,26 @@ Les presets disponibles sont `dev`, `release`, `asan`, `tidy` et `coverage` (voi
 
 ## Ce que la CI contrôle
 
-Une pull request ne peut être fusionnée que si le contrôle **CI success** est vert. Il regroupe :
+Une pull request ne peut être fusionnée que si le contrôle **CI success** est vert. La CI a **deux niveaux**, pour que l'attente reste courte :
 
-| Contrôle | Ce qu'il garantit |
-| --- | --- |
-| Lint des workflows | Les fichiers `.github/workflows` sont valides (actionlint) |
-| Format | Le code suit `.clang-format` (clang-format 18) |
-| Build et tests | Linux (GCC 13 Release, Clang 18 Debug), macOS (AppleClang), Windows (MSVC), avertissements traités comme des erreurs |
-| Couverture | Au moins 90 % des lignes de `include/` et `src/` sont exécutées par les tests |
-| WebAssembly, Android, iOS | Le cœur compile pour ces plateformes ; les tests tournent sur le build WebAssembly |
+- **Une pull request vers `dev`** lance les contrôles qui demandent une autre machine ; les exports réels et l'émulateur ne tournent que si elle touche le moteur ou l'export (`include/`, `src/`, `platform/`, `tools/gectl/`, `runner/`, CMake, `scripts/export*`, les workflows). Un jeu ou un module ajouté est prouvé par ses scénarios (en local) et par les builds.
+- **Une pull request vers `main`, un push sur `main` et le workflow « Promote dev to main »** lancent tout, couverture et exports des jeux d'essai compris. Rien ne tourne au push sur `dev` : la pull request qui vient d'être fusionnée a déjà tourné.
 
-**Pas en CI, seulement dans `check.sh`** : AddressSanitizer et UBSan (erreurs mémoire, comportements indéfinis), clang-tidy (`.clang-tidy`) et le build Debug avec GCC. Ils coûtaient la moitié du temps de la CI pour refaire ce que le script fait déjà en local. Une contribution extérieure qui les enfreint passe donc la CI : à relire en revue.
+| Contrôle | Niveau | Ce qu'il garantit |
+| --- | --- | --- |
+| Lint des workflows | toujours | Les fichiers `.github/workflows` sont valides (actionlint) |
+| Format, modules, skills | toujours | `.clang-format` (clang-format 18) ; `module.json`, inclusions, skills cohérents avec `gectl` |
+| Build et tests | toujours | Linux (GCC 13 Release, Clang 18 Debug), macOS (AppleClang), Windows (MSVC), avertissements traités comme des erreurs ; le lecteur SDL sur les trois systèmes |
+| WebAssembly, Android (NDK), iOS | toujours | Le cœur et les modules compilent pour ces plateformes (c'est là que `std::to_chars` flottant, absent d'iOS et de WebAssembly, se découvre) |
+| Export Windows et Linux | moteur touché | `gectl export` fait un zip d'un jeu qui se joue seul ; sur `main`, les trois jeux d'essai et les scripts du lanceur aussi |
+| APK Android | moteur touché | Trois jeux (`doodle_jump`, `game_2048`, `tower_defense`) exportés en APK et joués sur un émulateur : un toucher, un doigt tenu, des glissés, un écran plus étroit que le jeu |
+| Couverture | `main` | Au moins 90 % des lignes de `include/`, `src/`, `tools/` et `modules/` sont exécutées par les tests |
 
-CodeQL analyse en plus le code chaque semaine et sur chaque pull request qui touche `include/`, `src/` ou le build.
+**Pas en CI, seulement dans `check.sh`** : AddressSanitizer et UBSan, clang-tidy (`.clang-tidy`), le build Debug avec GCC et les scénarios de tous les jeux, y compris ceux joués sur un écran de téléphone (`"screen"` dans un scénario, voir [TESTING.md](docs/TESTING.md)). Une contribution extérieure qui les enfreint passe donc la CI : à relire en revue.
+
+**Les échecs d'infrastructure** (Maven Central « 429 », miroirs apt « 503 ») sont repris automatiquement (`scripts/ci_retry.sh`, cache de Gradle) ; un job qui échoue encore pour cette raison se relance sans rien changer.
+
+CodeQL analyse le code chaque semaine, sur `main` et sur les pull requests vers `main`.
 
 ## Règles du dépôt
 
