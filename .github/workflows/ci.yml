@@ -374,13 +374,16 @@ jobs:
       - uses: actions/checkout@v7
       # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
       # pull request to the next, so that they are not asked for again.
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: gradle-cache
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('platform/android/template/**') }}
           restore-keys: gradle-${{ runner.os }}-
+      - name: Use the Maven Central mirror
+        run: ./scripts/ci_gradle_mirror.sh
       - name: Build gectl
         run: |
           cmake --preset release -DGE_BUILD_TESTS=OFF
@@ -431,6 +434,14 @@ jobs:
           if [ -f game-output/summary.md ]; then
             { echo "### On the emulator"; cat game-output/summary.md; } >> "$GITHUB_STEP_SUMMARY"
           fi
+      # Kept even when the export failed: what was downloaded before the failure is not asked again.
+      - uses: actions/cache/save@v4
+        if: always() && steps.gradle-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('platform/android/template/**') }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:

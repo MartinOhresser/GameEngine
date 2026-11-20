@@ -86,6 +86,8 @@ jobs:
         game: [doodle_jump, treasure_run, coin_dash, game_2048, chess, tower_defense]
     steps:
       - uses: actions/checkout@v7
+      - name: Use the Maven Central mirror
+        run: ./scripts/ci_gradle_mirror.sh
       - name: Export
         run: |
           cmake --preset release -DGE_BUILD_TESTS=OFF
