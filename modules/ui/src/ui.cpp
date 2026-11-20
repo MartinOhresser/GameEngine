@@ -5,6 +5,7 @@
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/find.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -258,22 +259,11 @@ void bind(ecs::World& world) {
         return;
     }
     // The oldest entity of each tag is the one a Bind finds.
-    std::vector<std::pair<std::uint32_t, ecs::Entity>> tagged;
-    world.each<const Tag>([&tagged](ecs::Entity entity, const Tag& tag) {
-        const bool known = std::any_of(tagged.begin(), tagged.end(),
-                                       [&tag](const auto& item) { return item.first == tag.tag; });
-        if (!known) {
-            tagged.emplace_back(tag.tag, entity);
-        }
-    });
+    const tag::Tagged tagged = tag::tagged(world);
     world.each<const Bind>([&](ecs::Entity entity, const Bind& binding) {
         float value = 0.0F;
-        const auto source =
-            std::find_if(tagged.begin(), tagged.end(),
-                         [&binding](const auto& item) { return item.first == binding.source; });
-        const bool found = binding.own || source != tagged.end();
-        if (found && binding.field < table->entries.size()) {
-            const ecs::Entity from = binding.own ? entity : source->second;
+        const ecs::Entity from = binding.own ? entity : tagged.find(binding.source);
+        if (!from.is_null() && binding.field < table->entries.size()) {
             const app::FieldEntry& field = table->entries[binding.field];
             if (field.component != nullptr && field.component->read != nullptr) {
                 if (const auto read = field.component->read(world, from, field.field)) {

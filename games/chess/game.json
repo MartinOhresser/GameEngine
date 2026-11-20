@@ -18,6 +18,7 @@
     "grid2d",
     "turns",
     "grid_moves",
+    "tag",
     "rules",
     "phase",
     "sprite2d",

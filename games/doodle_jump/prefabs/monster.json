@@ -10,7 +10,7 @@
       "red": 160, "green": 90, "blue": 210
     },
     "collision2d.Collider": { "width": 44, "height": 38, "layer": ["monster"], "mask": 0 },
-    "bounce2d.Bouncy": { "strength": 900, "kills": true },
+    "bounce2d.Bouncy": { "strength": 900, "vanish": true },
     "health.Health": { "amount": 1, "max": 1 },
     "combat2d.ContactDamage": { "amount": 1, "layers": ["player"] },
     "bounds2d.OutOfView": { "margin": 120 }

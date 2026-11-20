@@ -1264,7 +1264,7 @@
           "on_zero": "lost",
           "despawn_on_zero": false
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "base"
         }
       }
@@ -1347,7 +1347,7 @@
         "phase.ActiveIn": {
           "phases": 7
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "waves"
         }
       }
@@ -1370,7 +1370,7 @@
         "economy.Wallet": {
           "amount": 150
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "wallet"
         }
       }
@@ -1410,7 +1410,7 @@
         "phase.ActiveIn": {
           "phases": 7
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "hand"
         }
       }
@@ -2049,7 +2049,7 @@
         "phase.ShowIn": {
           "phases": 1
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "button_cannon"
         }
       }
@@ -2076,7 +2076,7 @@
         "phase.ShowIn": {
           "phases": 1
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "button_mortar"
         }
       }
@@ -2103,7 +2103,7 @@
         "phase.ShowIn": {
           "phases": 1
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "button_ice"
         }
       }
@@ -2130,7 +2130,7 @@
         "phase.ShowIn": {
           "phases": 1
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "button_sniper"
         }
       }

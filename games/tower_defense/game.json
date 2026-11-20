@@ -18,6 +18,7 @@
     "health",
     "lifetime",
     "combat2d",
+    "tag",
     "path2d",
     "autofire",
     "waves",

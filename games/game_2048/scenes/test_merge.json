@@ -364,7 +364,7 @@
           "moved_action": "moved",
           "stuck_action": "stuck"
         },
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "board"
         },
         "phase.ActiveIn": {
@@ -741,7 +741,7 @@
       "name": "scoreboard",
       "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "scoreboard"
         },
         "records.Record": {

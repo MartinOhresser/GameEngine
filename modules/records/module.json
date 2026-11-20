@@ -5,12 +5,12 @@
   "version": "0.1.0",
   "description": "High scores that outlive a game, and the last result that outlives a scene: a Record follows a number of the game (the score of the player), keeps the best it has seen and the last, and saves the best under a name so that the next run of the program starts with it.",
   "depends": [
-    "ui"
+    "tag"
   ],
   "components": [
     {
       "name": "Record",
-      "description": "Follows the number field (written \"module.Component.field\", as for a Bind) of the entity tagged source, as long as that entity exists. last is the latest value seen: it stays when the source is gone, so a game over screen can show the score of the game that just ended. best is the highest value ever seen; it starts from what was saved under key (a name of the game's \"record\" list) on the first tick, and is saved again each time it grows. Give the entity a scene_switch.Persistent to keep it from scene to scene, and a ui.Tag so that a Bind can show best and last. Saved values are whole numbers; the save is kept by the program that plays the game (geplay writes it to the player's application-data folder; a scenario starts empty).",
+      "description": "Follows the number field (written \"module.Component.field\", as for a Bind) of the entity tagged source, as long as that entity exists. last is the latest value seen: it stays when the source is gone, so a game over screen can show the score of the game that just ended. best is the highest value ever seen; it starts from what was saved under key (a name of the game's \"record\" list) on the first tick, and is saved again each time it grows. Give the entity a scene_switch.Persistent to keep it from scene to scene, and a tag.Tag so that a Bind can show best and last. Saved values are whole numbers; the save is kept by the program that plays the game (geplay writes it to the player's application-data folder; a scenario starts empty).",
       "replicable": false,
       "fields": [
         {
@@ -55,7 +55,7 @@
       "description": "Loads the best of every Record on its first tick, then follows its source: last takes the value, best and the saved value rise with it.",
       "stage": "FixedUpdate",
       "reads": [
-        "ui.Tag"
+        "tag.Tag"
       ],
       "writes": [
         "Record"

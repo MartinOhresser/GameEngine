@@ -114,7 +114,7 @@ void affect(ecs::World& world, const Landed& landed) {
         commands.insert(landed.surface->entity,
                         transform2d::Velocity{landed.fall.vx(bouncy.fall_speed),
                                               landed.fall.vy(bouncy.fall_speed)});
-    } else if (bouncy.vanish || bouncy.kills) {
+    } else if (bouncy.vanish) {
         commands.despawn(landed.surface->entity);
     }
 }

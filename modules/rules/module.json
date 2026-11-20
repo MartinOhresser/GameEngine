@@ -4,7 +4,7 @@
   "name": "rules",
   "version": "0.1.0",
   "description": "Small game rules as data: watch a number and raise an action when it enters a range (a score that reaches a goal, a life that falls to 0, a timer that runs out), and change a number when an action is raised (choose what a button places, set a speed, empty a score). Numbers are fields (\"module.Component.field\") of the entity the rule watches or changes, which is itself or the one carrying a tag. No rule here is about a particular game.",
-  "depends": ["ui", "sprite2d", "text2d", "transform2d"],
+  "depends": ["tag", "transform2d"],
   "components": [
     {
       "name": "Watch",
@@ -42,14 +42,14 @@
       "name": "watch",
       "description": "Checks every Watch against its number and raises the action of the ones that just came into their range.",
       "stage": "FixedUpdate",
-      "reads": ["Watch", "ui.Tag", "transform2d.Disabled"],
+      "reads": ["Watch", "tag.Tag", "transform2d.Disabled"],
       "writes": ["Watch"]
     },
     {
       "name": "on_action",
       "description": "Applies every OnAction whose action is pressed this tick.",
       "stage": "FixedUpdate",
-      "reads": ["OnAction", "ui.Tag", "transform2d.Disabled"]
+      "reads": ["OnAction", "tag.Tag", "transform2d.Disabled"]
     }
   ]
 }

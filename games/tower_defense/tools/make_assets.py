@@ -448,7 +448,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
 
 
 def tagged(components, tag):
-    return dict(components, **{"ui.Tag": {"tag": tag}})
+    return dict(components, **{"tag.Tag": {"tag": tag}})
 
 
 def bound(components, source, field):

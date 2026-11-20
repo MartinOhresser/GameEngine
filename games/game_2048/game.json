@@ -12,7 +12,7 @@
   "title": "2048",
   "description": "Slide the tiles with the arrow keys, W A S D or a swipe: two equal tiles make their sum. Reach 2048, then keep going if you like. R or the button starts a new game; the best score is kept.",
   "modules": [
-    "transform2d", "collision2d", "camera2d", "grid2d", "gesture", "slide_merge", "tween2d", "rules", "phase",
+    "transform2d", "collision2d", "camera2d", "grid2d", "gesture", "slide_merge", "tween2d", "tag", "rules", "phase",
     "sprite2d", "text2d", "scene_switch", "ui", "records",
   ],
   "simulation": { "tick_rate": 60, "seed": 2048 },

@@ -60,6 +60,7 @@
           "slide_merge",
           "spawner2d",
           "sprite2d",
+          "tag",
           "text2d",
           "touch_controls",
           "transform2d",
@@ -266,6 +267,11 @@
           "additionalProperties": false
         },
         "sprite2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "tag": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

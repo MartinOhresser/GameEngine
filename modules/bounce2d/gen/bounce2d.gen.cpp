@@ -83,8 +83,6 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.breaks = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "fall_speed") {
             component.fall_speed = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "kills") {
-            component.kills = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -107,9 +105,6 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     }
     if (field == "fall_speed") {
         return ::ge::app::Scalar{static_cast<double>(component->fall_speed)};
-    }
-    if (field == "kills") {
-        return ::ge::app::Scalar{static_cast<bool>(component->kills)};
     }
     return std::nullopt;
 }
@@ -137,14 +132,10 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->fall_speed = ::ge::app::scalar_as<float>(value);
         return true;
     }
-    if (field == "kills") {
-        component->kills = ::ge::app::scalar_as<bool>(value);
-        return true;
-    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_1_fields{{{"strength", "f32", "", false}, {"vanish", "bool", "", false}, {"breaks", "bool", "", false}, {"fall_speed", "f32", "", false}, {"kills", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_1_fields{{{"strength", "f32", "", false}, {"vanish", "bool", "", false}, {"breaks", "bool", "", false}, {"fall_speed", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Bouncer", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Bouncy", true, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 

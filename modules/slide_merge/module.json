@@ -4,7 +4,7 @@
   "name": "slide_merge",
   "version": "0.1.0",
   "description": "Pieces that slide as far as they can along a board in one of four directions, and merge when two equal ones meet: the whole of a sliding-and-merging puzzle. One action moves every tile at once; the board counts the score and the highest value, and says when nothing can move any more. Tiles animate by themselves through grid2d's gliding. Numbers, letters or levels, with or without merging: the merging is a setting.",
-  "depends": ["grid2d", "camera2d", "transform2d"],
+  "depends": ["grid2d", "transform2d"],
   "components": [
     {
       "name": "SlideBoard",

@@ -122,7 +122,7 @@ constexpr std::array<std::string_view, 4> system_0_reads{"health.Health", "colli
 constexpr std::array<std::string_view, 1> system_0_writes{"autofire.AutoFire"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"autofire.aim_and_fire", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
-constexpr std::array<std::string_view, 7> depends{"transform2d", "collision2d", "health", "path2d", "ui", "sprite2d", "text2d"};
+constexpr std::array<std::string_view, 4> depends{"transform2d", "collision2d", "health", "path2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

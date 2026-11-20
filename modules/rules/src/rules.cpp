@@ -2,8 +2,8 @@
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/mod/rules/rules.gen.hpp"
+#include "ge/mod/tag/find.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
-#include "ge/mod/ui/ui.gen.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -14,30 +14,6 @@
 namespace ge::mod::rules {
 
 namespace {
-
-using Tagged = std::vector<std::pair<std::uint32_t, ecs::Entity>>;
-
-/// The oldest entity of each tag.
-Tagged tagged_entities(ecs::World& world) {
-    Tagged tagged;
-    world.each<const ui::Tag>([&tagged](ecs::Entity entity, const ui::Tag& tag) {
-        const bool known =
-            std::ranges::any_of(tagged, [&tag](const auto& item) { return item.first == tag.tag; });
-        if (!known) {
-            tagged.emplace_back(tag.tag, entity);
-        }
-    });
-    return tagged;
-}
-
-ecs::Entity find(const Tagged& tagged, std::uint32_t tag) {
-    for (const auto& item : tagged) {
-        if (item.first == tag) {
-            return item.second;
-        }
-    }
-    return ecs::Entity{};
-}
 
 const app::FieldEntry* field_of(const app::FieldTable* table, std::uint32_t index) {
     if (table == nullptr || index >= table->entries.size()) {
@@ -77,12 +53,12 @@ void watch(ecs::World& world) {
     const auto* table = world.resource<app::FieldTable>();
     const auto* names = world.resource<app::ActionNames>();
     auto* actions = world.resource<app::Actions>();
-    const Tagged tagged = tagged_entities(world);
+    const tag::Tagged tagged = tag::tagged(world);
     world.each<Watch>([&](ecs::Entity entity, Watch& rule) {
         if (world.has<transform2d::Disabled>(entity) || (rule.once && rule.fired)) {
             return;
         }
-        const ecs::Entity watched = rule.own ? entity : find(tagged, rule.source);
+        const ecs::Entity watched = rule.own ? entity : tagged.find(rule.source);
         const float now = number(world, watched, field_of(table, rule.field));
         const bool inside = now >= rule.min && now <= rule.max;
         if (inside && !rule.inside) {
@@ -100,14 +76,14 @@ void on_action(ecs::World& world) {
     if (names == nullptr || actions == nullptr) {
         return;
     }
-    const Tagged tagged = tagged_entities(world);
+    const tag::Tagged tagged = tag::tagged(world);
     world.each<const OnAction>([&](ecs::Entity entity, const OnAction& rule) {
         if (rule.action >= names->names.size() || !actions->pressed(names->names[rule.action]) ||
             world.has<transform2d::Disabled>(entity)) {
             return;
         }
         const app::FieldEntry* field = field_of(table, rule.field);
-        ecs::Entity target = rule.own ? entity : find(tagged, rule.source);
+        ecs::Entity target = rule.own ? entity : tagged.find(rule.source);
         if (const app::FieldEntry* link = field_of(table, rule.link)) {
             target = linked(world, target, link);
         }

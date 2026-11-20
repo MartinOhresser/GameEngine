@@ -220,13 +220,13 @@ constexpr std::array<::ge::app::FieldInfo, 7> component_1_fields{{{"action", "u3
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Watch", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"OnAction", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
-constexpr std::array<std::string_view, 3> system_0_reads{"rules.Watch", "ui.Tag", "transform2d.Disabled"};
+constexpr std::array<std::string_view, 3> system_0_reads{"rules.Watch", "tag.Tag", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 1> system_0_writes{"rules.Watch"};
-constexpr std::array<std::string_view, 3> system_1_reads{"rules.OnAction", "ui.Tag", "transform2d.Disabled"};
+constexpr std::array<std::string_view, 3> system_1_reads{"rules.OnAction", "tag.Tag", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 0> system_1_writes{};
 constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"rules.watch", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"rules.on_action", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
 
-constexpr std::array<std::string_view, 4> depends{"ui", "sprite2d", "text2d", "transform2d"};
+constexpr std::array<std::string_view, 2> depends{"tag", "transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

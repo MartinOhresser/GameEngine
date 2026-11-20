@@ -244,7 +244,7 @@ constexpr std::array<std::string_view, 2> system_1_reads{"slide_merge.Tile", "gr
 constexpr std::array<std::string_view, 1> system_1_writes{"slide_merge.SlideBoard"};
 constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"slide_merge.slide", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"slide_merge.tally", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
 
-constexpr std::array<std::string_view, 3> depends{"grid2d", "camera2d", "transform2d"};
+constexpr std::array<std::string_view, 2> depends{"grid2d", "transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

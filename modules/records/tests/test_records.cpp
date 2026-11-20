@@ -3,6 +3,7 @@
 #include "ge/app/lists.hpp"
 #include "ge/app/save.hpp"
 #include "ge/mod/records/records.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
 
 #include "mini_test.hpp"
@@ -13,6 +14,7 @@
 namespace {
 
 namespace records = ge::mod::records;
+namespace tag = ge::mod::tag;
 namespace ui = ge::mod::ui;
 
 using ge::ecs::Entity;
@@ -24,6 +26,7 @@ ge::app::App game() {
     ge::app::App app;
     // ui's own dependencies (drawing) are not needed to follow a number: the app lists them
     // among its module problems, which this test does not care about.
+    tag::install(app);
     ui::install(app);
     records::install(app);
     CHECK(app.schedule().problems().empty());
@@ -44,7 +47,7 @@ std::uint32_t field_index(ge::app::App& app, const char* name) {
 
 Entity spawn_player(ge::app::App& app, float score) {
     const Entity entity = app.world().spawn();
-    CHECK(app.world().insert(entity, ui::Tag{player_tag}));
+    CHECK(app.world().insert(entity, tag::Tag{player_tag}));
     CHECK(app.world().insert(entity, ui::Bar{score, 1000.0F, 100.0F, 10.0F, false}));
     return entity;
 }
@@ -132,6 +135,7 @@ TEST_CASE("records: two records keep their own names") {
 
 TEST_CASE("records: without a save or a name the record still follows the game") {
     ge::app::App app;
+    tag::install(app);
     ui::install(app);
     records::install(app);
     static_cast<void>(spawn_player(app, 9.0F));

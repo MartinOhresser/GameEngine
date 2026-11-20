@@ -62,17 +62,6 @@ struct Cell {
     [[nodiscard]] friend bool operator==(const Cell&, const Cell&) = default;
 };
 
-/// A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's "tag" list. When several entities share a tag, the oldest one is found.
-struct Tag {
-    std::uint32_t tag = 0U;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(tag);
-    }
-
-    [[nodiscard]] friend bool operator==(const Tag&, const Tag&) = default;
-};
-
 /// Shows a number of the game: every tick, the value of field (written "module.Component.field", for example "pickup.Collector.score") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. With own, the entity reads the field of itself instead of the entity tagged source: the number written on a tile, the health bar of a monster (put a Bind on the entity that has the Bar and the Health). A missing source or component leaves the value at 0.
 struct Bind {
     std::uint32_t source = 0U;

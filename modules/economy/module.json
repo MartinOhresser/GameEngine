@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "name": "economy",
   "description": "Money and what it buys on a board: a purse, a reward for what dies, buying and placing something on a free cell, improving it (it is replaced by the next version, which may be improved again) and selling it back. A tower defense, a farm or a city builder, a shop on a map. The module knows no game: what is bought is a prefab, its price a number, what it is a name in the game's files.",
-  "depends": ["transform2d", "grid2d", "health", "camera2d"],
+  "depends": ["transform2d", "grid2d", "health"],
   "components": [
     {
       "name": "Wallet",

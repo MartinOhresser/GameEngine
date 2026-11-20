@@ -172,7 +172,7 @@ def scoreboard():
     """Follows the score of the board: keeps the best (saved) and stays from scene to scene."""
     return {"name": "scoreboard", "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {"tag": "scoreboard"},
+        "tag.Tag": {"tag": "scoreboard"},
         "records.Record": {"key": "best_score", "source": "board",
                            "field": "slide_merge.SlideBoard.score"}}}
 
@@ -212,7 +212,7 @@ def rules_entities(deal, spawn):
             "slide_merge.SlideBoard": {"grid": "board", "left": "left", "right": "right",
                                        "up": "up", "down": "down", "mode": 0,
                                        "moved_action": "moved", "stuck_action": "stuck"},
-            "ui.Tag": {"tag": "board"},
+            "tag.Tag": {"tag": "board"},
             # The board only works while the game is being played (not on the victory or the
             # "no more moves" screen).
             "phase.ActiveIn": {"phases": PLAYING}}},

@@ -14,7 +14,7 @@ On touche (ou on clique) une case libre pour y construire la tour choisie (le ca
 | --- | --- |
 | Un terrain de 14 × 9 cases, toujours en entier à l'écran, avec une barre d'état en haut et la boutique en bas | `grid2d.Grid`, `camera2d.CameraFit` (marges), `ui.Anchor` |
 | La route, qu'on ne peut pas couvrir de tours, et des rochers | une entité par case avec `grid2d.Blocked` ; la route elle-même est une suite de `path2d.Waypoint` |
-| Un monstre suit la route à sa vitesse ; au bout, il blesse la base et disparaît | `path2d.PathFollower` (`end_target` : l'entité de `ui.Tag` « base », `end_damage`) ; la base est une `health.Health` qui ne disparaît pas |
+| Un monstre suit la route à sa vitesse ; au bout, il blesse la base et disparaît | `path2d.PathFollower` (`end_target` : l'entité de `tag.Tag` « base », `end_damage`) ; la base est une `health.Health` qui ne disparaît pas |
 | Quatre monstres : fantassin, coureur (rapide), blindé (solide, blesse deux fois), chef (400 points de vie, blesse dix fois) | quatre préfabs : `health.Health`, `economy.Bounty`, `path2d.PathFollower`, `collision2d.Collider` |
 | Quatre tours à trois niveaux : canon (tir rapide), mortier (dégâts de zone), glace (ralentit), sniper (portée, vise le plus solide) | douze préfabs : `autofire.AutoFire` (portée, cadence, mode de visée), un tir par niveau (`combat2d.Projectile` : `splash_radius`, `on_hit_speed_factor`, `homing`) |
 | Un ralentissement qui passe | `transform2d.SpeedScale` posé par le tir, lu par `path2d` |

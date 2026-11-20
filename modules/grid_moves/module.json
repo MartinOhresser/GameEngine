@@ -4,7 +4,7 @@
   "name": "grid_moves",
   "version": "0.1.0",
   "description": "How things move on a board, as data: every way of moving is an entity (a Pattern) that says which kind of piece it is for, in which direction, how far, whether it may capture, and under what conditions. The module finds the moves a piece may make, refuses those that leave something to guard under threat, and says when a side has no move left: turn-based boards (chess and its variants, checkers, tactics units). It knows no game: kinds are items of the game's own list, and a special move (taking a piece that is not where you land, moving a second piece along) is a few fields of a pattern.",
-  "depends": ["grid2d", "camera2d", "turns", "transform2d"],
+  "depends": ["grid2d", "turns", "transform2d"],
   "components": [
     {
       "name": "Mover",

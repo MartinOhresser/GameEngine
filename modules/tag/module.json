@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "tag",
+  "version": "0.1.0",
+  "description": "Names that entities answer to, so that other entities find them without holding a reference: the player, the board, the score keeper, the goal. A Tag names an item of the game's \"tag\" list; the modules that look an entity up by name (a text or a bar that shows a number, a rule, a record, the end of a path) read it. When several entities share a tag, the oldest one is found. Modules find tagged entities with ge/mod/tag/find.hpp.",
+  "components": [
+    {
+      "name": "Tag",
+      "description": "The name the entity answers to. tag names an item of the game's \"tag\" list. When several entities share a tag, the oldest one is found.",
+      "replicable": false,
+      "fields": [
+        { "name": "tag", "type": "u32", "default": 0, "ref": "tag" }
+      ]
+    }
+  ]
+}

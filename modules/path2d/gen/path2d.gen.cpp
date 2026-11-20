@@ -157,11 +157,11 @@ constexpr std::array<::ge::app::FieldInfo, 7> component_1_fields{{{"path", "u32"
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Waypoint", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"PathFollower", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
-constexpr std::array<std::string_view, 3> system_0_reads{"path2d.Waypoint", "ui.Tag", "transform2d.SpeedScale"};
+constexpr std::array<std::string_view, 3> system_0_reads{"path2d.Waypoint", "tag.Tag", "transform2d.SpeedScale"};
 constexpr std::array<std::string_view, 3> system_0_writes{"path2d.PathFollower", "transform2d.Position", "health.Damage"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"path2d.follow", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
-constexpr std::array<std::string_view, 5> depends{"transform2d", "health", "ui", "sprite2d", "text2d"};
+constexpr std::array<std::string_view, 3> depends{"transform2d", "health", "tag"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

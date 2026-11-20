@@ -33,7 +33,7 @@
       "container": "backpack",
       "radius": 16
     },
-    "ui.Tag": {
+    "tag.Tag": {
       "tag": "player"
     }
   }

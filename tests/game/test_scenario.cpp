@@ -5,6 +5,7 @@
 #include "ge/mod/host/host.gen.hpp"
 #include "ge/mod/lifetime/lifetime.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
@@ -24,13 +25,14 @@ using ge::game::ModuleEntry;
 
 namespace {
 
-const std::array<ModuleEntry, 7> linked = {{
+const std::array<ModuleEntry, 8> linked = {{
     {&ge::mod::transform2d::info, &ge::mod::transform2d::install},
     {&ge::mod::lifetime::info, &ge::mod::lifetime::install},
     {&ge::mod::action_control::info, &ge::mod::action_control::install},
     {&ge::mod::host::info, &ge::mod::host::install},
     {&ge::mod::sprite2d::info, &ge::mod::sprite2d::install},
     {&ge::mod::text2d::info, &ge::mod::text2d::install},
+    {&ge::mod::tag::info, &ge::mod::tag::install},
     {&ge::mod::ui::info, &ge::mod::ui::install},
 }};
 
@@ -444,7 +446,7 @@ TEST_CASE("scenario: a scenario fills a run-time list, selects a row and a host 
     Files files;
     files["g/game.json"] = R"({
         "schema_version": 1, "name": "picker",
-        "modules": ["transform2d", "sprite2d", "text2d", "ui", "host"],
+        "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui", "host"],
         "lists": {"runtime_list": ["games"], "menu": ["main"],
                   "action": ["down", "choose", "play_it"], "host_command": ["play"],
                   "tag": [], "group": []},
@@ -492,7 +494,7 @@ Files phone_sample(const std::string& screen) {
     return {
         {"g/game.json", R"({
             "schema_version": 1, "name": "phone",
-            "modules": ["transform2d", "sprite2d", "text2d", "ui"],
+            "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui"],
             "window": {"width": 480, "height": 720, "adapt": true},
             "scenes": ["main.json"], "scenarios": ["look.json"], "start_scene": "main"
         })"},
