@@ -581,9 +581,17 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     impl->headless = options.headless;
     impl->capture = options.capture;
     impl->session = std::make_shared<Session>(); // owns SDL from here on
+    // On a phone the game fills the screen: no status bar, no navigation bar (they come back with
+    // a swipe from the edge). Without it the window is a few dozen pixels shorter than the screen
+    // and the bar covers the top of the game.
+#if defined(__ANDROID__)
+    constexpr SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
+#else
+    constexpr SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE;
+#endif
     const auto open_window = [&options, &impl]() {
         return SDL_CreateWindowAndRenderer(options.title.c_str(), options.width, options.height,
-                                           SDL_WINDOW_RESIZABLE, &impl->session->window,
+                                           window_flags, &impl->session->window,
                                            &impl->session->renderer);
     };
     if (options.software) {

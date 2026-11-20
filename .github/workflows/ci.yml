@@ -352,8 +352,15 @@ jobs:
       - name: Export the game for Android (x86_64 for the emulator, arm64-v8a for phones)
         run: |
           started=$(date +%s)
-          ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
-            --abi x86_64,arm64-v8a --out dist
+          # Gradle downloads its own tools from Maven Central, which answers "429, too many
+          # requests" now and then when several jobs ask together: try again before failing.
+          for attempt in 1 2 3; do
+            ./build/release/tools/gectl export games/${{ matrix.game }}/game.json --target android \
+              --abi x86_64,arm64-v8a --out dist && break
+            [ "$attempt" -lt 3 ] || exit 1
+            echo "the export failed (attempt $attempt of 3), trying again in 60 s"
+            sleep 60
+          done
           echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_ENV"
       - name: What is in the APK
         run: |
