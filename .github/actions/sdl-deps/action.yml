@@ -1,24 +1,12 @@
 name: SDL3 build dependencies (Linux)
 description: >
-  The system libraries SDL3 needs to be built from source on Ubuntu. They are kept in the Actions
-  cache: apt is asked only when the list changes or the cache is gone. apt mirrors answer 503 or
-  do not answer now and then (and IPv6 is often unreachable on the runners): when the cache cannot
-  be used, IPv4 only, and the whole install is tried again.
+  The system libraries SDL3 needs to be built from source on Ubuntu. apt mirrors answer 503 or do
+  not answer now and then (and IPv6 is often unreachable on the runners): IPv4 only, and the
+  whole install is tried again.
 runs:
   using: composite
   steps:
-    - name: Install the libraries from the cache
-      id: cached
-      continue-on-error: true
-      uses: awalsh128/cache-apt-pkgs-action@v1.6.3
-      with:
-        packages: >-
-          libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev
-          libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev
-          libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
-        version: "1"
-    - name: Install the libraries with apt
-      if: steps.cached.outcome != 'success'
+    - name: Install the libraries
       shell: bash
       run: |
         "$GITHUB_ACTION_PATH/../../../scripts/ci_retry.sh" 4 20 bash -c '

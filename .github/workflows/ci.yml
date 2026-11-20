@@ -7,7 +7,7 @@ name: CI
 #  - a pull request into `main`, a push to `main`, a merge group and the promotion workflow run
 #    everything: coverage, the launcher scripts, the three games of ADR 0013 exported.
 # A push to `dev` (a merged pull request) runs the tier of a pull request again, for the caches:
-# what it compiles (ccache, .github/actions/ccache) and downloads (apt, Gradle) is what the next
+# what it compiles (ccache, .github/actions/ccache) and downloads (Gradle) is what the next
 # pull requests into `dev` start from. Nobody waits on it.
 # What `./scripts/check.sh` checks locally (AddressSanitizer, clang-tidy, the GCC Debug build, the
 # scenarios of every game, including on a phone's screen) is not repeated here.
