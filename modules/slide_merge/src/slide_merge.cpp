@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace ge::mod::slide_merge {
@@ -148,10 +149,15 @@ bool changes_something(const std::vector<Step>& steps) {
 /// The direction pressed in this tick (the first of left, right, up, down), if any.
 std::optional<Direction> pressed_direction(const SlideBoard& board, const app::Actions* actions,
                                            const app::ActionNames* names) {
-    const std::array<std::uint32_t, 4> keys = {board.left, board.right, board.up, board.down};
-    for (std::size_t i = 0; i < keys.size(); ++i) {
-        if (pressed(actions, names, keys[i])) {
-            return directions[i];
+    const std::array<std::pair<std::uint32_t, Direction>, 4> keys = {{
+        {board.left, directions[0]},
+        {board.right, directions[1]},
+        {board.up, directions[2]},
+        {board.down, directions[3]},
+    }};
+    for (const auto& [action, direction] : keys) {
+        if (pressed(actions, names, action)) {
+            return direction;
         }
     }
     return std::nullopt;
