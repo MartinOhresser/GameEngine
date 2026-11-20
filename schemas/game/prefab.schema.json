@@ -386,6 +386,69 @@
           },
           "additionalProperties": false
         },
+        "gesture.Swipe": {
+          "type": "object",
+          "properties": {
+            "pointer_x": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "pointer_y": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "press": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "min_distance": {
+              "type": "number"
+            },
+            "max_ticks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "left": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "right": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "up": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "down": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "start_x": {
+              "type": "number"
+            },
+            "start_y": {
+              "type": "number"
+            },
+            "elapsed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "gravity2d.Gravity": {
           "type": "object",
           "properties": {
@@ -397,6 +460,148 @@
             },
             "terminal_speed": {
               "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "grid2d.Grid": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "columns": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "cell_width": {
+              "type": "number"
+            },
+            "cell_height": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "grid2d.GridPos": {
+          "type": "object",
+          "properties": {
+            "grid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "col": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "row": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "glide": {
+              "type": "number"
+            },
+            "from_position": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "grid2d.Blocked": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "grid2d.GridCursor": {
+          "type": "object",
+          "properties": {
+            "grid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "pointer_x": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "pointer_y": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "click": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "over": {
+              "type": "boolean"
+            },
+            "col": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "row": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "clicked": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "grid2d.SpawnOnEmpty": {
+          "type": "object",
+          "properties": {
+            "grid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "trigger": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alt_prefab": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "alt_percent": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             }
           },
           "additionalProperties": false

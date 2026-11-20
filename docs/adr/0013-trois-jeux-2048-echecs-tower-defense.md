@@ -272,3 +272,12 @@ Valeurs par défaut proposées ; à corriger si besoin.
 - **`transform2d.Scale`** (taille de dessin) a été ajouté : une seule animation de `Scale.factor` fait grossir à la fois l'image et le texte d'une tuile. **`transform2d.Disabled`** : une entité mise de côté (`phase.ActiveIn` la pose), lue par `rules` ; les autres modules la liront quand ils en auront besoin.
 - **`rules` dépend de `ui`** pour `ui.Tag` (viser l'entité qui porte un nom). `Watch` regarde l'entité elle-même par défaut. Pas de comparaison à six opérateurs : un intervalle `min`–`max` dit « atteint 2048 » (`min`), « tombe à 0 » (`max`) ou « devient exactement » (les deux).
 - **Les courbes de `Tween`** sont des nombres (0 linéaire, 1 départ lent, 2 arrivée lente, 3 les deux, 4 dépasse le but) : un champ de composant est un nombre.
+
+### G3 et G5 : `grid2d` et `gesture`
+
+- **Les cases ne sont pas des entités** : une `Grid` est une seule entité (sa `Position` est le centre du plateau), et ce qui est sur une case est une entité avec un `GridPos`. `ge/mod/grid2d/cells.hpp` (en-tête seul, dans un nouveau dossier `include/` du module, repris par CMake) donne aux modules qui en dépendent la mise en page (`Layout`) et qui est sur quelle case (`occupancy`) ; une entité `Disabled` ne compte pas comme occupant (c'est ce qui laisse une tuile fusionnée finir de glisser sans bloquer la case).
+- **`GridPos.from_position`** : un préfab créé par un spawner a une position, pas une case ; il prend la case qui l'entoure à son premier tick. `SpawnOnEmpty` s'appuie dessus.
+- **Une action « aucune » vaut 4294967295** dans `GridCursor`, `SpawnOnEmpty` et `Swipe` (comme pour `ui.Menu`) : un champ de renvoi à une action n'est pas obligé d'en avoir une.
+- **`GridCursor` lit le pointeur à travers la caméra** et le `Viewport` ; il ne dépend pas du clavier ni de la souris, seulement d'actions (`mouse:` ou `touch:` selon `input.json`).
+- **`Swipe` compte la durée depuis l'appui** (pas le tick de l'appui lui-même) : 10 ticks max veut dire 10 ticks entre l'appui et le relâchement.
+- Reporté à G8 : `grid2d.Zone`, `Selectable` et `Selection` (les échecs et le tower defense en ont besoin, pas le 2048).

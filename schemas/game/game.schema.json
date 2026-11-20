@@ -37,7 +37,9 @@
           "collision2d",
           "combat2d",
           "debug_draw",
+          "gesture",
           "gravity2d",
+          "grid2d",
           "host",
           "inventory",
           "lifetime",
@@ -144,7 +146,17 @@
           "properties": {},
           "additionalProperties": false
         },
+        "gesture": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "gravity2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "grid2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

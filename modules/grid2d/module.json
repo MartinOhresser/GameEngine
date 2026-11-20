@@ -1,0 +1,93 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "grid2d",
+  "version": "0.1.0",
+  "description": "Boards made of cells: a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, and the creation of entities on empty cells. A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
+  "depends": ["transform2d", "camera2d"],
+  "components": [
+    {
+      "name": "Grid",
+      "description": "A board of columns by rows cells, each cell_width by cell_height world units, centred on the entity's Position. id names an item of the game's \"grid\" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards.",
+      "replicable": false,
+      "fields": [
+        { "name": "id", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "columns", "type": "u32", "default": 8 },
+        { "name": "rows", "type": "u32", "default": 8 },
+        { "name": "cell_width", "type": "f32", "default": 64 },
+        { "name": "cell_height", "type": "f32", "default": 64 }
+      ]
+    },
+    {
+      "name": "GridPos",
+      "description": "The cell of the board grid where the entity sits: col and row, counted from the top left. Each tick its Position is set to the centre of that cell; with glide (the share, 0 to 1, of the distance covered each tick) it moves there smoothly instead and lands on it when it is within a pixel; glide 0 puts it there at once. With from_position, on its first tick the entity takes the cell it is on from its Position (entities created by a spawner or put in a scene by their place) and the flag turns off. An entity on a cell that is not on the board (or whose board does not exist) is left where it is. Entities that are Disabled do not count as being on a cell for the other modules.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "glide", "type": "f32", "default": 0 },
+        { "name": "from_position", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Blocked",
+      "description": "Marks an entity on a cell (with a GridPos) as something that nothing can be put on or move into: a wall, a rock, a road a tower may not be built on. Modules that place or move things on a board skip cells that have one.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "GridCursor",
+      "description": "Follows the pointer or the finger over the board grid: pointer_x and pointer_y are the actions that carry its position in pixels of the window (as for a menu), converted through the camera. over says whether it is above a cell, col and row which one. While the click action is pressed over a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "pointer_x", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pointer_y", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "click", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "over", "type": "bool", "default": false },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "clicked", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "SpawnOnEmpty",
+      "description": "When the action named by trigger is pressed, creates count entities from prefab on cells of the board grid that nothing sits on (no GridPos of that board there, Disabled ones aside), chosen at random: with alt_percent percent of the chances a different prefab, alt_prefab, is made instead (a 2 or a 4, a common or a rare monster, a coin or a bomb). It creates fewer when the board has not enough empty cells. The prefab should carry a GridPos with the same grid and from_position on, so that it takes its cell. A Disabled spawner does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "trigger", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "alt_prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "alt_percent", "type": "u32", "default": 0 },
+        { "name": "count", "type": "u32", "default": 1 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "place",
+      "description": "Gives each GridPos entity the cell it sits on (once, with from_position) and moves it to that cell's centre, at once or gliding.",
+      "stage": "FixedUpdate",
+      "reads": ["Grid", "transform2d.Disabled"],
+      "writes": ["GridPos", "transform2d.Position"],
+      "after": ["transform2d.attach"]
+    },
+    {
+      "name": "point",
+      "description": "Updates every GridCursor from the pointer, the camera and the board, and raises the action of a click on a cell.",
+      "stage": "FixedUpdate",
+      "reads": ["Grid", "camera2d.Camera", "transform2d.Position", "transform2d.Disabled"],
+      "writes": ["GridCursor"]
+    },
+    {
+      "name": "spawn",
+      "description": "Creates the entities of every SpawnOnEmpty whose trigger is pressed on random empty cells.",
+      "stage": "FixedUpdate",
+      "reads": ["SpawnOnEmpty", "Grid", "GridPos", "transform2d.Disabled"],
+      "after": ["place"]
+    }
+  ]
+}
