@@ -63,8 +63,11 @@ public:
     }
     [[nodiscard]] std::string executable_suffix() const override { return ".exe"; }
     [[nodiscard]] std::vector<std::string> configure_arguments() const override {
-        // The C runtime inside the program: no Visual C++ redistributable to install.
-        return {"-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded"};
+        // The C runtime inside the program: no Visual C++ redistributable to install. With the
+        // Visual Studio generator, MSBuild compiles the files of a project one by one unless it
+        // is told to use every core (SDL alone is several hundred files).
+        return {"-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded",
+                "-DCMAKE_VS_GLOBALS=UseMultiToolTask=true;EnforceProcessCountAcrossBuilds=true"};
     }
     [[nodiscard]] std::string readme_platform_notes(const std::string& executable,
                                                     const std::string& game_name) const override {
@@ -606,8 +609,8 @@ bool DesktopTarget::build(const ExportJob& job, std::string& program, std::ostre
         return false;
     }
     const std::vector<std::string> build_command{
-        "cmake",    "--build", job.build_dir.generic_string(), "--target", "ge_player",
-        "--config", "Release"};
+        "cmake",   "--build",   job.build_dir.generic_string(), "--target", "ge_player", "--config",
+        "Release", "--parallel"};
     if (job.run(build_command) != 0) {
         err << "The program could not be built (see above).\n";
         return false;

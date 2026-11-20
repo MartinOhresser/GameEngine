@@ -29,12 +29,13 @@ if errorlevel 1 (
   exit /b 1
 )
 
-cmake -S . -B build\launcher --log-level=WARNING -DGE_BUILD_PLATFORM=ON -DGE_BUILD_TOOLS=ON -DGE_BUILD_TESTS=OFF -DGE_BUILD_EXAMPLES=OFF
+rem MSBuild compiles the files of a project one by one unless it is told to use every core.
+cmake -S . -B build\launcher --log-level=WARNING -DGE_BUILD_PLATFORM=ON -DGE_BUILD_TOOLS=ON -DGE_BUILD_TESTS=OFF -DGE_BUILD_EXAMPLES=OFF "-DCMAKE_VS_GLOBALS=UseMultiToolTask=true;EnforceProcessCountAcrossBuilds=true"
 if errorlevel 1 (
   echo The build could not be prepared. Is Visual Studio ^(or its Build Tools with "Desktop development with C++"^) installed?
   exit /b 1
 )
-cmake --build build\launcher --config Release --target gelauncher
+cmake --build build\launcher --config Release --target gelauncher --parallel
 if errorlevel 1 exit /b 1
 
 rem Visual Studio puts the program in a Release folder, other generators next to the libraries.

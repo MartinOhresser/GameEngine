@@ -19,12 +19,13 @@ if errorlevel 1 (
   exit /b 1
 )
 
-cmake -S . -B build\tools -DGE_BUILD_TOOLS=ON -DGE_BUILD_TESTS=OFF -DGE_BUILD_EXAMPLES=OFF
+rem MSBuild compiles the files of a project one by one unless it is told to use every core.
+cmake -S . -B build\tools -DGE_BUILD_TOOLS=ON -DGE_BUILD_TESTS=OFF -DGE_BUILD_EXAMPLES=OFF "-DCMAKE_VS_GLOBALS=UseMultiToolTask=true;EnforceProcessCountAcrossBuilds=true"
 if errorlevel 1 (
   echo The tools could not be prepared. Is Visual Studio ^(or its Build Tools with "Desktop development with C++"^) installed?
   exit /b 1
 )
-cmake --build build\tools --config Release --target gectl
+cmake --build build\tools --config Release --target gectl --parallel
 if errorlevel 1 exit /b 1
 
 build\tools\tools\Release\gectl.exe export %*

@@ -41,7 +41,7 @@ if ! cmake -S . -B "$build_dir" --log-level=WARNING "${generator[@]+"${generator
   echo "The build could not be prepared. Is a C++ compiler installed (on Windows: Visual Studio or its Build Tools with \"Desktop development with C++\")?" >&2
   exit 1
 fi
-cmake --build "$build_dir" --config "$config" --target gelauncher
+cmake --build "$build_dir" --config "$config" --target gelauncher --parallel
 
 # One-configuration generators put the program in the folder, Visual Studio in a Release folder.
 launcher=""

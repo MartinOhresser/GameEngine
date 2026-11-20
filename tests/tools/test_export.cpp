@@ -330,6 +330,7 @@ TEST_CASE("export: the commands that build and zip a package") {
     CHECK(contains(configure, "-DCMAKE_BUILD_TYPE=Release"));
     CHECK(system.commands[1][1] == "--build");
     CHECK(contains(system.commands[1], "ge_player"));
+    CHECK(contains(system.commands[1], "--parallel"));
     CHECK(contains(system.commands[2], "--format=zip"));
     CHECK(contains(system.commands[2], "Move_Sprite-0.1.0-linux.zip"));
     CHECK(contains(system.commands[2], "Move_Sprite-0.1.0-linux"));
