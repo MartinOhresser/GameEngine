@@ -51,6 +51,7 @@
           "rules",
           "scene_switch",
           "screen_wrap",
+          "slide_merge",
           "spawner2d",
           "sprite2d",
           "text2d",
@@ -212,6 +213,11 @@
           "additionalProperties": false
         },
         "screen_wrap": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "slide_merge": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

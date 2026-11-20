@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "name": "boot",
+  "entities": [
+    {
+      "name": "scoreboard",
+      "components": {
+        "scene_switch.Persistent": {},
+        "ui.Tag": {
+          "tag": "scoreboard"
+        },
+        "records.Record": {
+          "key": "best_score",
+          "source": "board",
+          "field": "slide_merge.SlideBoard.score"
+        }
+      }
+    },
+    {
+      "name": "go_game",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "game",
+          "after_ticks": 2
+        }
+      }
+    }
+  ]
+}

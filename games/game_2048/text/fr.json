@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "locale": "fr",
+  "entries": {
+    "hud.title": "2048",
+    "hud.score": "Score {value}",
+    "hud.best": "Record {value}",
+    "hud.help": "Flèches, Z Q S D ou glisser : déplacez les tuiles",
+    "won.title": "Vous avez fait 2048 !",
+    "lost.title": "Plus aucun coup",
+    "button.new": "Nouvelle partie",
+    "button.continue": "Continuer",
+    "tile.value": "{value}"
+  }
+}

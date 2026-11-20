@@ -1,0 +1,49 @@
+// A touch that hardly moves does not slide anything.
+{
+  "schema_version": 1,
+  "name": "tap_is_not_a_swipe",
+  "scene": "test_walk",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "pointer_x",
+      "value": 300
+    },
+    {
+      "tick": 5,
+      "action": "pointer_y",
+      "value": 300
+    },
+    {
+      "tick": 5,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "pointer_x",
+      "value": 305
+    },
+    {
+      "tick": 11,
+      "action": "pointer_y",
+      "value": 302
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "t1.grid2d.GridPos.col == 1"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    }
+  ]
+}

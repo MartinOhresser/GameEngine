@@ -1,0 +1,41 @@
+// After a move that changed something a new tile (2 or 4) appears on an empty cell.
+{
+  "schema_version": 1,
+  "name": "move_adds_a_tile",
+  "scene": "test_spawn",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "entities == 39"
+    },
+    {
+      "at": 40,
+      "check": "t1.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 40,
+      "check": "t1.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 1"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.highest <= 4"
+    }
+  ]
+}

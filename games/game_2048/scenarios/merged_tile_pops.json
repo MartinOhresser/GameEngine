@@ -1,0 +1,29 @@
+// The tile that has just been made swells, then comes back to its size.
+{
+  "schema_version": 1,
+  "name": "merged_tile_pops",
+  "scene": "test_merge",
+  "ticks": 80,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 8,
+      "check": "t1.transform2d.Scale.factor > 1.05"
+    },
+    {
+      "at": 80,
+      "check": "t1.transform2d.Scale.factor == 1"
+    }
+  ]
+}

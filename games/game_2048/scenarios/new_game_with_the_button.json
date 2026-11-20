@@ -1,0 +1,47 @@
+// After the last move the New game button starts again.
+{
+  "schema_version": 1,
+  "name": "new_game_with_the_button",
+  "scene": "test_lost",
+  "ticks": 50,
+  "inputs": [
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 240
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 675
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 15,
+      "check": "game_phase.phase.Phase.current == 2"
+    },
+    {
+      "at": 40,
+      "check": "scene is game"
+    },
+    {
+      "at": 40,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    }
+  ]
+}

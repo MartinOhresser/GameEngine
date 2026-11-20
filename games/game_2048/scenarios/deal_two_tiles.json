@@ -1,0 +1,30 @@
+// A new game starts with two tiles on the board: a 2 or a 4 each.
+{
+  "schema_version": 1,
+  "name": "deal_two_tiles",
+  "scene": "game",
+  "ticks": 10,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 10,
+      "check": "entities == 41"
+    },
+    {
+      "at": 10,
+      "check": "board.slide_merge.SlideBoard.highest >= 2"
+    },
+    {
+      "at": 10,
+      "check": "board.slide_merge.SlideBoard.highest <= 4"
+    },
+    {
+      "at": 10,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    },
+    {
+      "at": 10,
+      "check": "game_phase.phase.Phase.current == 0"
+    }
+  ]
+}

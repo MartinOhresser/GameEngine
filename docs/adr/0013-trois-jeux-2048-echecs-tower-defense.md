@@ -281,3 +281,13 @@ Valeurs par défaut proposées ; à corriger si besoin.
 - **`GridCursor` lit le pointeur à travers la caméra** et le `Viewport` ; il ne dépend pas du clavier ni de la souris, seulement d'actions (`mouse:` ou `touch:` selon `input.json`).
 - **`Swipe` compte la durée depuis l'appui** (pas le tick de l'appui lui-même) : 10 ticks max veut dire 10 ticks entre l'appui et le relâchement.
 - Reporté à G8 : `grid2d.Zone`, `Selectable` et `Selection` (les échecs et le tower defense en ont besoin, pas le 2048).
+
+### G6 : `slide_merge` et `game_2048`
+
+- **Le module** : `SlideBoard` (`grid`, quatre actions de direction, `mode` : 0 somme, 1 valeur suivante, 2 glisser sans fusionner ; `vanish_ticks`, `pop`, `moved_action`, `stuck_action`, et son état : `score`, `highest`, `moves`, `no_moves`) et `Tile` (`value`, `merged`, `dying`, `vanish_in`). Une tuile est une entité avec un `Tile` et un `GridPos` ; tout autre `GridPos` du plateau est un obstacle. Le glissement est calculé ligne par ligne par une fonction pure (`plan`), qui sert aussi à savoir si le plateau est bloqué (aucune direction ne change quoi que ce soit). La tuile absorbée va jusqu'à la case de l'autre en glissant, puis disparaît après `vanish_ticks` (elle est `Disabled` entre-temps, donc ne compte plus pour `grid2d`). `slide` passe avant `grid2d.spawn` : la case choisie pour la nouvelle tuile tient compte du coup qui vient d'être joué.
+- **Le jeu n'a aucun C++** : la partie commence quand un `rules.Watch` voit `moves == 0` (un nombre déjà dans l'intervalle au départ « entre » : cela lève `deal`, qui fait poser deux tuiles) ; la victoire est un `Watch` sur `highest >= 2048` (une fois) qui fait passer `phase` à `won` ; `stuck` fait passer à `lost` ; `continue_game` revient à `playing`. Le plateau est `ActiveIn playing`. Recommencer recharge la scène `game` (R, N ou le bouton), à tout moment.
+- **L'écran de victoire est une bannière sous le plateau**, pas un écran plein : `text2d` dessine toujours au-dessus des sprites, donc un voile sur le plateau laisserait lire les nombres des tuiles à travers. La bannière (message, bouton **Continuer**) est un `ShowIn won` ; le plateau reste visible et figé.
+- **Les clics et les glissés** viennent de la même souris/doigt : un glissé lève la direction (`gesture.Swipe`), un appui bref sur un bouton est un clic ; le premier doigt étant aussi la souris, le jeu n'a aucune source `touch:`.
+- **Les images** : 14 images de 32 pixels (`tiles`), une par puissance de 2 jusqu'à 8192 (au-delà, la dernière) ; `FrameBind` en logarithme choisit l'image, `ui.Bind own` écrit le nombre.
+- **Les scénarios** (15) jouent des plateaux de test (`test_*`), la vraie scène avec des tuiles posées et sans la partie au hasard, plus la vraie scène (`deal_two_tiles`).
+

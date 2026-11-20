@@ -1,0 +1,76 @@
+// Right, down, left and up (the arrow keys; W A S D and a swipe raise the same
+// actions): a lone tile goes to the edge each time.
+{
+  "schema_version": 1,
+  "name": "slides_in_four_directions",
+  "scene": "test_walk",
+  "ticks": 60,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "right",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "right",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "down",
+      "value": 1
+    },
+    {
+      "tick": 16,
+      "action": "down",
+      "value": 0
+    },
+    {
+      "tick": 25,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 26,
+      "action": "left",
+      "value": 0
+    },
+    {
+      "tick": 35,
+      "action": "up",
+      "value": 1
+    },
+    {
+      "tick": 36,
+      "action": "up",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 12,
+      "check": "t1.grid2d.GridPos.col == 3"
+    },
+    {
+      "at": 12,
+      "check": "t1.grid2d.GridPos.row == 1"
+    },
+    {
+      "at": 22,
+      "check": "t1.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 32,
+      "check": "t1.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 60,
+      "check": "t1.grid2d.GridPos.row == 0"
+    },
+    {
+      "at": 60,
+      "check": "board.slide_merge.SlideBoard.moves == 4"
+    }
+  ]
+}
