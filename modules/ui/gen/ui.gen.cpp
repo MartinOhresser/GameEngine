@@ -16,72 +16,6 @@ namespace {
 
 void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
-    Anchor component;
-    for (const ::ge::app::FieldValue& field : values) {
-        if (field.name == "anchor_x") {
-            component.anchor_x = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "anchor_y") {
-            component.anchor_y = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "offset_x") {
-            component.offset_x = ::ge::app::scalar_as<float>(field.value);
-        } else if (field.name == "offset_y") {
-            component.offset_y = ::ge::app::scalar_as<float>(field.value);
-        }
-    }
-    static_cast<void>(world.insert(entity, std::move(component)));
-}
-
-std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field) {
-    const Anchor* component = world.get<Anchor>(entity);
-    if (component == nullptr) {
-        return std::nullopt;
-    }
-    if (field == "anchor_x") {
-        return ::ge::app::Scalar{static_cast<double>(component->anchor_x)};
-    }
-    if (field == "anchor_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->anchor_y)};
-    }
-    if (field == "offset_x") {
-        return ::ge::app::Scalar{static_cast<double>(component->offset_x)};
-    }
-    if (field == "offset_y") {
-        return ::ge::app::Scalar{static_cast<double>(component->offset_y)};
-    }
-    return std::nullopt;
-}
-
-bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::string_view field,
-                      [[maybe_unused]] const ::ge::app::Scalar& value) {
-    Anchor* component = world.get<Anchor>(entity);
-    if (component == nullptr) {
-        return false;
-    }
-    if (field == "anchor_x") {
-        component->anchor_x = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "anchor_y") {
-        component->anchor_y = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "offset_x") {
-        component->offset_x = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    if (field == "offset_y") {
-        component->offset_y = ::ge::app::scalar_as<float>(value);
-        return true;
-    }
-    return false;
-}
-
-constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"anchor_x", "f32", "", false}, {"anchor_y", "f32", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}}};
-
-void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
-                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Grid component;
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "group") {
@@ -101,7 +35,7 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Grid* component = world.get<Grid>(entity);
     if (component == nullptr) {
@@ -128,7 +62,7 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Grid* component = world.get<Grid>(entity);
@@ -162,9 +96,9 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 6> component_1_fields{{{"group", "u32", "group", false}, {"columns", "u32", "", false}, {"cell_width", "f32", "", false}, {"cell_height", "f32", "", false}, {"spacing_x", "f32", "", false}, {"spacing_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 6> component_0_fields{{{"group", "u32", "group", false}, {"columns", "u32", "", false}, {"cell_width", "f32", "", false}, {"cell_height", "f32", "", false}, {"spacing_x", "f32", "", false}, {"spacing_y", "f32", "", false}}};
 
-void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Cell component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -177,7 +111,7 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Cell* component = world.get<Cell>(entity);
     if (component == nullptr) {
@@ -192,7 +126,7 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Cell* component = world.get<Cell>(entity);
@@ -210,9 +144,9 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"group", "u32", "group", false}, {"index", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"group", "u32", "group", false}, {"index", "u32", "", false}}};
 
-void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Bind component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -227,7 +161,7 @@ void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Bind* component = world.get<Bind>(entity);
     if (component == nullptr) {
@@ -245,7 +179,7 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Bind* component = world.get<Bind>(entity);
@@ -267,9 +201,9 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_3_fields{{{"source", "u32", "tag", false}, {"field", "u32", "field", false}, {"own", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_2_fields{{{"source", "u32", "tag", false}, {"field", "u32", "field", false}, {"own", "bool", "", false}}};
 
-void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Bar component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -288,7 +222,7 @@ void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Bar* component = world.get<Bar>(entity);
     if (component == nullptr) {
@@ -312,7 +246,7 @@ std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Bar* component = world.get<Bar>(entity);
@@ -342,9 +276,9 @@ bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_4_fields{{{"value", "f32", "", false}, {"max", "f32", "", false}, {"length", "f32", "", false}, {"thickness", "f32", "", false}, {"vertical", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 5> component_3_fields{{{"value", "f32", "", false}, {"max", "f32", "", false}, {"length", "f32", "", false}, {"thickness", "f32", "", false}, {"vertical", "bool", "", false}}};
 
-void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Menu component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -381,7 +315,7 @@ void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Menu* component = world.get<Menu>(entity);
     if (component == nullptr) {
@@ -432,7 +366,7 @@ std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Menu* component = world.get<Menu>(entity);
@@ -498,9 +432,9 @@ bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 14> component_5_fields{{{"group", "u32", "menu", false}, {"focused", "u32", "", false}, {"wrap", "bool", "", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"accept", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 14> component_4_fields{{{"group", "u32", "menu", false}, {"focused", "u32", "", false}, {"wrap", "bool", "", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"accept", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
 
-void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Button component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -527,7 +461,7 @@ void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Button* component = world.get<Button>(entity);
     if (component == nullptr) {
@@ -563,7 +497,7 @@ std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Button* component = world.get<Button>(entity);
@@ -609,9 +543,9 @@ bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_6_fields{{{"menu", "u32", "menu", false}, {"order", "u32", "", false}, {"action", "u32", "action", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"normal_frame", "u32", "", false}, {"focus_frame", "u32", "", false}, {"enabled", "bool", "", false}, {"disabled_frame", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 9> component_5_fields{{{"menu", "u32", "menu", false}, {"order", "u32", "", false}, {"action", "u32", "action", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"normal_frame", "u32", "", false}, {"focus_frame", "u32", "", false}, {"enabled", "bool", "", false}, {"disabled_frame", "u32", "", false}}};
 
-void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Pager component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -634,7 +568,7 @@ void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_7(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Pager* component = world.get<Pager>(entity);
     if (component == nullptr) {
@@ -664,7 +598,7 @@ std::optional<::ge::app::Scalar> read_component_7(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Pager* component = world.get<Pager>(entity);
@@ -702,9 +636,9 @@ bool write_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 7> component_7_fields{{{"list", "u32", "runtime_list", false}, {"menu", "u32", "menu", false}, {"page", "u32", "", false}, {"page_size", "u32", "", false}, {"previous", "u32", "action", false}, {"next", "u32", "action", false}, {"pages", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 7> component_6_fields{{{"list", "u32", "runtime_list", false}, {"menu", "u32", "menu", false}, {"page", "u32", "", false}, {"page_size", "u32", "", false}, {"previous", "u32", "action", false}, {"next", "u32", "action", false}, {"pages", "u32", "", false}}};
 
-void insert_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Row component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -719,7 +653,7 @@ void insert_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_8(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_7(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Row* component = world.get<Row>(entity);
     if (component == nullptr) {
@@ -737,7 +671,7 @@ std::optional<::ge::app::Scalar> read_component_8(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Row* component = world.get<Row>(entity);
@@ -759,9 +693,9 @@ bool write_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_8_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_7_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
 
-void insert_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+void insert_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     RowButton component;
     for (const ::ge::app::FieldValue& field : values) {
@@ -776,7 +710,7 @@ void insert_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_8(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const RowButton* component = world.get<RowButton>(entity);
     if (component == nullptr) {
@@ -794,7 +728,7 @@ std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     RowButton* component = world.get<RowButton>(entity);
@@ -816,25 +750,23 @@ bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_9_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 3> component_8_fields{{{"list", "u32", "runtime_list", false}, {"row", "u32", "", false}, {"item", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 10> components{{{"Anchor", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Grid", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Cell", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Bind", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Bar", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Menu", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Button", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"Pager", false, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"Row", false, component_8_fields, insert_component_8, read_component_8, write_component_8}, {"RowButton", false, component_9_fields, insert_component_9, read_component_9, write_component_9}}};
+constexpr std::array<::ge::app::ComponentInfo, 9> components{{{"Grid", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Cell", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Bind", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Bar", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Menu", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Button", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Pager", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"Row", false, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"RowButton", false, component_8_fields, insert_component_8, read_component_8, write_component_8}}};
 
-constexpr std::array<std::string_view, 1> system_0_reads{"ui.Anchor"};
+constexpr std::array<std::string_view, 2> system_0_reads{"ui.Grid", "ui.Cell"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
-constexpr std::array<std::string_view, 2> system_1_reads{"ui.Grid", "ui.Cell"};
-constexpr std::array<std::string_view, 1> system_1_writes{"transform2d.Position"};
-constexpr std::array<std::string_view, 2> system_2_reads{"ui.Bind", "tag.Tag"};
-constexpr std::array<std::string_view, 2> system_2_writes{"text2d.Text", "ui.Bar"};
-constexpr std::array<std::string_view, 1> system_3_reads{"ui.Bar"};
-constexpr std::array<std::string_view, 1> system_3_writes{"sprite2d.Sprite"};
-constexpr std::array<std::string_view, 2> system_4_reads{"ui.Button", "transform2d.Position"};
-constexpr std::array<std::string_view, 2> system_4_writes{"ui.Menu", "sprite2d.Sprite"};
-constexpr std::array<std::string_view, 3> system_5_reads{"ui.Pager", "ui.Row", "ui.RowButton"};
-constexpr std::array<std::string_view, 5> system_5_writes{"ui.Pager", "ui.Row", "ui.RowButton", "ui.Button", "text2d.Dynamic"};
-constexpr std::array<std::string_view, 5> system_6_reads{"ui.Pager", "ui.Row", "ui.RowButton", "ui.Menu", "ui.Button"};
-constexpr std::array<std::string_view, 0> system_6_writes{};
-constexpr std::array<::ge::app::SystemInfo, 7> systems{{{"ui.anchor", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"ui.layout", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"ui.bind", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"ui.fill", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}, {"ui.menu", ::ge::app::Stage::FixedUpdate, system_4_reads, system_4_writes}, {"ui.pager", ::ge::app::Stage::FixedUpdate, system_5_reads, system_5_writes}, {"ui.select", ::ge::app::Stage::FixedUpdate, system_6_reads, system_6_writes}}};
+constexpr std::array<std::string_view, 2> system_1_reads{"ui.Bind", "tag.Tag"};
+constexpr std::array<std::string_view, 2> system_1_writes{"text2d.Text", "ui.Bar"};
+constexpr std::array<std::string_view, 1> system_2_reads{"ui.Bar"};
+constexpr std::array<std::string_view, 1> system_2_writes{"sprite2d.Sprite"};
+constexpr std::array<std::string_view, 2> system_3_reads{"ui.Button", "transform2d.Position"};
+constexpr std::array<std::string_view, 2> system_3_writes{"ui.Menu", "sprite2d.Sprite"};
+constexpr std::array<std::string_view, 3> system_4_reads{"ui.Pager", "ui.Row", "ui.RowButton"};
+constexpr std::array<std::string_view, 5> system_4_writes{"ui.Pager", "ui.Row", "ui.RowButton", "ui.Button", "text2d.Dynamic"};
+constexpr std::array<std::string_view, 5> system_5_reads{"ui.Pager", "ui.Row", "ui.RowButton", "ui.Menu", "ui.Button"};
+constexpr std::array<std::string_view, 0> system_5_writes{};
+constexpr std::array<::ge::app::SystemInfo, 6> systems{{{"ui.layout", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"ui.bind", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"ui.fill", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"ui.menu", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}, {"ui.pager", ::ge::app::Stage::FixedUpdate, system_4_reads, system_4_writes}, {"ui.select", ::ge::app::Stage::FixedUpdate, system_5_reads, system_5_writes}}};
 
 constexpr std::array<std::string_view, 4> depends{"transform2d", "sprite2d", "text2d", "tag"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -848,8 +780,7 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &anchor, "ui.anchor");
-    app.add_system(::ge::app::Stage::FixedUpdate, &layout, "ui.layout", ::ge::app::Order::between({"ui.anchor"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &layout, "ui.layout", ::ge::app::Order::between({"transform2d.anchor"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &bind, "ui.bind");
     app.add_system(::ge::app::Stage::FixedUpdate, &fill, "ui.fill", ::ge::app::Order::between({"ui.bind"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &menu, "ui.menu", ::ge::app::Order::between({"ui.layout", "ui.pager"}, {}));

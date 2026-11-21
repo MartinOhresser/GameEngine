@@ -441,7 +441,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     return {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **dict(WHITE, **extra)),
     }
@@ -467,7 +467,7 @@ def sprite(frame, size, layer, atlas_name="ui", **tint):
 def terrain():
     out = [
         {"name": "paper", "components": {
-            "transform2d.Position": {}, "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+            "transform2d.Position": {}, "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
             "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                                 "screen": True, "layer": -10, "red": 30, "green": 36,
                                 "blue": 44}}},
@@ -609,7 +609,7 @@ def interface_entities():
     ]
     for index, name in enumerate(TOWERS):
         out.append({"name": "button_" + name, "prefab": "button", "components": tagged({
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SHOP_X + index * SHOP_STEP,
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SHOP_X + index * SHOP_STEP,
                           "offset_y": -32},
             "ui.Button": {"order": index, "action": "pick_" + name,
                           "normal_frame": 3 if name == "cannon" else 1,
@@ -617,25 +617,25 @@ def interface_entities():
             "text2d.Text": {"string": "button." + name},
             "phase.ShowIn": {"phases": PLAYING}}, "button_" + name)})
     out.append({"name": "button_upgrade", "prefab": "button", "components": bound({
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": UPGRADE_X, "offset_y": -32},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": UPGRADE_X, "offset_y": -32},
         "sprite2d.Sprite": {"width": 130},
         "ui.Button": {"order": 4, "action": "upgrade", "width": 130},
         "text2d.Text": {"string": "button.upgrade"},
         "phase.ShowIn": {"phases": TOWER}}, "hand", "economy.Placer.upgrade_price")})
     out.append({"name": "button_sell", "prefab": "button", "components": bound({
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SELL_X, "offset_y": -32},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": SELL_X, "offset_y": -32},
         "sprite2d.Sprite": {"width": 130},
         "ui.Button": {"order": 5, "action": "sell", "width": 130},
         "text2d.Text": {"string": "button.sell"},
         "phase.ShowIn": {"phases": TOWER | TOWER_FINAL}}, "hand", "economy.Placer.sell_value")})
     out.append({"name": "button_next", "prefab": "button", "components": {
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": NEXT_X, "offset_y": -32},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": NEXT_X, "offset_y": -32},
         "sprite2d.Sprite": {"width": 120},
         "ui.Button": {"order": 6, "action": "start_wave", "width": 120},
         "text2d.Text": {"string": "button.next"},
         "phase.ShowIn": {"phases": ALIVE}}})
     out.append({"name": "button_new", "prefab": "button", "components": {
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": 0, "offset_y": -32},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": 0, "offset_y": -32},
         "sprite2d.Sprite": {"width": 170},
         "ui.Button": {"order": 7, "action": "new_game", "width": 170},
         "text2d.Text": {"string": "button.new"},

@@ -501,7 +501,7 @@ Files phone_sample(const std::string& screen) {
         {"g/main.json", R"({
             "schema_version": 1, "name": "main",
             "entities": [{"name": "bar", "components": {
-                "transform2d.Position": {}, "ui.Anchor": {"anchor_y": 1}}}]
+                "transform2d.Position": {}, "transform2d.Anchor": {"anchor_y": 1}}}]
         })"},
         {"g/look.json", R"({"schema_version": 1, "name": "look", "ticks": 3)" + screen + R"(,
             "expect": ["bar.transform2d.Position.y == 960"]})"},

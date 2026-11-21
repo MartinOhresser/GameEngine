@@ -92,30 +92,6 @@ std::uint32_t field_index(const ge::app::App& app, const std::string& name) {
 
 } // namespace
 
-TEST_CASE("ui: an anchored entity follows the window's edges") {
-    Scene scene;
-    ui::Anchor corner;
-    corner.anchor_x = 1.0F;
-    corner.offset_x = -10.0F;
-    corner.offset_y = 10.0F;
-    ui::Anchor middle;
-    middle.anchor_x = 0.5F;
-    middle.anchor_y = 0.5F;
-    const auto top_right = scene.spawn(transform2d::Position{}, corner);
-    const auto centre = scene.spawn(transform2d::Position{}, middle);
-    scene.app.run_frames(1);
-    CHECK(scene.position(top_right)->x == 790.0F); // 800 by 600 unless the game says otherwise
-    CHECK(scene.position(top_right)->y == 10.0F);
-    CHECK(scene.position(centre)->x == 400.0F);
-    CHECK(scene.position(centre)->y == 300.0F);
-
-    scene.app.world().resource<ge::app::Viewport>()->width = 320U;
-    scene.app.world().resource<ge::app::Viewport>()->height = 180U;
-    scene.app.run_frames(1);
-    CHECK(scene.position(top_right)->x == 310.0F);
-    CHECK(scene.position(centre)->y == 90.0F);
-}
-
 TEST_CASE("ui: a grid places its cells in rows and columns, and a column is a grid of one") {
     Scene scene;
     ui::Grid grid;

@@ -11,7 +11,7 @@
 
 namespace ge::mod::touch_controls {
 
-/// A rectangle of the screen, width by height pixels and centred on the entity's Position (put an ui.Anchor on it to keep it in a corner). While a finger holds it, the action named by action is 1 (pressed on the tick the finger lands, released when it lifts), and the entity's Sprite shows cell pressed_frame instead of normal_frame. A finger belongs to the first control it lands on or slides onto, and keeps it until it lifts, even if it slides off. finger (the finger that holds the button, 0 for none) and was_held are written for you.
+/// A rectangle of the screen, width by height pixels and centred on the entity's Position (put an transform2d.Anchor on it to keep it in a corner). While a finger holds it, the action named by action is 1 (pressed on the tick the finger lands, released when it lifts), and the entity's Sprite shows cell pressed_frame instead of normal_frame. A finger belongs to the first control it lands on or slides onto, and keeps it until it lifts, even if it slides off. finger (the finger that holds the button, 0 for none) and was_held are written for you.
 struct TouchButton {
     std::uint32_t action = 4294967295U;
     float width = 80.0F;

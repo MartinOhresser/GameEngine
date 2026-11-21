@@ -11,23 +11,6 @@
 
 namespace ge::mod::ui {
 
-/// Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's "window"). Use it with screen sprites and texts.
-struct Anchor {
-    float anchor_x = 0.0F;
-    float anchor_y = 0.0F;
-    float offset_x = 0.0F;
-    float offset_y = 0.0F;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(anchor_x);
-        hasher.add(anchor_y);
-        hasher.add(offset_x);
-        hasher.add(offset_y);
-    }
-
-    [[nodiscard]] friend bool operator==(const Anchor&, const Anchor&) = default;
-};
-
 /// Lays out the entities that have a Cell of the same group: cell number n goes in column n % columns and row n / columns, cell_width + spacing_x and cell_height + spacing_y apart, the first cell being centred on the Grid's own Position. columns 1 makes a column, a large number a row. A hotbar, an inventory, a list of buttons and a table are all grids with other numbers. group names an item of the game's "group" list (game.json lists).
 struct Grid {
     std::uint32_t group = 0U;
@@ -212,10 +195,6 @@ struct RowButton {
 
     [[nodiscard]] friend bool operator==(const RowButton&, const RowButton&) = default;
 };
-
-/// Puts every anchored entity where the window's size says.
-/// Runs in FixedUpdate.
-void anchor(::ge::ecs::World& world);
 
 /// Places the cells of every grid.
 /// Runs in FixedUpdate.

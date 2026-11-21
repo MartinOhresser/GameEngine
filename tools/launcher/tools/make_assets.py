@@ -91,7 +91,7 @@ def write_ui_atlas():
 
 def anchored(x, y):
     return {"transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0, "anchor_y": 0, "offset_x": x, "offset_y": y}}
+            "transform2d.Anchor": {"anchor_x": 0, "anchor_y": 0, "offset_x": x, "offset_y": y}}
 
 
 def label(string, size, x, y, pivot_x=0.0, **extra):
@@ -117,7 +117,7 @@ def main_scene():
     out = [
         {"name": "paper", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
             "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                                 "screen": True, "layer": -10, "red": 250, "green": 247,
                                 "blue": 225}}},
@@ -188,7 +188,7 @@ def export_scene():
     out = [
         {"name": "paper", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
             "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                                 "screen": True, "layer": -10, "red": 250, "green": 247,
                                 "blue": 225}}},

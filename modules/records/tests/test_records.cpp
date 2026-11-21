@@ -4,6 +4,7 @@
 #include "ge/app/save.hpp"
 #include "ge/mod/records/records.gen.hpp"
 #include "ge/mod/tag/tag.gen.hpp"
+#include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/ui/ui.gen.hpp"
 
 #include "mini_test.hpp"
@@ -15,6 +16,7 @@ namespace {
 
 namespace records = ge::mod::records;
 namespace tag = ge::mod::tag;
+namespace transform2d = ge::mod::transform2d;
 namespace ui = ge::mod::ui;
 
 using ge::ecs::Entity;
@@ -26,6 +28,8 @@ ge::app::App game() {
     ge::app::App app;
     // ui's own dependencies (drawing) are not needed to follow a number: the app lists them
     // among its module problems, which this test does not care about.
+    // transform2d places the window-anchored entities that ui lays out after.
+    transform2d::install(app);
     tag::install(app);
     ui::install(app);
     records::install(app);

@@ -6,7 +6,7 @@
       "name": "paper",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5
         },
@@ -27,7 +27,7 @@
       "name": "title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -50,7 +50,7 @@
       "name": "hint",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -102,7 +102,7 @@
       "name": "row0",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 205,
@@ -145,7 +145,7 @@
       "name": "row1",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 205,
@@ -188,7 +188,7 @@
       "name": "row2",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 205,
@@ -231,7 +231,7 @@
       "name": "button_back",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 450,
@@ -289,7 +289,7 @@
       "name": "line0",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -316,7 +316,7 @@
       "name": "line1",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -343,7 +343,7 @@
       "name": "line2",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -370,7 +370,7 @@
       "name": "line3",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -397,7 +397,7 @@
       "name": "line4",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -424,7 +424,7 @@
       "name": "line5",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -451,7 +451,7 @@
       "name": "line6",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -478,7 +478,7 @@
       "name": "line7",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -505,7 +505,7 @@
       "name": "line8",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,
@@ -532,7 +532,7 @@
       "name": "line9",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0,
           "anchor_y": 0,
           "offset_x": 40,

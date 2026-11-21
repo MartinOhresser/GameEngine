@@ -26,7 +26,7 @@ TEST_CASE("modules: installing records the module and its systems") {
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
           (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
-                                    "transform2d.wear_off"}));
+                                    "transform2d.wear_off", "transform2d.anchor"}));
 }
 
 TEST_CASE("modules: the generated info matches module.json") {
@@ -34,13 +34,13 @@ TEST_CASE("modules: the generated info matches module.json") {
     CHECK(info.name == "transform2d");
     CHECK(info.version == "0.1.0");
     CHECK(info.depends.empty());
-    REQUIRE(info.components.size() == 8U);
+    REQUIRE(info.components.size() == 9U);
     CHECK(info.components[0].name == "Position");
     CHECK(info.components[0].replicable);
     REQUIRE(info.components[0].fields.size() == 2U);
     CHECK(info.components[0].fields[1].name == "y");
     CHECK(info.components[0].fields[1].type == "f32");
-    REQUIRE(info.systems.size() == 3U);
+    REQUIRE(info.systems.size() == 4U);
     CHECK(info.systems[0].name == "transform2d.integrate");
     CHECK(info.systems[0].stage == ge::app::Stage::FixedUpdate);
     REQUIRE(info.systems[0].writes.size() == 1U);
@@ -105,7 +105,8 @@ TEST_CASE("modules: screen_wrap brings entities back on the other side, after th
     CHECK(app.schedule().problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
           (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
-                                    "transform2d.wear_off", "screen_wrap.wrap"}));
+                                    "transform2d.wear_off", "transform2d.anchor",
+                                    "screen_wrap.wrap"}));
 
     const Entity right = app.world().spawn_with(transform2d::Position{99.0F, 5.0F},
                                                 transform2d::Velocity{120.0F, 0.0F},

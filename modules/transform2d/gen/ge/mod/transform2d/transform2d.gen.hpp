@@ -113,6 +113,23 @@ struct SpeedScale {
     [[nodiscard]] friend bool operator==(const SpeedScale&, const SpeedScale&) = default;
 };
 
+/// Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's "window"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.
+struct Anchor {
+    float anchor_x = 0.0F;
+    float anchor_y = 0.0F;
+    float offset_x = 0.0F;
+    float offset_y = 0.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(anchor_x);
+        hasher.add(anchor_y);
+        hasher.add(offset_x);
+        hasher.add(offset_y);
+    }
+
+    [[nodiscard]] friend bool operator==(const Anchor&, const Anchor&) = default;
+};
+
 /// Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).
 /// Runs in FixedUpdate.
 void integrate(::ge::ecs::World& world);
@@ -124,6 +141,10 @@ void attach(::ge::ecs::World& world);
 /// Counts down the ticks of every SpeedScale that has some, and removes it when they are over.
 /// Runs in FixedUpdate.
 void wear_off(::ge::ecs::World& world);
+
+/// Puts every anchored entity where the window's size says.
+/// Runs in FixedUpdate.
+void anchor(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

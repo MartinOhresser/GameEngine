@@ -291,7 +291,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     return {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **extra),
     }
@@ -313,7 +313,7 @@ def go(name, scene, **trigger):
 def paper():
     return {"name": "paper", "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
         "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                             "screen": True, "layer": -10, "red": 250, "green": 247, "blue": 239}}}
 
@@ -408,7 +408,7 @@ def rules_entities():
         {"name": "turn", "components": {
             "turns.Turn": {"players": 2},
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.0, "anchor_y": 0.0, "offset_x": 34, "offset_y": 76},
+            "transform2d.Anchor": {"anchor_x": 0.0, "anchor_y": 0.0, "offset_x": 34, "offset_y": 76},
             "sprite2d.Sprite": {"atlas": "ui", "frame": 3, "width": 24, "height": 24,
                                 "screen": True, "layer": 5},
             "sprite2d.FrameBind": {"field": "turns.Turn.current", "first_frame": 3,
@@ -507,23 +507,23 @@ def interface_entities():
             "group": "promotion_menu", "use_pointer": True, "pointer_x": "pointer_x",
             "pointer_y": "pointer_y", "click": "click"}}},
         {"name": "button_new", "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -45},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_y": -45},
             "ui.Button": {"order": 0, "action": "new_game"},
             "text2d.Text": {"string": "button.new"}}},
         {"name": "button_resign_white", "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": -108, "offset_y": -100},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": -108, "offset_y": -100},
             "ui.Button": {"order": 1, "action": "resign_white"},
             "text2d.Text": {"string": "button.resign_white", "size": 16},
             "phase.ShowIn": {"phases": PLAYING}}},
         {"name": "button_resign_black", "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": 108, "offset_y": -100},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0, "offset_x": 108, "offset_y": -100},
             "ui.Button": {"order": 2, "action": "resign_black"},
             "text2d.Text": {"string": "button.resign_black", "size": 16},
             "phase.ShowIn": {"phases": PLAYING}}},
     ]
     for index, (name, _, _) in enumerate(PROMOTIONS):
         out.append({"name": "button_" + name, "prefab": "button", "components": {
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0,
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 1.0,
                           "offset_x": (index - 1.5) * 112, "offset_y": -100},
             "sprite2d.Sprite": {"width": 104},
             "ui.Button": {"menu": "promotion_menu", "order": index, "width": 104,

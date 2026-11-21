@@ -1,5 +1,6 @@
 #include "ge/app/app.hpp"
 #include "ge/app/spawn.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include "mini_test.hpp"
@@ -133,4 +134,45 @@ TEST_CASE("transform2d: a SpeedScale without ticks lasts") {
     app.run_frames(60);
     CHECK(app.world().get<transform2d::Position>(entity)->x > 119.0F);
     CHECK(app.world().has<transform2d::SpeedScale>(entity));
+}
+
+namespace {
+
+ge::ecs::Entity anchored(ge::app::App& app, const transform2d::Anchor& anchor) {
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{}));
+    CHECK(app.world().insert(entity, anchor));
+    return entity;
+}
+
+transform2d::Position position_of(ge::app::App& app, ge::ecs::Entity entity) {
+    const auto* position = app.world().get<transform2d::Position>(entity);
+    CHECK(position != nullptr);
+    return position != nullptr ? *position : transform2d::Position{};
+}
+
+} // namespace
+
+TEST_CASE("transform2d: an anchored entity follows the window's edges") {
+    auto app = game();
+    transform2d::Anchor corner;
+    corner.anchor_x = 1.0F;
+    corner.offset_x = -10.0F;
+    corner.offset_y = 10.0F;
+    transform2d::Anchor middle;
+    middle.anchor_x = 0.5F;
+    middle.anchor_y = 0.5F;
+    const auto top_right = anchored(app, corner);
+    const auto centre = anchored(app, middle);
+    app.run_frames(1);
+    CHECK(position_of(app, top_right).x == 790.0F); // 800 by 600 unless the game says otherwise
+    CHECK(position_of(app, top_right).y == 10.0F);
+    CHECK(position_of(app, centre).x == 400.0F);
+    CHECK(position_of(app, centre).y == 300.0F);
+
+    app.world().resource<ge::app::Viewport>()->width = 320U;
+    app.world().resource<ge::app::Viewport>()->height = 180U;
+    app.run_frames(1);
+    CHECK(position_of(app, top_right).x == 310.0F);
+    CHECK(position_of(app, centre).y == 90.0F);
 }

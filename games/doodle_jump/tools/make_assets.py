@@ -154,7 +154,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     return {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **extra),
     }
@@ -169,7 +169,7 @@ def paper():
     """The page: one big screen-space sprite behind everything."""
     return {"name": "paper", "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
         "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                             "screen": True, "layer": -10, "red": 250, "green": 247, "blue": 225}}}
 
@@ -183,7 +183,7 @@ def menu_of(group_menu, group_cells, buttons, offset_y):
             "click": "click"}}},
         {"name": group_cells + "_grid", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": offset_y},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": offset_y},
             "ui.Grid": {"group": group_cells, "columns": 1, "cell_width": 240,
                         "cell_height": 48, "spacing_y": 14}}},
     ]
@@ -289,7 +289,7 @@ def touch_layer():
     return [
         {"name": "touch_stick", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 100, "offset_y": -110},
+            "transform2d.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 100, "offset_y": -110},
             "sprite2d.Sprite": screen_sprite(0, 130, 90, 90, 90),
             "touch_controls.TouchStick": {"group": "touch_stick", "action_x": "move_x",
                                           "radius": 50, "zone": 110, "opacity": 90}}},
@@ -299,7 +299,7 @@ def touch_layer():
             "touch_controls.TouchKnob": {"group": "touch_stick", "opacity": 200}}},
         {"name": "touch_shoot", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 1.0, "anchor_y": 1.0, "offset_x": -80, "offset_y": -110},
+            "transform2d.Anchor": {"anchor_x": 1.0, "anchor_y": 1.0, "offset_x": -80, "offset_y": -110},
             "sprite2d.Sprite": screen_sprite(1, 90, 255, 255, 255),
             "touch_controls.TouchButton": {"action": "shoot", "width": 110, "height": 110,
                                            "normal_frame": 1, "pressed_frame": 2,
