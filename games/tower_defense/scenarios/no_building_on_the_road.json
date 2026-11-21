@@ -1,0 +1,78 @@
+// The road and the rocks are not for towers.
+{
+  "schema_version": 1,
+  "name": "no_building_on_the_road",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 339
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 104
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 420
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 63
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 29,
+      "action": "pointer_x",
+      "value": 583
+    },
+    {
+      "tick": 29,
+      "action": "pointer_y",
+      "value": 185
+    },
+    {
+      "tick": 30,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "wallet.economy.Wallet.amount == 150"
+    },
+    {
+      "at": 40,
+      "check": "entities == 144"
+    }
+  ]
+}

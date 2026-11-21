@@ -1,0 +1,102 @@
+// The Upgrade and Sell buttons of the bottom bar do the same as their actions.
+{
+  "schema_version": 1,
+  "name": "the_buttons_improve_and_sell",
+  "ticks": 100,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 29,
+      "action": "pointer_x",
+      "value": 200
+    },
+    {
+      "tick": 29,
+      "action": "pointer_y",
+      "value": 448
+    },
+    {
+      "tick": 30,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 59,
+      "action": "pointer_x",
+      "value": 340
+    },
+    {
+      "tick": 59,
+      "action": "pointer_y",
+      "value": 448
+    },
+    {
+      "tick": 60,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 61,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 100,
+      "check": "wallet.economy.Wallet.amount == 114"
+    },
+    {
+      "at": 100,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 100,
+      "check": "entities == 144"
+    }
+  ]
+}

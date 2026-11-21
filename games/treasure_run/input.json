@@ -1,5 +1,5 @@
-// Arrow keys or WASD walk the hero; a gamepad or a touch screen will add
-// sources here without touching the game. The menu and the hotbar have their
+// Arrow keys or WASD walk the hero; a touch screen drives the stick drawn on it
+// (module touch_controls); a gamepad will add sources here without touching the game. The menu and the hotbar have their
 // own actions, so any of them can be rebound on its own.
 {
   "schema_version": 1,
@@ -16,5 +16,12 @@
     { "action": "pointer_x", "sources": { "mouse:x": 1 } },
     { "action": "pointer_y", "sources": { "mouse:y": 1 } },
     { "action": "click", "sources": { "mouse:left": 1 } },
+    // The fingers, for the stick drawn on the screen (module touch_controls).
+    { "action": "touch_down", "sources": { "touch:down": 1 } },
+    { "action": "touch_x", "sources": { "touch:x": 1 } },
+    { "action": "touch_y", "sources": { "touch:y": 1 } },
+    { "action": "touch_down2", "sources": { "touch:down2": 1 } },
+    { "action": "touch_x2", "sources": { "touch:x2": 1 } },
+    { "action": "touch_y2", "sources": { "touch:y2": 1 } },
   ],
 }

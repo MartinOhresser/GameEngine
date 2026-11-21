@@ -1,0 +1,37 @@
+// The twelfth wave is the boss: four snipers of the last level bring it down, and the game is won with the base untouched.
+{
+  "schema_version": 1,
+  "name": "the_boss_comes_last",
+  "scene": "test_boss",
+  "ticks": 1200,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "start_wave",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "start_wave",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 20,
+      "check": "waves.waves.WaveController.current == 12"
+    },
+    {
+      "at": 20,
+      "check": "waves.waves.WaveController.last == 12"
+    },
+    {
+      "at": 1200,
+      "check": "game_phase.phase.Phase.current == 3"
+    },
+    {
+      "at": 1200,
+      "check": "base.health.Health.amount == 20"
+    }
+  ]
+}

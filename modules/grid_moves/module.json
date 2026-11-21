@@ -1,0 +1,139 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "grid_moves",
+  "version": "0.1.0",
+  "description": "How things move on a board, as data: every way of moving is an entity (a Pattern) that says which kind of piece it is for, in which direction, how far, whether it may capture, and under what conditions. The module finds the moves a piece may make, refuses those that leave something to guard under threat, and says when a side has no move left: turn-based boards (chess and its variants, checkers, tactics units). It knows no game: kinds are items of the game's own list, and a special move (taking a piece that is not where you land, moving a second piece along) is a few fields of a pattern.",
+  "depends": ["grid2d", "turns", "transform2d"],
+  "components": [
+    {
+      "name": "Mover",
+      "description": "An entity that moves by the patterns of its kind (put a GridPos on it to place it on the board, and a turns.Team to say whose it is). kind is an item of the game's mover_kind list; change it to change what the piece can do (a promotion, a power-up). moves_made counts the moves it has made, last_move_turn is the turn number of the latest one (4294967295 for none) and last_move_distance how many cells it covered in it: the module keeps them up to date, and the conditions of a pattern read them.",
+      "replicable": false,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "mover_kind" },
+        { "name": "moves_made", "type": "u32", "default": 0 },
+        { "name": "last_move_turn", "type": "u32", "default": 4294967295 },
+        { "name": "last_move_distance", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Pattern",
+      "description": "One way of moving, for the movers of this kind (and of this player, unless player is none). It is an entity of its own: a rook has four, a knight eight. A slider goes from its cell by steps of (dx, dy), at most range of them (0: as far as it can), stops before a cell that is off the board, is a Blocked cell or holds a piece of its own side, and may end on a piece of another side (a capture), which it cannot go past; only steps of min_range or more can be played (2 for a move that is only a double step). With jump the move is (dx, dy) in one go, over anything. mode says what the destination may hold: 0 empty or an opposing piece, 1 empty only, 2 an opposing piece only (the cells of mode 0 and 2 are the ones the pattern threatens). first_move_only: only for a mover that has not moved yet. safe_path: neither the starting cell nor any cell crossed or reached may be threatened. Two optional effects make a move of two pieces or a capture elsewhere: victim_kind (not none) makes the move one onto an empty cell that takes the opposing mover of that kind standing on the destination plus (victim_dx, victim_dy), if it moved in the previous turn (and, with victim_min_distance, by at least that many cells in that move); companion_kind (not none) makes the move bring along the mover of that kind of its own side that has not moved, standing companion_from steps from the start in the direction (dx, dy) with the cells between them empty, to companion_to steps from the start.",
+      "replicable": false,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "mover_kind" },
+        { "name": "player", "type": "u32", "default": 4294967295 },
+        { "name": "dx", "type": "i32", "default": 0 },
+        { "name": "dy", "type": "i32", "default": 0 },
+        { "name": "range", "type": "u32", "default": 0 },
+        { "name": "min_range", "type": "u32", "default": 1 },
+        { "name": "jump", "type": "bool", "default": false },
+        { "name": "mode", "type": "u32", "default": 0 },
+        { "name": "first_move_only", "type": "bool", "default": false },
+        { "name": "safe_path", "type": "bool", "default": false },
+        { "name": "victim_kind", "type": "u32", "default": 4294967295, "ref": "mover_kind" },
+        { "name": "victim_dx", "type": "i32", "default": 0 },
+        { "name": "victim_dy", "type": "i32", "default": 0 },
+        { "name": "victim_min_distance", "type": "u32", "default": 0 },
+        { "name": "companion_kind", "type": "u32", "default": 4294967295, "ref": "mover_kind" },
+        { "name": "companion_from", "type": "u32", "default": 0 },
+        { "name": "companion_to", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Guard",
+      "description": "A mover that its side must never leave threatened: a move that would end with a Guard of the mover's side on a cell that another side could capture is not legal. A king, a convoy to protect, a leader to keep out of reach.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "Side",
+      "description": "The state of one player on a board, as facts: status is a set of bits, 1 when one of its Guards is threatened, 2 when it is its turn (turns.Turn) and it has no legal move at all (3 is both). The game gives them names with rules.Watch: status 1 is a check, 3 is a mate, 2 is a stalemate. Without a turn, bit 2 is set for a player with no legal move. A player with no mover on the board has no legal move.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "player", "type": "u32", "default": 0 },
+        { "name": "status", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "MoveRequest",
+      "description": "The only way in for a move: set the cells and pending, and the module plays the move on the next tick if it is legal (the mover on from_col, from_row belongs to the player whose turn it is and may go to to_col, to_row), else refuses it. The interface fills it (Picker), so would a computer opponent or a message from the network. Then moved_action or refused_action is raised (none for no action), moves or refused counts up, and the last move is kept (has_last, last_from_col and so on) for an interface to show. With ends_turn (the default) a move that is played passes the turn to the next player at once (the turns.Turn of the game, whose changed_action is raised); without it the game decides when the turn ends.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "from_col", "type": "i32", "default": 0 },
+        { "name": "from_row", "type": "i32", "default": 0 },
+        { "name": "to_col", "type": "i32", "default": 0 },
+        { "name": "to_row", "type": "i32", "default": 0 },
+        { "name": "pending", "type": "bool", "default": false },
+        { "name": "ends_turn", "type": "bool", "default": true },
+        { "name": "moved_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "refused_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "moves", "type": "u32", "default": 0 },
+        { "name": "refused", "type": "u32", "default": 0 },
+        { "name": "has_last", "type": "bool", "default": false },
+        { "name": "last_from_col", "type": "i32", "default": 0 },
+        { "name": "last_from_row", "type": "i32", "default": 0 },
+        { "name": "last_to_col", "type": "i32", "default": 0 },
+        { "name": "last_to_row", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Picker",
+      "description": "Choosing a move with a pointer or a finger, touch then touch: with a grid2d.GridCursor on the same grid, a touch on a mover of the player whose turn it is selects it (has, col, row and selected, a link to it), and a touch on one of the cells it can legally go to fills the oldest MoveRequest of the grid to play that move. A touch anywhere else lets the selection go. A Disabled Picker does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "selected", "type": "u64", "default": 0 },
+        { "name": "has", "type": "bool", "default": false },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Marker",
+      "description": "A mark on a cell of the board that shows or hides by itself (put it on an entity with a GridPos and a picture): what 0 is a cell the selected mover can go to, 1 a cell where that move captures, 2 the cell of the selected mover, 3 and 4 the cell the last move started from and the one it ended on, 5 a Guard that is threatened. A marker of kind 0 or 1 stays on its own cell and is shown when it applies; the others move to the cell they mark. It is Hidden when it has nothing to show.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "what", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "pick",
+      "description": "Selects a mover with a touch, and asks for a move with the next touch.",
+      "stage": "FixedUpdate",
+      "reads": ["grid2d.GridCursor", "Mover", "Pattern", "turns.Team", "turns.Turn", "grid2d.GridPos"],
+      "writes": ["Picker", "MoveRequest"],
+      "after": ["grid2d.point"]
+    },
+    {
+      "name": "execute",
+      "description": "Plays the pending move requests that are legal, and refuses the others.",
+      "stage": "FixedUpdate",
+      "reads": ["Pattern", "Guard", "turns.Team", "turns.Turn"],
+      "writes": ["MoveRequest", "Mover", "grid2d.GridPos"],
+      "after": ["pick"]
+    },
+    {
+      "name": "judge",
+      "description": "Works out the status of every side: threatened Guard, no legal move.",
+      "stage": "FixedUpdate",
+      "reads": ["Mover", "Pattern", "Guard", "turns.Team", "turns.Turn", "grid2d.GridPos"],
+      "writes": ["Side"],
+      "after": ["execute"]
+    },
+    {
+      "name": "mark",
+      "description": "Shows and moves the markers: the selected mover, its moves, the last move, a threatened Guard.",
+      "stage": "FixedUpdate",
+      "reads": ["Picker", "MoveRequest", "Mover", "Pattern", "Guard", "turns.Team", "turns.Turn"],
+      "writes": ["Marker", "grid2d.GridPos", "transform2d.Hidden"],
+      "after": ["judge"]
+    }
+  ]
+}

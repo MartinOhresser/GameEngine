@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "transform2d",
   "version": "0.1.0",
-  "description": "Position and velocity in the 2D plane, and the movement that links them.",
+  "description": "Position and velocity in the 2D plane, and the movement that links them; also what only concerns where an entity is shown or who it belongs to: hiding or switching it off, resizing its drawing, giving it an owner and letting it follow that owner, and placing it relative to the edges of the window.",
   "params": [
     {
       "name": "speed_scale",
@@ -32,15 +32,96 @@
         { "name": "x", "type": "f32", "default": 0 },
         { "name": "y", "type": "f32", "default": 0 }
       ]
+    },
+    {
+      "name": "Hidden",
+      "description": "The entity is not shown and does not take part in an interface: the drawing systems (sprites, texts, shapes) skip it and a menu ignores its button. Insert it to hide, remove it to show again. It has no effect on the simulation otherwise.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "Owner",
+      "description": "The entity this one belongs to: the monster whose health bar this is, the gun that fired this bullet. entity holds a link (an entity's identifier plus one, 0 for none): the spawner fills it when a system asks for an entity with an owner. A link to an entity that is gone stays, and finds nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "entity", "type": "u64", "default": 0 }
+      ]
+    },
+    {
+      "name": "Attach",
+      "description": "The entity follows its Owner: each tick its Position is the Owner's Position moved by offset_x and offset_y, and it disappears with the Owner (a health bar, a range circle, a shadow, a shield). Without an Owner, or while its Owner has no Position, it stays where it is.",
+      "replicable": false,
+      "fields": [
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 },
+        { "name": "despawn_with_owner", "type": "bool", "default": true }
+      ]
+    },
+    {
+      "name": "Scale",
+      "description": "How big the entity is drawn compared with its normal size: 1 is as it is, 2 twice as big, 0.5 half, around its Position. Sprites, texts and shapes (width, height, radius, text size and spacing) are multiplied by factor; it changes nothing else (not the collisions). Animate it for a pop, a grow, a shrink.",
+      "replicable": false,
+      "fields": [
+        { "name": "factor", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Disabled",
+      "description": "The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "SpeedScale",
+      "description": "A factor on the speed of this entity alone, on top of the game's speed_scale: 0.5 makes it move at half speed (a slowed enemy), 2 at double speed. With ticks above 0 the factor lasts that many ticks and the component is then removed; with 0 it lasts until it is removed or changed. Read by integrate, and by the modules that move entities by their own rules (a path follower).",
+      "replicable": true,
+      "fields": [
+        { "name": "factor", "type": "f32", "default": 1 },
+        { "name": "ticks", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Anchor",
+      "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.",
+      "replicable": false,
+      "fields": [
+        { "name": "anchor_x", "type": "f32", "default": 0 },
+        { "name": "anchor_y", "type": "f32", "default": 0 },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 }
+      ]
     }
   ],
   "systems": [
     {
       "name": "integrate",
-      "description": "Moves every entity that has a Velocity by velocity times the tick duration.",
+      "description": "Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).",
       "stage": "FixedUpdate",
-      "reads": ["Velocity"],
+      "reads": ["Velocity", "SpeedScale"],
       "writes": ["Position"]
+    },
+    {
+      "name": "attach",
+      "description": "Moves every Attach entity onto its Owner's Position, plus its offset; removes the ones whose Owner is gone when despawn_with_owner is on.",
+      "stage": "FixedUpdate",
+      "reads": ["Owner", "Attach"],
+      "writes": ["Position"],
+      "after": ["integrate"]
+    },
+    {
+      "name": "wear_off",
+      "description": "Counts down the ticks of every SpeedScale that has some, and removes it when they are over.",
+      "stage": "FixedUpdate",
+      "reads": ["SpeedScale"],
+      "after": ["integrate"]
+    },
+    {
+      "name": "anchor",
+      "description": "Puts every anchored entity where the window's size says.",
+      "stage": "FixedUpdate",
+      "reads": ["Anchor"],
+      "writes": ["Position"],
+      "after": ["attach"]
     }
   ]
 }

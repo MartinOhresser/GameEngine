@@ -1,0 +1,39 @@
+// A monster (boss): it walks the road, is worth its bounty when it dies, and hurts the base when it gets there.
+{
+  "schema_version": 1,
+  "name": "boss",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "monsters",
+      "frame": 3,
+      "width": 52,
+      "height": 52,
+      "layer": 2
+    },
+    "collision2d.Collider": {
+      "width": 44,
+      "height": 44,
+      "layer": [
+        "enemy"
+      ],
+      "mask": 0
+    },
+    "health.Health": {
+      "amount": 400,
+      "max": 400
+    },
+    "economy.Bounty": {
+      "amount": 100
+    },
+    "path2d.PathFollower": {
+      "path": "road",
+      "speed": 24,
+      "end_target": "base",
+      "end_damage": 10
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

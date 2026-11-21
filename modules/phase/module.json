@@ -1,0 +1,62 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "phase",
+  "version": "0.1.0",
+  "description": "The phases of a game (playing, paused, won, game over, choosing a piece...) and what shows and works in each. One entity holds the current phase; actions move it from phase to phase; every entity that lists the phases it belongs to is shown, and works, only then. The game stays where it is below a pause or a victory screen: no scene change. The phases are the game's own \"phase\" list.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Phase",
+      "description": "The current phase: current is an item of the game's \"phase\" list. One entity has it; if several do, the oldest one counts. The game starts in the first phase unless this says otherwise.",
+      "replicable": false,
+      "fields": [
+        { "name": "current", "type": "u32", "default": 0, "ref": "phase" }
+      ]
+    },
+    {
+      "name": "Transition",
+      "description": "When the action is pressed, the current phase becomes to, if the current phase is one of from (a set of phases) or from_any is on. Any number of entities can carry one: a button of a menu, a Watch's action, a key.",
+      "replicable": false,
+      "fields": [
+        { "name": "action", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "from", "type": "u32", "default": 0, "ref_set": "phase" },
+        { "name": "from_any", "type": "bool", "default": true },
+        { "name": "to", "type": "u32", "default": 0, "ref": "phase" }
+      ]
+    },
+    {
+      "name": "ShowIn",
+      "description": "The entity is shown only in these phases: in any other it gets transform2d.Hidden, which is taken off again when its phase comes back. The victory screen, a pause menu, a panel.",
+      "replicable": false,
+      "fields": [
+        { "name": "phases", "type": "u32", "default": 0, "ref_set": "phase" }
+      ]
+    },
+    {
+      "name": "ActiveIn",
+      "description": "The entity works only in these phases: in any other it gets transform2d.Disabled, taken off again when its phase comes back. A board that must not move while a victory screen is up. It stays visible: add ShowIn to hide it as well.",
+      "replicable": false,
+      "fields": [
+        { "name": "phases", "type": "u32", "default": 0, "ref_set": "phase" }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "transition",
+      "description": "Moves the current phase on the action of the first Transition that is pressed and allowed.",
+      "stage": "FixedUpdate",
+      "reads": ["Transition"],
+      "writes": ["Phase"]
+    },
+    {
+      "name": "apply",
+      "description": "Hides and switches off the entities that do not belong to the current phase, shows and switches on the others.",
+      "stage": "FixedUpdate",
+      "reads": ["Phase", "ShowIn", "ActiveIn"],
+      "writes": ["transform2d.Hidden", "transform2d.Disabled"],
+      "after": ["transition"]
+    }
+  ]
+}

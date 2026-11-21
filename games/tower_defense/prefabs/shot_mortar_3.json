@@ -1,0 +1,38 @@
+// What a mortar of level 3 shoots.
+{
+  "schema_version": 1,
+  "name": "shot_mortar_3",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Velocity": {},
+    "sprite2d.Sprite": {
+      "atlas": "world",
+      "frame": 3,
+      "width": 26,
+      "height": 26,
+      "layer": 6
+    },
+    "collision2d.Collider": {
+      "width": 10,
+      "height": 10,
+      "layer": [
+        "shot"
+      ],
+      "mask": 0
+    },
+    "combat2d.Projectile": {
+      "damage": 8,
+      "layers": [
+        "enemy"
+      ],
+      "homing": 0.2,
+      "splash_radius": 52
+    },
+    "lifetime.Lifetime": {
+      "ticks": 82
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

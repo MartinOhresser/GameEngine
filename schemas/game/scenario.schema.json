@@ -21,6 +21,26 @@
       "minimum": 1,
       "maximum": 10000000
     },
+    "screen": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
+      ]
+    },
     "inputs": {
       "type": "array",
       "items": {
@@ -44,6 +64,15 @@
           "tick",
           "action"
         ]
+      }
+    },
+    "lists": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
       }
     },
     "expect": {

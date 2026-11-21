@@ -30,6 +30,24 @@ public:
         return (static_cast<std::uint64_t>(generation_) << 32U) | index_;
     }
 
+    /// The handle as a number a component field (`u64`) can hold, where 0 means "no
+    /// entity": a link from one entity to another (an owner, a target). The generation
+    /// travels with it, so a link to an entity that is gone is never mistaken for the one
+    /// that reuses its slot: check it with `World::is_alive` after `from_link`.
+    [[nodiscard]] constexpr std::uint64_t to_link() const noexcept {
+        return is_null() ? 0U : to_bits() + 1U;
+    }
+
+    /// The entity a link holds; the null entity for 0.
+    [[nodiscard]] static constexpr Entity from_link(std::uint64_t link) noexcept {
+        if (link == 0U) {
+            return Entity{};
+        }
+        const std::uint64_t bits = link - 1U;
+        return Entity{static_cast<std::uint32_t>(bits & 0xFFFFFFFFU),
+                      static_cast<std::uint32_t>(bits >> 32U)};
+    }
+
     friend constexpr bool operator==(const Entity&, const Entity&) noexcept = default;
 
 private:

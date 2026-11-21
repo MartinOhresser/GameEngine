@@ -2,9 +2,11 @@
 
 #include "ge/app/audio.hpp"
 #include "ge/app/fields.hpp"
+#include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/lists.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/runtime_lists.hpp"
 #include "ge/app/save.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/viewport.hpp"
@@ -229,6 +231,10 @@ App::App() {
     world_.insert_resource(Actions{});
     world_.insert_resource(SceneRequest{});
     world_.insert_resource(SpawnRequests{});
+    world_.insert_resource(QuitRequest{});
+    world_.insert_resource(HostRequests{});
+    world_.insert_resource(HostInfo{});
+    world_.insert_resource(RuntimeLists{});
     world_.insert_resource(SaveData{});
     world_.insert_resource(ListNames{});
     world_.insert_resource(EntityNames{});

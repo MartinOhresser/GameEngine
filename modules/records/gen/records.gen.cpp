@@ -62,15 +62,49 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Record* component = world.get<Record>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "key") {
+        component->key = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "source") {
+        component->source = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "field") {
+        component->field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "best") {
+        component->best = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "last") {
+        component->last = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "loaded") {
+        component->loaded = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 6> component_0_fields{{{"key", "u32", "record", false}, {"source", "u32", "tag", false}, {"field", "u32", "field", false}, {"best", "i32", "", false}, {"last", "i32", "", false}, {"loaded", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Record", false, component_0_fields, insert_component_0, read_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Record", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
-constexpr std::array<std::string_view, 1> system_0_reads{"ui.Tag"};
+constexpr std::array<std::string_view, 1> system_0_reads{"tag.Tag"};
 constexpr std::array<std::string_view, 1> system_0_writes{"records.Record"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"records.track", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
-constexpr std::array<std::string_view, 1> depends{"ui"};
+constexpr std::array<std::string_view, 1> depends{"tag"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace

@@ -11,23 +11,6 @@
 
 namespace ge::mod::ui {
 
-/// Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's "window"). Use it with screen sprites and texts.
-struct Anchor {
-    float anchor_x = 0.0F;
-    float anchor_y = 0.0F;
-    float offset_x = 0.0F;
-    float offset_y = 0.0F;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(anchor_x);
-        hasher.add(anchor_y);
-        hasher.add(offset_x);
-        hasher.add(offset_y);
-    }
-
-    [[nodiscard]] friend bool operator==(const Anchor&, const Anchor&) = default;
-};
-
 /// Lays out the entities that have a Cell of the same group: cell number n goes in column n % columns and row n / columns, cell_width + spacing_x and cell_height + spacing_y apart, the first cell being centred on the Grid's own Position. columns 1 makes a column, a large number a row. A hotbar, an inventory, a list of buttons and a table are all grids with other numbers. group names an item of the game's "group" list (game.json lists).
 struct Grid {
     std::uint32_t group = 0U;
@@ -62,25 +45,16 @@ struct Cell {
     [[nodiscard]] friend bool operator==(const Cell&, const Cell&) = default;
 };
 
-/// A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's "tag" list. When several entities share a tag, the oldest one is found.
-struct Tag {
-    std::uint32_t tag = 0U;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(tag);
-    }
-
-    [[nodiscard]] friend bool operator==(const Tag&, const Tag&) = default;
-};
-
-/// Shows a number of the game: every tick, the value of field (written "module.Component.field", for example "pickup.Collector.score") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. A missing source or component leaves the value at 0.
+/// Shows a number of the game: every tick, the value of field (written "module.Component.field", for example "pickup.Collector.score") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. With own, the entity reads the field of itself instead of the entity tagged source: the number written on a tile, the health bar of a monster (put a Bind on the entity that has the Bar and the Health). A missing source or component leaves the value at 0.
 struct Bind {
     std::uint32_t source = 0U;
     std::uint32_t field = 0U;
+    bool own = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(source);
         hasher.add(field);
+        hasher.add(own);
     }
 
     [[nodiscard]] friend bool operator==(const Bind&, const Bind&) = default;
@@ -105,13 +79,15 @@ struct Bar {
     [[nodiscard]] friend bool operator==(const Bar&, const Bar&) = default;
 };
 
-/// The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's "menu" list; wrap makes the focus go round. focused is the number of the focused button.
+/// The controller of one menu: the Buttons of the same group. They are read as a table, as they are laid out on the screen: the ones side by side (about the same height) make a row. left and right (actions of the game) move the focus along the row, up and down to the row above or below, to the button that is the nearest; buttons on top of each other count as one after the other, in the order of their numbers. accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's "menu" list; wrap makes the focus go round. focused is the number of the focused button.
 struct Menu {
     std::uint32_t group = 0U;
     std::uint32_t focused = 0U;
     bool wrap = true;
     std::uint32_t up = 4294967295U;
     std::uint32_t down = 4294967295U;
+    std::uint32_t left = 4294967295U;
+    std::uint32_t right = 4294967295U;
     std::uint32_t accept = 4294967295U;
     bool use_pointer = false;
     std::uint32_t pointer_x = 4294967295U;
@@ -126,6 +102,8 @@ struct Menu {
         hasher.add(wrap);
         hasher.add(up);
         hasher.add(down);
+        hasher.add(left);
+        hasher.add(right);
         hasher.add(accept);
         hasher.add(use_pointer);
         hasher.add(pointer_x);
@@ -138,7 +116,7 @@ struct Menu {
     [[nodiscard]] friend bool operator==(const Menu&, const Menu&) = default;
 };
 
-/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.
+/// A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused. A button that is not enabled cannot be focused, hovered or pressed, and shows disabled_frame (a Row turns its button off when the page has no item for it).
 struct Button {
     std::uint32_t menu = 0U;
     std::uint32_t order = 0U;
@@ -147,6 +125,8 @@ struct Button {
     float height = 30.0F;
     std::uint32_t normal_frame = 0U;
     std::uint32_t focus_frame = 0U;
+    bool enabled = true;
+    std::uint32_t disabled_frame = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(menu);
@@ -156,14 +136,65 @@ struct Button {
         hasher.add(height);
         hasher.add(normal_frame);
         hasher.add(focus_frame);
+        hasher.add(enabled);
+        hasher.add(disabled_frame);
     }
 
     [[nodiscard]] friend bool operator==(const Button&, const Button&) = default;
 };
 
-/// Puts every anchored entity where the window's size says.
-/// Runs in FixedUpdate.
-void anchor(::ge::ecs::World& world);
+/// A list filled while the game runs (the games a launcher found, the players of a lobby), shown a page at a time. list names an item of the game's "runtime_list" list; page_size is how many Rows show it at once and page the one shown (0 is the first). The actions previous and next (an action left out is none) change the page, which never leaves 0 to pages - 1; pages is written for you, at least 1. menu names the game's "menu" whose Buttons are the Rows: the Row that has the focus becomes the selected item of the list, and stays selected when the focus goes to another button (Previous, Play...), so host.Call can act on it.
+struct Pager {
+    std::uint32_t list = 0U;
+    std::uint32_t menu = 0U;
+    std::uint32_t page = 0U;
+    std::uint32_t page_size = 5U;
+    std::uint32_t previous = 4294967295U;
+    std::uint32_t next = 4294967295U;
+    std::uint32_t pages = 1U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(menu);
+        hasher.add(page);
+        hasher.add(page_size);
+        hasher.add(previous);
+        hasher.add(next);
+        hasher.add(pages);
+    }
+
+    [[nodiscard]] friend bool operator==(const Pager&, const Pager&) = default;
+};
+
+/// One line of the Pager of the same list: it shows item number page * page_size + row of the list. The entity needs a text2d.Text and a text2d.Dynamic (written for you: the list and the item to show) and, to be chosen, a Button. When the page has no item for the row, the Button is switched off. item is written for you.
+struct Row {
+    std::uint32_t list = 0U;
+    std::uint32_t row = 0U;
+    std::uint32_t item = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(row);
+        hasher.add(item);
+    }
+
+    [[nodiscard]] friend bool operator==(const Row&, const Row&) = default;
+};
+
+/// A second button for a Row: it stands for the same item of the same Pager's list (an export icon beside each game, a delete button beside each save). Give it a Button; it is switched off when the page has no item for the row, and when it has the focus, or is pressed, the item of its row is the selected item of the list, so host.Call can act on it. It is a separate entity from the Row's own, so the two can be told apart and sit side by side (left and right move the focus from one to the other). item is written for you.
+struct RowButton {
+    std::uint32_t list = 0U;
+    std::uint32_t row = 0U;
+    std::uint32_t item = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(row);
+        hasher.add(item);
+    }
+
+    [[nodiscard]] friend bool operator==(const RowButton&, const RowButton&) = default;
+};
 
 /// Places the cells of every grid.
 /// Runs in FixedUpdate.
@@ -180,6 +211,14 @@ void fill(::ge::ecs::World& world);
 /// Moves the focus of every menu and raises the action of the button that is pressed.
 /// Runs in FixedUpdate.
 void menu(::ge::ecs::World& world);
+
+/// Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.
+/// Runs in FixedUpdate.
+void pager(::ge::ecs::World& world);
+
+/// Makes the item of the focused Row (or RowButton) the selected item of its list.
+/// Runs in FixedUpdate.
+void select(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

@@ -1,0 +1,131 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "grid2d",
+  "version": "0.1.0",
+  "description": "Boards made of cells, in the world or on the screen (a hotbar, an inventory, a table of buttons): a rectangular grid, the entities that sit on its cells (they are placed at the centre of their cell, and glide there if asked), the cell under the pointer or the finger, the creation of entities on empty cells, and zones that notice what comes onto some cells (a far rank, a goal, a trap). A chess board, a puzzle, a building map, a farm or a dungeon are all grids; nothing here is about a particular game. Other modules read the board through ge/mod/grid2d/cells.hpp.",
+  "depends": ["transform2d", "camera2d"],
+  "components": [
+    {
+      "name": "Grid",
+      "description": "A board of columns by rows cells, each cell_width by cell_height units, spacing_x and spacing_y apart, the whole board centred on the entity's Position. id names an item of the game's \"grid\" list: the entities that sit on this board say the same. Cell (0, 0) is the top left one; columns count to the right and rows downwards. A screen board is in pixels of the window and is not seen through the camera: a hotbar, an inventory or a table of buttons (give its entity a transform2d.Anchor to keep it at an edge of the window, and its entities screen sprites); otherwise the board is in the world.",
+      "replicable": false,
+      "fields": [
+        { "name": "id", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "columns", "type": "u32", "default": 8 },
+        { "name": "rows", "type": "u32", "default": 8 },
+        { "name": "cell_width", "type": "f32", "default": 64 },
+        { "name": "cell_height", "type": "f32", "default": 64 },
+        { "name": "spacing_x", "type": "f32", "default": 0 },
+        { "name": "spacing_y", "type": "f32", "default": 0 },
+        { "name": "screen", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "GridPos",
+      "description": "The cell of the board grid where the entity sits: col and row, counted from the top left. Each tick its Position is set to the centre of that cell; with glide (the share, 0 to 1, of the distance covered each tick) it moves there smoothly instead and lands on it when it is within a pixel; glide 0 puts it there at once. With from_position, on its first tick the entity takes the cell it is on from its Position (entities created by a spawner or put in a scene by their place) and the flag turns off. An entity on a cell that is not on the board (or whose board does not exist) is left where it is. Entities that are Disabled do not count as being on a cell for the other modules.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "glide", "type": "f32", "default": 0 },
+        { "name": "from_position", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Blocked",
+      "description": "Marks an entity on a cell (with a GridPos) as something that nothing can be put on or move into: a wall, a rock, a road a tower may not be built on. Modules that place or move things on a board skip cells that have one.",
+      "replicable": false,
+      "fields": []
+    },
+    {
+      "name": "GridCursor",
+      "description": "A cursor over the cells of the board grid, moved by the pointer or the finger and by keys or a pad. pointer_x and pointer_y are the actions that carry the pointer's position in pixels of the window (as for a menu), converted through the camera unless the board is on the screen. left, right, up and down move the cursor to the next cell (wrap makes it go round at the edges, otherwise it stops there); after a key, the cursor stays where the keys put it until the pointer moves or clicks. over says whether it is on a cell, col and row which one. When the click action is pressed with the pointer over a cell, or accept with the cursor on a cell, clicked is true for that tick and the action named by action is raised (none: nothing is raised). An action left out is none: it does nothing. A Disabled cursor does nothing. The click of a touch screen is the same action as the mouse's. keyed, last_x and last_y are kept by the module.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "pointer_x", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pointer_y", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "click", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "over", "type": "bool", "default": false },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "clicked", "type": "bool", "default": false },
+        { "name": "left", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "up", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "down", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "accept", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "wrap", "type": "bool", "default": false },
+        { "name": "keyed", "type": "bool", "default": false },
+        { "name": "last_x", "type": "f32", "default": 0 },
+        { "name": "last_y", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "SpawnOnEmpty",
+      "description": "When the action named by trigger is pressed, creates count entities from prefab on cells of the board grid that nothing sits on (no GridPos of that board there, Disabled ones aside), chosen at random: with alt_percent percent of the chances a different prefab, alt_prefab, is made instead (a 2 or a 4, a common or a rare monster, a coin or a bomb). It creates fewer when the board has not enough empty cells. The prefab should carry a GridPos with the same grid and from_position on, so that it takes its cell. A Disabled spawner does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "trigger", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "alt_prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "alt_percent", "type": "u32", "default": 0 },
+        { "name": "count", "type": "u32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Zone",
+      "description": "A rectangle of cells of the board grid (col and row for its top left cell, columns by rows) that watches what sits on it. With match_field (a number field of the game, \"module.Component.field\") only entities whose number equals match_value count, otherwise every entity on a cell counts (Disabled ones never do). count is how many there are now, entered the oldest of them (an entity link, 0 for none). Each time count goes up, the action is raised: a pawn reaching the far rank, a unit entering a goal, a creature stepping on a trap. A Disabled zone does nothing.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "col", "type": "i32", "default": 0 },
+        { "name": "row", "type": "i32", "default": 0 },
+        { "name": "columns", "type": "u32", "default": 1 },
+        { "name": "rows", "type": "u32", "default": 1 },
+        { "name": "match_field", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "match_value", "type": "f32", "default": 0 },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "entered", "type": "u64", "default": 0 },
+        { "name": "count", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "place",
+      "description": "Gives each GridPos entity the cell it sits on (once, with from_position) and moves it to that cell's centre, at once or gliding.",
+      "stage": "FixedUpdate",
+      "reads": ["Grid", "transform2d.Disabled"],
+      "writes": ["GridPos", "transform2d.Position"],
+      "after": ["transform2d.anchor"]
+    },
+    {
+      "name": "point",
+      "description": "Updates every GridCursor from the pointer (through the camera for a board in the world), the keys and the board, and raises the action of a click or an accept on a cell.",
+      "stage": "FixedUpdate",
+      "reads": ["Grid", "camera2d.Camera", "transform2d.Position", "transform2d.Disabled"],
+      "writes": ["GridCursor"],
+      "after": ["transform2d.anchor"]
+    },
+    {
+      "name": "spawn",
+      "description": "Creates the entities of every SpawnOnEmpty whose trigger is pressed on random empty cells.",
+      "stage": "FixedUpdate",
+      "reads": ["SpawnOnEmpty", "Grid", "GridPos", "transform2d.Disabled"],
+      "after": ["place"]
+    },
+    {
+      "name": "watch_zones",
+      "description": "Counts what sits on every Zone, keeps the oldest matching entity in entered, and raises the zone's action when the count goes up.",
+      "stage": "FixedUpdate",
+      "reads": ["GridPos", "Grid", "transform2d.Disabled"],
+      "writes": ["Zone"],
+      "after": ["place"]
+    }
+  ]
+}

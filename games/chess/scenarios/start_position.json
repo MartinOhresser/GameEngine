@@ -1,0 +1,54 @@
+// The game starts with the 32 pieces on their squares, white to move, nobody threatened.
+{
+  "schema_version": 1,
+  "name": "start_position",
+  "scene": "game",
+  "ticks": 20,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 20,
+      "check": "entities == 333"
+    },
+    {
+      "at": 20,
+      "check": "turn.turns.Turn.current == 0"
+    },
+    {
+      "at": 20,
+      "check": "side_white.grid_moves.Side.status == 0"
+    },
+    {
+      "at": 20,
+      "check": "side_black.grid_moves.Side.status == 0"
+    },
+    {
+      "at": 20,
+      "check": "game_phase.phase.Phase.current == 0"
+    },
+    {
+      "at": 20,
+      "check": "e1.grid_moves.Mover.kind == 5"
+    },
+    {
+      "at": 20,
+      "check": "d8.grid_moves.Mover.kind == 4"
+    },
+    {
+      "at": 20,
+      "check": "e1.sprite2d.Sprite.frame == 5"
+    },
+    {
+      "at": 20,
+      "check": "e8.sprite2d.Sprite.frame == 11"
+    },
+    {
+      "at": 20,
+      "check": "e2.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 20,
+      "check": "e2.grid2d.GridPos.row == 6"
+    }
+  ]
+}

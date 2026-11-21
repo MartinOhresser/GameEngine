@@ -1,0 +1,63 @@
+// The Continue button of the victory screen does the same, with the mouse or a finger.
+{
+  "schema_version": 1,
+  "name": "continue_with_the_button",
+  "scene": "test_win",
+  "ticks": 60,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 240
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 620
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 30,
+      "action": "down",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "down",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 12,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 60,
+      "check": "t1.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 60,
+      "check": "game_phase.phase.Phase.current == 0"
+    }
+  ]
+}

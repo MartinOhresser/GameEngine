@@ -31,13 +31,13 @@
       "name": "scoreboard",
       "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {
+        "tag.Tag": {
           "tag": "scoreboard"
         },
         "records.Record": {
           "key": "best_height",
           "source": "player",
-          "field": "altitude.Altitude.score"
+          "field": "progress.Progress.score"
         }
       }
     },

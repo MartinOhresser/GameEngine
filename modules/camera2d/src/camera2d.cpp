@@ -1,4 +1,5 @@
 #include "ge/app/render.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -22,6 +23,18 @@ std::optional<transform2d::Position> first_position(ecs::World& world) {
     return found;
 }
 
+/// Where an axis goes: `next`, unless the camera may not move that way. `smaller_only` keeps it
+/// from ever growing (it only goes to smaller numbers: up or left), `bigger_only` the contrary.
+float limited(float now, float next, bool smaller_only, bool bigger_only) {
+    if (smaller_only) {
+        next = std::min(now, next);
+    }
+    if (bigger_only) {
+        next = std::max(now, next);
+    }
+    return next;
+}
+
 } // namespace
 
 void follow(ecs::World& world) {
@@ -33,13 +46,42 @@ void follow(ecs::World& world) {
         [&target](ecs::Entity, const CameraFollow& follow, transform2d::Position& position) {
             const float stiffness = std::clamp(follow.stiffness, 0.0F, 1.0F);
             if (follow.follow_x) {
-                position.x += (target->x - position.x) * stiffness;
+                const float goal = target->x + follow.offset_x;
+                const float next = position.x + (goal - position.x) * stiffness;
+                position.x = limited(position.x, next, follow.only_left, follow.only_right);
             }
             if (follow.follow_y) {
                 const float goal = target->y + follow.offset_y;
                 const float next = position.y + (goal - position.y) * stiffness;
-                position.y = follow.only_up ? std::min(position.y, next) : next;
+                position.y = limited(position.y, next, follow.only_up, follow.only_down);
             }
+        });
+}
+
+void fit(ecs::World& world) {
+    const auto* viewport = world.resource<app::Viewport>();
+    if (viewport == nullptr) {
+        return;
+    }
+    const auto screen_width = static_cast<float>(viewport->width);
+    const auto screen_height = static_cast<float>(viewport->height);
+    world.each<const CameraFit, Camera, transform2d::Position>(
+        [&](ecs::Entity, const CameraFit& area, Camera& camera, transform2d::Position& position) {
+            const float room_x =
+                std::max(screen_width - area.margin_left - area.margin_right, 1.0F);
+            const float room_y =
+                std::max(screen_height - area.margin_top - area.margin_bottom, 1.0F);
+            float zoom = std::min(room_x / std::max(area.width, 0.001F),
+                                  room_y / std::max(area.height, 0.001F));
+            if (area.max_zoom > 0.0F) {
+                zoom = std::min(zoom, area.max_zoom);
+            }
+            camera.zoom = zoom;
+            // The area's centre goes to the middle of what the margins leave.
+            const float middle_x = (area.margin_left + screen_width - area.margin_right) / 2.0F;
+            const float middle_y = (area.margin_top + screen_height - area.margin_bottom) / 2.0F;
+            position.x = area.center_x - (middle_x - screen_width / 2.0F) / zoom;
+            position.y = area.center_y - (middle_y - screen_height / 2.0F) / zoom;
         });
 }
 

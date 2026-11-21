@@ -1,0 +1,82 @@
+// Without the gold, the improvement is refused and nothing changes.
+{
+  "schema_version": 1,
+  "name": "an_improvement_needs_the_gold",
+  "ticks": 80,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 19,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 19,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 20,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 30,
+      "action": "upgrade",
+      "value": 1
+    },
+    {
+      "tick": 31,
+      "action": "upgrade",
+      "value": 0
+    },
+    {
+      "tick": 50,
+      "action": "upgrade",
+      "value": 1
+    },
+    {
+      "tick": 51,
+      "action": "upgrade",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 80,
+      "check": "wallet.economy.Wallet.amount == 60"
+    },
+    {
+      "at": 80,
+      "check": "game_phase.phase.Phase.current == 1"
+    },
+    {
+      "at": 80,
+      "check": "hand.economy.Placer.upgrade_price == 70"
+    }
+  ]
+}

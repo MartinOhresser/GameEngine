@@ -113,7 +113,7 @@ TEST_CASE("gectl: help and usage errors") {
     CHECK(has(bad_option.err, "unknown option --bogus"));
     const Run no_dir = gectl({"check", "--modules"});
     CHECK(no_dir.code == 2);
-    CHECK(has(no_dir.err, "--modules needs a directory"));
+    CHECK(has(no_dir.err, "--modules needs a value"));
 }
 
 TEST_CASE("gectl: check reports every problem with its file and place") {
@@ -223,6 +223,47 @@ TEST_CASE("gectl: validate checks a game's files against the modules") {
     CHECK(gectl({"validate", "--modules", modules, "a.json", "b.json"}).code == 2);
     CHECK(gectl({"validate", "--modules", modules, sandbox.dir() + "/nope.json"}).code == 1);
     CHECK(gectl({"validate", "--modules", "/definitely/not/here", game}).code == 1);
+}
+
+TEST_CASE("gectl: list shows the games of a directory, the invalid ones too") {
+    const Sandbox sandbox("list");
+    sandbox.write("modules/a/module.json", module_json("a"));
+    const std::string modules = sandbox.dir() + "/modules";
+    const std::string games = sandbox.dir() + "/games";
+    sandbox.write("games/beta/game.json", R"({
+        "schema_version": 1, "name": "beta", "title": "Beta Game", "version": "2.0.1",
+        "modules": ["a"], "window": {"width": 480, "height": 720},
+        "prefabs": [], "scenes": ["s.json"], "start_scene": "main"
+    })");
+    sandbox.write("games/beta/s.json", R"({"schema_version": 1, "name": "main", "entities": []})");
+    sandbox.write("games/alpha/game.json", R"({
+        "schema_version": 1, "name": "alpha", "modules": ["nope"],
+        "prefabs": [], "scenes": [], "start_scene": "main"
+    })");
+    sandbox.write("games/not_a_game/readme.txt", "no manifest here");
+
+    const Run text = gectl({"list", "--modules", modules, "--games", games});
+    CHECK(text.code == 0);
+    CHECK(has(text.out, "alpha  \"Alpha\"  0.1.0  800x600  1 modules  INVALID"));
+    CHECK(has(text.out, "unknown module"));
+    CHECK(has(text.out, "beta  \"Beta Game\"  2.0.1  480x720  1 modules  valid"));
+    CHECK(!has(text.out, "not_a_game"));
+    CHECK(text.out.find("alpha") < text.out.find("beta")); // sorted by directory
+
+    const Run json = gectl({"list", "--modules", modules, "--games", games, "--json"});
+    CHECK(json.code == 0);
+    const auto parsed = ge::json::parse(json.out);
+    REQUIRE(parsed.ok());
+    const auto* list = parsed.value.find("games");
+    REQUIRE(list != nullptr);
+    REQUIRE(list->items().size() == 2U);
+    CHECK(list->items()[0].find("valid")->as_bool() == false);
+    CHECK(list->items()[1].find("title")->as_string() == "Beta Game");
+    CHECK(list->items()[1].find("directory")->as_string() == games + "/beta");
+
+    CHECK(gectl({"list", "--modules", modules, "--games", sandbox.dir() + "/missing"}).code == 1);
+    CHECK(gectl({"list", "--modules", modules, "--games", games, "extra"}).code == 2);
+    CHECK(gectl({"list", "--modules", modules, "--games"}).code == 2);
 }
 
 TEST_CASE("gectl: every game of the repository is valid") {

@@ -1,0 +1,40 @@
+// Down moves the focus to Quit, Enter presses it: the game asks the host to close it.
+{
+  "schema_version": 1,
+  "name": "quit_from_the_menu",
+  "scene": "menu",
+  "ticks": 20,
+  "inputs": [
+    {
+      "tick": 2,
+      "action": "menu_down",
+      "value": 1
+    },
+    {
+      "tick": 3,
+      "action": "menu_down",
+      "value": 0
+    },
+    {
+      "tick": 5,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 4,
+      "check": "main_menu_input.ui.Menu.focused == 1"
+    },
+    {
+      "at": 4,
+      "check": "scene is menu"
+    },
+    "game quits"
+  ]
+}

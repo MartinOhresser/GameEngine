@@ -1,0 +1,54 @@
+// On the export screen, Enter on the first platform asks the host to export the selected game.
+{
+  "schema_version": 1,
+  "name": "start_export",
+  "ticks": 40,
+  "lists": {
+    "games": [
+      "Alpha",
+      "Beta"
+    ],
+    "targets": [
+      "Windows (64-bit)"
+    ]
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "menu_right",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "menu_right",
+      "value": 0
+    },
+    {
+      "tick": 10,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "menu_accept",
+      "value": 0
+    },
+    {
+      "tick": 25,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 26,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 22,
+      "check": "scene is export"
+    },
+    "host calls export"
+  ]
+}

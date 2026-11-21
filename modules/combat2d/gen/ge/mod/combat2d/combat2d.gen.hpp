@@ -11,60 +11,59 @@
 
 namespace ge::mod::combat2d {
 
-/// The entity can die. It dies when its Contacts touch a collider of one of hurt_layers (it needs a Collider and a Contacts), or, if fall_death is on, when it is more than fall_margin units under the bottom edge of the screen (y grows downwards). `dead` then stays true and, once, the action on_death is raised (a field of the game's `action` list), which a GoToScene can use to show a game over. Nothing else happens to the entity itself: the game decides what a death means.
-struct Mortal {
-    std::uint32_t hurt_layers = 0U;
-    bool fall_death = false;
-    float fall_margin = 0.0F;
-    std::uint32_t on_death = 4294967295U;
-    bool dead = false;
-    bool announced = false;
+/// The entity hurts what it touches: every entity that has a Health and a Collider on one of the layers (a set of names or bits of the game's layer list, all by default) and overlaps this entity's Collider gets a Damage of amount. It needs a Collider and a Position. With cooldown the entity hurts at most once every that many ticks (wait is what is left); without it, it hurts at each tick it touches. A monster that bites, a spike, fire, a body that kills the player that runs into it.
+struct ContactDamage {
+    std::int32_t amount = 1;
+    std::uint32_t layers = 4294967295U;
+    std::uint32_t cooldown = 0U;
+    std::uint32_t wait = 0U;
 
     void hash(::ge::Hasher& hasher) const {
-        hasher.add(hurt_layers);
-        hasher.add(fall_death);
-        hasher.add(fall_margin);
-        hasher.add(on_death);
-        hasher.add(dead);
-        hasher.add(announced);
+        hasher.add(amount);
+        hasher.add(layers);
+        hasher.add(cooldown);
+        hasher.add(wait);
     }
 
-    [[nodiscard]] friend bool operator==(const Mortal&, const Mortal&) = default;
+    [[nodiscard]] friend bool operator==(const ContactDamage&, const ContactDamage&) = default;
 };
 
-/// The entity can be shot: it loses `health` points for the damage of each Projectile that touches it (it needs a Collider), and is destroyed when none are left.
-struct Target {
-    std::int32_t health = 1;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(health);
-    }
-
-    [[nodiscard]] friend bool operator==(const Target&, const Target&) = default;
-};
-
-/// The entity hurts the first Target whose Collider it overlaps, by damage points, and is destroyed by the hit. It needs a Collider and moves by its own Velocity (and a Lifetime lets it end by itself).
+/// The entity flies and hurts the first entity with a Health whose Collider (on one of the layers, all by default) it overlaps: damage points, and it is destroyed by the hit. It needs a Collider and moves by its own Velocity (a Lifetime lets it end by itself). With splash_radius above 0 everything with a Health within that many units of the hit is hurt as well (an explosion). With pierce above 0 it goes through that many targets before it is destroyed (it never hits the same one twice in a row). With homing above 0 (0 to 1, the share of the turn made each tick) it steers towards the nearest entity it could hit, keeping its speed. With on_hit_speed_factor under 1 the entities it hurts are slowed to that share of their speed for on_hit_speed_ticks ticks (transform2d.SpeedScale).
 struct Projectile {
     std::int32_t damage = 1;
+    std::uint32_t layers = 4294967295U;
+    float splash_radius = 0.0F;
+    std::uint32_t pierce = 0U;
+    float homing = 0.0F;
+    float on_hit_speed_factor = 1.0F;
+    std::uint32_t on_hit_speed_ticks = 0U;
+    std::uint64_t last_hit = 0ULL;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(damage);
+        hasher.add(layers);
+        hasher.add(splash_radius);
+        hasher.add(pierce);
+        hasher.add(homing);
+        hasher.add(on_hit_speed_factor);
+        hasher.add(on_hit_speed_ticks);
+        hasher.add(last_hit);
     }
 
     [[nodiscard]] friend bool operator==(const Projectile&, const Projectile&) = default;
 };
 
-/// Lets every Projectile hit the Targets it overlaps: the Target loses health and is destroyed at 0, the Projectile is destroyed.
+/// Turns every homing Projectile towards the nearest entity it could hit.
+/// Runs in FixedUpdate.
+void steer(::ge::ecs::World& world);
+
+/// Lets every Projectile hit the entity it overlaps (and those around it, with a splash): they get a Damage, and a slow if the projectile has one; the projectile is destroyed unless it pierces.
 /// Runs in FixedUpdate.
 void shots(::ge::ecs::World& world);
 
-/// Kills every Mortal whose Contacts touch one of its hurt_layers, or that fell under the screen.
+/// Gives a Damage to every entity with a Health that a ContactDamage entity overlaps.
 /// Runs in FixedUpdate.
-void hurt(::ge::ecs::World& world);
-
-/// Raises the on_death action of every Mortal that has just died, once.
-/// Runs in FixedUpdate.
-void announce(::ge::ecs::World& world);
+void touch(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

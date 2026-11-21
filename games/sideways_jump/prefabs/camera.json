@@ -1,0 +1,12 @@
+// The camera never goes back to the left: it follows the jumper to the right, keeping it 120
+// units right of the middle of the screen (so that there is room on the left to fall back), and
+// ignores up and down moves.
+{
+  "schema_version": 1,
+  "name": "camera",
+  "components": {
+    "transform2d.Position": { "x": 360, "y": 240 },
+    "camera2d.Camera": { "zoom": 1 },
+    "camera2d.CameraFollow": { "stiffness": 0.25, "follow_y": false, "offset_x": -120, "only_right": true }
+  }
+}

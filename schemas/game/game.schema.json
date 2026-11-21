@@ -12,31 +12,62 @@
     "description": {
       "type": "string"
     },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+    },
+    "icon": {
+      "type": "string"
+    },
     "modules": {
       "type": "array",
       "items": {
         "type": "string",
         "enum": [
           "action_control",
-          "altitude",
+          "autofire",
           "bounce2d",
+          "bounds2d",
           "camera2d",
           "collision2d",
           "combat2d",
           "debug_draw",
+          "economy",
+          "gesture",
           "gravity2d",
+          "grid2d",
+          "grid_moves",
+          "health",
+          "host",
           "inventory",
           "lifetime",
+          "path2d",
           "patrol2d",
+          "phase",
           "pickup",
+          "progress",
           "records",
+          "rules",
           "scene_switch",
           "screen_wrap",
+          "slide_merge",
           "spawner2d",
           "sprite2d",
+          "tag",
           "text2d",
+          "touch_controls",
           "transform2d",
-          "ui"
+          "turns",
+          "tween2d",
+          "ui",
+          "waves"
         ]
       }
     },
@@ -67,6 +98,27 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 16384
+        },
+        "adapt": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "min_aspect": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "max_aspect": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -79,12 +131,17 @@
           "properties": {},
           "additionalProperties": false
         },
-        "altitude": {
+        "autofire": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
         "bounce2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "bounds2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -109,7 +166,37 @@
           "properties": {},
           "additionalProperties": false
         },
+        "economy": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "gesture": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "gravity2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "grid2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "grid_moves": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "health": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "host": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -124,7 +211,17 @@
           "properties": {},
           "additionalProperties": false
         },
+        "path2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "patrol2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "phase": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -134,7 +231,17 @@
           "properties": {},
           "additionalProperties": false
         },
+        "progress": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "records": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "rules": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -149,6 +256,11 @@
           "properties": {},
           "additionalProperties": false
         },
+        "slide_merge": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "spawner2d": {
           "type": "object",
           "properties": {},
@@ -159,7 +271,17 @@
           "properties": {},
           "additionalProperties": false
         },
+        "tag": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "text2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "touch_controls": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -175,7 +297,22 @@
           },
           "additionalProperties": false
         },
+        "turns": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "tween2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
         "ui": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "waves": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

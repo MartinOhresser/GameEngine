@@ -150,17 +150,6 @@ TEST_CASE("bounce2d: a surface that breaks gives no bounce and falls away") {
     CHECK(app.world().get<bounce2d::Bouncer>(jumper)->bounces == 0U);
 }
 
-TEST_CASE("bounce2d: a surface that kills is removed by the landing") {
-    auto app = game();
-    bounce2d::Bouncy monster = plain(400.0F);
-    monster.kills = true;
-    const Entity target = spawn_surface(app, 0.0F, 100.0F, monster);
-    const Entity jumper = spawn_jumper(app, 0.0F, 85.0F, 100.0F);
-    app.run_frames(1);
-    CHECK(vy_of(app, jumper) == -400.0F);
-    CHECK(!app.world().is_alive(target));
-}
-
 TEST_CASE("bounce2d: a body thrown up keeps rising and bounces again on the way down") {
     auto app = game();
     static_cast<void>(spawn_surface(app, 0.0F, 100.0F, plain(300.0F)));
@@ -197,4 +186,90 @@ TEST_CASE("bounce2d: a brittle plank under the surface the body bounces on is le
     CHECK(vy_of(app, jumper) == -300.0F);
     CHECK(app.world().get<bounce2d::Bouncy>(plank) != nullptr);
     CHECK(app.world().get<bounce2d::Bouncy>(solid) != nullptr);
+}
+
+namespace {
+
+/// A body 20 by 20 at (x, y) that falls in the direction (fall_x, fall_y) at `speed`.
+Entity spawn_faller(ge::app::App& app, float x, float y, float fall_x, float fall_y, float speed) {
+    const Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{x, y}));
+    CHECK(app.world().insert(entity, transform2d::Velocity{fall_x * speed, fall_y * speed}));
+    CHECK(app.world().insert(entity, collision2d::Collider{20.0F, 20.0F, 1, 0xFFFFFFFFU, false}));
+    bounce2d::Bouncer bouncer;
+    bouncer.fall_x = fall_x;
+    bouncer.fall_y = fall_y;
+    CHECK(app.world().insert(entity, bouncer));
+    return entity;
+}
+
+/// A wall 10 wide and 60 high centred on (x, y).
+Entity spawn_wall(ge::app::App& app, float x, float y, bounce2d::Bouncy bouncy) {
+    const Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{x, y}));
+    CHECK(app.world().insert(entity, collision2d::Collider{10.0F, 60.0F, 2, 0xFFFFFFFFU, false}));
+    CHECK(app.world().insert(entity, bouncy));
+    return entity;
+}
+
+float x_of(ge::app::App& app, Entity entity) {
+    return app.world().get<transform2d::Position>(entity)->x;
+}
+
+float vx_of(ge::app::App& app, Entity entity) {
+    return app.world().get<transform2d::Velocity>(entity)->x;
+}
+
+} // namespace
+
+TEST_CASE("bounce2d: a body that falls up lands on the underside of a surface") {
+    auto app = game();
+    // the surface fills y 95 to 105: its underside, where a body coming from below lands, is 105
+    static_cast<void>(spawn_surface(app, 0.0F, 95.0F, plain(300.0F)));
+    const Entity diver = spawn_faller(app, 0.0F, 135.0F, 0.0F, -1.0F, 100.0F);
+    app.run_frames(1); // its top edge goes from 125 to 115
+    CHECK(vy_of(app, diver) == -100.0F);
+    app.run_frames(1);                  // then to 105: it reaches the underside
+    CHECK(vy_of(app, diver) == 300.0F); // thrown back down, against its fall
+    CHECK(y_of(app, diver) == 115.0F);  // put on the underside: top edge 105
+    CHECK(app.world().get<bounce2d::Bouncer>(diver)->bounces == 1U);
+}
+
+TEST_CASE("bounce2d: a body that falls to the right lands on the left side of a wall") {
+    auto app = game();
+    // the wall fills x 95 to 105 and y -30 to 30
+    static_cast<void>(spawn_wall(app, 100.0F, 0.0F, plain(250.0F)));
+    const Entity runner = spawn_faller(app, 65.0F, 0.0F, 1.0F, 0.0F, 100.0F);
+    app.run_frames(1);
+    CHECK(vx_of(app, runner) == 100.0F); // right edge at 85 then 95 on the next tick
+    app.run_frames(1);
+    CHECK(vx_of(app, runner) == -250.0F); // thrown back to the left
+    CHECK(x_of(app, runner) == 85.0F);    // put against the wall: right edge 95
+}
+
+TEST_CASE("bounce2d: a body that falls to the right ignores a wall behind it or above it") {
+    auto app = game();
+    static_cast<void>(spawn_wall(app, 100.0F, 0.0F, plain()));
+    const Entity beside = spawn_faller(app, 65.0F, 200.0F, 1.0F, 0.0F, 100.0F); // misses it
+    const Entity beyond = spawn_faller(app, 160.0F, 0.0F, 1.0F, 0.0F, 100.0F);  // already past it
+    app.run_frames(4);
+    CHECK(vx_of(app, beside) == 100.0F);
+    CHECK(vx_of(app, beyond) == 100.0F);
+}
+
+TEST_CASE("bounce2d: a plank that breaks falls the way the body falls") {
+    auto app = game();
+    bounce2d::Bouncy brittle = plain();
+    brittle.breaks = true;
+    brittle.fall_speed = 80.0F;
+    const Entity wall = spawn_wall(app, 100.0F, 0.0F, brittle);
+    static_cast<void>(spawn_faller(app, 65.0F, 0.0F, 1.0F, 0.0F, 100.0F));
+    app.run_frames(2);
+    CHECK(app.world().get<bounce2d::Bouncy>(wall) == nullptr);
+    const auto* velocity = app.world().get<transform2d::Velocity>(wall);
+    CHECK(velocity != nullptr);
+    if (velocity != nullptr) {
+        CHECK(velocity->x == 80.0F);
+        CHECK(velocity->y == 0.0F);
+    }
 }

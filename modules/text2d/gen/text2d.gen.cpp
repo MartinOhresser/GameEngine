@@ -97,11 +97,121 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Text* component = world.get<Text>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "string") {
+        component->string = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "font") {
+        component->font = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "size") {
+        component->size = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "spacing") {
+        component->spacing = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "line_spacing") {
+        component->line_spacing = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "pivot_x") {
+        component->pivot_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "pivot_y") {
+        component->pivot_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "value") {
+        component->value = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "red") {
+        component->red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "green") {
+        component->green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "blue") {
+        component->blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "alpha") {
+        component->alpha = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "screen") {
+        component->screen = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 13> component_0_fields{{{"string", "u32", "string", false}, {"font", "u32", "atlas", false}, {"size", "f32", "", false}, {"spacing", "f32", "", false}, {"line_spacing", "f32", "", false}, {"pivot_x", "f32", "", false}, {"pivot_y", "f32", "", false}, {"value", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"screen", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Text", false, component_0_fields, insert_component_0, read_component_0}}};
+void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Dynamic component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "list") {
+            component.list = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "index") {
+            component.index = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 2> system_0_reads{"text2d.Text", "transform2d.Position"};
+std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Dynamic* component = world.get<Dynamic>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "list") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->list)};
+    }
+    if (field == "index") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->index)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Dynamic* component = world.get<Dynamic>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "list") {
+        component->list = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "index") {
+        component->index = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"list", "u32", "runtime_list", false}, {"index", "u32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Text", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Dynamic", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
+
+constexpr std::array<std::string_view, 5> system_0_reads{"text2d.Text", "text2d.Dynamic", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"};
 constexpr std::array<std::string_view, 0> system_0_writes{};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"text2d.draw", ::ge::app::Stage::PostUpdate, system_0_reads, system_0_writes}}};
 

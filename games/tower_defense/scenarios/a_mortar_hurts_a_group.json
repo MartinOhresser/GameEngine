@@ -1,0 +1,22 @@
+// A shell hurts everything near where it lands: three monsters side by side lose three points each (they have eight).
+{
+  "schema_version": 1,
+  "name": "a_mortar_hurts_a_group",
+  "scene": "test_splash",
+  "ticks": 80,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 80,
+      "check": "m1.health.Health.amount == 5"
+    },
+    {
+      "at": 80,
+      "check": "m2.health.Health.amount == 5"
+    },
+    {
+      "at": 80,
+      "check": "m3.health.Health.amount == 5"
+    }
+  ]
+}

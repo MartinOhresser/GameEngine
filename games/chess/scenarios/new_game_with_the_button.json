@@ -1,0 +1,91 @@
+// New game starts again from the first position at any time, with the button.
+{
+  "schema_version": 1,
+  "name": "new_game_with_the_button",
+  "scene": "game",
+  "ticks": 62,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 437
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 335
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 31,
+      "action": "pointer_x",
+      "value": 240
+    },
+    {
+      "tick": 31,
+      "action": "pointer_y",
+      "value": 675
+    },
+    {
+      "tick": 32,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 33,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 62,
+      "check": "scene is game"
+    },
+    {
+      "at": 62,
+      "check": "e2.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 62,
+      "check": "e2.grid2d.GridPos.row == 6"
+    },
+    {
+      "at": 62,
+      "check": "turn.turns.Turn.current == 0"
+    },
+    {
+      "at": 62,
+      "check": "moves.grid_moves.MoveRequest.moves == 0"
+    }
+  ]
+}

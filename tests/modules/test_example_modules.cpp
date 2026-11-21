@@ -25,7 +25,8 @@ TEST_CASE("modules: installing records the module and its systems") {
     CHECK(app.module_names() == std::vector<std::string>{"transform2d"});
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
-          std::vector<std::string>{"transform2d.integrate"});
+          (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
+                                    "transform2d.wear_off", "transform2d.anchor"}));
 }
 
 TEST_CASE("modules: the generated info matches module.json") {
@@ -33,13 +34,13 @@ TEST_CASE("modules: the generated info matches module.json") {
     CHECK(info.name == "transform2d");
     CHECK(info.version == "0.1.0");
     CHECK(info.depends.empty());
-    REQUIRE(info.components.size() == 2U);
+    REQUIRE(info.components.size() == 9U);
     CHECK(info.components[0].name == "Position");
     CHECK(info.components[0].replicable);
     REQUIRE(info.components[0].fields.size() == 2U);
     CHECK(info.components[0].fields[1].name == "y");
     CHECK(info.components[0].fields[1].type == "f32");
-    REQUIRE(info.systems.size() == 1U);
+    REQUIRE(info.systems.size() == 4U);
     CHECK(info.systems[0].name == "transform2d.integrate");
     CHECK(info.systems[0].stage == ge::app::Stage::FixedUpdate);
     REQUIRE(info.systems[0].writes.size() == 1U);
@@ -103,7 +104,9 @@ TEST_CASE("modules: screen_wrap brings entities back on the other side, after th
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
-          (std::vector<std::string>{"transform2d.integrate", "screen_wrap.wrap"}));
+          (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
+                                    "transform2d.wear_off", "transform2d.anchor",
+                                    "screen_wrap.wrap"}));
 
     const Entity right = app.world().spawn_with(transform2d::Position{99.0F, 5.0F},
                                                 transform2d::Velocity{120.0F, 0.0F},
@@ -241,4 +244,20 @@ TEST_CASE("modules: action_control steers by the move actions, before the moveme
     CHECK(world.get<transform2d::Velocity>(pilot)->x == 0.0F);
     CHECK(world.get<transform2d::Velocity>(pilot)->y == -30.0F);
     CHECK(world.get<transform2d::Position>(rock)->x == 0.0F); // not Controlled
+}
+
+TEST_CASE("modules: a field can be read and written by name through the module's info") {
+    App app;
+    transform2d::install(app);
+    const Entity entity = app.world().spawn_with(transform2d::Position{1.0F, 2.0F});
+    const ge::app::ComponentInfo& position = transform2d::info().components[0];
+    REQUIRE(position.write != nullptr);
+    CHECK(position.write(app.world(), entity, "y", ge::app::Scalar{7.5}));
+    CHECK(app.world().get<transform2d::Position>(entity)->y == 7.5F);
+    CHECK(app.world().get<transform2d::Position>(entity)->x == 1.0F);
+    CHECK(!position.write(app.world(), entity, "nothing", ge::app::Scalar{1.0}));
+    CHECK(!position.write(app.world(), app.world().spawn(), "x", ge::app::Scalar{1.0}));
+    const auto read_back = position.read(app.world(), entity, "y");
+    REQUIRE(read_back.has_value());
+    CHECK(ge::app::scalar_as<float>(*read_back) == 7.5F);
 }

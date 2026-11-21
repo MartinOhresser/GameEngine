@@ -1,0 +1,46 @@
+// 2 2 2 2 gives 4 4, not 8: a tile that has just been made does not merge again in
+// the same move.
+{
+  "schema_version": 1,
+  "name": "merges_once_per_move",
+  "scene": "test_four_equal",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "t1.slide_merge.Tile.value == 4"
+    },
+    {
+      "at": 40,
+      "check": "t3.slide_merge.Tile.value == 4"
+    },
+    {
+      "at": 40,
+      "check": "t3.grid2d.GridPos.col == 1"
+    },
+    {
+      "at": 40,
+      "check": "t2 gone"
+    },
+    {
+      "at": 40,
+      "check": "t4 gone"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.score == 8"
+    }
+  ]
+}

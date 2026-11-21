@@ -1,0 +1,33 @@
+// A move that changes nothing is not a move: no tile is added and it is not counted.
+{
+  "schema_version": 1,
+  "name": "move_without_effect_adds_nothing",
+  "scene": "test_packed",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "entities == 39"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.score == 0"
+    }
+  ]
+}

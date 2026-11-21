@@ -191,3 +191,12 @@ TEST_CASE("runner: the scenarios of every game of the repository pass") {
     }
     CHECK(games >= 2);
 }
+
+TEST_CASE("runner: the launcher is a game whose scenarios pass") {
+    const Run run = gerun({std::string(GE_SOURCE_DIR) + "/tools/launcher/game.json", "--test"});
+    CHECK(run.err.empty());
+    CHECK(run.code == 0);
+    if (run.code != 0) {
+        std::fputs(run.out.c_str(), stderr);
+    }
+}

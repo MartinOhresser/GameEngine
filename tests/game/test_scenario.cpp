@@ -2,8 +2,13 @@
 #include "ge/game/runtime.hpp"
 #include "ge/game/scenario.hpp"
 #include "ge/mod/action_control/action_control.gen.hpp"
+#include "ge/mod/host/host.gen.hpp"
 #include "ge/mod/lifetime/lifetime.gen.hpp"
+#include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
+#include "ge/mod/text2d/text2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/ui/ui.gen.hpp"
 
 #include "../support/mini_test.hpp"
 
@@ -20,10 +25,15 @@ using ge::game::ModuleEntry;
 
 namespace {
 
-const std::array<ModuleEntry, 3> linked = {{
+const std::array<ModuleEntry, 8> linked = {{
     {&ge::mod::transform2d::info, &ge::mod::transform2d::install},
     {&ge::mod::lifetime::info, &ge::mod::lifetime::install},
     {&ge::mod::action_control::info, &ge::mod::action_control::install},
+    {&ge::mod::host::info, &ge::mod::host::install},
+    {&ge::mod::sprite2d::info, &ge::mod::sprite2d::install},
+    {&ge::mod::text2d::info, &ge::mod::text2d::install},
+    {&ge::mod::tag::info, &ge::mod::tag::install},
+    {&ge::mod::ui::info, &ge::mod::ui::install},
 }};
 
 using Files = std::map<std::string, std::string>;
@@ -142,6 +152,11 @@ TEST_CASE("check: the forms of a check are understood") {
     CHECK(ge::game::parse_check("scene is credits", check).empty());
     CHECK(check.kind == CheckKind::Scene);
     CHECK(check.entity == "credits");
+    CHECK(ge::game::parse_check("game quits", check).empty());
+    CHECK(check.kind == CheckKind::Quit);
+    CHECK(ge::game::parse_check("host calls play", check).empty());
+    CHECK(check.kind == CheckKind::HostCall);
+    CHECK(check.entity == "play");
     CHECK(ge::game::parse_check("fingerprint == 5f4962bd950cf9b3", check).empty());
     CHECK(check.kind == CheckKind::Fingerprint);
     CHECK(check.fingerprint == 0x5f4962bd950cf9b3ULL);
@@ -385,4 +400,139 @@ TEST_CASE("scenario: a scenario can start another scene than the game's") {
     files["g/in_arena.json"] = R"({"schema_version": 1, "name": "in_arena", "scene": "aren",
         "ticks": 5})";
     CHECK(mentions(load(files), "scene: no scene is named \"aren\" (did you mean \"arena\"?)"));
+}
+
+TEST_CASE("scenario: a game can be checked to quit and to call the host") {
+    Files files = sample();
+    files["g/game.json"] = R"({
+        "schema_version": 1, "name": "demo",
+        "modules": ["transform2d", "host"],
+        "lists": {"action": ["leave", "go"], "host_command": ["play", "export"]},
+        "scenes": ["main.json"], "scenarios": ["leaves.json", "stays.json", "calls.json"],
+        "start_scene": "main"
+    })";
+    files["g/main.json"] = R"({"schema_version": 1, "name": "main", "entities": [
+        {"name": "quit", "components": {"host.Quit": {"action": "leave"}}},
+        {"name": "button", "components": {"host.Call": {"command": "export", "action": "go",
+                                                          "argument": 3}}}]})";
+    files["g/leaves.json"] = R"({"schema_version": 1, "name": "leaves", "ticks": 6,
+        "inputs": [{"tick": 2, "action": "leave", "value": 1}],
+        "expect": [{"at": 2, "check": "game quits"}, "game quits"]})";
+    files["g/stays.json"] = R"({"schema_version": 1, "name": "stays", "ticks": 6,
+        "expect": ["game quits"]})";
+    files["g/calls.json"] = R"({"schema_version": 1, "name": "calls", "ticks": 6,
+        "inputs": [{"tick": 2, "action": "go", "value": 1}],
+        "expect": ["host calls export", {"at": 1, "check": "host calls export"}]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    const auto leaves = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
+    CHECK(has(all_failures(leaves), "tick 2")); // not yet at tick 2: pressed after it
+    const auto stays = ge::game::run_scenario(loaded.game, loaded.game.scenarios[1], linked);
+    CHECK(has(all_failures(stays), "the game did not ask to quit"));
+    const auto calls = ge::game::run_scenario(loaded.game, loaded.game.scenarios[2], linked);
+    CHECK(has(all_failures(calls), "tick 1"));
+    CHECK(!has(all_failures(calls), "tick 6"));
+
+    // A command that is not in the list is reported, with a suggestion.
+    files["g/calls.json"] = R"({"schema_version": 1, "name": "calls", "ticks": 6,
+        "expect": ["host calls exprot"]})";
+    CHECK(mentions(load(files), "no host command is named \"exprot\""));
+}
+
+TEST_CASE("scenario: a scenario fills a run-time list, selects a row and a host command gets it") {
+    Files files;
+    files["g/game.json"] = R"({
+        "schema_version": 1, "name": "picker",
+        "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui", "host"],
+        "lists": {"runtime_list": ["games"], "menu": ["main"],
+                  "action": ["down", "choose", "play_it"], "host_command": ["play"],
+                  "tag": [], "group": []},
+        "scenes": ["main.json"], "scenarios": ["pick.json"], "start_scene": "main"
+    })";
+    files["g/main.json"] = R"({"schema_version": 1, "name": "main", "entities": [
+        {"name": "controller", "components": {"ui.Menu": {"group": "main", "down": "down",
+                                                           "accept": "choose"}}},
+        {"name": "pages", "components": {"ui.Pager": {"list": "games", "menu": "main",
+                                                      "page_size": 2}}},
+        {"name": "row0", "components": {"transform2d.Position": {"y": 0}, "sprite2d.Sprite": {},
+            "text2d.Text": {}, "text2d.Dynamic": {}, "ui.Row": {"list": "games", "row": 0},
+            "ui.Button": {"menu": "main", "order": 0, "action": "play_it"}}},
+        {"name": "row1", "components": {"transform2d.Position": {"y": 40}, "sprite2d.Sprite": {},
+            "text2d.Text": {}, "text2d.Dynamic": {}, "ui.Row": {"list": "games", "row": 1},
+            "ui.Button": {"menu": "main", "order": 1, "action": "play_it"}}},
+        {"name": "go", "components": {"host.Call": {"command": "play", "action": "play_it",
+                                                      "list": "games"}}}]})";
+    files["g/pick.json"] = R"({"schema_version": 1, "name": "pick", "ticks": 12,
+        "lists": {"games": ["Alpha", "Beta", "Gamma"]},
+        "inputs": [{"tick": 2, "action": "down", "value": 1}, {"tick": 3, "action": "down", "value": 0},
+                   {"tick": 5, "action": "choose", "value": 1}, {"tick": 6, "action": "choose", "value": 0}],
+        "expect": [{"at": 1, "check": "list games selected == 0"},
+                   {"at": 4, "check": "list games selected == 1"},
+                   {"at": 4, "check": "row1.ui.Row.item == 1"},
+                   "controller.ui.Menu.focused == 1", "host calls play"]})";
+    const auto loaded = load(files);
+    for (const auto& diagnostic : loaded.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(loaded.ok());
+    const auto report = ge::game::run_scenario(loaded.game, loaded.game.scenarios[0], linked);
+    CHECK(all_failures(report).empty());
+
+    // A list the game never declared is reported, in the scenario and in its checks.
+    files["g/pick.json"] = R"({"schema_version": 1, "name": "pick", "ticks": 3,
+        "lists": {"gamez": ["Alpha"]}, "expect": ["list gamez selected == 0"]})";
+    CHECK(mentions(load(files), "no run-time list is named \"gamez\""));
+}
+
+namespace {
+
+/// A game whose window follows the screen, with a bar stuck to the bottom edge of the window.
+Files phone_sample(const std::string& screen) {
+    return {
+        {"g/game.json", R"({
+            "schema_version": 1, "name": "phone",
+            "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui"],
+            "window": {"width": 480, "height": 720, "adapt": true},
+            "scenes": ["main.json"], "scenarios": ["look.json"], "start_scene": "main"
+        })"},
+        {"g/main.json", R"({
+            "schema_version": 1, "name": "main",
+            "entities": [{"name": "bar", "components": {
+                "transform2d.Position": {}, "transform2d.Anchor": {"anchor_y": 1}}}]
+        })"},
+        {"g/look.json", R"({"schema_version": 1, "name": "look", "ticks": 3)" + screen + R"(,
+            "expect": ["bar.transform2d.Position.y == 960"]})"},
+    };
+}
+
+} // namespace
+
+TEST_CASE("scenario: a screen makes the window follow its shape, as a phone's would") {
+    // A screen of 320 x 640 (1 : 2) is taller than the 480 x 720 window: the area is 480 x 960.
+    const auto tall = load(phone_sample(R"(, "screen": {"width": 320, "height": 640})"));
+    for (const auto& diagnostic : tall.diagnostics) {
+        CHECK(diagnostic.to_string().empty());
+    }
+    REQUIRE(tall.ok());
+    CHECK(tall.game.scenarios[0].screen_width == 320);
+    CHECK(tall.game.scenarios[0].screen_height == 640);
+    CHECK(ge::game::run_scenario(tall.game, tall.game.scenarios[0], linked).passed());
+    // Without a screen the area is the window's own: the bar is at 720, not 960.
+    const auto plain = load(phone_sample(""));
+    REQUIRE(plain.ok());
+    CHECK(plain.game.scenarios[0].screen_width == 0);
+    CHECK(!ge::game::run_scenario(plain.game, plain.game.scenarios[0], linked).passed());
+}
+
+TEST_CASE("scenario: a screen without sense is refused") {
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 0, "height": 640})")),
+                   "screen.width: expected a number of pixels"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 320})")),
+                   "screen.height: expected a number of pixels"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": {"width": 320, "height": 640, "dpi": 2})")),
+                   "unknown key"));
+    CHECK(mentions(load(phone_sample(R"(, "screen": 5)")), "expected an object"));
 }

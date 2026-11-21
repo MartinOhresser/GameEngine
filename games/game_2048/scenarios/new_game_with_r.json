@@ -1,0 +1,55 @@
+// R starts a new game at any time; the best score is kept.
+{
+  "schema_version": 1,
+  "name": "new_game_with_r",
+  "scene": "test_merge",
+  "ticks": 50,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    },
+    {
+      "tick": 20,
+      "action": "new_game",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "new_game",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 15,
+      "check": "scoreboard.records.Record.best >= 4"
+    },
+    {
+      "at": 40,
+      "check": "scene is game"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.moves == 0"
+    },
+    {
+      "at": 40,
+      "check": "board.slide_merge.SlideBoard.score == 0"
+    },
+    {
+      "at": 40,
+      "check": "scoreboard.records.Record.best >= 4"
+    },
+    {
+      "at": 40,
+      "check": "entities == 42"
+    }
+  ]
+}

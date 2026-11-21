@@ -11,7 +11,7 @@
 
 namespace ge::mod::spawner2d {
 
-/// Lays rows of a prefab above the top of the screen, as far as `ahead` units above it: the first row is at next_y, and each row is `gap` units higher than the previous one, with gap drawn between gap_min and gap_max. The row's x is drawn between x_min and x_max. Difficulty grows with height (origin_y minus y, in units): over ramp_height units every setting that has an `_end` goes from its first value to its `_end` value (an `_end` left at -1 means no change; a ramp_height of 0 uses the `_end` values at once). A row may be a different prefab: alt2_prefab with alt2_chance, else alt_prefab with alt_chance, else prefab. A row may bring an extra prefab (a spring on a platform, a coin above it) with extra_chance, placed at the row's x plus or minus extra_dx and extra_dy lower; with extra_on_alt off only the usual prefab brings it (a spring does not stay in the air above a platform that moves away). row_chance is the chance that a row is built at all (a row that is not built still uses its gap); rows lower than from_height units above origin_y are never built. The game places the prefabs' Position; nothing the prefabs say about it matters. Needs a Camera.
+/// Lays rows of a prefab ahead of the camera, in the direction (toward_x, toward_y): (0, -1) goes up (the endless climb of a platformer), (1, 0) to the right (a runner), (0, 1) down, (-1, 0) left; the axis with the bigger number counts, and y grows downwards. Rows are `ahead` units ahead of the edge of the screen that the direction points to: the first row is at `next` (its coordinate along the direction), and each row is `gap` units further than the previous one, with gap drawn between gap_min and gap_max. The row's position across the direction is drawn between across_min and across_max (x for a vertical layout, y for a horizontal one). Difficulty grows with the distance travelled (how far `next` is from `origin` along the direction): over ramp_distance units every setting that has an `_end` goes from its first value to its `_end` value (an `_end` left at -1 means no change; a ramp_distance of 0 uses the `_end` values at once). A row may be a different prefab: alt2_prefab with alt2_chance, else alt_prefab with alt_chance, else prefab; to lay out several kinds of things, give an entity of its own to each kind (platforms, monsters and coins are three Generators). A row may bring an extra prefab (a spring on a platform, a coin above it) with extra_chance, placed at the row's position moved by up to extra_across either way across the direction and by extra_along ahead along it (a negative number puts it behind); with extra_on_alt off only the usual prefab brings it (a spring does not stay in the air above a platform that moves away). row_chance is the chance that a row is built at all (a row that is not built still uses its gap); rows less than from_distance units from origin are never built. The game places the prefabs' Position; nothing the prefabs say about it matters. Needs a Camera.
 struct Generator {
     std::uint32_t prefab = 0U;
     std::uint32_t alt_prefab = 4294967295U;
@@ -23,22 +23,24 @@ struct Generator {
     std::uint32_t extra_prefab = 4294967295U;
     float extra_chance = 0.0F;
     float extra_chance_end = -1.0F;
-    float extra_dx = 0.0F;
-    float extra_dy = 0.0F;
+    float extra_across = 0.0F;
+    float extra_along = 0.0F;
     bool extra_on_alt = true;
-    float x_min = 0.0F;
-    float x_max = 480.0F;
+    float across_min = 0.0F;
+    float across_max = 0.0F;
+    float toward_x = 0.0F;
+    float toward_y = -1.0F;
     float gap_min = 50.0F;
     float gap_max = 100.0F;
     float gap_min_end = -1.0F;
     float gap_max_end = -1.0F;
-    float ramp_height = 0.0F;
-    float origin_y = 0.0F;
-    float from_height = 0.0F;
+    float ramp_distance = 0.0F;
+    float origin = 0.0F;
+    float from_distance = 0.0F;
     float row_chance = 1.0F;
     float row_chance_end = -1.0F;
     float ahead = 200.0F;
-    float next_y = 0.0F;
+    float next = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(prefab);
@@ -51,36 +53,27 @@ struct Generator {
         hasher.add(extra_prefab);
         hasher.add(extra_chance);
         hasher.add(extra_chance_end);
-        hasher.add(extra_dx);
-        hasher.add(extra_dy);
+        hasher.add(extra_across);
+        hasher.add(extra_along);
         hasher.add(extra_on_alt);
-        hasher.add(x_min);
-        hasher.add(x_max);
+        hasher.add(across_min);
+        hasher.add(across_max);
+        hasher.add(toward_x);
+        hasher.add(toward_y);
         hasher.add(gap_min);
         hasher.add(gap_max);
         hasher.add(gap_min_end);
         hasher.add(gap_max_end);
-        hasher.add(ramp_height);
-        hasher.add(origin_y);
-        hasher.add(from_height);
+        hasher.add(ramp_distance);
+        hasher.add(origin);
+        hasher.add(from_distance);
         hasher.add(row_chance);
         hasher.add(row_chance_end);
         hasher.add(ahead);
-        hasher.add(next_y);
+        hasher.add(next);
     }
 
     [[nodiscard]] friend bool operator==(const Generator&, const Generator&) = default;
-};
-
-/// The entity is destroyed when it is more than margin units below the bottom edge of the screen: a platform the climber left behind. Needs a Position and a Camera.
-struct Cull {
-    float margin = 100.0F;
-
-    void hash(::ge::Hasher& hasher) const {
-        hasher.add(margin);
-    }
-
-    [[nodiscard]] friend bool operator==(const Cull&, const Cull&) = default;
 };
 
 /// Fires prefab each time the action is pressed, at most once every cooldown ticks, from the entity's Position moved by (dx, dy), with the Velocity (dir_x, dir_y) times speed (units per second; y points down, so dir_y -1 fires upwards). Needs a Position.
@@ -113,10 +106,6 @@ struct Shooter {
 /// Builds the rows of every Generator that the camera has not yet gone past, and asks the app to create them (they appear between two ticks).
 /// Runs in FixedUpdate.
 void generate(::ge::ecs::World& world);
-
-/// Destroys every Cull entity that fell below the screen.
-/// Runs in FixedUpdate.
-void cull(::ge::ecs::World& world);
 
 /// Fires the prefab of every Shooter whose action is pressed and whose cooldown is over.
 /// Runs in FixedUpdate.

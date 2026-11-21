@@ -1,0 +1,43 @@
+name: Module gap
+description: The catalog lacks a module, component, system or engine hook that a game needs
+title: "[module gap] "
+labels: ["enhancement"]
+body:
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      description: The game (or the idea) that needs it, for example games/doodle_jump.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is missing
+      options:
+        - A new module
+        - A component or a field in an existing module
+        - A system in an existing module
+        - An engine hook (app, game loading, platform)
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: What the game needs
+      description: The rule or behavior, in game terms ("a platform that breaks when landed on").
+    validations:
+      required: true
+  - type: textarea
+    id: catalog
+    attributes:
+      label: What the catalog offers today
+      description: What `gectl catalog` shows that comes close, and why it is not enough.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed components and systems
+      description: Names, fields and stage, as they would appear in module.json.
+      render: json

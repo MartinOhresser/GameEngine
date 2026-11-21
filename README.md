@@ -37,7 +37,30 @@ Le **MVP** est plus modeste : un jeu **2D solo sur desktop**, défini par config
 
 ## Pour commencer
 
-Prérequis : un compilateur C++20 (GCC 13+, Clang 16+, MSVC 2022), CMake ≥ 3.25, Ninja.
+Le plus court pour voir le moteur : un seul script compile le lanceur et l'ouvre, avec tous les jeux du dépôt (il suffit de CMake et d'un compilateur C++).
+
+```bash
+./gameEngine.sh                 # Linux, macOS, Git Bash : compile (quelques minutes la première fois), puis ouvre le lanceur
+./gameEngine.sh --build-only    # compile seulement
+```
+
+```bat
+gameEngine.cmd                  :: Windows (invite de commandes ordinaire) : la même chose
+gameEngine.cmd --build-only
+```
+
+Sous Linux (Debian, Ubuntu, WSL), un script installe tout ce qu'il faut (compilateur, CMake, Ninja, bibliothèques de SDL ; `sudo` demandé pour `apt`) :
+
+```bash
+scripts/setup_linux.sh              # compiler et jouer
+scripts/setup_linux.sh --android    # + exporter pour Android : JDK, SDK et NDK Android (dans ~/Android/Sdk)
+scripts/setup_linux.sh --dev        # + clang-format et clang-tidy, pour contribuer
+scripts/setup_linux.sh --dry-run    # dit ce qui serait installé, n'installe rien
+```
+
+Il peut être relancé : ce qui est déjà là n'est pas touché. Ailleurs (macOS, Windows), voir ci-dessous.
+
+Pour développer, prérequis : un compilateur C++20 (GCC 13+, Clang 16+, MSVC 2022), CMake ≥ 3.25, Ninja.
 
 ```bash
 cmake --preset dev
@@ -114,8 +137,7 @@ Toute pull request doit passer le job agrégé **`ci-success`** :
 | Lint des workflows (actionlint) | une CI cassée ne protège rien |
 | clang-format 18 | style uniforme, zéro débat en revue |
 | Build + tests : GCC 13, Clang 18, AppleClang, MSVC | portabilité réelle, pas supposée |
-| ASan + UBSan | détecte les erreurs mémoire et comportements indéfinis |
-| clang-tidy 18 (avertissements = erreurs) | bugs probables et règles de conception |
+| `scripts/check.sh` (local, avant chaque PR) | ASan + UBSan, clang-tidy 18 (avertissements = erreurs), build Debug : ils ne tournent plus en CI |
 | Couverture ≥ 90 % (gcovr) | un seuil, pour que les tests ne s'érodent pas |
 | WebAssembly (Emscripten), Android (NDK), iOS | le cœur reste portable vers le web et le mobile |
 | CodeQL | analyse de sécurité |
@@ -177,6 +199,7 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 8. ✅ **M7** Rendu 2D : atlas, sprites, animation, caméra, collisions 2D (`games/treasure_run`).
 9. ✅ **M8** Interface : texte par langue, changement de scène, HUD, menus, inventaire configurable (fin du MVP : `games/treasure_run`).
 10. ✅ **Doodle Jump** : premier jeu demandé après le MVP (`games/doodle_jump`, [docs/DOODLE_JUMP.md](docs/DOODLE_JUMP.md)) : gravité, rebonds, monde généré, mort, score, meilleur score sauvegardé, sans C++ dans le jeu.
+11. 🚧 **Lanceur et export** : `gelauncher` parcourt et joue les jeux ([docs/LAUNCHER.md](docs/LAUNCHER.md)), `gectl export` fabrique un zip autonome d'un jeu, d'abord pour Windows ([docs/EXPORT.md](docs/EXPORT.md)).
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 

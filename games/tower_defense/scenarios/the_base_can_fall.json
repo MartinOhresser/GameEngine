@@ -1,0 +1,18 @@
+// Monsters that reach the end of the road hurt the base, and with no life left the game is lost.
+{
+  "schema_version": 1,
+  "name": "the_base_can_fall",
+  "scene": "test_defeat",
+  "ticks": 500,
+  "inputs": [],
+  "expect": [
+    {
+      "at": 500,
+      "check": "base.health.Health.amount == 0"
+    },
+    {
+      "at": 500,
+      "check": "game_phase.phase.Phase.current == 4"
+    }
+  ]
+}

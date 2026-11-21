@@ -90,7 +90,25 @@ bool parse_hex(const std::string& text, std::uint64_t& out) {
 
 constexpr const char* check_forms =
     "expected \"entity.module.Component.field > number\", \"entities == number\", "
-    "\"entity alive\", \"entity gone\", \"scene is name\" or \"fingerprint == hex\"";
+    "\"entity alive\", \"entity gone\", \"scene is name\", \"game quits\", "
+    "\"host calls command\", \"list name selected == number\" or \"fingerprint == hex\"";
+
+/// "list games selected == 1".
+std::string parse_list_selected(const std::vector<std::string>& words, Check& out) {
+    const std::optional<Compare> compare = compare_from(words[3]);
+    if (!compare) {
+        return "unknown comparison \"" + words[3] + "\" (use ==, !=, <, <=, > or >=)";
+    }
+    const json::ParseResult value = json::parse(words[4]);
+    if (!value.ok() || !value.value.is_int()) {
+        return "\"" + words[4] + "\" is not a whole number";
+    }
+    out.kind = CheckKind::ListSelected;
+    out.entity = words[1];
+    out.compare = *compare;
+    out.value = value.value;
+    return {};
+}
 
 std::string parse_comparison(const std::vector<std::string>& words, Check& out) {
     const std::optional<Compare> compare = compare_from(words[1]);
@@ -145,6 +163,18 @@ std::string parse_check(const std::string& text, Check& out) {
     if (words.size() == 2 && (words[1] == "alive" || words[1] == "gone")) {
         out.kind = words[1] == "alive" ? CheckKind::Alive : CheckKind::Gone;
         out.entity = words[0];
+        return {};
+    }
+    if (words.size() == 2 && words[0] == "game" && words[1] == "quits") {
+        out.kind = CheckKind::Quit;
+        return {};
+    }
+    if (words.size() == 5 && words[0] == "list" && words[2] == "selected") {
+        return parse_list_selected(words, out);
+    }
+    if (words.size() == 3 && words[0] == "host" && words[1] == "calls") {
+        out.kind = CheckKind::HostCall;
+        out.entity = words[2];
         return {};
     }
     if (words.size() == 3 && words[0] == "scene" && words[1] == "is") {
@@ -202,6 +232,52 @@ void read_inputs(Checker& checker, const json::Value& root, ScenarioData& scenar
     }
 }
 
+/// The optional "screen": the size of the screen the game is played on.
+void read_screen(Checker& checker, const json::Value& root, ScenarioData& scenario) {
+    const json::Value* screen = root.find("screen");
+    if (screen == nullptr || checker.object(*screen, "screen") == nullptr) {
+        return;
+    }
+    checker.reject_unknown(*screen, "screen", {"width", "height"});
+    // Width then height, each read the same way.
+    const auto read_size = [&](const char* key) {
+        const json::Value* size = screen->find(key);
+        if (size == nullptr || !size->is_int() || size->as_int() < 1 || size->as_int() > 16384) {
+            checker.error(join_path("screen", key),
+                          "expected a number of pixels between 1 and 16384");
+            return 0;
+        }
+        return static_cast<int>(size->as_int());
+    };
+    scenario.screen_width = read_size("width");
+    scenario.screen_height = read_size("height");
+}
+
+/// The optional "lists": run-time lists a host would fill, as `name: [texts]`.
+void read_lists(Checker& checker, const json::Value& root, ScenarioData& scenario) {
+    const json::Value* lists = root.find("lists");
+    if (lists == nullptr || checker.object(*lists, "lists") == nullptr) {
+        return;
+    }
+    for (const auto& member : lists->members()) {
+        const std::string path = join_path("lists", member.first);
+        if (!member.second.is_array()) {
+            checker.error(path, "expected an array of texts, found " + describe(member.second));
+            continue;
+        }
+        std::vector<std::string> items;
+        for (std::size_t i = 0; i < member.second.items().size(); ++i) {
+            const json::Value& item = member.second.items()[i];
+            if (item.is_string()) {
+                items.push_back(item.as_string());
+            } else {
+                checker.error(index_path(path, i), "expected a text, found " + describe(item));
+            }
+        }
+        scenario.lists.emplace_back(member.first, std::move(items));
+    }
+}
+
 void read_check(Checker& checker, const json::Value& value, const std::string& path,
                 ScenarioData& scenario) {
     Check check;
@@ -242,9 +318,9 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     if (object == nullptr) {
         return std::nullopt;
     }
-    checker.reject_unknown(
-        *object, "",
-        {"$schema", "schema_version", "name", "description", "scene", "ticks", "inputs", "expect"});
+    checker.reject_unknown(*object, "",
+                           {"$schema", "schema_version", "name", "description", "scene", "ticks",
+                            "screen", "inputs", "lists", "expect"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -262,7 +338,9 @@ std::optional<ScenarioData> read_scenario(const Context& context, const std::str
     } else {
         scenario.ticks = static_cast<std::uint64_t>(ticks->as_int());
     }
+    read_screen(checker, *object, scenario);
     read_inputs(checker, *object, scenario);
+    read_lists(checker, *object, scenario);
     if (const json::Value* expect = checker.array(*object, "expect", ""); expect != nullptr) {
         for (std::size_t i = 0; i < expect->items().size(); ++i) {
             read_check(checker, expect->items()[i], index_path("expect", i), scenario);
@@ -308,6 +386,37 @@ void check_field(const Context& context, Checker& checker, const std::string& pa
     }
 }
 
+/// A name of the game's "runtime_list" list, as a scenario may use it.
+void check_runtime_list(Checker& checker, const Game& game, const std::string& path,
+                        const std::string& name) {
+    const std::vector<std::string> known = game.ref_names("runtime_list");
+    if (std::find(known.begin(), known.end(), name) == known.end()) {
+        checker.error(path, "no run-time list is named \"" + name + "\" in the list " +
+                                R"("runtime_list")" + suggestion(name, known));
+    }
+}
+
+/// The names a check takes from the game itself: a scene, a host command.
+void check_names_of_game(Checker& checker, const Game& game, const std::string& path,
+                         const Check& check) {
+    if (check.kind == CheckKind::Scene && game.find_scene(check.entity) == nullptr) {
+        checker.error(path, "no scene is named \"" + check.entity + "\"" +
+                                suggestion(check.entity, names_of(game.scenes)));
+    }
+    if (check.kind == CheckKind::ListSelected) {
+        check_runtime_list(checker, game, path, check.entity);
+    }
+    if (check.kind != CheckKind::HostCall) {
+        return;
+    }
+    const std::vector<std::string> commands = game.ref_names("host_command");
+    if (std::find(commands.begin(), commands.end(), check.entity) == commands.end()) {
+        checker.error(path, "no host command is named \"" + check.entity +
+                                R"(" in the list "host_command")" +
+                                suggestion(check.entity, commands));
+    }
+}
+
 void check_one_scenario(const Context& context, const Game& game, const ScenarioData& scenario,
                         const std::string& file) {
     Checker checker(file, *context.diagnostics);
@@ -317,6 +426,9 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
     if (start == nullptr && !scenario.scene.empty()) {
         checker.error("scene", "no scene is named \"" + scene_name + "\"" +
                                    suggestion(scene_name, names_of(game.scenes)));
+    }
+    for (const auto& list : scenario.lists) {
+        check_runtime_list(checker, game, join_path("lists", list.first), list.first);
     }
     // The names a check may use: those of the scene it starts, then those of the other
     // scenes, which it can reach by changing scene while it runs.
@@ -347,10 +459,7 @@ void check_one_scenario(const Context& context, const Game& game, const Scenario
                                     check.entity + "\"" + suggestion(check.entity, named));
             continue;
         }
-        if (check.kind == CheckKind::Scene && game.find_scene(check.entity) == nullptr) {
-            checker.error(path, "no scene is named \"" + check.entity + "\"" +
-                                    suggestion(check.entity, names_of(game.scenes)));
-        }
+        check_names_of_game(checker, game, path, check);
         if (check.kind == CheckKind::Field) {
             check_field(context, checker, path, check);
         }

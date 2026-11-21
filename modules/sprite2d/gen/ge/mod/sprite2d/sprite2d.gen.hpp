@@ -65,6 +65,23 @@ struct SpriteAnimation {
     [[nodiscard]] friend bool operator==(const SpriteAnimation&, const SpriteAnimation&) = default;
 };
 
+/// Chooses the Sprite's picture from a number of the game: every tick, the entity's own number field (written "module.Component.field", for example "slide_merge.Tile.value") gives the cell first_frame + n, where n is the number itself, or its base 2 logarithm rounded down (2 gives 1, 8 gives 3, 0 gives 0) with log2. frame_count, when more than 0, stops it on the last of that many cells. The colour of a tile from its value, a gauge, a state shown by a picture. A missing component leaves n at 0.
+struct FrameBind {
+    std::uint32_t field = 0U;
+    std::uint32_t first_frame = 0U;
+    bool log2 = false;
+    std::uint32_t frame_count = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(field);
+        hasher.add(first_frame);
+        hasher.add(log2);
+        hasher.add(frame_count);
+    }
+
+    [[nodiscard]] friend bool operator==(const FrameBind&, const FrameBind&) = default;
+};
+
 /// Advances every SpriteAnimation by one tick and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.
 /// Runs in FixedUpdate.
 void animate(::ge::ecs::World& world);
@@ -72,6 +89,10 @@ void animate(::ge::ecs::World& world);
 /// Asks the renderer to draw every Sprite, lowest layer first. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
 /// Runs in PostUpdate.
 void draw(::ge::ecs::World& world);
+
+/// Sets the frame of every Sprite that has a FrameBind from the entity's own number.
+/// Runs in FixedUpdate.
+void bind_frame(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

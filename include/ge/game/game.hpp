@@ -50,6 +50,9 @@ enum class CheckKind : std::uint8_t {
     Gone,        ///< "spark gone"
     Fingerprint, ///< "fingerprint == 5f4962bd950cf9b3"
     Scene,       ///< "scene is credits": the game is in that scene (`entity` holds its name)
+    Quit,        ///< "game quits": the game asked to leave (a "Quit" button was pressed)
+    HostCall,    ///< "host calls play": the game raised that host command (`entity` holds its name)
+    ListSelected, ///< "list games selected == 1": the selected item of a run-time list
 };
 
 /// One thing a scenario expects to be true at a given tick.
@@ -83,7 +86,14 @@ struct ScenarioData {
     /// The scene it starts; empty means the game's `start_scene`.
     std::string scene;
     std::uint64_t ticks = 0;
+    /// The size in pixels of the screen the game is played on, as a phone would have it (0: the
+    /// game's own window). A game that follows the screen (`window.adapt`) takes its shape, and the
+    /// pointer inputs of the scenario are in pixels of that drawing area.
+    int screen_width = 0;
+    int screen_height = 0;
     std::vector<ScenarioInput> inputs;
+    /// Run-time lists (`RuntimeLists`) filled before the first tick, as a host would: name, items.
+    std::vector<std::pair<std::string, std::vector<std::string>>> lists;
     std::vector<Check> checks;
 };
 
@@ -115,12 +125,27 @@ struct StringsData {
 struct Manifest {
     std::string name;
     std::string description;
+    /// What a launcher shows instead of `name` (empty: the name, made readable).
+    std::string title;
+    /// "major.minor.patch" of the game itself, written into packages.
+    std::string version = "0.1.0";
+    /// The identity of the game in a package, "ge.games.doodle_jump" (empty: made from `name`).
+    std::string id;
+    /// A PNG next to the manifest, used as the icon of a package; empty when there is none.
+    std::string icon_file;
     std::vector<std::string> modules;
     std::uint32_t tick_rate = 60;
     std::uint64_t seed = 0;
     /// The size in pixels of the area the game draws in (`window`).
     std::uint32_t window_width = 800;
     std::uint32_t window_height = 600;
+    /// Whether the drawing area follows the screen (`window.adapt`): the short side of the
+    /// window stays `window_width` x `window_height`'s, the long one stretches to the screen's
+    /// shape, within `window_min_aspect` to `window_max_aspect` (width / height of the area).
+    /// Beyond them, bars are left. Off: the area is always the same and bars fill the rest.
+    bool window_adapt = false;
+    float window_min_aspect = 0.0F;
+    float window_max_aspect = 0.0F;
     std::vector<ParamSetting> params;
     /// The game's own named lists, in the order the manifest gives them: the
     /// names that `ref` and `ref_set` fields refer to (item kinds, categories...).
@@ -169,6 +194,9 @@ struct Game {
 /// Returns the text of a file, or nothing when it cannot be read. Paths are
 /// what the manifest says, joined to the manifest's directory with `/`.
 using FileReader = std::function<std::optional<std::string>(const std::string& path)>;
+
+/// A reader of the real files of the disk (null result when one cannot be read).
+[[nodiscard]] FileReader disk_reader();
 
 struct LoadedGame {
     Game game;

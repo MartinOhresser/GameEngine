@@ -1,0 +1,30 @@
+// A button under the board: a picture and its text.
+{
+  "schema_version": 1,
+  "name": "button",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "ui",
+      "frame": 1,
+      "width": 200,
+      "height": 44,
+      "screen": true,
+      "layer": 10
+    },
+    "text2d.Text": {
+      "font": "font",
+      "size": 20,
+      "pivot_x": 0.5,
+      "pivot_y": 0.5,
+      "screen": true
+    },
+    "ui.Button": {
+      "menu": "game_menu",
+      "width": 200,
+      "height": 44,
+      "normal_frame": 1,
+      "focus_frame": 2
+    }
+  }
+}

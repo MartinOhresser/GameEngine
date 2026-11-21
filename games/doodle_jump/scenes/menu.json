@@ -6,7 +6,7 @@
       "name": "paper",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5
         },
@@ -27,7 +27,7 @@
       "name": "menu_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -50,7 +50,7 @@
       "name": "menu_best",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -77,7 +77,7 @@
       "name": "menu_help1",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -100,7 +100,7 @@
       "name": "menu_help2",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -138,7 +138,7 @@
       "name": "menu_buttons_grid",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_y": -40
@@ -171,12 +171,38 @@
       }
     },
     {
+      "name": "button_quit",
+      "prefab": "button",
+      "components": {
+        "ui.Cell": {
+          "group": "menu_buttons",
+          "index": 1
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 1,
+          "action": "quit_game"
+        },
+        "text2d.Text": {
+          "string": "menu.quit"
+        }
+      }
+    },
+    {
       "name": "go_play",
       "components": {
         "scene_switch.GoToScene": {
           "scene": "game",
           "use_action": true,
           "action": "start_game"
+        }
+      }
+    },
+    {
+      "name": "quit_game",
+      "components": {
+        "host.Quit": {
+          "action": "quit_game"
         }
       }
     }

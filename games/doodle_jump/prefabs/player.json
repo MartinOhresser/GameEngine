@@ -1,6 +1,6 @@
 // The jumper. Gravity pulls it down; landing on a platform throws it back up (bounce2d). Left
 // and right steer it (the actions move_x), and it comes back on the other side when it leaves the
-// screen. Touching a monster or falling under the screen kills it (action `died`). Its altitude is
+// screen. Touching a monster (its health is one life) or falling under the screen kills it (action `died`). Its progress is
 // the score; Space or Up shoots (action `shoot`).
 {
   "schema_version": 1,
@@ -14,10 +14,9 @@
     "collision2d.Collider": { "width": 36, "height": 44, "layer": ["player"], "mask": ["monster"] },
     "collision2d.Contacts": {},
     "bounce2d.Bouncer": {},
-    "combat2d.Mortal": {
-      "hurt_layers": ["monster"], "fall_death": true, "fall_margin": 60, "on_death": "died"
-    },
-    "altitude.Altitude": { "scale": 0.5 },
+    "health.Health": { "amount": 1, "max": 1, "on_zero": "died", "despawn_on_zero": false },
+    "bounds2d.OutOfView": { "side_y": 1, "margin": 60, "action": "died", "despawn": false },
+    "progress.Progress": { "scale": 0.5 },
     "spawner2d.Shooter": {
       "prefab": "bullet", "action": "shoot", "cooldown": 15, "speed": 900, "dir_y": -1, "dy": -24
     },
@@ -26,6 +25,6 @@
       "red": 255, "green": 255, "blue": 255
     },
     "camera2d.CameraTarget": {},
-    "ui.Tag": { "tag": "player" }
+    "tag.Tag": { "tag": "player" }
   }
 }

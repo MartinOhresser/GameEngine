@@ -1,0 +1,61 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "slide_merge",
+  "version": "0.1.0",
+  "description": "Pieces that slide as far as they can along a board in one of four directions, and merge when two equal ones meet: the whole of a sliding-and-merging puzzle. One action moves every tile at once; the board counts the score and the highest value, and says when nothing can move any more. Tiles animate by themselves through grid2d's gliding. Numbers, letters or levels, with or without merging: the merging is a setting.",
+  "depends": ["grid2d", "transform2d"],
+  "components": [
+    {
+      "name": "SlideBoard",
+      "description": "The rules of a sliding board of the grid. When one of the actions left, right, up or down is pressed (none for one left out; the first of that order wins a tick), every Tile of that board slides in that direction until it meets the edge, an obstacle (a Blocked, or any other entity on a cell) or another tile. mode says what meets: 0, two tiles of equal value make one of the sum (2 and 2 give 4); 1, they make one of the next value (1 and 1 give 2: levels, letters); 2, nothing merges, tiles only slide. A tile merges once per move, and in the order the tiles come from the edge ([2,2,2,2] to the left gives [4,4]). The tile that arrives is removed after a few vanish_ticks (the time to glide in); the one it joins gets the new value and a Scale of pop for a moment (0 for none). moved_action is raised when something moved: the move is not counted otherwise (no move made, no new piece). score adds each merged value, highest is the biggest value on the board, moves counts the moves made. no_moves is true while the board is full and nothing can merge, and stuck_action is raised when it becomes true. A Disabled board ignores its actions.",
+      "replicable": false,
+      "fields": [
+        { "name": "grid", "type": "u32", "default": 0, "ref": "grid" },
+        { "name": "left", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "up", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "down", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "mode", "type": "u32", "default": 0 },
+        { "name": "vanish_ticks", "type": "u32", "default": 8 },
+        { "name": "pop", "type": "f32", "default": 1.25 },
+        { "name": "moved_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "stuck_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "score", "type": "i32", "default": 0 },
+        { "name": "highest", "type": "i32", "default": 0 },
+        { "name": "moves", "type": "u32", "default": 0 },
+        { "name": "no_moves", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Tile",
+      "description": "A piece of a sliding board: value is what it is worth (it merges with an equal one); put a GridPos on the same entity to say where it sits. merged is true during the move that merged it, and vanish_in the ticks left before a tile that has been merged away is destroyed (dying says it is one).",
+      "replicable": false,
+      "fields": [
+        { "name": "value", "type": "i32", "default": 2 },
+        { "name": "merged", "type": "bool", "default": false },
+        { "name": "dying", "type": "bool", "default": false },
+        { "name": "vanish_in", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "slide",
+      "description": "Slides and merges the tiles of every board whose direction action is pressed.",
+      "stage": "FixedUpdate",
+      "reads": ["Tile", "grid2d.GridPos", "grid2d.Grid", "transform2d.Disabled"],
+      "writes": ["SlideBoard", "Tile", "grid2d.GridPos", "transform2d.Scale", "transform2d.Disabled"],
+      "after": ["grid2d.place"],
+      "before": ["grid2d.spawn"]
+    },
+    {
+      "name": "tally",
+      "description": "Counts down the vanishing of merged tiles, and updates each board's highest value and whether it is stuck.",
+      "stage": "FixedUpdate",
+      "reads": ["Tile", "grid2d.GridPos"],
+      "writes": ["SlideBoard"],
+      "after": ["slide"]
+    }
+  ]
+}

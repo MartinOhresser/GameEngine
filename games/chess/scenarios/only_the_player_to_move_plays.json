@@ -1,0 +1,132 @@
+// Touching a black piece on white's turn selects nothing: it does not move. A white piece
+// does.
+{
+  "schema_version": 1,
+  "name": "only_the_player_to_move_plays",
+  "scene": "game",
+  "ticks": 44,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 367
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 316
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 386
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 22,
+      "check": "e7.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 22,
+      "check": "e7.grid2d.GridPos.row == 1"
+    },
+    {
+      "at": 22,
+      "check": "moves.grid_moves.MoveRequest.moves == 0"
+    },
+    {
+      "at": 22,
+      "check": "turn.turns.Turn.current == 0"
+    },
+    {
+      "at": 44,
+      "check": "e7.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 44,
+      "check": "e7.grid2d.GridPos.row == 1"
+    },
+    {
+      "at": 44,
+      "check": "moves.grid_moves.MoveRequest.moves == 1"
+    },
+    {
+      "at": 44,
+      "check": "turn.turns.Turn.current == 1"
+    },
+    {
+      "at": 44,
+      "check": "g1.grid2d.GridPos.col == 5"
+    },
+    {
+      "at": 44,
+      "check": "g1.grid2d.GridPos.row == 5"
+    }
+  ]
+}

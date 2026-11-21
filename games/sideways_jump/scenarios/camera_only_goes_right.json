@@ -1,0 +1,17 @@
+// The camera follows the jumper to the right and never comes back: when the jumper falls back
+// to the start block, the screen stays where the run took it.
+{
+  "schema_version": 1,
+  "name": "camera_only_goes_right",
+  "scene": "game",
+  "ticks": 120,
+  "expect": [
+    { "at": 0, "check": "camera.transform2d.Position.x == 360" },
+    { "at": 60, "check": "camera.transform2d.Position.x > 440" },
+    // Back at the start block (x about 380), the screen has stayed where the first bounce put it.
+    { "at": 78, "check": "player.transform2d.Position.x < 390" },
+    { "at": 78, "check": "camera.transform2d.Position.x > 440" },
+    { "at": 120, "check": "camera.transform2d.Position.x > 440" },
+    { "at": 120, "check": "camera.transform2d.Position.y == 240" },
+  ],
+}

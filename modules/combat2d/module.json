@@ -3,127 +3,63 @@
   "schema_version": 1,
   "name": "combat2d",
   "version": "0.1.0",
-  "description": "Dying and killing, in the simplest form: a Mortal dies when it touches a harmful layer or falls off the bottom of the screen, and then says so to the game (an action, which a scene change or a rule can listen to); a Projectile destroys what it hits, or hurts a Target that has several lives.",
-  "depends": [
-    "transform2d",
-    "collision2d",
-    "camera2d"
-  ],
+  "description": "Where damage comes from in 2D: what hurts by touching (ContactDamage) and what flies and hits (Projectile, with an area of effect, homing, piercing and a slowing effect). The damage itself is an ordinary Damage request, applied by the health module to whatever has Health: this module knows nothing about monsters, players or towers, only about colliders and layers.",
+  "depends": ["transform2d", "collision2d", "health"],
   "components": [
     {
-      "name": "Mortal",
-      "description": "The entity can die. It dies when its Contacts touch a collider of one of hurt_layers (it needs a Collider and a Contacts), or, if fall_death is on, when it is more than fall_margin units under the bottom edge of the screen (y grows downwards). `dead` then stays true and, once, the action on_death is raised (a field of the game's `action` list), which a GoToScene can use to show a game over. Nothing else happens to the entity itself: the game decides what a death means.",
-      "replicable": true,
+      "name": "ContactDamage",
+      "description": "The entity hurts what it touches: every entity that has a Health and a Collider on one of the layers (a set of names or bits of the game's layer list, all by default) and overlaps this entity's Collider gets a Damage of amount. It needs a Collider and a Position. With cooldown the entity hurts at most once every that many ticks (wait is what is left); without it, it hurts at each tick it touches. A monster that bites, a spike, fire, a body that kills the player that runs into it.",
+      "replicable": false,
       "fields": [
-        {
-          "name": "hurt_layers",
-          "type": "u32",
-          "default": 0,
-          "ref_set": "layer"
-        },
-        {
-          "name": "fall_death",
-          "type": "bool",
-          "default": false
-        },
-        {
-          "name": "fall_margin",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "on_death",
-          "type": "u32",
-          "default": 4294967295,
-          "ref": "action"
-        },
-        {
-          "name": "dead",
-          "type": "bool",
-          "default": false
-        },
-        {
-          "name": "announced",
-          "type": "bool",
-          "default": false
-        }
-      ]
-    },
-    {
-      "name": "Target",
-      "description": "The entity can be shot: it loses `health` points for the damage of each Projectile that touches it (it needs a Collider), and is destroyed when none are left.",
-      "replicable": true,
-      "fields": [
-        {
-          "name": "health",
-          "type": "i32",
-          "default": 1
-        }
+        { "name": "amount", "type": "i32", "default": 1 },
+        { "name": "layers", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "cooldown", "type": "u32", "default": 0 },
+        { "name": "wait", "type": "u32", "default": 0 }
       ]
     },
     {
       "name": "Projectile",
-      "description": "The entity hurts the first Target whose Collider it overlaps, by damage points, and is destroyed by the hit. It needs a Collider and moves by its own Velocity (and a Lifetime lets it end by itself).",
-      "replicable": true,
+      "description": "The entity flies and hurts the first entity with a Health whose Collider (on one of the layers, all by default) it overlaps: damage points, and it is destroyed by the hit. It needs a Collider and moves by its own Velocity (a Lifetime lets it end by itself). With splash_radius above 0 everything with a Health within that many units of the hit is hurt as well (an explosion). With pierce above 0 it goes through that many targets before it is destroyed (it never hits the same one twice in a row). With homing above 0 (0 to 1, the share of the turn made each tick) it steers towards the nearest entity it could hit, keeping its speed. With on_hit_speed_factor under 1 the entities it hurts are slowed to that share of their speed for on_hit_speed_ticks ticks (transform2d.SpeedScale).",
+      "replicable": false,
       "fields": [
-        {
-          "name": "damage",
-          "type": "i32",
-          "default": 1
-        }
+        { "name": "damage", "type": "i32", "default": 1 },
+        { "name": "layers", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "splash_radius", "type": "f32", "default": 0 },
+        { "name": "pierce", "type": "u32", "default": 0 },
+        { "name": "homing", "type": "f32", "default": 0 },
+        { "name": "on_hit_speed_factor", "type": "f32", "default": 1 },
+        { "name": "on_hit_speed_ticks", "type": "u32", "default": 0 },
+        { "name": "last_hit", "type": "u64", "default": 0 }
       ]
     }
   ],
   "systems": [
     {
+      "name": "steer",
+      "description": "Turns every homing Projectile towards the nearest entity it could hit.",
+      "stage": "FixedUpdate",
+      "reads": ["Projectile", "health.Health", "collision2d.Collider", "transform2d.Position"],
+      "writes": ["transform2d.Velocity"],
+      "after": ["transform2d.integrate"],
+      "before": ["shots"]
+    },
+    {
       "name": "shots",
-      "description": "Lets every Projectile hit the Targets it overlaps: the Target loses health and is destroyed at 0, the Projectile is destroyed.",
+      "description": "Lets every Projectile hit the entity it overlaps (and those around it, with a splash): they get a Damage, and a slow if the projectile has one; the projectile is destroyed unless it pierces.",
       "stage": "FixedUpdate",
-      "reads": [
-        "Projectile",
-        "collision2d.Collider",
-        "transform2d.Position"
-      ],
-      "writes": [
-        "Target"
-      ],
-      "after": [
-        "transform2d.integrate"
-      ],
-      "before": [
-        "collision2d.detect"
-      ]
+      "reads": ["health.Health", "collision2d.Collider", "transform2d.Position"],
+      "writes": ["Projectile", "health.Damage", "transform2d.SpeedScale"],
+      "after": ["transform2d.integrate"],
+      "before": ["collision2d.detect", "health.apply_damage"]
     },
     {
-      "name": "hurt",
-      "description": "Kills every Mortal whose Contacts touch one of its hurt_layers, or that fell under the screen.",
+      "name": "touch",
+      "description": "Gives a Damage to every entity with a Health that a ContactDamage entity overlaps.",
       "stage": "FixedUpdate",
-      "reads": [
-        "collision2d.Contacts",
-        "camera2d.Camera",
-        "transform2d.Position"
-      ],
-      "writes": [
-        "Mortal"
-      ],
-      "after": [
-        "collision2d.detect",
-        "camera2d.follow"
-      ]
-    },
-    {
-      "name": "announce",
-      "description": "Raises the on_death action of every Mortal that has just died, once.",
-      "stage": "FixedUpdate",
-      "reads": [
-        "Mortal"
-      ],
-      "writes": [
-        "Mortal"
-      ],
-      "after": [
-        "hurt"
-      ]
+      "reads": ["collision2d.Collider", "transform2d.Position", "health.Health"],
+      "writes": ["ContactDamage", "health.Damage"],
+      "after": ["collision2d.detect"],
+      "before": ["health.apply_damage"]
     }
   ]
 }

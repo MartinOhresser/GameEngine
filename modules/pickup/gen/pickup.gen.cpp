@@ -42,6 +42,24 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Collector* component = world.get<Collector>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "radius") {
+        component->radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "score") {
+        component->score = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"radius", "f32", "", false}, {"score", "i32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -72,9 +90,27 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Pickup* component = world.get<Pickup>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "value") {
+        component->value = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "radius") {
+        component->radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"value", "i32", "", false}, {"radius", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Collector", true, component_0_fields, insert_component_0, read_component_0}, {"Pickup", true, component_1_fields, insert_component_1, read_component_1}}};
+constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Collector", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Pickup", true, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"pickup.Pickup", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_0_writes{"pickup.Collector"};

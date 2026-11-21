@@ -6,7 +6,7 @@
       "name": "credits_title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -26,7 +26,7 @@
       "name": "credits_one",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,
@@ -46,7 +46,7 @@
       "name": "credits_two",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 0.5,
           "offset_x": 0,

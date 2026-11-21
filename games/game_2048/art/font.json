@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "font",
+  "image": "font.png",
+  "cell_width": 11,
+  "cell_height": 20,
+  "glyphs": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~àâäçéèêëîïôöùûüÿœÀÉÈÊÇ«»€°…’"
+}

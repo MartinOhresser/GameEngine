@@ -1,0 +1,54 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "waves",
+  "description": "Waves of things that arrive one after the other: enemies in a tower defense, monsters of an arena or a survival game, obstacles. A group says what to create, how many and how often; a wave is the groups that share its number; a controller starts the waves one by one, says when each one is cleared (nothing it created is left) and when the last one is. The things are created from the game's prefabs at the controller's position and belong to their group, so that the module knows which are still alive.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "WaveGroup",
+      "description": "A part of a wave: when wave number wave (1 is the first) is on, creates count entities from prefab at the controller's spawn position, the first one delay ticks after the wave starts and then one every interval ticks. A wave has as many groups as it has kinds of enemies. spawned is how many were created so far in the wave that is on.",
+      "replicable": false,
+      "fields": [
+        { "name": "wave", "type": "u32", "default": 1 },
+        { "name": "prefab", "type": "u32", "default": 0, "ref": "prefab" },
+        { "name": "count", "type": "u32", "default": 1 },
+        { "name": "interval_ticks", "type": "u32", "default": 60 },
+        { "name": "delay_ticks", "type": "u32", "default": 0 },
+        { "name": "spawned", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "WaveController",
+      "description": "Runs the waves of the game's groups. current is the number of the wave that is on or was the last one (0 before the first), last the number of the last wave (the biggest of the groups), running whether a wave is on. The action start_action starts the next wave when none is on (with auto_next, the next one starts by itself rest_ticks after one is cleared). Things are created at (spawn_x, spawn_y). Raises started_action when a wave starts, cleared_action when everything it created is gone (killed or past the end) and all_cleared_action, once, when the last wave is cleared (none: no action). elapsed, quiet and rest are its own state.",
+      "replicable": false,
+      "fields": [
+        { "name": "current", "type": "u32", "default": 0 },
+        { "name": "last", "type": "u32", "default": 0 },
+        { "name": "running", "type": "bool", "default": false },
+        { "name": "auto_next", "type": "bool", "default": false },
+        { "name": "rest_ticks", "type": "u32", "default": 600 },
+        { "name": "spawn_x", "type": "f32", "default": 0 },
+        { "name": "spawn_y", "type": "f32", "default": 0 },
+        { "name": "start_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "started_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "cleared_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "all_cleared_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "elapsed", "type": "u32", "default": 0 },
+        { "name": "quiet", "type": "u32", "default": 0 },
+        { "name": "rest", "type": "u32", "default": 0 },
+        { "name": "finished", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "run",
+      "description": "Starts waves, creates the things of the groups when they are due, and says when a wave and the last wave are cleared.",
+      "stage": "FixedUpdate",
+      "reads": ["transform2d.Owner"],
+      "writes": ["WaveController", "WaveGroup"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+// A jumper with no block to land on falls out of the screen on the left and dies: the game over
+// scene comes.
+{
+  "schema_version": 1,
+  "name": "falling_off_the_left_ends_the_game",
+  "scene": "test_fall",
+  "ticks": 100,
+  "expect": [
+    { "at": 20, "check": "scene is test_fall" },
+    { "at": 20, "check": "player alive" },
+    { "at": 100, "check": "scene is gameover" },
+    { "at": 100, "check": "player gone" },
+  ],
+}

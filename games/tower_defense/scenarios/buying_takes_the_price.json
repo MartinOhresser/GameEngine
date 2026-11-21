@@ -1,0 +1,38 @@
+// A touch on a free cell builds the chosen tower (the cannon to begin with) and takes its price.
+{
+  "schema_version": 1,
+  "name": "buying_takes_the_price",
+  "ticks": 30,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 30,
+      "check": "wallet.economy.Wallet.amount == 100"
+    },
+    {
+      "at": 30,
+      "check": "entities == 145"
+    }
+  ]
+}

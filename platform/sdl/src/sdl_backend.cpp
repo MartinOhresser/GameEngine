@@ -1,9 +1,12 @@
 #include "ge/platform/sdl/sdl_backend.hpp"
 
+#include "ge/platform/sdl/assets.hpp"
+
 #include <SDL3/SDL.h>
 #include <algorithm>
+#include <array>
 #include <cctype>
-#include <fstream>
+#include <cmath>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -14,6 +17,9 @@
 namespace ge::platform::sdl {
 
 namespace {
+
+/// How many fingers are followed at once (sources `touch:x` to `touch:x5`).
+constexpr std::size_t max_fingers = 5;
 
 std::string sdl_error() {
     const char* message = SDL_GetError();
@@ -93,27 +99,37 @@ public:
     SdlRenderer(SdlRenderer&&) = delete;
     SdlRenderer& operator=(SdlRenderer&&) = delete;
 
+    /// The view the game is drawn in changed size (a new window size).
+    void set_view(int view_width, int view_height) {
+        half_width_ = static_cast<float>(view_width) / 2.0F;
+        half_height_ = static_cast<float>(view_height) / 2.0F;
+    }
+
     void draw(const app::DrawCommand& command) override {
         open_frame();
         if (command.atlas >= 0) {
             draw_sprite(command);
+        } else if (command.what == "rect") {
+            draw_rect(command);
+        } else if (command.what == "circle") {
+            draw_circle(command);
+        } else if (command.what == "line") {
+            draw_line(command);
         } else {
             draw_square(command);
         }
     }
 
     bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
-        std::ifstream file(atlas.image, std::ios::binary);
-        if (!file) {
+        const std::optional<std::string> bytes = read_file(atlas.image);
+        if (!bytes.has_value()) {
             error = "cannot read the image \"" + atlas.image + "\"";
             return false;
         }
-        const std::string bytes((std::istreambuf_iterator<char>(file)),
-                                std::istreambuf_iterator<char>());
         int width = 0;
         int height = 0;
         int channels = 0;
-        const std::vector<stbi_uc> encoded(bytes.begin(), bytes.end());
+        const std::vector<stbi_uc> encoded(bytes->begin(), bytes->end());
         stbi_uc* pixels = stbi_load_from_memory(encoded.data(), static_cast<int>(encoded.size()),
                                                 &width, &height, &channels, 4);
         if (pixels == nullptr) {
@@ -188,18 +204,112 @@ private:
         return camera_ && !command.screen ? camera_->zoom : 1.0F;
     }
 
-    void draw_square(const app::DrawCommand& command) {
+    void set_color(const app::DrawCommand& command) {
         const std::uint32_t c = command.color;
         SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 8U) & 0xFFU),
                                static_cast<std::uint8_t>(c & 0xFFU));
+    }
+
+    void draw_square(const app::DrawCommand& command) {
+        set_color(command);
         const float size = (command.size > 0.0F ? command.size : default_size) * zoom(command);
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);
         const SDL_FRect rect{x - size / 2.0F, y - size / 2.0F, size, size};
         SDL_RenderFillRect(renderer_, &rect);
+    }
+
+    /// A rectangle: filled, or four bars of `thickness` along its edges.
+    void draw_rect(const app::DrawCommand& command) {
+        set_color(command);
+        const float width = command.width * zoom(command);
+        const float height = command.height * zoom(command);
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command, x, y);
+        const float left = x - width / 2.0F;
+        const float top = y - height / 2.0F;
+        if (command.thickness <= 0.0F) {
+            const SDL_FRect rect{left, top, width, height};
+            SDL_RenderFillRect(renderer_, &rect);
+            return;
+        }
+        const float edge = std::min(std::max(command.thickness * zoom(command), 1.0F),
+                                    std::min(width, height) / 2.0F);
+        const std::array<SDL_FRect, 4> bars{
+            {{left, top, width, edge},
+             {left, top + height - edge, width, edge},
+             {left, top + edge, edge, height - 2.0F * edge},
+             {left + width - edge, top + edge, edge, height - 2.0F * edge}}};
+        SDL_RenderFillRects(renderer_, bars.data(), static_cast<int>(bars.size()));
+    }
+
+    /// A disc or a ring, drawn one pixel row at a time.
+    void draw_circle(const app::DrawCommand& command) {
+        set_color(command);
+        const float radius = command.size * zoom(command);
+        if (radius <= 0.0F) {
+            return;
+        }
+        const float edge =
+            command.thickness <= 0.0F
+                ? radius
+                : std::min(std::max(command.thickness * zoom(command), 1.0F), radius);
+        const float inner = radius - edge;
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command, x, y);
+        const int rows = static_cast<int>(std::ceil(radius * 2.0F));
+        for (int row = 0; row < rows; ++row) {
+            const float dy = -radius + 0.5F + static_cast<float>(row);
+            const float outer_half = std::sqrt(std::max(radius * radius - dy * dy, 0.0F));
+            const float inner_square = inner * inner - dy * dy;
+            if (inner_square <= 0.0F) {
+                const SDL_FRect span{x - outer_half, y + dy - 0.5F, 2.0F * outer_half, 1.0F};
+                SDL_RenderFillRect(renderer_, &span);
+            } else {
+                const float inner_half = std::sqrt(inner_square);
+                const std::array<SDL_FRect, 2> spans{
+                    {{x - outer_half, y + dy - 0.5F, outer_half - inner_half, 1.0F},
+                     {x + inner_half, y + dy - 0.5F, outer_half - inner_half, 1.0F}}};
+                SDL_RenderFillRects(renderer_, spans.data(), static_cast<int>(spans.size()));
+            }
+        }
+    }
+
+    /// A line of `thickness`, as a thin quad.
+    void draw_line(const app::DrawCommand& command) {
+        app::DrawCommand end = command;
+        end.x = command.x2;
+        end.y = command.y2;
+        float x1 = 0.0F;
+        float y1 = 0.0F;
+        float x2 = 0.0F;
+        float y2 = 0.0F;
+        to_screen(command, x1, y1);
+        to_screen(end, x2, y2);
+        const float half = std::max(command.thickness * zoom(command), 1.0F) / 2.0F;
+        const float length = std::hypot(x2 - x1, y2 - y1);
+        if (length <= 0.0F) {
+            return;
+        }
+        const float nx = -(y2 - y1) / length * half;
+        const float ny = (x2 - x1) / length * half;
+        const std::uint32_t c = command.color;
+        const SDL_FColor color{static_cast<float>((c >> 24U) & 0xFFU) / 255.0F,
+                               static_cast<float>((c >> 16U) & 0xFFU) / 255.0F,
+                               static_cast<float>((c >> 8U) & 0xFFU) / 255.0F,
+                               static_cast<float>(c & 0xFFU) / 255.0F};
+        const std::array<SDL_Vertex, 4> corners{{{{x1 + nx, y1 + ny}, color, {0.0F, 0.0F}},
+                                                 {{x1 - nx, y1 - ny}, color, {0.0F, 0.0F}},
+                                                 {{x2 - nx, y2 - ny}, color, {0.0F, 0.0F}},
+                                                 {{x2 + nx, y2 + ny}, color, {0.0F, 0.0F}}}};
+        const std::array<int, 6> order{0, 1, 2, 0, 2, 3};
+        SDL_RenderGeometry(renderer_, nullptr, corners.data(), static_cast<int>(corners.size()),
+                           order.data(), static_cast<int>(order.size()));
     }
 
     void draw_sprite(const app::DrawCommand& command) {
@@ -219,10 +329,10 @@ private:
                                static_cast<float>(atlas.cell_height)};
         const float width =
             (command.width > 0.0F ? command.width : static_cast<float>(atlas.cell_width)) *
-            zoom(command);
+            zoom(command) * command.scale;
         const float height =
             (command.height > 0.0F ? command.height : static_cast<float>(atlas.cell_height)) *
-            zoom(command);
+            zoom(command) * command.scale;
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);
@@ -238,6 +348,7 @@ private:
 
     void open_frame() {
         if (!open_) {
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer_, 18, 20, 32, 255);
             SDL_RenderClear(renderer_);
             open_ = true;
@@ -343,6 +454,53 @@ private:
     std::map<std::string, Sound, std::less<>> sounds_;
 };
 
+/// The suffix of the sources of finger `slot`: "" for the first ("touch:x"), "2" for the second.
+std::string finger_suffix(std::size_t slot) {
+    return slot == 0 ? std::string() : std::to_string(slot + 1);
+}
+
+/// Turns a finger event into `touch:` sources, and the first finger into the mouse's (a touch
+/// is a click for the games that only know the mouse). SDL's own touch-to-mouse events are off
+/// (see `create`), so a touch is counted once.
+void push_finger(std::vector<SDL_FingerID>& fingers, const Session& session,
+                 const SDL_TouchFingerEvent& finger, std::vector<RawEvent>& events) {
+    const bool ending =
+        finger.type == SDL_EVENT_FINGER_UP || finger.type == SDL_EVENT_FINGER_CANCELED;
+    auto slot = std::ranges::find(fingers, finger.fingerID);
+    if (slot == fingers.end()) {
+        if (ending) {
+            return;
+        }
+        slot = std::ranges::find(fingers, SDL_FingerID{0});
+        if (slot == fingers.end()) {
+            return; // more fingers than we follow
+        }
+        *slot = finger.fingerID;
+    }
+    const auto index = static_cast<std::size_t>(slot - fingers.begin());
+    int window_width = 1;
+    int window_height = 1;
+    SDL_GetWindowSize(session.window, &window_width, &window_height);
+    float x = 0.0F;
+    float y = 0.0F;
+    SDL_RenderCoordinatesFromWindow(session.renderer, finger.x * static_cast<float>(window_width),
+                                    finger.y * static_cast<float>(window_height), &x, &y);
+    const std::string suffix = finger_suffix(index);
+    events.push_back(RawEvent{"touch:x" + suffix, x});
+    events.push_back(RawEvent{"touch:y" + suffix, y});
+    events.push_back(RawEvent{"touch:down" + suffix, ending ? 0.0F : 1.0F});
+    if (index == 0) {
+        events.push_back(RawEvent{"mouse:x", x});
+        events.push_back(RawEvent{"mouse:y", y});
+        if (finger.type != SDL_EVENT_FINGER_MOTION) {
+            events.push_back(RawEvent{"mouse:left", ending ? 0.0F : 1.0F});
+        }
+    }
+    if (ending) {
+        *slot = 0;
+    }
+}
+
 } // namespace
 
 std::uint32_t Frame::at(int x, int y) const {
@@ -366,6 +524,17 @@ struct SdlBackend::Impl {
     bool headless = false;
     bool capture = false;
     bool quit = false;
+    int width = 0; ///< The view of the window (what the renderer draws in).
+    int height = 0;
+    /// The size the game asked for, and whether the view follows the shape of the window.
+    int design_width = 0;
+    int design_height = 0;
+    bool adapt = false;
+    bool stretched = false; ///< The view is stretched to the window (no bars), see follow_window.
+    float min_aspect = 0.0F;
+    float max_aspect = 0.0F;
+    /// The fingers on the screen, in the order they came: slot i is `touch:down{i+1}`. 0 = free.
+    std::vector<SDL_FingerID> fingers = std::vector<SDL_FingerID>(max_fingers, 0);
 };
 
 SdlBackend::SdlBackend(std::unique_ptr<Impl> impl) : impl_(std::move(impl)) {}
@@ -384,11 +553,26 @@ std::string user_data_directory(const std::string& game) {
     return directory;
 }
 
+std::string base_directory() {
+    const char* path = SDL_GetBasePath();
+    return path == nullptr ? std::string() : std::string(path);
+}
+
+void show_error(const std::string& title, const std::string& message) {
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), message.c_str(), nullptr);
+}
+
 std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std::string& error) {
     if (options.headless) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");
         SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "dummy");
     }
+    // A touch is reported once, as a finger (`touch:` sources) that the backend also turns into a
+    // click: not SDL's own mouse events on top of it. On Android the Back button arrives as a key
+    // (`key:ac_back`) instead of closing the game at once.
+    SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
         error = "cannot start SDL: " + sdl_error();
         return nullptr;
@@ -397,9 +581,29 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     impl->headless = options.headless;
     impl->capture = options.capture;
     impl->session = std::make_shared<Session>(); // owns SDL from here on
-    if (!SDL_CreateWindowAndRenderer(options.title.c_str(), options.width, options.height,
-                                     SDL_WINDOW_RESIZABLE, &impl->session->window,
-                                     &impl->session->renderer)) {
+    // On a phone the game fills the screen: no status bar, no navigation bar (they come back with
+    // a swipe from the edge). Without it the window is a few dozen pixels shorter than the screen
+    // and the bar covers the top of the game.
+#if defined(__ANDROID__)
+    constexpr SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
+#else
+    constexpr SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE;
+#endif
+    const auto open_window = [&options, &impl]() {
+        return SDL_CreateWindowAndRenderer(options.title.c_str(), options.width, options.height,
+                                           window_flags, &impl->session->window,
+                                           &impl->session->renderer);
+    };
+    if (options.software) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+    }
+    // A computer without a usable graphics card still runs the game: draw with the processor.
+    bool opened = open_window();
+    if (!opened && !options.software) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+        opened = open_window();
+    }
+    if (!opened) {
         error = "cannot open a window: " + sdl_error();
         return nullptr;
     }
@@ -408,6 +612,10 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     }
     SDL_SetRenderLogicalPresentation(impl->session->renderer, options.width, options.height,
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl->width = options.width;
+    impl->height = options.height;
+    impl->design_width = options.width;
+    impl->design_height = options.height;
     impl->renderer = std::make_shared<SdlRenderer>(impl->session, options.capture, options.width,
                                                    options.height);
     impl->audio = std::make_shared<SdlAudio>(impl->session);
@@ -415,7 +623,37 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     return std::unique_ptr<SdlBackend>(new SdlBackend(std::move(impl)));
 }
 
+/// Gives the drawing area the shape of the window when the game asked for it, so that a phone
+/// of any shape is filled; the window can change (a resize, a turn of the phone) at any time.
+void SdlBackend::follow_window() {
+    Impl& impl = *impl_;
+    if (!impl.adapt) {
+        return;
+    }
+    int pixel_width = 0;
+    int pixel_height = 0;
+    SDL_GetWindowSizeInPixels(impl.session->window, &pixel_width, &pixel_height);
+    const auto [width, height] =
+        adapted_view(impl.design_width, impl.design_height, impl.min_aspect, impl.max_aspect,
+                     pixel_width, pixel_height);
+    // The height is a whole number of pixels, so it is a hair off the screen's shape: inside the
+    // limits the view is stretched by that hair (no bar), beyond them bars are left.
+    const float aspect = static_cast<float>(pixel_width) / static_cast<float>(pixel_height);
+    const bool inside = pixel_height > 0 && aspect >= impl.min_aspect && aspect <= impl.max_aspect;
+    if (width == impl.width && height == impl.height && inside == impl.stretched) {
+        return;
+    }
+    impl.stretched = inside;
+    SDL_SetRenderLogicalPresentation(impl.session->renderer, width, height,
+                                     inside ? SDL_LOGICAL_PRESENTATION_STRETCH
+                                            : SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl.renderer->set_view(width, height);
+    impl.width = width;
+    impl.height = height;
+}
+
 bool SdlBackend::poll(std::vector<RawEvent>& events) {
+    follow_window();
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -441,9 +679,21 @@ bool SdlBackend::poll(std::vector<RawEvent>& events) {
             }
             break;
         }
-        case SDL_EVENT_MOUSE_MOTION:
-            events.push_back(RawEvent{"mouse:x", event.motion.x});
-            events.push_back(RawEvent{"mouse:y", event.motion.y});
+        case SDL_EVENT_MOUSE_MOTION: {
+            // In the pixels of the game, not of the window (they differ when it is resized
+            // or letterboxed).
+            float x = event.motion.x;
+            float y = event.motion.y;
+            SDL_RenderCoordinatesFromWindow(impl_->session->renderer, x, y, &x, &y);
+            events.push_back(RawEvent{"mouse:x", x});
+            events.push_back(RawEvent{"mouse:y", y});
+            break;
+        }
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_MOTION:
+        case SDL_EVENT_FINGER_UP:
+        case SDL_EVENT_FINGER_CANCELED:
+            push_finger(impl_->fingers, *impl_->session, event.tfinger, events);
             break;
         default:
             break;
@@ -465,6 +715,41 @@ std::shared_ptr<app::Renderer> SdlBackend::renderer() {
 
 std::shared_ptr<app::AudioDevice> SdlBackend::audio() {
     return impl_->audio;
+}
+
+bool SdlBackend::resize(int width, int height) {
+    if (width <= 0 || height <= 0) {
+        return false;
+    }
+    SDL_SetWindowSize(impl_->session->window, width, height);
+    SDL_SetRenderLogicalPresentation(impl_->session->renderer, width, height,
+                                     SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    impl_->renderer->set_view(width, height);
+    impl_->width = width;
+    impl_->height = height;
+    impl_->design_width = width;
+    impl_->design_height = height;
+    impl_->adapt = false;
+    impl_->stretched = false;
+    return true;
+}
+
+void SdlBackend::adapt_view(float min_aspect, float max_aspect) {
+    impl_->adapt = true;
+    impl_->min_aspect = min_aspect;
+    impl_->max_aspect = max_aspect;
+    follow_window();
+}
+
+std::pair<int, int> SdlBackend::view_size() const {
+    return impl_->adapt ? std::pair<int, int>{impl_->width, impl_->height}
+                        : std::pair<int, int>{0, 0};
+}
+
+void SdlBackend::reset_assets() {
+    impl_->renderer =
+        std::make_shared<SdlRenderer>(impl_->session, impl_->capture, impl_->width, impl_->height);
+    impl_->audio = std::make_shared<SdlAudio>(impl_->session);
 }
 
 bool SdlBackend::load_sound(const std::string& name, const std::string& path, std::string& error) {
@@ -501,6 +786,32 @@ bool SdlBackend::inject_mouse_button(std::string_view button, bool down) {
     event.button.button = id;
     event.button.down = down;
     return SDL_PushEvent(&event);
+}
+
+bool SdlBackend::inject_finger(std::uint64_t id, float x, float y, std::string_view phase) {
+    SDL_Event event{};
+    if (phase == "down") {
+        event.type = SDL_EVENT_FINGER_DOWN;
+    } else if (phase == "motion") {
+        event.type = SDL_EVENT_FINGER_MOTION;
+    } else if (phase == "up") {
+        event.type = SDL_EVENT_FINGER_UP;
+    } else {
+        return false;
+    }
+    event.tfinger.touchID = 1;
+    event.tfinger.fingerID = id;
+    event.tfinger.x = x;
+    event.tfinger.y = y;
+    return SDL_PushEvent(&event);
+}
+
+bool SdlBackend::inject_window_size(int width, int height) {
+    if (width <= 0 || height <= 0 || !SDL_SetWindowSize(impl_->session->window, width, height)) {
+        return false;
+    }
+    SDL_SyncWindow(impl_->session->window);
+    return true;
 }
 
 void SdlBackend::inject_quit() {

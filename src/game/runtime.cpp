@@ -236,6 +236,10 @@ void spawn_prefab(app::App& app, const Game& game, const app::SpawnRequest& requ
     put(app, entity, "transform2d.Position",
         {app::FieldValue{"x", static_cast<double>(request.x)},
          app::FieldValue{"y", static_cast<double>(request.y)}});
+    if (request.owner != 0U) {
+        put(app, entity, "transform2d.Owner",
+            {app::FieldValue{"entity", static_cast<std::int64_t>(request.owner)}});
+    }
     if (request.has_velocity) {
         put(app, entity, "transform2d.Velocity",
             {app::FieldValue{"x", static_cast<double>(request.vx)},

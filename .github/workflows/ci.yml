@@ -1,10 +1,23 @@
 name: CI
 
+# Two tiers, to keep the wait short:
+#  - a pull request into `dev` runs the checks that other machines are needed for (compilers,
+#    systems, the SDL player, the compile-only targets) and, only when it touches the engine or
+#    the export, the real exports and the emulator;
+#  - a pull request into `main`, a push to `main`, a merge group and the promotion workflow run
+#    everything: coverage, the launcher scripts, the three games of ADR 0013 exported.
+# A push to `dev` (a merged pull request) runs the tier of a pull request again, for the caches:
+# what it compiles (ccache, .github/actions/ccache) and downloads (Gradle) is what the next
+# pull requests into `dev` start from. Nobody waits on it.
+# What `./scripts/check.sh` checks locally (AddressSanitizer, clang-tidy, the GCC Debug build, the
+# scenarios of every game, including on a phone's screen) is not repeated here.
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
   merge_group:
+  # Called by "Promote dev to main": the tip of dev gets the whole tier before it becomes main.
+  workflow_call:
 
 permissions:
   contents: read
@@ -18,6 +31,42 @@ env:
   COVERAGE_MIN: "90"
 
 jobs:
+  # Decides how much to run. `full`: promotion, push to main, merge group. `engine`: the engine,
+  # the platforms, the export or this workflow changed, so the exports and the emulator are worth
+  # their minutes (a new game or module is proven by its scenarios and the builds). `launcher`: the
+  # scripts that open the launcher changed.
+  changes:
+    name: What changed
+    runs-on: ubuntu-24.04
+    outputs:
+      full: ${{ steps.diff.outputs.full }}
+      engine: ${{ steps.diff.outputs.engine }}
+      launcher: ${{ steps.diff.outputs.launcher }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+          REF: ${{ github.ref }}
+        run: |
+          full=false; engine=false; launcher=false
+          if [[ "$EVENT" == "push" && "$REF" == "refs/heads/dev" ]]; then
+            # Warms the caches of the exports and the emulator too.
+            engine=true
+          elif [[ "$EVENT" != "pull_request" || "$BASE" == "main" ]]; then
+            full=true; engine=true; launcher=true
+          else
+            files="$(git diff --name-only "origin/$BASE...HEAD")"
+            echo "$files"
+            grep -qE '^(include/|src/|platform/|tools/gectl/|runner/|cmake/|CMakeLists\.txt|CMakePresets\.json|scripts/(export|ci_retry)|\.github/)' <<<"$files" && engine=true
+            grep -qE '^(gameEngine\.|scripts/launcher|tools/launcher/|platform/sdl/src/launcher\.cpp)' <<<"$files" && launcher=true
+          fi
+          echo "full=$full engine=$engine launcher=$launcher"
+          { echo "full=$full"; echo "engine=$engine"; echo "launcher=$launcher"; } >> "$GITHUB_OUTPUT"
+
   workflow-lint:
     name: Lint workflows
     runs-on: ubuntu-24.04
@@ -33,7 +82,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang-format-18
+        run: sudo apt-get update && sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends clang-format-18
       - name: Check formatting
         run: git ls-files '*.cpp' '*.hpp' | xargs --no-run-if-empty clang-format-18 --dry-run --Werror
 
@@ -56,13 +105,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: "Linux GCC 13 Debug", os: ubuntu-24.04, cxx: g++-13, preset: dev }
           - { name: "Linux GCC 13 Release", os: ubuntu-24.04, cxx: g++-13, preset: release }
           - { name: "Linux Clang 18 Debug", os: ubuntu-24.04, cxx: clang++-18, preset: dev }
           - { name: "macOS AppleClang Debug", os: macos-latest, cxx: clang++, preset: dev }
           - { name: "Windows MSVC Release", os: windows-latest, cxx: cl, preset: release }
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: build-${{ matrix.name }}
       - name: Install Ninja (macOS)
         if: runner.os == 'macOS'
         run: brew install ninja
@@ -91,14 +142,12 @@ jobs:
           - { name: "Windows", os: windows-latest, cxx: cl }
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: platform-${{ matrix.name }}
       - name: Install SDL3 build dependencies (Linux)
         if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
-            libxss-dev libxkbcommon-dev libwayland-dev libasound2-dev libgl1-mesa-dev \
-            libegl1-mesa-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev
+        uses: ./.github/actions/sdl-deps
       - name: Install Ninja (macOS)
         if: runner.os == 'macOS'
         run: brew install ninja
@@ -126,35 +175,151 @@ jobs:
           name: screenshot-${{ matrix.name }}
           path: screenshot.bmp
 
-  sanitizers:
-    name: AddressSanitizer and UBSan
-    runs-on: ubuntu-24.04
+  # `gectl export` makes the zip that players receive. This job makes it for real (one game, the
+  # export is the same for all of them), unpacks it in a folder with spaces and an accent, checks
+  # that nothing but system libraries is needed, and plays it without a window. On a promotion the
+  # three games of ADR 0013 are exported too, and the scripts that open the launcher are run.
+  export:
+    name: Export ${{ matrix.name }}
+    needs: changes
+    if: needs.changes.outputs.engine == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Windows", os: windows-latest, target: windows }
+          - { name: "Linux", os: ubuntu-24.04, target: linux }
     steps:
       - uses: actions/checkout@v7
-      - name: Configure
-        run: cmake --preset asan -DCMAKE_CXX_COMPILER=g++-13
-      - name: Build
-        run: cmake --build --preset asan
-      - name: Test
-        run: ctest --preset asan
+      # Not for the Windows export of a promotion: the Visual Studio generator has no launcher.
+      - uses: ./.github/actions/ccache
+        if: runner.os == 'Linux' || needs.changes.outputs.full != 'true'
+        with:
+          key: export-${{ matrix.target }}
+      - name: Install SDL3 build dependencies (Linux)
+        if: runner.os == 'Linux'
+        uses: ./.github/actions/sdl-deps
+      # On a promotion, the way a person does it: scripts\export.cmd, from a plain prompt (no
+      # Visual Studio developer environment, no Ninja), with the Visual Studio generator.
+      - name: Export Doodle Jump (Windows, as a person does)
+        if: runner.os == 'Windows' && needs.changes.outputs.full == 'true'
+        shell: cmd
+        run: scripts\export.cmd games\doodle_jump\game.json --out dist
+      # On a pull request, the same `gectl export` built with Ninja, so that ccache keeps what it
+      # compiled (6 minutes with the Visual Studio generator, about 1 with a warm cache). The zip
+      # is checked and played the same way below.
+      - name: Set up MSVC environment (Windows, pull request)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Ninja (Windows, pull request)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        run: choco install ninja -y
+      - name: Export Doodle Jump (Windows, Ninja)
+        if: runner.os == 'Windows' && needs.changes.outputs.full != 'true'
+        shell: bash
+        env:
+          # Read by the CMake that `gectl export` starts for the program.
+          CMAKE_GENERATOR: Ninja
+        run: |
+          cmake --preset release -DCMAKE_CXX_COMPILER=cl -DGE_BUILD_TESTS=OFF
+          cmake --build --preset release --target gectl
+          ./build/release/tools/gectl.exe export games/doodle_jump/game.json --target windows --out dist
+      # The scripts that open the launcher, the way a person does it: they build it, then start it
+      # without a window for a few frames.
+      - name: Open the launcher with gameEngine.cmd (Windows)
+        if: runner.os == 'Windows' && needs.changes.outputs.launcher == 'true'
+        shell: cmd
+        timeout-minutes: 30
+        run: gameEngine.cmd --headless --frames 3
+      - name: Open the launcher with gameEngine.sh (Linux)
+        if: runner.os == 'Linux' && needs.changes.outputs.launcher == 'true'
+        timeout-minutes: 30
+        run: ./gameEngine.sh --headless --frames 3
+      - name: Export Doodle Jump (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake --preset release
+          cmake --build --preset release --target gectl
+          ./build/release/tools/gectl export games/doodle_jump/game.json --target linux --out dist
+      # The three games made to try the engine (ADR 0013) are exported the same way, once.
+      - name: Export 2048, chess and the tower defense (Linux)
+        if: runner.os == 'Linux' && needs.changes.outputs.full == 'true'
+        run: |
+          for game in game_2048 chess tower_defense; do
+            ./build/release/tools/gectl export games/$game/game.json --target linux --out dist-games
+          done
+      - name: Check the packages of the three games
+        if: runner.os == 'Linux' && needs.changes.outputs.full == 'true'
+        run: |
+          set -e
+          zips=(dist-games/*.zip)
+          test "${#zips[@]}" -eq 3
+          for zip in "${zips[@]}"; do
+            echo "== $zip"
+            cmake -E tar tf "$zip" > contents-one.txt
+            grep -q "data/game.json" contents-one.txt
+            if grep -q "scenarios" contents-one.txt; then echo "::error::scenarios are shipped in $zip"; exit 1; fi
+          done
+      - name: Check the package and unpack it in a folder with spaces and an accent
+        shell: bash
+        run: |
+          set -e
+          zip=$(ls dist/*.zip)
+          cmake -E tar tf "$zip" | tee contents.txt
+          grep -q "README.txt" contents.txt
+          grep -q "LICENSES.txt" contents.txt
+          grep -q "data/game.json" contents.txt
+          if grep -q "scenarios" contents.txt; then echo "::error::scenarios are shipped"; exit 1; fi
+          mkdir -p "unpacked/Mon dossier é"
+          (cd "unpacked/Mon dossier é" && cmake -E tar xf "$GITHUB_WORKSPACE/$zip")
+      - name: Set up MSVC tools (Windows, for dumpbin)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Check what the program depends on (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -e
+          exe=$(find unpacked -maxdepth 3 -type f -name '*.exe' | head -n 1)
+          echo "program: $exe"
+          dumpbin -dependents "$exe" | tee dependents.txt
+          if grep -qiE "vcruntime|msvcp|msvcr|ucrtbase|api-ms-win-crt|sdl3" dependents.txt; then
+            echo "::error::the program needs a library that Windows does not have"
+            exit 1
+          fi
+      - name: Play the package without a window
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -eo pipefail
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            exe=$(find unpacked -maxdepth 3 -type f -name '*.exe' | head -n 1)
+          else
+            exe=$(find unpacked -maxdepth 3 -type f -perm -u+x | head -n 1)
+          fi
+          echo "playing $exe"
+          chmod +x "$exe"
+          "$exe" --headless --software --frames 30 --screenshot screenshot.bmp 2>&1 | tee play.log
+          test -s screenshot.bmp
+      - name: Keep the package
+        uses: actions/upload-artifact@v7
+        with:
+          name: export-${{ matrix.name }}
+          path: dist/*.zip
 
-  clang-tidy:
-    name: clang-tidy 18
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install clang-tidy
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang-18 clang-tidy-18
-      - name: Configure
-        run: cmake --preset tidy -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_CXX_CLANG_TIDY=clang-tidy-18
-      - name: Build with clang-tidy
-        run: cmake --build --preset tidy
-
+  # Only on a promotion (and push to main): it takes a build of its own, and a threshold that falls
+  # is a matter of tests missing for what a pull request added (see the skill add-module).
   coverage:
     name: Coverage
+    needs: changes
+    if: needs.changes.outputs.full == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: coverage
       - name: Install gcovr
         run: pip install "gcovr>=8"
       - name: Configure
@@ -184,11 +349,22 @@ jobs:
   wasm:
     name: WebAssembly (Emscripten)
     runs-on: ubuntu-24.04
+    env:
+      EMSDK_VERSION: "3.1.74"
+      # emsdk is installed again on every run: a new date on em++ would make ccache take it for
+      # another compiler and miss everything. The version names the compiler instead.
+      CCACHE_COMPILERCHECK: "string:emsdk-3.1.74"
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: wasm-${{ env.EMSDK_VERSION }}
+      # In a folder of the workspace, not in a temporary one with a new name on every run: its
+      # path is in every compile command, and ccache would miss them all. Kept in the cache too.
       - uses: mymindstorm/setup-emsdk@v16
         with:
-          version: "3.1.74"
+          version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: emsdk-cache
       - name: Configure
         run: emcmake cmake -S . -B build/wasm -G Ninja -DCMAKE_BUILD_TYPE=Release -DGE_WARNINGS_AS_ERRORS=ON
       - name: Build
@@ -201,6 +377,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          # Not "android": a key must not be the start of another one (android-export-...), or
+          # its cache is taken for this one.
+          key: ndk-arm64
       - name: Configure
         run: |
           cmake -S . -B build/android -G Ninja \
@@ -209,12 +390,134 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release -DGE_WARNINGS_AS_ERRORS=ON
       - name: Build
         run: cmake --build build/android
+      # The program of an exported game, as the Android export builds it (ADR 0012): the shared
+      # library `main` of an APK, with SDL and the game's modules inside.
+      - name: Build the player (libmain.so with SDL3)
+        run: |
+          cmake -S . -B build/android-player -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-21 -DANDROID_STL=c++_static \
+            -DCMAKE_BUILD_TYPE=Release -DGE_WARNINGS_AS_ERRORS=ON -DGE_BUILD_PLATFORM=ON \
+            -DGE_BUILD_TESTS=OFF -DGE_BUILD_TOOLS=OFF -DGE_BUILD_EXAMPLES=OFF \
+            "-DGE_PLAYER_MODULES=transform2d;action_control;debug_draw"
+          cmake --build build/android-player --target ge_player
+          ls -l build/android-player/platform/sdl/libmain.so
+
+  # The Android export for real (ADR 0012): `gectl export --target android` makes the APK of a
+  # game with the NDK and Gradle, aapt2 reads its identity back, and an emulator (Android 14,
+  # x86_64) installs it and plays it. Three games, each for what only a device shows: a tap, a held
+  # finger and a screen taller than the game (doodle_jump), swipes (game_2048), a game wider than
+  # the phone held upright, so bars, a smaller area and touches within it (tower_defense). What a
+  # game does with its inputs and its layout on a phone's screen is a scenario with `screen`
+  # (docs/TESTING.md), played by ./scripts/check.sh; the other games are exported at release.
+  android-export:
+    name: Android APK of ${{ matrix.game }}
+    needs: changes
+    if: needs.changes.outputs.engine == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { game: doodle_jump, window: "480 720", adapt: "0.4 0.8", tap: "W/2 H/2-40" }
+          - { game: game_2048, window: "480 720", adapt: "0.4 0.8",
+              swipes: "W/2+120:H/2:W/2-120:H/2;W/2:H/2+120:W/2:H/2-120;W/2-120:H/2:W/2+120:H/2" }
+          - { game: tower_defense, window: "800 480", adapt: "1.25 2.4",
+              touches: "W/2-168*min(W/688,(H-100)/448):(H-28)/2-96*min(W/688,(H-100)/448);W/2+230:H-32" }
+    steps:
+      - uses: actions/checkout@v7
+      # One cache per game: with a shared one, the last game to save it replaced what the others
+      # had compiled.
+      - uses: ./.github/actions/ccache
+        with:
+          key: apk-${{ matrix.game }}
+      # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
+      # pull request to the next, so that they are not asked for again.
+      - uses: actions/cache/restore@v4
+        id: gradle-cache
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('platform/android/template/**') }}
+          restore-keys: gradle-${{ runner.os }}-
+      - name: Use the Maven Central mirror
+        run: ./scripts/ci_gradle_mirror.sh
+      - name: Build gectl
+        run: |
+          cmake --preset release -DGE_BUILD_TESTS=OFF
+          cmake --build --preset release --target gectl
+      - name: Export the game for Android (x86_64 for the emulator, arm64-v8a for phones)
+        run: |
+          started=$(date +%s)
+          # Maven Central answers "429, too many requests" now and then: try again, longer each time.
+          ./scripts/ci_retry.sh 3 60 ./build/release/tools/gectl export \
+            games/${{ matrix.game }}/game.json --target android --abi x86_64,arm64-v8a --out dist
+          echo "seconds=$(( $(date +%s) - started ))" >> "$GITHUB_ENV"
+      - name: What is in the APK
+        run: |
+          apk="$(find dist -name '*.apk' | head -1)"
+          aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
+          {
+            echo "### $(basename "$apk")"
+            echo "- export: ${seconds} s, APK: $(stat -c %s "$apk") bytes"
+            echo '```'
+            "$aapt2" dump badging "$apk" | grep -E "^package|application-label:|sdkVersion|launchable-activity"
+            unzip -l "$apk" | grep -E "\.so|assets/data/(game|files)"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          "$aapt2" dump badging "$apk" | grep -q "native-code: 'arm64-v8a' 'x86_64'" ||
+            "$aapt2" dump badging "$apk" | grep -q "native-code: 'x86_64' 'arm64-v8a'"
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Play it on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GAME_WINDOW: ${{ matrix.window }}
+          GAME_ADAPT: ${{ matrix.adapt }}
+          MENU_TAP: ${{ matrix.tap }}
+          GAME_TOUCHES: ${{ matrix.touches }}
+          GAME_SWIPES: ${{ matrix.swipes }}
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: platform/android/run_game_on_device.sh dist/*.apk game-output
+      - name: Put the result in the summary
+        if: always()
+        run: |
+          if [ -f game-output/summary.md ]; then
+            { echo "### On the emulator"; cat game-output/summary.md; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      # Kept even when the export failed: what was downloaded before the failure is not asked again.
+      - uses: actions/cache/save@v4
+        if: always() && steps.gradle-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('platform/android/template/**') }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: android-${{ matrix.game }}
+          path: |
+            game-output
+            dist/*.apk
 
   ios:
     name: iOS (simulator, arm64)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/ccache
+        with:
+          key: ios
       - name: Configure
         run: |
           cmake -S . -B build/ios \
@@ -226,21 +529,22 @@ jobs:
         run: cmake --build build/ios
 
   # Single required check for branch protection: it fails unless every job above
-  # succeeded (failed, cancelled and skipped jobs all count as failures).
+  # succeeded or was left out on purpose (failed and cancelled jobs count as failures).
   ci-success:
     name: CI success
     if: always()
     needs:
+      - changes
       - workflow-lint
       - format
       - modules
       - build-test
       - platform
-      - sanitizers
-      - clang-tidy
+      - export
       - coverage
       - wasm
       - android
+      - android-export
       - ios
     runs-on: ubuntu-24.04
     steps:
@@ -250,7 +554,10 @@ jobs:
         run: |
           echo "Job results: $RESULTS"
           for result in $RESULTS; do
-            if [[ "$result" != "success" ]]; then
+            # skipped: coverage, the exports and the emulator are left out of a small pull request
+            # on purpose (`changes`); a job that cannot start because `changes` failed shows up as
+            # a failure of `changes` itself.
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
               echo "::error::A required job finished with result '$result'"
               exit 1
             fi

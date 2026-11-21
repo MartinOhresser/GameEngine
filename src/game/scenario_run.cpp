@@ -1,5 +1,10 @@
+#include "ge/app/host.hpp"
 #include "ge/app/input.hpp"
+#include "ge/app/lists.hpp"
+#include "ge/app/runtime_lists.hpp"
+#include "ge/app/viewport.hpp"
 #include "ge/game/scenario.hpp"
+#include "ge/platform/backend.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -96,6 +101,21 @@ void check_field(const Run& run, const Check& check, std::vector<std::string>& f
     }
 }
 
+/// A host command is "called" when it is waiting in the queue: no host drains it in a scenario.
+void check_host_call(const Run& run, const Check& check, std::vector<std::string>& failures) {
+    const std::vector<std::string> commands = run.game->ref_names("host_command");
+    const auto found = std::find(commands.begin(), commands.end(), check.entity);
+    const auto* requests = run.app.world().resource<app::HostRequests>();
+    const auto index = static_cast<std::uint32_t>(found - commands.begin());
+    const bool called =
+        found != commands.end() && requests != nullptr &&
+        std::any_of(requests->pending.begin(), requests->pending.end(),
+                    [index](const app::HostRequest& request) { return request.command == index; });
+    if (!called) {
+        failures.push_back(failure(check, "the game did not call it"));
+    }
+}
+
 void evaluate(const Run& run, const Check& check, std::vector<std::string>& failures) {
     switch (check.kind) {
     case CheckKind::Field:
@@ -127,6 +147,25 @@ void evaluate(const Run& run, const Check& check, std::vector<std::string>& fail
         }
         break;
     }
+    case CheckKind::Quit: {
+        const auto* quit = run.app.world().resource<app::QuitRequest>();
+        if (quit == nullptr || !quit->requested) {
+            failures.push_back(failure(check, "the game did not ask to quit"));
+        }
+        break;
+    }
+    case CheckKind::HostCall:
+        check_host_call(run, check, failures);
+        break;
+    case CheckKind::ListSelected: {
+        const auto* lists = run.app.world().resource<app::RuntimeLists>();
+        const auto actual = static_cast<double>(lists == nullptr ? app::RuntimeLists::none
+                                                                 : lists->selected(check.entity));
+        if (!holds(check.compare, actual, as_number(check.value))) {
+            failures.push_back(failure(check, "the selected item is " + show(actual)));
+        }
+        break;
+    }
     case CheckKind::Fingerprint: {
         const std::uint64_t actual = run.app.world().fingerprint();
         if ((actual == check.fingerprint) != (check.compare == Compare::Eq)) {
@@ -153,6 +192,22 @@ std::optional<std::uint64_t> run_once(const Game& game, const ScenarioData& scen
     if (!run.setup.ok()) {
         setup_problems = run.setup.problems;
         return std::nullopt;
+    }
+    if (scenario.screen_width > 0 && started.manifest.window_adapt) {
+        // The drawing area takes the shape of the screen, as the window of a player does.
+        auto* view = run.app.world().resource<app::Viewport>();
+        const Manifest& manifest = started.manifest;
+        const auto [width, height] = platform::adapted_view(
+            static_cast<int>(manifest.window_width), static_cast<int>(manifest.window_height),
+            manifest.window_min_aspect, manifest.window_max_aspect, scenario.screen_width,
+            scenario.screen_height);
+        view->width = static_cast<std::uint32_t>(width);
+        view->height = static_cast<std::uint32_t>(height);
+    }
+    if (auto* lists = run.app.world().resource<app::RuntimeLists>(); lists != nullptr) {
+        for (const auto& list : scenario.lists) {
+            lists->set(list.first, list.second);
+        }
     }
     auto* script = run.app.world().resource<app::ScriptedInput>();
     for (const ScenarioInput& input : scenario.inputs) {

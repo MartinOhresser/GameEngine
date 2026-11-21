@@ -25,6 +25,15 @@
         { "name": "alpha", "type": "u32", "default": 255 },
         { "name": "screen", "type": "bool", "default": false }
       ]
+    },
+    {
+      "name": "Dynamic",
+      "description": "Makes the Text of the same entity show an item of a list filled while the game runs (the games a launcher found, the players of a lobby) instead of one of the game's own texts: list names an item of the game's \"runtime_list\" list, index the item. The text keeps its look and its {value}; an item that does not exist shows nothing. The host or a system fills the list (RuntimeLists); a scenario can fill it with \"lists\".",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 4294967295, "ref": "runtime_list" },
+        { "name": "index", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -32,7 +41,7 @@
       "name": "draw",
       "description": "Asks the renderer to draw every Text, one letter at a time. Presentation only: it never changes the simulation.",
       "stage": "PostUpdate",
-      "reads": ["Text", "transform2d.Position"]
+      "reads": ["Text", "Dynamic", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"]
     }
   ]
 }

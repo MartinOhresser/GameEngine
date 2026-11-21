@@ -1,0 +1,30 @@
+// A button of the bottom bar: a picture and its text.
+{
+  "schema_version": 1,
+  "name": "button",
+  "components": {
+    "transform2d.Position": {},
+    "sprite2d.Sprite": {
+      "atlas": "ui",
+      "frame": 1,
+      "width": 88,
+      "height": 40,
+      "screen": true,
+      "layer": 10
+    },
+    "text2d.Text": {
+      "font": "font",
+      "size": 15,
+      "pivot_x": 0.5,
+      "pivot_y": 0.5,
+      "screen": true
+    },
+    "ui.Button": {
+      "menu": "game_menu",
+      "width": 88,
+      "height": 40,
+      "normal_frame": 1,
+      "focus_frame": 2
+    }
+  }
+}

@@ -154,7 +154,7 @@ def text(string, size, x, y, anchor_x=0.0, anchor_y=0.0, pivot_x=0.0, pivot_y=0.
     """A text in window pixels, anchored to the window: it follows its size."""
     return {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
+        "transform2d.Anchor": {"anchor_x": anchor_x, "anchor_y": anchor_y, "offset_x": x, "offset_y": y},
         "text2d.Text": dict({"string": string, "font": "font", "size": size, "screen": True,
                              "pivot_x": pivot_x, "pivot_y": pivot_y}, **extra),
     }
@@ -169,7 +169,7 @@ def paper():
     """The page: one big screen-space sprite behind everything."""
     return {"name": "paper", "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
+        "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5},
         "sprite2d.Sprite": {"atlas": "ui", "frame": 0, "width": 4000, "height": 4000,
                             "screen": True, "layer": -10, "red": 250, "green": 247, "blue": 225}}}
 
@@ -183,7 +183,7 @@ def menu_of(group_menu, group_cells, buttons, offset_y):
             "click": "click"}}},
         {"name": group_cells + "_grid", "components": {
             "transform2d.Position": {},
-            "ui.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": offset_y},
+            "transform2d.Anchor": {"anchor_x": 0.5, "anchor_y": 0.5, "offset_y": offset_y},
             "ui.Grid": {"group": group_cells, "columns": 1, "cell_width": 240,
                         "cell_height": 48, "spacing_y": 14}}},
     ]
@@ -201,13 +201,13 @@ def go(name, scene, **trigger):
 
 
 def scoreboard():
-    """Follows the altitude score of the player: keeps the best (saved) and the last, and stays
+    """Follows the progress score of the player: keeps the best (saved) and the last, and stays
     from scene to scene so that the game over screen can show them."""
     return {"name": "scoreboard", "components": {
         "scene_switch.Persistent": {},
-        "ui.Tag": {"tag": "scoreboard"},
+        "tag.Tag": {"tag": "scoreboard"},
         "records.Record": {"key": "best_height", "source": "player",
-                           "field": "altitude.Altitude.score"}}}
+                           "field": "progress.Progress.score"}}}
 
 
 def boot_scene():
@@ -226,8 +226,11 @@ def menu_scene():
                                                       red=90, green=90, blue=90)},
            {"name": "menu_help2", "components": text("menu.help2", 16, 0, 146, 0.5, 0.5, 0.5, 0.5,
                                                       red=90, green=90, blue=90)}]
-    out += menu_of("main_menu", "menu_buttons", [("play", "menu.play", "start_game")], -40)
+    out += menu_of("main_menu", "menu_buttons",
+                   [("play", "menu.play", "start_game"), ("quit", "menu.quit", "quit_game")], -40)
     out.append(go("go_play", "game", use_action=True, action="start_game"))
+    # The "Quit" button raises quit_game; the host (launcher, player) then closes the game.
+    out.append({"name": "quit_game", "components": {"host.Quit": {"action": "quit_game"}}})
     return out
 
 
@@ -259,21 +262,48 @@ def generators():
             "alt_prefab": "platform_moving", "alt_chance": 0.0, "alt_chance_end": 0.3,
             "alt2_prefab": "platform_vanishing", "alt2_chance": 0.0, "alt2_chance_end": 0.15,
             "extra_prefab": "spring", "extra_chance": 0.12, "extra_chance_end": 0.06,
-            "extra_dx": 22, "extra_dy": -14, "extra_on_alt": False,
-            "x_min": 40, "x_max": 440,
+            "extra_across": 22, "extra_along": 14, "extra_on_alt": False,
+            "across_min": 40, "across_max": 440,
             "gap_min": 50, "gap_max": 90, "gap_min_end": 90, "gap_max_end": 170,
-            "ramp_height": 12000, "origin_y": 690, "next_y": 560}}},
+            "ramp_distance": 12000, "origin": 690, "next": 560}}},
         {"name": "breakables", "components": {"spawner2d.Generator": {
-            "prefab": "platform_breakable", "x_min": 40, "x_max": 440,
+            "prefab": "platform_breakable", "across_min": 40, "across_max": 440,
             "gap_min": 90, "gap_max": 200, "row_chance": 0.5, "row_chance_end": 0.8,
-            "ramp_height": 12000, "origin_y": 690, "from_height": 600, "next_y": 400}}},
+            "ramp_distance": 12000, "origin": 690, "from_distance": 600, "next": 400}}},
         {"name": "monsters", "components": {"spawner2d.Generator": {
             "prefab": "monster", "alt_prefab": "monster_flying",
             "alt_chance": 0.2, "alt_chance_end": 0.6,
-            "x_min": 60, "x_max": 420,
+            "across_min": 60, "across_max": 420,
             "gap_min": 500, "gap_max": 900, "gap_min_end": 330, "gap_max_end": 500,
             "row_chance": 0.6, "row_chance_end": 0.9,
-            "ramp_height": 12000, "origin_y": 690, "from_height": 1800, "next_y": 560}}},
+            "ramp_distance": 12000, "origin": 690, "from_distance": 1800, "next": 560}}},
+    ]
+
+
+def touch_layer():
+    """The controls of a touch screen: a stick on the left (steers), a button on the right
+    (shoots). They only show on a phone, or once a finger has touched the window."""
+    def screen_sprite(frame, size, red, green, blue):
+        return {"atlas": "ui", "frame": frame, "width": size, "height": size, "screen": True,
+                "layer": 20, "red": red, "green": green, "blue": blue}
+    return [
+        {"name": "touch_stick", "components": {
+            "transform2d.Position": {},
+            "transform2d.Anchor": {"anchor_x": 0.0, "anchor_y": 1.0, "offset_x": 100, "offset_y": -110},
+            "sprite2d.Sprite": screen_sprite(0, 130, 90, 90, 90),
+            "touch_controls.TouchStick": {"group": "touch_stick", "action_x": "move_x",
+                                          "radius": 50, "zone": 110, "opacity": 90}}},
+        {"name": "touch_knob", "components": {
+            "transform2d.Position": {},
+            "sprite2d.Sprite": screen_sprite(0, 56, 60, 60, 60),
+            "touch_controls.TouchKnob": {"group": "touch_stick", "opacity": 200}}},
+        {"name": "touch_shoot", "components": {
+            "transform2d.Position": {},
+            "transform2d.Anchor": {"anchor_x": 1.0, "anchor_y": 1.0, "offset_x": -80, "offset_y": -110},
+            "sprite2d.Sprite": screen_sprite(1, 90, 255, 255, 255),
+            "touch_controls.TouchButton": {"action": "shoot", "width": 110, "height": 110,
+                                           "normal_frame": 1, "pressed_frame": 2,
+                                           "opacity": 130}}},
     ]
 
 
@@ -290,12 +320,13 @@ def game_scene():
     out += [
         {"name": "hud_score", "components": bound(
             text("hud.score", 30, 14, 8, red=60, green=60, blue=60),
-            "player", "altitude.Altitude.score")},
+            "player", "progress.Progress.score")},
         {"name": "hud_best", "components": bound(
             text("hud.best", 16, -14, 14, 1.0, 0.0, 1.0, 0.0, red=120, green=120, blue=120),
             "scoreboard", "records.Record.best")},
         go("end_of_game", "gameover", use_action=True, action="died"),
     ]
+    out += touch_layer()
     return out
 
 

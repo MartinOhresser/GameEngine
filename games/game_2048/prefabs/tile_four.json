@@ -1,0 +1,11 @@
+// The tile that is sometimes dealt instead of a 2.
+{
+  "schema_version": 1,
+  "name": "tile_four",
+  "extends": "tile",
+  "components": {
+    "slide_merge.Tile": {
+      "value": 4
+    }
+  }
+}

@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+# Installs an exported game on the running emulator or phone, starts it, and checks that it
+# lives and draws:
+#   run_game_on_device.sh game.apk OUTPUT_DIR
+# The package name is read from the APK. Writes screenshots, the log and a summary to OUTPUT_DIR.
+#
+# With GAME_WINDOW="480 720" (the game's window) and MENU_TAP="W/2 H/2-40" (where its Play button
+# is, in the pixels of the game: W and H are the width and the height of the area the game draws
+# in), it also plays: it taps Play, checks that the menu is gone, holds a finger on the stick at the
+# bottom left and checks that the controls show, then presses Back and checks that the game ends.
+# A game that follows the screen's shape (`adapt` in its window) says so with GAME_ADAPT="0.4 0.8"
+# (the limits of the shape), and W and H are then those of this screen.
+#
+# A game without a Play button plays with touches: GAME_TOUCHES="x:y;x:y" are taps (in the same
+# pixels, with min and max available in the expressions), after each of which the picture must
+# have changed (a piece chosen, a tower built); GAME_SWIPES="x1:y1:x2:y2;..." are swipes of a
+# finger (2048), after which the picture must differ from the one before the first.
+set -uo pipefail
+apk="$1"
+out="$2"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+mkdir -p "$out"
+failures=0
+note() { echo "$*" | tee -a "$out/summary.md"; }
+fail() { note "FAIL: $*"; failures=$((failures + 1)); }
+
+: > "$out/summary.md"
+aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
+package="$("$aapt2" dump packagename "$apk")"
+note "- package: $package"
+
+adb install -r "$apk" > "$out/install.txt" 2>&1 || { cat "$out/install.txt"; fail "the APK does not install"; exit 1; }
+adb logcat -c
+adb shell monkey -p "$package" -c android.intent.category.LAUNCHER 1 > "$out/start.txt" 2>&1
+sleep 12
+adb shell pidof "$package" > "$out/pid.txt" || true
+if [ -s "$out/pid.txt" ]; then note "- the game runs (pid $(cat "$out/pid.txt"))"; else fail "the game is not running twelve seconds after the start"; fi
+
+adb exec-out screencap -p > "$out/shot1.png"
+read -r width height < <(python3 "$here/pixel.py" "$out/shot1.png" size)
+note "- screen: ${width}x${height}"
+# A game that draws is not one flat colour: count the distinct colours of a grid of points.
+colours="$(python3 "$here/pixel.py" "$out/shot1.png" colours)"
+note "- distinct colours on screen: $colours"
+[ "${colours:-0}" -ge 4 ] && note "- the game draws" || fail "the screen is blank (fewer than 4 colours)"
+
+sleep 3
+adb exec-out screencap -p > "$out/shot2.png"
+adb shell pidof "$package" > "$out/pid2.txt" || true
+[ -s "$out/pid2.txt" ] && note "- still running after the second look" || fail "the game ended by itself"
+adb logcat -d > "$out/logcat.txt"
+if grep -E "FATAL EXCEPTION|SIGSEGV|signal 11|Fatal signal" "$out/logcat.txt" | head -3 | grep -q .; then
+  fail "the log shows a crash"
+fi
+grep -E "SDL|$package|DEBUG" "$out/logcat.txt" | head -80 > "$out/game.log" || true
+
+# A point of the game's area, as a fraction of the screen. The area is as high as the screen when
+# the game follows its shape (GAME_ADAPT), else the window, letterboxed. x and y are expressions
+# of W and H, the width and the height of the area ("W/2 H-110").
+fraction() { # "x y" -> "fx fy"
+  python3 - "$width" "$height" $GAME_WINDOW "${GAME_ADAPT:-}" "$1" "$2" <<'PY'
+import sys
+w, h, gw, gh = map(float, sys.argv[1:5])
+adapt, ex, ey = sys.argv[5:8]
+vw, vh, inside = gw, gh, False
+if adapt:
+    low, high = map(float, adapt.split())
+    aspect = min(max(w / h, low), high)
+    inside = low <= w / h <= high
+    if gw <= gh:
+        vh = round(gw / aspect)
+    else:
+        vw = round(gh * aspect)
+env = {"__builtins__": {}, "W": vw, "H": vh, "min": min, "max": max}
+x, y = eval(ex, env), eval(ey, env)
+if inside:
+    print(x / vw, y / vh)
+else:
+    scale = min(w / vw, h / vh)
+    print((w - vw * scale) / 2 / w + x * scale / w, (h - vh * scale) / 2 / h + y * scale / h)
+PY
+}
+pixel() { python3 "$here/pixel.py" "$1" $2; }
+
+if [ -n "${GAME_WINDOW:-}" ] && [ -n "${MENU_TAP:-}" ]; then
+  read -r px py < <(fraction $MENU_TAP)
+  menu_before="$(pixel "$out/shot1.png" "$px $py")"
+  note "- Play button before the tap: ($menu_before)"
+  tap_x="$(python3 -c "print(int($px * $width))")"
+  tap_y="$(python3 -c "print(int($py * $height))")"
+  adb shell input tap "$tap_x" "$tap_y"
+  sleep 4
+  adb exec-out screencap -p > "$out/shot3.png"
+  menu_after="$(pixel "$out/shot3.png" "$px $py")"
+  note "- same place after the tap: ($menu_after)"
+  [ "$menu_before" != "$menu_after" ] && note "- the tap on Play was understood (touch is a click)" || fail "the menu is still there after the tap"
+
+  # A finger held on the stick (bottom left of the window), moved a little but inside its dead
+  # zone so that the jumper stays on its platform; the swipe lasts 5 s in the background.
+  read -r sx sy < <(fraction 100 H-110)
+  read -r ex ey < <(fraction 104 H-110)
+  sx_px="$(python3 -c "print(int($sx * $width))")"; sy_px="$(python3 -c "print(int($sy * $height))")"
+  ex_px="$(python3 -c "print(int($ex * $width))")"; ey_px="$(python3 -c "print(int($ey * $height))")"
+  adb shell input swipe "$sx_px" "$sy_px" "$ex_px" "$ey_px" 5000 &
+  sleep 2
+  adb exec-out screencap -p > "$out/shot4.png"
+  wait
+  # The stick is a grey disc, darker than the paper (250 247 225), at the left of its knob.
+  read -r bx by < <(fraction 70 H-110)
+  base="$(pixel "$out/shot4.png" "$bx $by")"
+  note "- stick base while a finger is on it: ($base)"
+  read -r r g b <<< "$base"
+  if [ "${r:-255}" -lt 235 ]; then note "- the touch controls show"; else fail "the touch controls do not show"; fi
+  adb shell pidof "$package" > "$out/pid3.txt" || true
+  [ -s "$out/pid3.txt" ] && note "- the game plays on after the swipe" || fail "the game ended during the swipe"
+fi
+
+# Taps and swipes of a game that has no menu: each tap changes what the screen shows.
+if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_TOUCHES:-}" ]; then
+  IFS=';' read -ra touches <<< "$GAME_TOUCHES"
+  adb exec-out screencap -p > "$out/touch0.png"
+  # The screen can have turned since the first look (a game that asks for the landscape): measure
+  # it again, and say what it is, so that a failure can be read from the log.
+  read -r width height < <(python3 "$here/pixel.py" "$out/touch0.png" size)
+  note "- screen before the touches: ${width}x${height}"
+  adb shell dumpsys window displays | grep -E "mCurrentRotation|mUserRotation|cur=" | head -4 | tee -a "$out/summary.md" || true
+  adb shell settings get system accelerometer_rotation | sed 's/^/accelerometer_rotation=/' | tee -a "$out/summary.md" || true
+  python3 "$here/pixel.py" "$out/touch0.png" ascii | tee -a "$out/summary.md"
+  number=0
+  for item in "${touches[@]}"; do
+    IFS=':' read -r tx ty <<< "$item"
+    read -r fx fy < <(fraction "$tx" "$ty")
+    adb shell input tap "$(python3 -c "print(int($fx * $width))")" "$(python3 -c "print(int($fy * $height))")"
+    sleep 3
+    number=$((number + 1))
+    adb exec-out screencap -p > "$out/touch$number.png"
+    changed="$(python3 "$here/pixel.py" "$out/touch$((number - 1)).png" differs "$out/touch$number.png")"
+    note "- touch $number: $changed of 6400 points changed"
+    if [ "${changed:-0}" -le 0 ]; then
+      fail "touch $number changed nothing on the screen (tapped at $(python3 -c "print(int($fx * $width), int($fy * $height))"))"
+      python3 "$here/pixel.py" "$out/touch$number.png" ascii | tee -a "$out/summary.md"
+      if [ -z "${probed:-}" ]; then
+      probed=1
+      {
+        echo "--- what the system says about the game's window"
+        adb shell dumpsys activity activities | grep -iE "mResumedActivity|requestedOrientation|screenOrientation|configOrientation" | head -8
+        adb shell dumpsys window windows | grep -E "mCurrentFocus|mFrame=|mRequestedWidth|isReadyForDisplay" | head -8
+        echo "--- the log of the game"
+        adb logcat -d | grep -E "SDL|$package|WindowManager|ActivityTaskManager|Rotation|orientation" | grep -v Stylus | grep -iE "ge\.games|SDL|rotation|orientation" | tail -40
+        echo "--- the top activity"
+        adb shell dumpsys activity top | grep -iE "ACTIVITY|orientation|rotation|mBounds|config" | head -12
+        # Does the game answer at all? A key (space calls the next wave), then a sweep of taps.
+        adb exec-out screencap -p > "$out/probe0.png"
+        adb shell input keyevent KEYCODE_SPACE
+        sleep 3
+        adb exec-out screencap -p > "$out/probe1.png"
+        echo "key space: $(python3 "$here/pixel.py" "$out/probe0.png" differs "$out/probe1.png") of 6400 points changed"
+        echo "--- a sweep of taps: the places where something changed"
+        for gy in 1 2 3 4 5 6 7 8 9; do
+          for gx in 1 2 3 4; do
+            adb exec-out screencap -p > "$out/sweep_before.png"
+            adb shell input tap "$((width * gx / 5))" "$((height * gy / 10))"
+            sleep 1
+            adb exec-out screencap -p > "$out/sweep_after.png"
+            moved="$(python3 "$here/pixel.py" "$out/sweep_before.png" differs "$out/sweep_after.png")"
+            [ "${moved:-0}" -gt 0 ] && echo "tap at $((width * gx / 5)) $((height * gy / 10)): $moved points changed"
+          done
+        done
+      } 2>&1 | cut -c1-200 | tee -a "$out/summary.md"
+      fi
+    fi
+  done
+  adb shell pidof "$package" > "$out/pid4.txt" || true
+  [ -s "$out/pid4.txt" ] && note "- the game plays on after the touches" || fail "the game ended during the touches"
+fi
+if [ -n "${GAME_WINDOW:-}" ] && [ -n "${GAME_SWIPES:-}" ]; then
+  IFS=';' read -ra swipes <<< "$GAME_SWIPES"
+  adb exec-out screencap -p > "$out/swipe0.png"
+  for item in "${swipes[@]}"; do
+    IFS=':' read -r ax ay bx2 by2 <<< "$item"
+    read -r fax fay < <(fraction "$ax" "$ay")
+    read -r fbx fby < <(fraction "$bx2" "$by2")
+    adb shell input swipe "$(python3 -c "print(int($fax * $width))")" "$(python3 -c "print(int($fay * $height))")" \
+      "$(python3 -c "print(int($fbx * $width))")" "$(python3 -c "print(int($fby * $height))")" 250
+    sleep 2
+  done
+  adb exec-out screencap -p > "$out/swipe1.png"
+  changed="$(python3 "$here/pixel.py" "$out/swipe0.png" differs "$out/swipe1.png")"
+  note "- after ${#swipes[@]} swipes: $changed of 6400 points changed"
+  [ "${changed:-0}" -gt 0 ] || fail "the swipes changed nothing on the screen"
+  adb shell pidof "$package" > "$out/pid5.txt" || true
+  [ -s "$out/pid5.txt" ] && note "- the game plays on after the swipes" || fail "the game ended during the swipes"
+fi
+
+adb shell input keyevent KEYCODE_BACK
+sleep 4
+# The process may stay around after the game ends: look at what is on the screen instead.
+adb shell dumpsys activity activities > "$out/activities.txt" || true
+if grep -E "ResumedActivity" "$out/activities.txt" | grep -q "$package"; then
+  fail "after Back the game is still on the screen"
+else
+  note "- Back leaves the game"
+fi
+
+adb logcat -d > "$out/logcat.txt"
+grep -E "SDL|$package|DEBUG" "$out/logcat.txt" | head -120 > "$out/game.log" || true
+exit $((failures > 0 ? 1 : 0))

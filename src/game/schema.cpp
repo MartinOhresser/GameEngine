@@ -152,11 +152,27 @@ Value game_schema(const Catalog& catalog) {
     properties.set("schema_version", version_schema());
     properties.set("name", name_schema());
     properties.set("description", type_only("string"));
+    properties.set("title", type_only("string"));
+    Value version = type_only("string");
+    version.set("pattern", text("^[0-9]+\\.[0-9]+\\.[0-9]+$"));
+    properties.set("version", std::move(version));
+    Value id = type_only("string");
+    id.set("pattern", text("^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"));
+    properties.set("id", std::move(id));
+    properties.set("icon", type_only("string"));
     properties.set("modules", array_of(module_name));
     properties.set("simulation", closed_object(std::move(simulation)));
     Value window = Value::object();
     window.set("width", integer_between(1, 16384));
     window.set("height", integer_between(1, 16384));
+    Value aspect = type_only("number");
+    aspect.set("exclusiveMinimum", Value::integer(0));
+    Value range = Value::object();
+    range.set("min_aspect", aspect);
+    range.set("max_aspect", aspect);
+    Value adapt = Value::object();
+    adapt.set("oneOf", Value::array({type_only("boolean"), closed_object(std::move(range))}));
+    window.set("adapt", std::move(adapt));
     properties.set("window", closed_object(std::move(window)));
     properties.set("params", params_schema(catalog));
     Value list = type_only("array");
@@ -229,7 +245,18 @@ Value scenario_schema() {
     properties.set("description", type_only("string"));
     properties.set("scene", name_schema());
     properties.set("ticks", integer_between(1, 10'000'000));
+    // The screen it is played on (a phone's, say): a game that follows the screen takes its shape.
+    Value screen = Value::object();
+    screen.set("width", integer_between(1, 16384));
+    screen.set("height", integer_between(1, 16384));
+    Value screen_object = closed_object(std::move(screen));
+    screen_object.set("required", required({"width", "height"}));
+    properties.set("screen", std::move(screen_object));
     properties.set("inputs", array_of(input_object));
+    // Run-time lists a host would fill: a name, then texts (any text, not names).
+    Value filled = type_only("object");
+    filled.set("additionalProperties", array_of(type_only("string")));
+    properties.set("lists", std::move(filled));
     const Value check = check_schema();
     properties.set("expect", array_of(check));
     return document("Scenario", std::move(properties),

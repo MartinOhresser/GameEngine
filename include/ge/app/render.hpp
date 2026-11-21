@@ -17,7 +17,10 @@ namespace ge::app {
 /// draw commands, and a `Renderer` is the only thing that knows what a screen
 /// is. Positions and sizes are in world units, seen through the camera.
 struct DrawCommand {
-    /// What is drawn: "square" (a flat square) or "sprite" (a cell of an atlas).
+    /// What is drawn: "square" (a flat square), "rect" (a flat rectangle, `width` by `height`),
+    /// "circle" (`size` is its radius), "line" (from x, y to `x2`, `y2`) or "sprite" (a cell of
+    /// an atlas). Flat shapes are filled when `thickness` is 0 and drawn as an outline of that
+    /// thickness otherwise (a line is always `thickness` thick, at least one pixel).
     std::string what;
     float x = 0.0F; ///< Centre, in world units.
     float y = 0.0F;
@@ -33,6 +36,14 @@ struct DrawCommand {
     /// The position and size are pixels of the window and the camera does not
     /// apply: for the interface, which stays put while the world scrolls.
     bool screen = false;
+    /// Lines: the end point, in world units.
+    float x2 = 0.0F;
+    float y2 = 0.0F;
+    /// How much bigger than its size it is drawn, around its centre (1: as it is). A sprite
+    /// of size 0 is drawn at its cell's size times this.
+    float scale = 1.0F;
+    /// Outline or line thickness, in world units; 0 fills a shape.
+    float thickness = 0.0F;
 
     friend bool operator==(const DrawCommand&, const DrawCommand&) = default;
 };

@@ -1,0 +1,1130 @@
+{
+  "schema_version": 1,
+  "name": "main",
+  "entities": [
+    {
+      "name": "paper",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0.5,
+          "anchor_y": 0.5
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 4000,
+          "height": 4000,
+          "screen": true,
+          "layer": -10,
+          "red": 250,
+          "green": 247,
+          "blue": 225
+        }
+      }
+    },
+    {
+      "name": "title",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 44
+        },
+        "text2d.Text": {
+          "string": "launcher.title",
+          "font": "font",
+          "size": 40,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 40
+        }
+      }
+    },
+    {
+      "name": "hint",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 40,
+          "offset_y": 88
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        }
+      }
+    },
+    {
+      "name": "controller",
+      "components": {
+        "ui.Menu": {
+          "group": "main_menu",
+          "up": "menu_up",
+          "down": "menu_down",
+          "left": "menu_left",
+          "right": "menu_right",
+          "accept": "menu_accept",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "click"
+        }
+      }
+    },
+    {
+      "name": "pages",
+      "components": {
+        "ui.Pager": {
+          "list": "games",
+          "menu": "main_menu",
+          "page_size": 8,
+          "previous": "page_prev",
+          "next": "page_next"
+        }
+      }
+    },
+    {
+      "name": "row0",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 124
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 0,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 0
+        }
+      }
+    },
+    {
+      "name": "row1",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 170
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 1,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 1
+        }
+      }
+    },
+    {
+      "name": "row2",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 216
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 2,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 2
+        }
+      }
+    },
+    {
+      "name": "row3",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 262
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 3,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 3
+        }
+      }
+    },
+    {
+      "name": "row4",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 308
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 4,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 4
+        }
+      }
+    },
+    {
+      "name": "row5",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 354
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 5,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 5
+        }
+      }
+    },
+    {
+      "name": "row6",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 400
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 6,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 6
+        }
+      }
+    },
+    {
+      "name": "row7",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 205,
+          "offset_y": 446
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 330,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": 0
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 7,
+          "action": "play_game",
+          "width": 330,
+          "height": 40,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        },
+        "text2d.Dynamic": {},
+        "ui.Row": {
+          "list": "games",
+          "row": 7
+        }
+      }
+    },
+    {
+      "name": "export0",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 124
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 11,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 0
+        }
+      }
+    },
+    {
+      "name": "export1",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 170
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 12,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 1
+        }
+      }
+    },
+    {
+      "name": "export2",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 216
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 13,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 2
+        }
+      }
+    },
+    {
+      "name": "export3",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 262
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 14,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 3
+        }
+      }
+    },
+    {
+      "name": "export4",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 308
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 15,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 4
+        }
+      }
+    },
+    {
+      "name": "export5",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 354
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 16,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 5
+        }
+      }
+    },
+    {
+      "name": "export6",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 400
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 17,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 6
+        }
+      }
+    },
+    {
+      "name": "export7",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 396,
+          "offset_y": 446
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 4,
+          "width": 40,
+          "height": 40,
+          "screen": true,
+          "layer": 10
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 18,
+          "action": "open_export",
+          "width": 40,
+          "height": 40,
+          "normal_frame": 4,
+          "focus_frame": 5,
+          "disabled_frame": 3
+        },
+        "ui.RowButton": {
+          "list": "games",
+          "row": 7
+        }
+      }
+    },
+    {
+      "name": "button_prev",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 68,
+          "offset_y": 506
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 56,
+          "height": 36,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": "button.prev"
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 8,
+          "action": "page_prev",
+          "width": 56,
+          "height": 36,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        }
+      }
+    },
+    {
+      "name": "button_next",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 130,
+          "offset_y": 506
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 56,
+          "height": 36,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": "button.next"
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 9,
+          "action": "page_next",
+          "width": 56,
+          "height": 36,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        }
+      }
+    },
+    {
+      "name": "button_quit",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 214,
+          "offset_y": 506
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 1,
+          "width": 100,
+          "height": 36,
+          "screen": true,
+          "layer": 10
+        },
+        "text2d.Text": {
+          "font": "font",
+          "size": 20,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "string": "button.quit"
+        },
+        "ui.Button": {
+          "menu": "main_menu",
+          "order": 10,
+          "action": "quit_game",
+          "width": 100,
+          "height": 36,
+          "normal_frame": 1,
+          "focus_frame": 2,
+          "disabled_frame": 3
+        }
+      }
+    },
+    {
+      "name": "go_export",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "export",
+          "use_action": true,
+          "action": "open_export"
+        }
+      }
+    },
+    {
+      "name": "quit_game",
+      "components": {
+        "host.Quit": {
+          "action": "quit_game"
+        }
+      }
+    },
+    {
+      "name": "play_it",
+      "components": {
+        "host.Call": {
+          "command": "play",
+          "action": "play_game",
+          "list": "games"
+        }
+      }
+    },
+    {
+      "name": "detail0",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 134
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 28,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 120,
+          "blue": 40
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 0
+        }
+      }
+    },
+    {
+      "name": "detail1",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 170
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 120,
+          "green": 120,
+          "blue": 120
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 1
+        }
+      }
+    },
+    {
+      "name": "detail2",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 204
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 2
+        }
+      }
+    },
+    {
+      "name": "detail3",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 228
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 3
+        }
+      }
+    },
+    {
+      "name": "detail4",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 252
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 4
+        }
+      }
+    },
+    {
+      "name": "detail5",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 276
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 5
+        }
+      }
+    },
+    {
+      "name": "detail6",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 300
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 6
+        }
+      }
+    },
+    {
+      "name": "detail7",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 324
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 16,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 7
+        }
+      }
+    },
+    {
+      "name": "detail8",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 368
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 120,
+          "green": 120,
+          "blue": 120
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 8
+        }
+      }
+    },
+    {
+      "name": "detail9",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0,
+          "anchor_y": 0,
+          "offset_x": 440,
+          "offset_y": 392
+        },
+        "text2d.Text": {
+          "string": "launcher.hint",
+          "font": "font",
+          "size": 14,
+          "screen": true,
+          "pivot_x": 0.0,
+          "pivot_y": 0.5,
+          "red": 120,
+          "green": 120,
+          "blue": 120
+        },
+        "text2d.Dynamic": {
+          "list": "details",
+          "index": 9
+        }
+      }
+    }
+  ]
+}

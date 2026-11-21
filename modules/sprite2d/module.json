@@ -37,6 +37,17 @@
         { "name": "looping", "type": "bool", "default": true },
         { "name": "elapsed", "type": "u32", "default": 0 }
       ]
+    },
+    {
+      "name": "FrameBind",
+      "description": "Chooses the Sprite's picture from a number of the game: every tick, the entity's own number field (written \"module.Component.field\", for example \"slide_merge.Tile.value\") gives the cell first_frame + n, where n is the number itself, or its base 2 logarithm rounded down (2 gives 1, 8 gives 3, 0 gives 0) with log2. frame_count, when more than 0, stops it on the last of that many cells. The colour of a tile from its value, a gauge, a state shown by a picture. A missing component leaves n at 0.",
+      "replicable": false,
+      "fields": [
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" },
+        { "name": "first_frame", "type": "u32", "default": 0 },
+        { "name": "log2", "type": "bool", "default": false },
+        { "name": "frame_count", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -51,7 +62,15 @@
       "name": "draw",
       "description": "Asks the renderer to draw every Sprite, lowest layer first. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.",
       "stage": "PostUpdate",
-      "reads": ["Sprite", "transform2d.Position"]
+      "reads": ["Sprite", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"]
+    },
+    {
+      "name": "bind_frame",
+      "description": "Sets the frame of every Sprite that has a FrameBind from the entity's own number.",
+      "stage": "FixedUpdate",
+      "reads": [],
+      "writes": ["Sprite"],
+      "after": ["animate"]
     }
   ]
 }

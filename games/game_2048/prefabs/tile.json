@@ -1,0 +1,52 @@
+// A tile. It sits on a cell of the board (it takes the one it is created on),
+// glides when the board slides, appears small and grows to its size, and shows
+// its value with the picture of its colour and its digits.
+{
+  "schema_version": 1,
+  "name": "tile",
+  "components": {
+    "transform2d.Position": {},
+    "transform2d.Scale": {
+      "factor": 0.2
+    },
+    "tween2d.Settle": {
+      "field": "transform2d.Scale.factor",
+      "toward": 1,
+      "rate": 0.3
+    },
+    "grid2d.GridPos": {
+      "grid": "board",
+      "glide": 0.5,
+      "from_position": true
+    },
+    "slide_merge.Tile": {
+      "value": 2
+    },
+    "sprite2d.Sprite": {
+      "atlas": "tiles",
+      "frame": 1,
+      "width": 90,
+      "height": 90,
+      "layer": 1
+    },
+    "sprite2d.FrameBind": {
+      "field": "slide_merge.Tile.value",
+      "log2": true,
+      "frame_count": 14
+    },
+    "text2d.Text": {
+      "string": "tile.value",
+      "font": "font",
+      "size": 34,
+      "pivot_x": 0.5,
+      "pivot_y": 0.5,
+      "red": 90,
+      "green": 80,
+      "blue": 70
+    },
+    "ui.Bind": {
+      "field": "slide_merge.Tile.value",
+      "own": true
+    }
+  }
+}

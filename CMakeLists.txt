@@ -28,7 +28,9 @@ else()
   option(GE_BUILD_PLATFORM "Build the SDL3 window backend and geplay" OFF)
 endif()
 
+include(cmake/GeCompilerCache.cmake)
 include(cmake/GeOptions.cmake)
+include(cmake/GeRegistry.cmake)
 
 add_subdirectory(src)
 add_subdirectory(modules)

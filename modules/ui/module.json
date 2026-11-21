@@ -3,20 +3,9 @@
   "schema_version": 1,
   "name": "ui",
   "version": "0.1.0",
-  "description": "Interfaces made of entities: things that stay where the window's edges put them, rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
-  "depends": ["transform2d", "sprite2d", "text2d"],
+  "description": "Interfaces made of entities: rows and grids of cells, bars that fill, texts and bars that show a number of the game, and menus whose buttons raise actions. Nothing here is a particular HUD or menu: a game assembles its own.",
+  "depends": ["transform2d", "sprite2d", "text2d", "tag"],
   "components": [
-    {
-      "name": "Anchor",
-      "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts.",
-      "replicable": false,
-      "fields": [
-        { "name": "anchor_x", "type": "f32", "default": 0 },
-        { "name": "anchor_y", "type": "f32", "default": 0 },
-        { "name": "offset_x", "type": "f32", "default": 0 },
-        { "name": "offset_y", "type": "f32", "default": 0 }
-      ]
-    },
     {
       "name": "Grid",
       "description": "Lays out the entities that have a Cell of the same group: cell number n goes in column n % columns and row n / columns, cell_width + spacing_x and cell_height + spacing_y apart, the first cell being centred on the Grid's own Position. columns 1 makes a column, a large number a row. A hotbar, an inventory, a list of buttons and a table are all grids with other numbers. group names an item of the game's \"group\" list (game.json lists).",
@@ -40,18 +29,13 @@
       ]
     },
     {
-      "name": "Tag",
-      "description": "A name an entity answers to, so that a Bind can find it without a reference to it: the player, a boss. tag names an item of the game's \"tag\" list. When several entities share a tag, the oldest one is found.",
-      "replicable": false,
-      "fields": [{ "name": "tag", "type": "u32", "default": 0, "ref": "tag" }]
-    },
-    {
       "name": "Bind",
-      "description": "Shows a number of the game: every tick, the value of field (written \"module.Component.field\", for example \"pickup.Collector.score\") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. A missing source or component leaves the value at 0.",
+      "description": "Shows a number of the game: every tick, the value of field (written \"module.Component.field\", for example \"pickup.Collector.score\") of the entity tagged source is copied into this entity's Text value and into its Bar value, whichever it has. With own, the entity reads the field of itself instead of the entity tagged source: the number written on a tile, the health bar of a monster (put a Bind on the entity that has the Bar and the Health). A missing source or component leaves the value at 0.",
       "replicable": false,
       "fields": [
         { "name": "source", "type": "u32", "default": 0, "ref": "tag" },
-        { "name": "field", "type": "u32", "default": 0, "ref": "field" }
+        { "name": "field", "type": "u32", "default": 0, "ref": "field" },
+        { "name": "own", "type": "bool", "default": false }
       ]
     },
     {
@@ -68,7 +52,7 @@
     },
     {
       "name": "Menu",
-      "description": "The controller of one menu: the Buttons of the same group. up and down (actions of the game) move the focus from button to button in the order of their numbers, accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's \"menu\" list; wrap makes the focus go round. focused is the number of the focused button.",
+      "description": "The controller of one menu: the Buttons of the same group. They are read as a table, as they are laid out on the screen: the ones side by side (about the same height) make a row. left and right (actions of the game) move the focus along the row, up and down to the row above or below, to the button that is the nearest; buttons on top of each other count as one after the other, in the order of their numbers. accept presses the focused one; with use_pointer, the pointer (the actions pointer_x and pointer_y, in pixels) focuses the button it is over when it moves and click presses it. An action left out is none: nothing happens for it. group names an item of the game's \"menu\" list; wrap makes the focus go round. focused is the number of the focused button.",
       "replicable": false,
       "fields": [
         { "name": "group", "type": "u32", "default": 0, "ref": "menu" },
@@ -76,6 +60,8 @@
         { "name": "wrap", "type": "bool", "default": true },
         { "name": "up", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "down", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "left", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "right", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "accept", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "use_pointer", "type": "bool", "default": false },
         { "name": "pointer_x", "type": "u32", "default": 4294967295, "ref": "action" },
@@ -87,7 +73,7 @@
     },
     {
       "name": "Button",
-      "description": "A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused.",
+      "description": "A button of the menu of the same group: number order in the focus order, centred on the Position and width by height pixels big (for the pointer). Pressing it raises the action named by action (none when left out), which lasts one tick: a GoToScene that uses that action then changes the scene, an inventory or any rule can listen to it too. The entity's Sprite shows cell normal_frame, or focus_frame while the button is focused. A button that is not enabled cannot be focused, hovered or pressed, and shows disabled_frame (a Row turns its button off when the page has no item for it).",
       "replicable": false,
       "fields": [
         { "name": "menu", "type": "u32", "default": 0, "ref": "menu" },
@@ -96,31 +82,60 @@
         { "name": "width", "type": "f32", "default": 100 },
         { "name": "height", "type": "f32", "default": 30 },
         { "name": "normal_frame", "type": "u32", "default": 0 },
-        { "name": "focus_frame", "type": "u32", "default": 0 }
+        { "name": "focus_frame", "type": "u32", "default": 0 },
+        { "name": "enabled", "type": "bool", "default": true },
+        { "name": "disabled_frame", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Pager",
+      "description": "A list filled while the game runs (the games a launcher found, the players of a lobby), shown a page at a time. list names an item of the game's \"runtime_list\" list; page_size is how many Rows show it at once and page the one shown (0 is the first). The actions previous and next (an action left out is none) change the page, which never leaves 0 to pages - 1; pages is written for you, at least 1. menu names the game's \"menu\" whose Buttons are the Rows: the Row that has the focus becomes the selected item of the list, and stays selected when the focus goes to another button (Previous, Play...), so host.Call can act on it.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "menu", "type": "u32", "default": 0, "ref": "menu" },
+        { "name": "page", "type": "u32", "default": 0 },
+        { "name": "page_size", "type": "u32", "default": 5 },
+        { "name": "previous", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "next", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pages", "type": "u32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Row",
+      "description": "One line of the Pager of the same list: it shows item number page * page_size + row of the list. The entity needs a text2d.Text and a text2d.Dynamic (written for you: the list and the item to show) and, to be chosen, a Button. When the page has no item for the row, the Button is switched off. item is written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "row", "type": "u32", "default": 0 },
+        { "name": "item", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "RowButton",
+      "description": "A second button for a Row: it stands for the same item of the same Pager's list (an export icon beside each game, a delete button beside each save). Give it a Button; it is switched off when the page has no item for the row, and when it has the focus, or is pressed, the item of its row is the selected item of the list, so host.Call can act on it. It is a separate entity from the Row's own, so the two can be told apart and sit side by side (left and right move the focus from one to the other). item is written for you.",
+      "replicable": false,
+      "fields": [
+        { "name": "list", "type": "u32", "default": 0, "ref": "runtime_list" },
+        { "name": "row", "type": "u32", "default": 0 },
+        { "name": "item", "type": "u32", "default": 0 }
       ]
     }
   ],
   "systems": [
-    {
-      "name": "anchor",
-      "description": "Puts every anchored entity where the window's size says.",
-      "stage": "FixedUpdate",
-      "reads": ["Anchor"],
-      "writes": ["transform2d.Position"]
-    },
     {
       "name": "layout",
       "description": "Places the cells of every grid.",
       "stage": "FixedUpdate",
       "reads": ["Grid", "Cell"],
       "writes": ["transform2d.Position"],
-      "after": ["anchor"]
+      "after": ["transform2d.anchor"]
     },
     {
       "name": "bind",
       "description": "Copies the bound numbers into the texts and bars that show them.",
       "stage": "FixedUpdate",
-      "reads": ["Bind", "Tag"],
+      "reads": ["Bind", "tag.Tag"],
       "writes": ["text2d.Text", "Bar"]
     },
     {
@@ -137,7 +152,22 @@
       "stage": "FixedUpdate",
       "reads": ["Button", "transform2d.Position"],
       "writes": ["Menu", "sprite2d.Sprite"],
+      "after": ["layout", "pager"]
+    },
+    {
+      "name": "pager",
+      "description": "Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.",
+      "stage": "FixedUpdate",
+      "reads": ["Pager", "Row", "RowButton"],
+      "writes": ["Pager", "Row", "RowButton", "Button", "text2d.Dynamic"],
       "after": ["layout"]
+    },
+    {
+      "name": "select",
+      "description": "Makes the item of the focused Row (or RowButton) the selected item of its list.",
+      "stage": "FixedUpdate",
+      "reads": ["Pager", "Row", "RowButton", "Menu", "Button"],
+      "after": ["menu"]
     }
   ]
 }

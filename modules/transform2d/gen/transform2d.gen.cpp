@@ -42,6 +42,24 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Position* component = world.get<Position>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "x") {
+        component->x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "y") {
+        component->y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_0_fields{{{"x", "f32", "", false}, {"y", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -72,13 +90,340 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Velocity* component = world.get<Velocity>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "x") {
+        component->x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "y") {
+        component->y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"x", "f32", "", false}, {"y", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Position", true, component_0_fields, insert_component_0, read_component_0}, {"Velocity", true, component_1_fields, insert_component_1, read_component_1}}};
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Hidden component;
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 1> system_0_reads{"transform2d.Velocity"};
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Hidden* component = world.get<Hidden>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Hidden* component = world.get<Hidden>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 0> component_2_fields{};
+
+void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Owner component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "entity") {
+            component.entity = ::ge::app::scalar_as<std::uint64_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Owner* component = world.get<Owner>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "entity") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->entity)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Owner* component = world.get<Owner>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "entity") {
+        component->entity = ::ge::app::scalar_as<std::uint64_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 1> component_3_fields{{{"entity", "u64", "", false}}};
+
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Attach component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "offset_x") {
+            component.offset_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "offset_y") {
+            component.offset_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "despawn_with_owner") {
+            component.despawn_with_owner = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Attach* component = world.get<Attach>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "offset_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_x)};
+    }
+    if (field == "offset_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_y)};
+    }
+    if (field == "despawn_with_owner") {
+        return ::ge::app::Scalar{static_cast<bool>(component->despawn_with_owner)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Attach* component = world.get<Attach>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "offset_x") {
+        component->offset_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "offset_y") {
+        component->offset_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "despawn_with_owner") {
+        component->despawn_with_owner = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 3> component_4_fields{{{"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}, {"despawn_with_owner", "bool", "", false}}};
+
+void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Scale component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "factor") {
+            component.factor = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Scale* component = world.get<Scale>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "factor") {
+        return ::ge::app::Scalar{static_cast<double>(component->factor)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Scale* component = world.get<Scale>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "factor") {
+        component->factor = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 1> component_5_fields{{{"factor", "f32", "", false}}};
+
+void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Disabled component;
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Disabled* component = world.get<Disabled>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    return std::nullopt;
+}
+
+bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Disabled* component = world.get<Disabled>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 0> component_6_fields{};
+
+void insert_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    SpeedScale component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "factor") {
+            component.factor = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "ticks") {
+            component.ticks = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_7(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const SpeedScale* component = world.get<SpeedScale>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "factor") {
+        return ::ge::app::Scalar{static_cast<double>(component->factor)};
+    }
+    if (field == "ticks") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->ticks)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_7(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    SpeedScale* component = world.get<SpeedScale>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "factor") {
+        component->factor = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "ticks") {
+        component->ticks = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 2> component_7_fields{{{"factor", "f32", "", false}, {"ticks", "u32", "", false}}};
+
+void insert_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Anchor component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "anchor_x") {
+            component.anchor_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "anchor_y") {
+            component.anchor_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "offset_x") {
+            component.offset_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "offset_y") {
+            component.offset_y = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_8(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Anchor* component = world.get<Anchor>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "anchor_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->anchor_x)};
+    }
+    if (field == "anchor_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->anchor_y)};
+    }
+    if (field == "offset_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_x)};
+    }
+    if (field == "offset_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->offset_y)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_8(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Anchor* component = world.get<Anchor>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "anchor_x") {
+        component->anchor_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "anchor_y") {
+        component->anchor_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "offset_x") {
+        component->offset_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "offset_y") {
+        component->offset_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 4> component_8_fields{{{"anchor_x", "f32", "", false}, {"anchor_y", "f32", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 9> components{{{"Position", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Velocity", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Hidden", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Owner", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Attach", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Scale", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Disabled", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"SpeedScale", true, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"Anchor", false, component_8_fields, insert_component_8, read_component_8, write_component_8}}};
+
+constexpr std::array<std::string_view, 2> system_0_reads{"transform2d.Velocity", "transform2d.SpeedScale"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
-constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"transform2d.integrate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
+constexpr std::array<std::string_view, 2> system_1_reads{"transform2d.Owner", "transform2d.Attach"};
+constexpr std::array<std::string_view, 1> system_1_writes{"transform2d.Position"};
+constexpr std::array<std::string_view, 1> system_2_reads{"transform2d.SpeedScale"};
+constexpr std::array<std::string_view, 0> system_2_writes{};
+constexpr std::array<std::string_view, 1> system_3_reads{"transform2d.Anchor"};
+constexpr std::array<std::string_view, 1> system_3_writes{"transform2d.Position"};
+constexpr std::array<::ge::app::SystemInfo, 4> systems{{{"transform2d.integrate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"transform2d.attach", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"transform2d.wear_off", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"transform2d.anchor", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}}};
 
 constexpr std::array<std::string_view, 0> depends{};
 constexpr std::array<::ge::app::ParamInfo, 1> params{{{"speed_scale", "f32", 0.0, 10.0}}};
@@ -106,6 +451,9 @@ void install(::ge::app::App& app) {
     app.add_module(info());
     app.world().insert_resource(Params{});
     app.add_system(::ge::app::Stage::FixedUpdate, &integrate, "transform2d.integrate");
+    app.add_system(::ge::app::Stage::FixedUpdate, &attach, "transform2d.attach", ::ge::app::Order::between({"transform2d.integrate"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &wear_off, "transform2d.wear_off", ::ge::app::Order::between({"transform2d.integrate"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &anchor, "transform2d.anchor", ::ge::app::Order::between({"transform2d.attach"}, {}));
 }
 
 } // namespace ge::mod::transform2d

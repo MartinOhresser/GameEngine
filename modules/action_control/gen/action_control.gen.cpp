@@ -24,6 +24,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.horizontal = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "vertical") {
             component.vertical = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "action_x") {
+            component.action_x = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "action_y") {
+            component.action_y = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -44,12 +48,48 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     if (field == "vertical") {
         return ::ge::app::Scalar{static_cast<bool>(component->vertical)};
     }
+    if (field == "action_x") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->action_x)};
+    }
+    if (field == "action_y") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->action_y)};
+    }
     return std::nullopt;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"speed", "f32", "", false}, {"horizontal", "bool", "", false}, {"vertical", "bool", "", false}}};
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Controlled* component = world.get<Controlled>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "speed") {
+        component->speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "horizontal") {
+        component->horizontal = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "vertical") {
+        component->vertical = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "action_x") {
+        component->action_x = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action_y") {
+        component->action_y = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Controlled", true, component_0_fields, insert_component_0, read_component_0}}};
+constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"speed", "f32", "", false}, {"horizontal", "bool", "", false}, {"vertical", "bool", "", false}, {"action_x", "u32", "action", false}, {"action_y", "u32", "action", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Controlled", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"action_control.Controlled"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Velocity"};

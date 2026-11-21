@@ -1,8 +1,10 @@
+#include "ge/app/fields.hpp"
 #include "ge/app/render.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <vector>
 
@@ -41,6 +43,33 @@ void animate(ecs::World& world) {
     });
 }
 
+void bind_frame(ecs::World& world) {
+    const auto* table = world.resource<app::FieldTable>();
+    if (table == nullptr) {
+        return;
+    }
+    world.each<const FrameBind, Sprite>(
+        [&](ecs::Entity entity, const FrameBind& bind, Sprite& sprite) {
+            std::int64_t number = 0;
+            if (bind.field < table->entries.size()) {
+                const app::FieldEntry& field = table->entries[bind.field];
+                if (field.component != nullptr && field.component->read != nullptr) {
+                    if (const auto read = field.component->read(world, entity, field.field)) {
+                        number = std::max<std::int64_t>(app::scalar_as<std::int64_t>(*read), 0);
+                    }
+                }
+            }
+            auto step = static_cast<std::uint32_t>(std::min<std::int64_t>(number, 0x7FFFFFFF));
+            if (bind.log2) {
+                step = step == 0U ? 0U : static_cast<std::uint32_t>(std::bit_width(step)) - 1U;
+            }
+            if (bind.frame_count > 0U) {
+                step = std::min(step, bind.frame_count - 1U);
+            }
+            sprite.frame = bind.first_frame + step;
+        });
+}
+
 void draw(ecs::World& world) {
     auto* backend = world.resource<app::RenderBackend>();
     if (backend == nullptr) {
@@ -48,7 +77,10 @@ void draw(ecs::World& world) {
     }
     std::vector<Queued> queue;
     world.each<const Sprite, const transform2d::Position>(
-        [&queue](ecs::Entity, const Sprite& sprite, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Sprite& sprite, const transform2d::Position& position) {
+            if (world.has<transform2d::Hidden>(entity)) {
+                return;
+            }
             // The pivot says which point of the picture sits on the Position (0.5:
             // the middle). It needs a size in world units to move anything.
             const float x = position.x + (0.5F - sprite.pivot_x) * sprite.width;
@@ -60,6 +92,9 @@ void draw(ecs::World& world) {
             command.height = sprite.height;
             command.flip_x = sprite.flip_x;
             command.screen = sprite.screen;
+            if (const auto* scale = world.get<transform2d::Scale>(entity); scale != nullptr) {
+                command.scale = scale->factor;
+            }
             queue.push_back({sprite.layer, command});
         });
     // Stable: sprites of one layer keep the order the world visits them in.

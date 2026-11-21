@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "locale": "en",
+  "entries": {
+    "hud.gold": "Gold {value}",
+    "hud.wave": "Wave {value}",
+    "hud.wave_last": "/ {value}",
+    "hud.lives": "Lives {value}",
+    "end.won": "The road held: you win!",
+    "end.lost": "The base has fallen",
+    "button.cannon": "Cannon 50",
+    "button.mortar": "Mortar 90",
+    "button.ice": "Ice 70",
+    "button.sniper": "Sniper 120",
+    "button.upgrade": "Upgrade {value}",
+    "button.sell": "Sell {value}",
+    "button.next": "Next wave",
+    "button.new": "New game"
+  }
+}

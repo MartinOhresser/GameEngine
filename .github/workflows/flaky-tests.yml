@@ -1,0 +1,48 @@
+name: Flaky tests
+
+# The platform tests run a real-time loop, so how many ticks they see depends on how fast the
+# machine is. This workflow repeats them on the three systems, so that a test that only fails
+# sometimes is found here and not in the middle of somebody's pull request.
+on:
+  schedule:
+    - cron: "43 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      repeat:
+        description: "How many times each test run is repeated"
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  repeat:
+    name: Platform tests x${{ inputs.repeat || '30' }} on ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Linux", os: ubuntu-24.04, cxx: g++-13 }
+          - { name: "macOS", os: macos-latest, cxx: clang++ }
+          - { name: "Windows", os: windows-latest, cxx: cl }
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install SDL3 build dependencies (Linux)
+        if: runner.os == 'Linux'
+        uses: ./.github/actions/sdl-deps
+      - name: Install Ninja (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+      - name: Install Ninja (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ninja -y
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure
+        run: cmake --preset platform -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+      - name: Build
+        run: cmake --build --preset platform
+      - name: Repeat the tests until one fails
+        run: ctest --preset platform --repeat until-fail:${{ inputs.repeat || '30' }}

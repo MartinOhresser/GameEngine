@@ -1,0 +1,78 @@
+// A key (or a button) chooses the tower of the next purchase: the mortar costs 90.
+{
+  "schema_version": 1,
+  "name": "the_shop_chooses_what_is_bought",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "pick_mortar",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "pick_mortar",
+      "value": 0
+    },
+    {
+      "tick": 14,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 14,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 15,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 25,
+      "action": "pick_cannon",
+      "value": 1
+    },
+    {
+      "tick": 26,
+      "action": "pick_cannon",
+      "value": 0
+    },
+    {
+      "tick": 34,
+      "action": "pointer_x",
+      "value": 298
+    },
+    {
+      "tick": 34,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 36,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 40,
+      "check": "wallet.economy.Wallet.amount == 10"
+    },
+    {
+      "at": 40,
+      "check": "entities == 146"
+    }
+  ]
+}

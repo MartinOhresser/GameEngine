@@ -1,0 +1,13 @@
+// A block: the jumper bounces on it when it falls onto its right side, and goes through it from
+// the other side. It is destroyed once it is well past the left edge of the screen.
+{
+  "schema_version": 1,
+  "name": "block",
+  "components": {
+    "transform2d.Position": {},
+    "debug_draw.Square": { "size": 40, "red": 110, "green": 200, "blue": 90 },
+    "collision2d.Collider": { "width": 40, "height": 40, "layer": ["block"], "mask": 0 },
+    "bounce2d.Bouncy": { "strength": 760 },
+    "bounds2d.OutOfView": { "margin": 120, "side_x": -1, "side_y": 0 }
+  }
+}

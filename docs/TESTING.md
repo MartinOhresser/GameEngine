@@ -45,6 +45,8 @@ Les scénarios sont des fichiers de `scenarios/`, listés dans le manifeste (`"s
 
 - `ticks` : nombre de ticks à jouer (1 à 10 000 000). Les ticks se comptent à partir de 0 ; une entrée du tick N s'applique au début du tick N.
 - `inputs` : changements d'action (`value` vaut 1 si omis).
+- `screen` (facultatif) : `"screen": { "width": 320, "height": 640 }`, la taille en pixels de l'écran sur lequel on joue (un téléphone tenu droit, ici). Un jeu dont la fenêtre suit l'écran (`window.adapt`) prend alors sa forme, comme sur un appareil : la zone de dessin, l'interface ancrée aux bords et les entrées de pointeur (en pixels de cette zone) sont ceux d'un vrai téléphone. C'est ce qui permet de tester en local qu'un bouton reste dans l'écran et qu'un toucher atteint sa cible, sans émulateur. Sans `window.adapt`, la clé est sans effet.
+- `lists` (facultatif) : listes d'exécution remplies avant le premier tick, comme le ferait un hôte : `"lists": { "games": ["Alpha", "Beta"] }`. Les noms viennent de la liste `runtime_list` du jeu.
 - `expect` : une vérification est soit un texte (vérifiée à la fin), soit `{ "at": N, "check": "…" }` (vérifiée après N ticks).
 
 ### Les vérifications
@@ -55,6 +57,9 @@ Les scénarios sont des fichiers de `scenarios/`, listés dans le manifeste (`"s
 | le nombre d'entités | `entities == 3` |
 | une entité existe / n'existe plus | `hero alive`, `spark gone` |
 | la scène courante | `scene is credits` |
+| le jeu demande à quitter | `game quits` |
+| le jeu a appelé une commande de l'hôte | `host calls play` (liste `host_command`) |
+| l'élément sélectionné d'une liste d'exécution | `list games selected == 1` (aucun : 4294967295) |
 | l'empreinte de l'état | `fingerprint == 5f4962bd950cf9b3` |
 
 Comparaisons : `==`, `!=`, `<`, `<=`, `>`, `>=`. Un champ booléen se compare à `true` ou `false` avec `==` ou `!=`. Les nombres sont comparés à 0,01 % près (relatif) : les valeurs de jeu sont des flottants, `== 0.1` ne doit pas dépendre du dernier bit.

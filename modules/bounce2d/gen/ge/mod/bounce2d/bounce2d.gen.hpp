@@ -11,37 +11,39 @@
 
 namespace ge::mod::bounce2d {
 
-/// The entity lands on Bouncy surfaces. It needs a Position, a Velocity and a Collider (its box is what lands). The tick it lands, its bottom edge is compared with where it was one tick before, so a fast fall cannot go through a thin surface. bounces counts the bounces so far.
+/// The entity lands on Bouncy surfaces. It needs a Position, a Velocity and a Collider (its box is what lands). The tick it lands, its bottom edge is compared with where it was one tick before, so a fast fall cannot go through a thin surface. bounces counts the bounces so far. fall_x and fall_y are the direction it falls in (0, 1: down, as on screen where y grows downwards; 0, -1: up; 1, 0: right; -1, 0: left): the axis with the bigger number is the one that counts, and surfaces are landed on from the side the Bouncer comes from. A game whose gravity points left gives its Bouncers fall_x -1 and fall_y 0.
 struct Bouncer {
     std::uint32_t bounces = 0U;
+    float fall_x = 0.0F;
+    float fall_y = 1.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(bounces);
+        hasher.add(fall_x);
+        hasher.add(fall_y);
     }
 
     [[nodiscard]] friend bool operator==(const Bouncer&, const Bouncer&) = default;
 };
 
-/// A surface that throws a landing Bouncer up at strength units per second (a Collider gives its size; only its top edge counts). A Bouncer that falls onto it from above lands; one that rises through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed. kills removes the surface after the bounce too, for a monster that is jumped on.
+/// A surface that throws a landing Bouncer back (against its fall) at strength units per second (a Collider gives its size; only the edge the Bouncer comes from counts: the top edge for a Bouncer that falls down). A Bouncer that falls onto it lands; one that moves away through it, or that passes beside it, does not. vanish removes the surface after one bounce. breaks makes it give way instead of throwing the Bouncer back: the Bouncer keeps falling, and the surface stops being Bouncy and drops at fall_speed (in the direction the Bouncer falls). A monster that dies when jumped on is a vanishing surface.
 struct Bouncy {
     float strength = 760.0F;
     bool vanish = false;
     bool breaks = false;
     float fall_speed = 300.0F;
-    bool kills = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(strength);
         hasher.add(vanish);
         hasher.add(breaks);
         hasher.add(fall_speed);
-        hasher.add(kills);
     }
 
     [[nodiscard]] friend bool operator==(const Bouncy&, const Bouncy&) = default;
 };
 
-/// For every falling Bouncer, finds the highest Bouncy surface whose top edge its bottom edge crossed this tick, with the two overlapping sideways, and applies the landing: the Bouncer's Velocity becomes upward and it is put on the surface, unless the surface breaks. Runs after the movement and before collision2d.detect, so a monster that is jumped on is gone before anything counts what touches the player.
+/// For every falling Bouncer, finds the highest Bouncy surface whose top edge its bottom edge crossed this tick, with the two overlapping sideways, and applies the landing: the Bouncer's Velocity points against its fall and it is put on the surface, unless the surface breaks. Runs after the movement and before collision2d.detect, so a monster that is jumped on is gone before anything counts what touches the player.
 /// Runs in FixedUpdate.
 void bounce(::ge::ecs::World& world);
 

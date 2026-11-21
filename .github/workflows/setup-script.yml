@@ -1,0 +1,39 @@
+name: Setup script
+
+# Runs scripts/setup_linux.sh for real on a clean Ubuntu: the runner's own Android SDK is hidden
+# (ANDROID_HOME unset, the script goes to a new folder), so the script must download it.
+# Not part of "CI success": it runs when the script changes, or on demand.
+on:
+  pull_request:
+    paths: ["scripts/setup_linux.sh", ".github/workflows/setup-script.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: setup_linux.sh --android --dev
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run the script
+        run: |
+          unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_NDK_ROOT ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
+          scripts/setup_linux.sh --android --dev --yes --sdk-dir "$RUNNER_TEMP/sdk"
+      - name: Run it again (nothing must change)
+        run: |
+          scripts/setup_linux.sh --android --dev --yes --sdk-dir "$RUNNER_TEMP/sdk" | tee again.log
+          grep -q "System packages: all there" again.log
+          grep -q "Android command-line tools: already there" again.log
+      - name: Build gectl and ask what is missing
+        run: |
+          export ANDROID_HOME="$RUNNER_TEMP/sdk"
+          javac="$(readlink -f "$(command -v javac)")"
+          JAVA_HOME="$(dirname "$(dirname "$javac")")"
+          export JAVA_HOME
+          cmake --preset dev
+          cmake --build --preset dev --target gectl
+          ./build/dev/tools/gectl export --targets | tee targets.log
+          grep -i android targets.log | grep -qi ready

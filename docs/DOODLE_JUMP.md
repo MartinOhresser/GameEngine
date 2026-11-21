@@ -1,6 +1,6 @@
 # Doodle Jump : un jeu de saut sans fin, fait de données
 
-`games/doodle_jump` reproduit les mécaniques de Doodle Jump (l'esthétique est sommaire) **sans une ligne de C++ propre au jeu** : tout est dans `game.json`, les préfabs et les scènes. Pour que ce soit possible, le moteur a gagné des modules génériques (`gravity2d`, `bounce2d`, `patrol2d`, `spawner2d`, `combat2d`, `altitude`, `records`), réutilisables pour tout jeu de plateformes ou de montée (un jeu de plateformes classique, un jeu de tir vertical, un « endless runner »).
+`games/doodle_jump` reproduit les mécaniques de Doodle Jump (l'esthétique est sommaire) **sans une ligne de C++ propre au jeu** : tout est dans `game.json`, les préfabs et les scènes. Pour que ce soit possible, le moteur a gagné des modules génériques (`gravity2d`, `bounce2d`, `patrol2d`, `spawner2d`, `combat2d`, `progress`, `records`), réutilisables pour tout jeu de plateformes ou de montée (un jeu de plateformes classique, un jeu de tir vertical, un « endless runner »).
 
 ```
 geplay games/doodle_jump/game.json
@@ -16,13 +16,13 @@ Flèches ou A / D : bouger. Espace ou Haut : tirer. Entrée ou clic : choisir da
 | Il rebondit tout seul sur une plateforme où il atterrit, la traverse par en dessous et par le côté | `bounce2d.Bouncer` (sauteur) et `bounce2d.Bouncy` (surface, avec sa force de rebond) |
 | Plateforme verte, bleue qui glisse, blanche qui disparaît après un rebond, marron qui cède | préfabs `platform`, `platform_moving` (`patrol2d.Patrol`), `platform_vanishing` (`vanish`), `platform_breakable` (`breaks`) |
 | Ressort : un rebond bien plus haut | préfab `spring` (force 1250 contre 760) |
-| Monstre : tue au contact, meurt si on lui saute dessus (et on rebondit très haut) ou si on lui tire dessus | préfabs `monster` et `monster_flying` : `Bouncy` avec `kills`, `combat2d.Target`, couche `monster` |
+| Monstre : tue au contact, meurt si on lui saute dessus (et on rebondit très haut) ou si on lui tire dessus | préfabs `monster` et `monster_flying` : `Bouncy` avec `vanish`, `health.Health` (une vie), `combat2d.ContactDamage` sur la couche du joueur, couche `monster` |
 | Tir vers le haut | `spawner2d.Shooter` du sauteur (action `shoot`), préfab `bullet` (`combat2d.Projectile`) |
 | Sortir par un côté ramène de l'autre | `screen_wrap.WrapArea` avec `wrap_y` éteint |
 | L'écran ne fait que monter | `camera2d.CameraFollow` avec `only_up`, `follow_x` éteint et `offset_y` |
-| Le monde se construit à l'infini, de plus en plus dur | trois `spawner2d.Generator` (plateformes, plateformes cassables, monstres) ; `spawner2d.Cull` retire ce qui est tombé sous l'écran |
-| Le score est la hauteur | `altitude.Altitude` (`scale` 0,5) |
-| Tomber sous l'écran ou toucher un monstre = perdu | `combat2d.Mortal` (`fall_death`, `hurt_layers`, action `died`) puis `scene_switch.GoToScene` vers `gameover` |
+| Le monde se construit à l'infini, de plus en plus dur | trois `spawner2d.Generator` (plateformes, plateformes cassables, monstres) ; `bounds2d.OutOfView` retire ce qui est tombé sous l'écran |
+| Le score est la hauteur | `progress.Progress` (`scale` 0,5) |
+| Tomber sous l'écran ou toucher un monstre = perdu | `health.Health` (une vie, action `died`, le joueur reste à l'écran) blessé par le `ContactDamage` des monstres, et `bounds2d.OutOfView` (sortie par le bas, action `died`) puis `scene_switch.GoToScene` vers `gameover` |
 | Meilleur score, gardé d'une partie à l'autre | `records.Record` (entité `scoreboard`, persistante) ; sauvegardé sur le disque par `geplay` |
 | Menu, partie, fin de partie, « Rejouer » | scènes `menu`, `game`, `gameover` ; `GoToScene` avec une action de bouton |
 
@@ -34,9 +34,9 @@ Comme à l'écran, **y augmente vers le bas** : la gravité est positive, monter
 
 - La forme du saut : `gravity2d.Gravity.y` (player.json) et `bounce2d.Bouncy.strength` (platform.json). La hauteur d'un saut est `force² / (2 × gravité)` : 760 et 1400 donnent 206 unités.
 - **L'écart maximal entre deux plateformes doit rester sous la hauteur du saut**, sinon la partie devient impossible : c'est `gap_max_end` du générateur `platforms` (scenes/game.json, 170 pour un saut de 206).
-- La difficulté monte sur `ramp_height` unités de hauteur (12000) : chaque réglage `*_end` (écarts, chance des plateformes mobiles et blanches, chance des ressorts, fréquence des monstres) est atteint à cette hauteur. Un `*_end` à -1 veut dire « ne change pas ».
-- Les monstres n'apparaissent qu'à partir de `from_height` (1800).
-- Le score : `altitude.Altitude.scale` (player.json).
+- La difficulté monte sur `ramp_distance` unités de distance parcourue vers le haut (12000) : chaque réglage `*_end` (écarts, chance des plateformes mobiles et blanches, chance des ressorts, fréquence des monstres) est atteint à cette hauteur. Un `*_end` à -1 veut dire « ne change pas ».
+- Les monstres n'apparaissent qu'à partir de `from_distance` (1800).
+- Le score : `progress.Progress.scale` (player.json).
 
 ## Le banc d'essai
 

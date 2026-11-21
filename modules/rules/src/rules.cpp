@@ -1,0 +1,99 @@
+#include "ge/app/fields.hpp"
+#include "ge/app/input.hpp"
+#include "ge/app/scene.hpp"
+#include "ge/mod/rules/rules.gen.hpp"
+#include "ge/mod/tag/find.hpp"
+#include "ge/mod/transform2d/transform2d.gen.hpp"
+
+#include <algorithm>
+#include <cstdint>
+#include <optional>
+#include <utility>
+#include <vector>
+
+namespace ge::mod::rules {
+
+namespace {
+
+const app::FieldEntry* field_of(const app::FieldTable* table, std::uint32_t index) {
+    if (table == nullptr || index >= table->entries.size()) {
+        return nullptr;
+    }
+    const app::FieldEntry& entry = table->entries[index];
+    return entry.component == nullptr ? nullptr : &entry;
+}
+
+float number(const ecs::World& world, ecs::Entity entity, const app::FieldEntry* field) {
+    if (field == nullptr || field->component->read == nullptr || !world.is_alive(entity)) {
+        return 0.0F;
+    }
+    const auto value = field->component->read(world, entity, field->field);
+    return value ? app::scalar_as<float>(*value) : 0.0F;
+}
+
+/// The entity that `holder` points to with a field that holds an entity link (none if the
+/// holder has no such field).
+ecs::Entity linked(const ecs::World& world, ecs::Entity holder, const app::FieldEntry* link) {
+    if (link->component->read == nullptr || !world.is_alive(holder)) {
+        return ecs::Entity{};
+    }
+    const auto value = link->component->read(world, holder, link->field);
+    return value ? ecs::Entity::from_link(app::scalar_as<std::uint64_t>(*value)) : ecs::Entity{};
+}
+
+void raise(const app::ActionNames* names, app::Actions* actions, std::uint32_t action) {
+    if (names != nullptr && actions != nullptr && action < names->names.size()) {
+        actions->raise(names->names[action]);
+    }
+}
+
+} // namespace
+
+void watch(ecs::World& world) {
+    const auto* table = world.resource<app::FieldTable>();
+    const auto* names = world.resource<app::ActionNames>();
+    auto* actions = world.resource<app::Actions>();
+    const tag::Tagged tagged = tag::tagged(world);
+    world.each<Watch>([&](ecs::Entity entity, Watch& rule) {
+        if (world.has<transform2d::Disabled>(entity) || (rule.once && rule.fired)) {
+            return;
+        }
+        const ecs::Entity watched = rule.own ? entity : tagged.find(rule.source);
+        const float now = number(world, watched, field_of(table, rule.field));
+        const bool inside = now >= rule.min && now <= rule.max;
+        if (inside && !rule.inside) {
+            rule.fired = true;
+            raise(names, actions, rule.action);
+        }
+        rule.inside = inside;
+    });
+}
+
+void on_action(ecs::World& world) {
+    const auto* table = world.resource<app::FieldTable>();
+    const auto* names = world.resource<app::ActionNames>();
+    const auto* actions = world.resource<app::Actions>();
+    if (names == nullptr || actions == nullptr) {
+        return;
+    }
+    const tag::Tagged tagged = tag::tagged(world);
+    world.each<const OnAction>([&](ecs::Entity entity, const OnAction& rule) {
+        if (rule.action >= names->names.size() || !actions->pressed(names->names[rule.action]) ||
+            world.has<transform2d::Disabled>(entity)) {
+            return;
+        }
+        const app::FieldEntry* field = field_of(table, rule.field);
+        ecs::Entity target = rule.own ? entity : tagged.find(rule.source);
+        if (const app::FieldEntry* link = field_of(table, rule.link)) {
+            target = linked(world, target, link);
+        }
+        if (field == nullptr || field->component->write == nullptr || !world.is_alive(target)) {
+            return;
+        }
+        const float next = rule.add ? number(world, target, field) + rule.value : rule.value;
+        static_cast<void>(field->component->write(world, target, field->field,
+                                                  app::Scalar{static_cast<double>(next)}));
+    });
+}
+
+} // namespace ge::mod::rules

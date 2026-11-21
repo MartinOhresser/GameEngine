@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "locale": "en",
+  "entries": {
+    "hud.title": "2048",
+    "hud.score": "Score {value}",
+    "hud.best": "Best {value}",
+    "hud.help": "Arrows, W A S D or swipe: slide the tiles",
+    "won.title": "You made 2048!",
+    "lost.title": "No more moves",
+    "button.new": "New game",
+    "button.continue": "Keep going",
+    "tile.value": "{value}"
+  }
+}

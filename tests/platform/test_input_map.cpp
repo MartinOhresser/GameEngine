@@ -72,6 +72,24 @@ TEST_CASE("input map: the pointer's position is in pixels, not an axis") {
     CHECK(actions.value("pointer_y") == 77.5F);
 }
 
+TEST_CASE("input map: the position of a finger is in pixels too") {
+    const auto result = ge::platform::parse_input_map(R"({"schema_version": 1, "bindings": [
+        {"action": "touch_x", "sources": {"touch:x": 1}},
+        {"action": "touch_y2", "sources": {"touch:y2": 1}},
+        {"action": "touch_down", "sources": {"touch:down": 1}}]})",
+                                                      "input.json");
+    REQUIRE(result.ok());
+    RawState raw;
+    raw.set("touch:x", 300.0F);
+    raw.set("touch:y2", 512.0F);
+    raw.set("touch:down", 1.0F);
+    LiveInput actions;
+    result.map.apply(raw, actions);
+    CHECK(actions.value("touch_x") == 300.0F);
+    CHECK(actions.value("touch_y2") == 512.0F);
+    CHECK(actions.value("touch_down") == 1.0F);
+}
+
 TEST_CASE("input map: two sources of the same direction never go beyond 1") {
     const auto result = ge::platform::parse_input_map(arrows_file, "input.json");
     RawState raw;

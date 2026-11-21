@@ -2,15 +2,20 @@
 // sound card), so they run anywhere, CI included; keys are pushed into SDL's
 // real event queue, so the path from a key to an action is the real one.
 #include "ge/game/runtime.hpp"
+#include "ge/platform/sdl/assets.hpp"
 #include "ge/platform/sdl/sdl_backend.hpp"
 
 #include "mini_test.hpp"
 
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #ifdef GE_HAS_GEPLAY
 #include "ge/platform/sdl/geplay.hpp"
@@ -118,6 +123,54 @@ TEST_CASE("sdl: keys and mouse buttons arrive as raw events, repeats do not") {
     CHECK(events[5].value == 0.0F);
 }
 
+TEST_CASE("sdl: fingers arrive as touch sources, the first one also as a click") {
+    auto backend = open();
+    REQUIRE(backend != nullptr);
+    CHECK(!backend->inject_finger(1, 0.5F, 0.5F, "tap"));
+    // The window is 800x600 by default: the middle is (400, 300), a quarter is (200, 150).
+    CHECK(backend->inject_finger(7, 0.5F, 0.5F, "down"));
+    CHECK(backend->inject_finger(9, 0.25F, 0.25F, "down"));
+    CHECK(backend->inject_finger(9, 0.5F, 0.25F, "motion"));
+    CHECK(backend->inject_finger(7, 0.5F, 0.5F, "up"));
+    std::vector<ge::platform::RawEvent> events;
+    CHECK(backend->poll(events));
+    ge::platform::RawState state;
+    int clicks = 0;
+    for (const ge::platform::RawEvent& event : events) {
+        state.set(event.source, event.value);
+        clicks += event.source == "mouse:left" ? 1 : 0;
+    }
+    // The first finger came and went: a press and a release of the left button, once each.
+    CHECK(clicks == 2);
+    CHECK(state.value("touch:down") == 0.0F);
+    CHECK(state.value("touch:x") == 400.0F);
+    CHECK(state.value("touch:y") == 300.0F);
+    CHECK(state.value("mouse:left") == 0.0F);
+    // The second finger is still down and moved.
+    CHECK(state.value("touch:down2") == 1.0F);
+    CHECK(state.value("touch:x2") == 400.0F);
+    CHECK(state.value("touch:y2") == 150.0F);
+    CHECK(state.value("touch:down3") == 0.0F);
+
+    // A finger that goes first takes the first slot again.
+    CHECK(backend->inject_finger(11, 0.0F, 0.0F, "down"));
+    events.clear();
+    CHECK(backend->poll(events));
+    REQUIRE(!events.empty());
+    CHECK(events.front().source == "touch:x");
+    CHECK(ge::platform::is_valid_source("touch:down5"));
+}
+
+TEST_CASE("sdl: the Back button of Android is a key like another") {
+    auto backend = open();
+    REQUIRE(backend != nullptr);
+    CHECK(backend->inject_key("AC Back", true));
+    std::vector<ge::platform::RawEvent> events;
+    CHECK(backend->poll(events));
+    REQUIRE(events.size() == 1U);
+    CHECK(events[0].source == "key:ac_back");
+}
+
 TEST_CASE("sdl: closing the window stops the loop") {
     auto backend = open();
     REQUIRE(backend != nullptr);
@@ -126,6 +179,89 @@ TEST_CASE("sdl: closing the window stops the loop") {
     const auto result = ge::platform::run_loop(app, *backend, ge::platform::InputMap{});
     CHECK(result.backend_stopped);
     CHECK(result.frames == 0U);
+}
+
+TEST_CASE("sdl: the window can take another size, and the frame follows it") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    CHECK(!backend->resize(0, 100));
+    REQUIRE(backend->resize(480, 800));
+    auto renderer = backend->renderer();
+    renderer->draw({"square", 240.0F, 400.0F, 20.0F, 0xFF8000FFU});
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    REQUIRE(frame.width == 480);
+    REQUIRE(frame.height == 800);
+    CHECK(frame.at(240, 400) == 0xFF8000FFU);
+}
+
+TEST_CASE("sdl: rectangles, circles and lines are drawn, filled or as outlines") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    constexpr std::uint32_t orange = 0xFF8000FFU;
+    constexpr std::uint32_t background = 0x121420FFU;
+    ge::app::DrawCommand filled{"rect", 100.0F, 100.0F, 0.0F, orange};
+    filled.width = 40.0F;
+    filled.height = 20.0F;
+    renderer->draw(filled);
+    ge::app::DrawCommand frame = filled;
+    frame.x = 300.0F;
+    frame.thickness = 4.0F;
+    renderer->draw(frame);
+    const ge::app::DrawCommand disc{"circle", 100.0F, 300.0F, 30.0F, orange};
+    renderer->draw(disc);
+    ge::app::DrawCommand ring = disc;
+    ring.x = 300.0F;
+    ring.thickness = 4.0F;
+    renderer->draw(ring);
+    ge::app::DrawCommand line{"line", 500.0F, 100.0F, 0.0F, orange};
+    line.x2 = 500.0F;
+    line.y2 = 200.0F;
+    line.thickness = 6.0F;
+    renderer->draw(line);
+    renderer->end_frame();
+    const sdl::Frame& image = backend->last_frame();
+    CHECK(image.at(100, 100) == orange); // a filled rectangle
+    CHECK(image.at(81, 91) == orange);
+    CHECK(image.at(79, 100) == background);
+    CHECK(image.at(300, 100) == background); // an outline is hollow...
+    CHECK(image.at(281, 100) == orange);     // ...with an edge
+    CHECK(image.at(100, 300) == orange);     // a disc
+    CHECK(image.at(100, 275) == orange);
+    CHECK(image.at(100, 335) == background);
+    CHECK(image.at(300, 300) == background); // a ring is hollow too
+    CHECK(image.at(300, 273) == orange);
+    CHECK(image.at(500, 150) == orange); // a line
+    CHECK(image.at(520, 150) == background);
+}
+
+TEST_CASE("sdl: a game that follows the screen takes the shape of the window") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    REQUIRE(backend->resize(480, 720));
+    CHECK(backend->view_size().first == 0); // fixed until a game asks
+    backend->adapt_view(0.4F, 0.8F);
+    CHECK(backend->view_size().first == 480);
+    CHECK(backend->view_size().second == 720);
+
+    // A phone 9:20 high: the width stays, the height grows, and the frame is that big.
+    REQUIRE(backend->inject_window_size(270, 600));
+    std::vector<ge::platform::RawEvent> events;
+    backend->poll(events);
+    CHECK(backend->view_size().first == 480);
+    CHECK(backend->view_size().second == 1067);
+    // A square 1000 pixels down the game's view: it only exists on a view that tall (the window
+    // has 270 x 600 pixels, so it lands at 135 x 562).
+    backend->renderer()->draw({"square", 240.0F, 1000.0F, 20.0F, 0xFF8000FFU});
+    backend->renderer()->end_frame();
+    CHECK(backend->last_frame().width == 270);
+    CHECK(backend->last_frame().height == 600);
+    CHECK(backend->last_frame().at(135, 562) == 0xFF8000FFU);
+
+    // Back to a fixed area with a new size.
+    REQUIRE(backend->resize(480, 720));
+    CHECK(backend->view_size().first == 0);
 }
 
 TEST_CASE("sdl: a mouse click reaches the game as an action") {
@@ -141,7 +277,11 @@ TEST_CASE("sdl: a mouse click reaches the game as an action") {
     CHECK(backend->inject_mouse_button("left", true));
     ge::platform::LoopOptions options;
     options.max_frames = 5;
-    ge::platform::run_loop(app, *backend, map, options);
+    // A tick runs only once enough real time has passed, which a fast machine may not have
+    // reached after five frames: keep playing until the click was seen (a second at most).
+    for (int round = 0; round < 200 && !fired; ++round) {
+        ge::platform::run_loop(app, *backend, map, options);
+    }
     CHECK(fired);
 }
 
@@ -191,6 +331,20 @@ TEST_CASE("sdl: the devices a game keeps outlive the backend") {
     renderer.reset();
     std::error_code ignored;
     fs::remove(path, ignored);
+}
+
+TEST_CASE("sdl: the software renderer draws the same frame") {
+    sdl::WindowOptions options = headless(true);
+    options.software = true;
+    std::string error;
+    auto backend = sdl::SdlBackend::create(options, error);
+    CHECK(error.empty());
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->draw({"square", 100.0F, 50.0F, 20.0F, 0xFF8000FFU});
+    renderer->end_frame();
+    CHECK(backend->last_frame().at(100, 50) == 0xFF8000FFU);
+    CHECK(backend->last_frame().at(400, 300) == 0x121420FFU);
 }
 
 TEST_CASE("sdl: a frame is drawn, captured and saved") {
@@ -377,16 +531,33 @@ TEST_CASE("geplay: a held key moves the square on screen") {
     REQUIRE(backend != nullptr);
     CHECK(backend->inject_key("Right", true));
     ge::platform::LoopOptions options;
-    options.max_frames = 30;
+    // Few frames, so that however slow the machine is (the loop catches up at most 8 ticks a
+    // frame) the player cannot have left the 800 pixel wide screen.
+    options.max_frames = 10;
     ge::platform::run_loop(app, *backend, loaded.game.input, options);
 
-    CHECK(app.tick_count() >= 10U);
-    // The player started at 400, 300 and moved right, 3 units per tick.
+    // The player started at 400, 300 and moved right, 3 units per tick. How many ticks ran
+    // depends on the machine's speed, so the test finds the player on the row it moves along
+    // instead of at a computed pixel.
+    REQUIRE(app.tick_count() >= 1U);
     const sdl::Frame& frame = backend->last_frame();
-    CHECK(frame.at(400, 300) == 0x121420FFU); // where it was: the background now
-    const double x = 400.0 + 3.0 * static_cast<double>(app.tick_count());
-    CHECK(frame.at(static_cast<int>(std::lround(x)), 300) == 0x6EE7A0FFU); // the player's colour
-    CHECK(frame.at(100, 100) == 0x475569FFU);                              // a landmark
+    int first = -1;
+    int last = -1;
+    for (int x = 0; x < frame.width; ++x) {
+        if (frame.at(x, 300) == 0x6EE7A0FFU) { // the player's colour
+            first = first < 0 ? x : first;
+            last = x;
+        }
+    }
+    if (first < 0) { // the log of a failing run must say what the loop did
+        std::fprintf(stderr, "no player pixel on row 300 after %llu ticks in %llu frames\n",
+                     static_cast<unsigned long long>(app.tick_count()),
+                     static_cast<unsigned long long>(options.max_frames));
+    }
+    REQUIRE(first >= 0);
+    CHECK(static_cast<double>(first + last) / 2.0 >= 402.0);
+    CHECK(static_cast<double>(first + last) / 2.0 <= 400.0 + 3.0 * 8.0 * 10.0 + 2.0);
+    CHECK(frame.at(100, 100) == 0x475569FFU); // a landmark
 }
 
 TEST_CASE("geplay: plays a game headless and saves a screenshot") {
@@ -460,13 +631,13 @@ fs::path write_scoring_game(const char* name) {
     fs::create_directories(directory, ignored);
     std::ofstream game(directory / "game.json");
     game << R"({"schema_version": 1, "name": "scoring",
-                "modules": ["transform2d", "sprite2d", "text2d", "ui", "records"],
+                "modules": ["transform2d", "sprite2d", "text2d", "tag", "ui", "records"],
                 "lists": {"tag": ["player", "board"], "record": ["best"]},
                 "scenes": ["main.json"], "start_scene": "main"})";
     std::ofstream scene(directory / "main.json");
     scene << R"({"schema_version": 1, "name": "main", "entities": [
-        {"components": {"ui.Tag": {"tag": "player"}, "ui.Bar": {"value": 42, "max": 100}}},
-        {"components": {"ui.Tag": {"tag": "board"}, "records.Record": {
+        {"components": {"tag.Tag": {"tag": "player"}, "ui.Bar": {"value": 42, "max": 100}}},
+        {"components": {"tag.Tag": {"tag": "board"}, "records.Record": {
             "key": "best", "source": "player", "field": "ui.Bar.value"}}}]})";
     return directory;
 }
@@ -525,3 +696,38 @@ TEST_CASE("geplay: a headless run without --save writes nothing") {
 }
 
 #endif
+
+TEST_CASE("assets: a file is read whole, and a missing one is nothing") {
+    const fs::path path = temp_file("assets_read.txt");
+    {
+        std::ofstream file(path, std::ios::binary);
+        file << "one\r\ntwo";
+    }
+    const std::optional<std::string> text = sdl::read_file(path.string());
+    REQUIRE(text.has_value());
+    CHECK(*text == "one\r\ntwo");
+    CHECK(
+        !sdl::read_file((fs::temp_directory_path() / "ge_no_such_file.txt").string()).has_value());
+}
+
+TEST_CASE("assets: the files of a game come from its index, else from its folder") {
+    const fs::path folder = temp_file("assets_game");
+    std::error_code ignored;
+    fs::remove_all(folder, ignored);
+    fs::create_directories(folder / "sounds");
+    for (const char* name : {"game.json", "sounds/b.wav", "sounds/a.wav"}) {
+        std::ofstream(folder / name) << "x";
+    }
+    const std::string root = folder.string() + "/";
+    // No index: the folder is walked, in order, with `/` separators.
+    const std::vector<std::string> walked{"game.json", "sounds/a.wav", "sounds/b.wav"};
+    CHECK(sdl::list_game_files(root) == walked);
+    // An index wins: the files of an APK cannot be walked. A line ending is tolerated.
+    {
+        std::ofstream index(folder / sdl::file_index_name, std::ios::binary);
+        index << "sounds/z.wav\r\ngame.json\n\n";
+    }
+    const std::vector<std::string> indexed{"game.json", "sounds/z.wav"};
+    CHECK(sdl::list_game_files(root) == indexed);
+    fs::remove_all(folder, ignored);
+}

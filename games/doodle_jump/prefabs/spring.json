@@ -10,6 +10,6 @@
     },
     "collision2d.Collider": { "width": 24, "height": 14, "layer": ["platform"], "mask": 0 },
     "bounce2d.Bouncy": { "strength": 1250 },
-    "spawner2d.Cull": { "margin": 120 }
+    "bounds2d.OutOfView": { "margin": 120 }
   }
 }

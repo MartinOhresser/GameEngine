@@ -11,7 +11,7 @@
 
 namespace ge::mod::records {
 
-/// Follows the number field (written "module.Component.field", as for a Bind) of the entity tagged source, as long as that entity exists. last is the latest value seen: it stays when the source is gone, so a game over screen can show the score of the game that just ended. best is the highest value ever seen; it starts from what was saved under key (a name of the game's "record" list) on the first tick, and is saved again each time it grows. Give the entity a scene_switch.Persistent to keep it from scene to scene, and a ui.Tag so that a Bind can show best and last. Saved values are whole numbers; the save is kept by the program that plays the game (geplay writes it to the player's application-data folder; a scenario starts empty).
+/// Follows the number field (written "module.Component.field", as for a Bind) of the entity tagged source, as long as that entity exists. last is the latest value seen: it stays when the source is gone, so a game over screen can show the score of the game that just ended. best is the highest value ever seen; it starts from what was saved under key (a name of the game's "record" list) on the first tick, and is saved again each time it grows. Give the entity a scene_switch.Persistent to keep it from scene to scene, and a tag.Tag so that a Bind can show best and last. Saved values are whole numbers; the save is kept by the program that plays the game (geplay writes it to the player's application-data folder; a scenario starts empty).
 struct Record {
     std::uint32_t key = 0U;
     std::uint32_t source = 0U;

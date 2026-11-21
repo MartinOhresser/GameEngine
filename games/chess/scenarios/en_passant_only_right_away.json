@@ -1,0 +1,231 @@
+// The capture in passing is possible at once or never: after another move the pawn stays.
+{
+  "schema_version": 1,
+  "name": "en_passant_only_right_away",
+  "scene": "test_en_passant",
+  "ticks": 80,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 15,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 15,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 16,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 17,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 21,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 21,
+      "action": "pointer_y",
+      "value": 183
+    },
+    {
+      "tick": 22,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 23,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 27,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 27,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 28,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 29,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 33,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 33,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 34,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 35,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 39,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 39,
+      "action": "pointer_y",
+      "value": 488
+    },
+    {
+      "tick": 40,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 41,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 45,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 45,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 46,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 47,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 51,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 51,
+      "action": "pointer_y",
+      "value": 132
+    },
+    {
+      "tick": 52,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 53,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 57,
+      "action": "pointer_x",
+      "value": 265
+    },
+    {
+      "tick": 57,
+      "action": "pointer_y",
+      "value": 285
+    },
+    {
+      "tick": 58,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 59,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 63,
+      "action": "pointer_x",
+      "value": 215
+    },
+    {
+      "tick": 63,
+      "action": "pointer_y",
+      "value": 234
+    },
+    {
+      "tick": 64,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 65,
+      "action": "click",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 80,
+      "check": "bp alive"
+    },
+    {
+      "at": 80,
+      "check": "wp.grid2d.GridPos.col == 4"
+    },
+    {
+      "at": 80,
+      "check": "wp.grid2d.GridPos.row == 3"
+    },
+    {
+      "at": 80,
+      "check": "bp.grid2d.GridPos.col == 3"
+    },
+    {
+      "at": 80,
+      "check": "bp.grid2d.GridPos.row == 3"
+    }
+  ]
+}

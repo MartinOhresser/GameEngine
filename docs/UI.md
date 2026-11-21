@@ -10,11 +10,13 @@ Les champs qui désignent « un élément d'une liste » s'écrivent avec des no
 "lists": {
   "menu": ["main_menu"],                    // les menus (ui.Menu / ui.Button)
   "group": ["menu_buttons", "hotbar"],      // les groupes de cases d'une grille (ui.Grid / ui.Cell)
-  "tag": ["player"],                        // les étiquettes (ui.Tag)
+  "tag": ["player"],                        // les étiquettes (tag.Tag)
   "container": ["backpack", "chest"],       // les conteneurs (inventory.Slot / Item)
   "item_kind": ["key", "sword", "potion"],  // les genres d'objets
   "category": ["tool", "weapon", "consumable"], // les catégories d'objets (32 au plus)
-  "action": ["start_game"]                  // actions propres au jeu, en plus de input.json
+  "action": ["start_game"],                 // actions propres au jeu, en plus de input.json
+  "runtime_list": ["games"],                // les listes de textes remplies pendant la partie
+  "host_command": ["play"]                  // les commandes que le jeu peut envoyer à son hôte
 }
 ```
 
@@ -22,7 +24,10 @@ La liste `field` est faite par le moteur : tous les champs des modules du jeu, s
 
 ## La fenêtre
 
-`window` dans `game.json` donne la taille en pixels (800 par 600 par défaut). Elle est lue par la simulation (ressource `Viewport`), donc une interface ancrée donne les mêmes positions partout, dans un scénario comme dans une fenêtre. `geplay --size` la remplace pour une fenêtre. La position du pointeur arrive comme des actions : liez `mouse:x` et `mouse:y` à des actions de `input.json` (`pointer_x`, `pointer_y`), en pixels de la fenêtre et sans limite à 1.
+`window` dans `game.json` donne la taille en pixels (800 par 600 par défaut). Elle est lue par la simulation (ressource `Viewport`), donc une interface ancrée donne les mêmes positions partout, dans un scénario comme dans une fenêtre. `geplay --size` la remplace pour une fenêtre. 
+**S'adapter à l'écran.** Les téléphones n'ont pas tous la même forme (16:9, 19,5:9, 20:9…) : avec une zone fixe, un jeu garde des bandes sur le côté. `"window": {"width": 480, "height": 720, "adapt": true}` fait suivre la forme de l'écran : le petit côté garde sa taille (ici la largeur, 480) et le grand s'étire pour remplir l'écran (480 par 853 en 9:16, par 1067 en 9:20). `adapt` vaut `true` (de 0,4 à 0,8 pour un jeu plus haut que large, de 1,25 à 2,4 pour un jeu plus large que haut) ou `{"min_aspect": 0.5, "max_aspect": 0.7}` : la largeur divisée par la hauteur, la forme de la fenêtre y comprise. Au-delà, l'écran garde des bandes. La ressource `Viewport` prend la taille de la zone à chaque image : une interface ancrée (`transform2d.Anchor`) suit les bords, et `spawner2d` et `bounds2d` s'en servent pour construire le monde devant la caméra et retirer ce qui est sorti. Un jeu qui s'adapte ne doit donc rien placer à une position fixe qui dépende de la hauteur : ancrez-le, ou partez du centre. Ni les scénarios ni `--size` ne s'adaptent (ils jouent la taille de `window`), ce qui garde les tests identiques partout ; `geplay --window 360x800` essaie une forme de téléphone sur un ordinateur.
+
+La position du pointeur arrive comme des actions : liez `mouse:x` et `mouse:y` à des actions de `input.json` (`pointer_x`, `pointer_y`), en pixels de la fenêtre et sans limite à 1.
 
 ## Le module `ui`
 
@@ -33,7 +38,9 @@ La liste `field` est faite par le moteur : tous les champs des modules du jeu, s
 | `Tag` | un nom que porte une entité (« player »), pour la retrouver sans référence |
 | `Bind` | recopie chaque tick un champ de l'entité qui porte le `Tag` `source` dans le `Text.value` et le `Bar.value` de sa propre entité (score, vie…) |
 | `Bar` | une barre : un `Sprite` de longueur `length * value / max` ; avec un `pivot_x` de 0 elle grandit depuis son bord gauche |
-| `Menu` + `Button` | le contrôleur d'un menu et ses boutons : haut/bas déplacent le focus, `accept` appuie ; avec `use_pointer`, la souris focalise le bouton survolé et `click` appuie |
+| `Menu` + `Button` | le contrôleur d'un menu et ses boutons, lus comme un tableau d'après leur place à l'écran (les boutons côte à côte, à peu près à la même hauteur, forment une ligne) : `left`/`right` déplacent le focus le long de la ligne, `up`/`down` vont à la ligne du dessus ou du dessous, sur le bouton le plus proche ; des boutons au même endroit se suivent dans l'ordre de leurs numéros ; `accept` appuie ; avec `use_pointer`, la souris focalise le bouton survolé et `click` appuie |
+
+| `Pager` + `Row` | une liste de textes remplie pendant la partie (voir plus bas), montrée une page à la fois : `page_size` rangées (`Row`), des actions `previous` / `next` pour tourner les pages |
 
 Un bouton **lève une action** nommée (`start_game`) pendant un tick entier. Rien d'autre n'est imposé : un `scene_switch.GoToScene` qui écoute cette action change de scène, mais n'importe quel système peut la lire. Un menu est donc une scène ordinaire.
 
@@ -46,6 +53,29 @@ Un champ d'action laissé de côté vaut « aucune » : il ne fait rien.
     "ui.Button": { "order": 0, "action": "start_game" },
     "text2d.Text": { "string": "menu.play" } } }
 ```
+
+## Du texte qui n'est pas dans les fichiers du jeu
+
+Les textes d'un jeu viennent de ses fichiers de langue (clés), et les composants ne portent que des nombres. Pour afficher ce qu'on ne connaît qu'à l'exécution (les jeux qu'un lanceur a trouvés, les joueurs d'un salon, les noms d'objets d'un sac), le moteur a des **listes d'exécution** (`RuntimeLists`) : des listes de textes remplies par l'hôte, par un système ou, dans un scénario, par la clé `lists`. Un texte les montre avec `text2d.Dynamic` : une liste (nom de la liste `runtime_list` du manifeste) et l'indice d'un élément ; l'élément remplace le texte de `Text.string`, mais `Text` garde son apparence et son `{value}`. Un élément absent n'affiche rien.
+
+Pour une liste longue, `ui.Pager` et `ui.Row` font la pagination avec les boutons ordinaires :
+
+```jsonc
+{ "name": "pages", "components": {
+    "ui.Pager": { "list": "games", "menu": "main_menu", "page_size": 8,
+                  "previous": "page_prev", "next": "page_next" } } },
+// une rangée : un bouton dont le texte est l'élément de la page
+{ "name": "row0", "prefab": "button", "components": {
+    "ui.Row": { "list": "games", "row": 0 },
+    "text2d.Dynamic": {},
+    "ui.Button": { "menu": "main_menu", "order": 0, "action": "pick" } } }
+```
+
+- Le `Pager` donne à chaque `Row` son élément (`page * page_size + row`) et **éteint** le bouton d'une rangée sans élément : il n'est plus focalisable ni cliquable et montre `disabled_frame`.
+- La rangée qui a le focus devient l'**élément sélectionné** de la liste, et le reste quand le focus passe à « Précédent » ou « Jouer ».
+- `ui.RowButton { list, row }` est un **second bouton** pour une rangée (une icône d'export à côté de chaque jeu, un bouton « supprimer » à côté de chaque sauvegarde) : il représente le même élément que la rangée, s'éteint avec elle, et quand il a le focus ou qu'on le presse, l'élément de sa rangée est l'élément sélectionné. Placé à droite de la rangée, il se rejoint avec la flèche droite.
+- `host.Call` avec `list` envoie cet élément à l'hôte (`play` sait quel jeu).
+- Les rangées se choisissent au clavier et à la souris, comme tout bouton. Le défilement fluide viendra si la pagination ne suffit pas.
 
 ## Le module `inventory`
 
@@ -76,3 +106,15 @@ Un objet rangé est **affiché** sur sa case : sa position suit celle de la case
 - Une pile ne se coupe pas : un `Transfer` n'a pas de quantité, la pile passe en entier ou fusionne.
 - Pas de défilement, pas de mise en page automatique au-delà des grilles, pas de texte enrichi, pas de glisser-déposer à la souris (clic puis clic).
 - Les coordonnées sont en pixels de la fenêtre : pas d'échelle automatique selon la résolution ni de mise en page adaptative.
+
+## Contrôles à l'écran (tactile)
+
+Le module `touch_controls` dessine des contrôles pour un écran tactile et les transforme en actions : le jeu ne sait pas qu'un doigt les a produites.
+
+| Composant | Rôle |
+| --- | --- |
+| `TouchButton` | un rectangle (`width` × `height`, centré sur la `Position`) ; tant qu'un doigt le tient, l'action `action` vaut 1 ; son `Sprite` montre `pressed_frame` au lieu de `normal_frame` |
+| `TouchStick` | un joystick : un doigt posé à moins de `zone` pixels de la `Position` le prend ; `action_x` et `action_y` valent le décalage divisé par `radius`, entre -1 et 1, à 0 dans la `dead_zone` (le bas est positif en y) |
+| `TouchKnob` | le « pouce » du joystick du même `group` : il suit le doigt |
+
+Mise en place : (1) ajoutez le module et déclarez dans `lists` les actions des contrôles (`action`) et le `group` du joystick ; (2) liez les doigts dans `input.json` : `touch_down`, `touch_x`, `touch_y` aux sources `touch:down`, `touch:x`, `touch:y`, et de même `…2`, `…3`, `…4` pour les doigts suivants (voir `docs/PLATFORM.md`) ; (3) placez les contrôles dans une scène, ancrés aux coins avec `transform2d.Anchor`. Ils sont invisibles sur un ordinateur jusqu'au premier doigt, tout de suite visibles sur un téléphone ; `opacity` règle leur transparence. Une touche liée à la même action n'est pas annulée tant qu'aucun doigt ne tient le contrôle. Dans un scénario, les doigts s'écrivent comme des actions (`touch_down`, `touch_x`, `touch_y`) : voir `games/doodle_jump/scenarios/touch_stick_steers.json`. Modèles : le joystick et le bouton de tir de `games/doodle_jump`, le joystick de `games/treasure_run`.

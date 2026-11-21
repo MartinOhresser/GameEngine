@@ -1,0 +1,29 @@
+name: Compiler cache
+description: >
+  Installs ccache and brings back what the same job compiled on an earlier run (on this branch,
+  on dev or on main). CMake uses ccache on its own when it is on the PATH
+  (cmake/GeCompilerCache.cmake), and so do the builds that `gectl export` starts. What this run
+  did not use is dropped before saving, so the cache stays the size of one build.
+inputs:
+  key:
+    description: >
+      Name of the cache, one per kind of build (compiler, preset, target). A key must not be
+      the start of another one ("android" and "android-export"): a cache is restored by prefix,
+      so the job would take the other job's cache and miss everything.
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: hendrikmuhs/ccache-action@v1.2.24
+      with:
+        key: ${{ inputs.key }}
+        max-size: 400M
+        evict-old-files: job
+        # A merge queue's branch lives for one run: nothing to keep for later.
+        save: ${{ github.event_name != 'merge_group' }}
+    - name: Settings of ccache
+      shell: bash
+      run: |
+        # The same checkout path on every run: paths inside it are hashed as relative ones.
+        echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+        echo "CCACHE_NOHASHDIR=true" >> "$GITHUB_ENV"

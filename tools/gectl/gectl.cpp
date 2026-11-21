@@ -3,10 +3,12 @@
 #include "ge/core/version.hpp"
 #include "ge/game/game.hpp"
 #include "ge/game/schema.hpp"
+#include "ge/game/summary.hpp"
 #include "ge/json/json.hpp"
 #include "ge/module/generate.hpp"
 #include "ge/module/spec.hpp"
 
+#include "export.hpp"
 #include "scaffold.hpp"
 
 #include <algorithm>
@@ -17,6 +19,8 @@
 #include <ostream>
 #include <sstream>
 #include <system_error>
+#include <utility>
+#include <vector>
 
 namespace ge::tools {
 
@@ -41,8 +45,24 @@ constexpr const char* usage_text =
     "      With --check, write nothing and fail if the files are out of date.\n"
     "  gectl validate [--modules DIR] GAME.json\n"
     "      Check a game's manifest, prefabs and scenes against the modules.\n"
+    "  gectl list     [--modules DIR] [--games DIR] [--json]\n"
+    "      List the games of DIR (default ./games) with their title, window size,\n"
+    "      modules and whether they are valid. An invalid game is listed, not fatal.\n"
     "  gectl schema   [--modules DIR] [--out DIR] [--check]\n"
     "      Write JSON Schemas for game files (completion and checks in editors).\n"
+    "  gectl export   GAME.json [--target windows] [--out DIR] [--skip-tests]\n"
+    "                 [--source DIR] [--build-dir DIR] [--cmake-arg ARG] [--abi A,B]\n"
+    "                 [--install] [--keystore FILE --key-alias NAME]\n"
+    "      Make a zip of the game that anyone can run (default target windows, DIR dist).\n"
+    "      It validates the game, replays its scenarios, builds its program with only the\n"
+    "      modules it uses and gathers the program, the game's files, a README and the licenses.\n"
+    "  gectl export   --targets\n"
+    "      List the platforms a game can be exported for, and whether this machine can.\n"
+    "      Android only: --abi the processors to build for (default arm64-v8a); --install puts "
+    "the\n"
+    "      package on the connected phone or emulator (adb); --keystore and --key-alias sign it "
+    "with\n"
+    "      your own key (passwords from GE_KEYSTORE_PASSWORD and GE_KEY_PASSWORD).\n"
     "  gectl new-module NAME [--depends A,B] [--modules DIR]\n"
     "      Create DIR/NAME with a working example (module.json, system, test).\n"
     "  gectl help\n"
@@ -52,8 +72,21 @@ constexpr const char* usage_text =
 struct Options {
     std::string modules_dir = "modules";
     std::string out_dir = "schemas/game";
+    std::string games_dir = "games";
+    bool json = false;
     bool compact = false;
     bool check_only = false;
+    bool out_given = false;
+    bool skip_tests = false;
+    bool install = false;
+    std::string keystore;
+    std::string key_alias;
+    bool targets = false;
+    std::string target = "windows";
+    std::string source_dir = ".";
+    std::string build_dir;
+    std::vector<std::string> cmake_arguments;
+    std::vector<std::string> abis;
     std::vector<std::string> names;
     std::vector<std::string> depends;
 };
@@ -74,34 +107,76 @@ std::vector<std::string> split_commas(const std::string& text) {
     return parts;
 }
 
+/// Sets a flag that takes no value. False when `arg` is not one.
+bool apply_flag(const std::string& arg, Options& options) {
+    if (arg == "--json") {
+        options.json = true;
+    } else if (arg == "--skip-tests") {
+        options.skip_tests = true;
+    } else if (arg == "--install") {
+        options.install = true;
+    } else if (arg == "--targets") {
+        options.targets = true;
+    } else if (arg == "--compact") {
+        options.compact = true;
+    } else if (arg == "--check") {
+        options.check_only = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+/// Sets an option that takes a value. False when `name` is not one.
+bool apply_value(const std::string& name, const std::string& value, Options& options) {
+    if (name == "--modules") {
+        options.modules_dir = value;
+    } else if (name == "--games") {
+        options.games_dir = value;
+    } else if (name == "--out") {
+        options.out_dir = value;
+        options.out_given = true;
+    } else if (name == "--depends") {
+        options.depends = split_commas(value);
+    } else if (name == "--target") {
+        options.target = value;
+    } else if (name == "--source") {
+        options.source_dir = value;
+    } else if (name == "--build-dir") {
+        options.build_dir = value;
+    } else if (name == "--keystore") {
+        options.keystore = value;
+    } else if (name == "--key-alias") {
+        options.key_alias = value;
+    } else if (name == "--abi") {
+        options.abis = split_commas(value);
+    } else if (name == "--cmake-arg") {
+        options.cmake_arguments.push_back(value);
+    } else {
+        return false;
+    }
+    return true;
+}
+
 /// Parses the arguments after the command. Returns an error message, or empty.
 std::string parse_options(const std::vector<std::string>& args, Options& options) {
     for (std::size_t i = 1; i < args.size(); ++i) {
         const std::string& arg = args[i];
-        if (arg == "--modules") {
-            if (i + 1 >= args.size()) {
-                return "--modules needs a directory";
-            }
-            options.modules_dir = args[++i];
-        } else if (arg == "--out") {
-            if (i + 1 >= args.size()) {
-                return "--out needs a directory";
-            }
-            options.out_dir = args[++i];
-        } else if (arg == "--depends") {
-            if (i + 1 >= args.size()) {
-                return "--depends needs a comma-separated list of modules";
-            }
-            options.depends = split_commas(args[++i]);
-        } else if (arg == "--compact") {
-            options.compact = true;
-        } else if (arg == "--check") {
-            options.check_only = true;
-        } else if (arg.starts_with("--")) {
-            return "unknown option " + arg;
-        } else {
-            options.names.push_back(arg);
+        if (apply_flag(arg, options)) {
+            continue;
         }
+        if (!arg.starts_with("--")) {
+            options.names.push_back(arg);
+            continue;
+        }
+        // Anything else that starts with "--" is an option with a value, or unknown.
+        if (!apply_value(arg, i + 1 < args.size() ? args[i + 1] : std::string(), options)) {
+            return "unknown option " + arg;
+        }
+        if (i + 1 >= args.size()) {
+            return arg + " needs a value";
+        }
+        ++i;
     }
     return {};
 }
@@ -379,6 +454,56 @@ int command_new_module(const Options& options, std::ostream& out, std::ostream& 
     return exit_ok;
 }
 
+game::FileReader file_reader() {
+    return [](const std::string& path) -> std::optional<std::string> {
+        std::string text;
+        if (!read_file(path, text)) {
+            return std::nullopt;
+        }
+        return text;
+    };
+}
+
+int command_list(const Options& options, std::ostream& out, std::ostream& err) {
+    if (!options.names.empty()) {
+        err << "list takes no argument (use --games DIR to name the directory)\n\n" << usage_text;
+        return exit_usage;
+    }
+    const Loaded loaded = load_all(options.modules_dir);
+    if (!loaded.problems.empty()) {
+        return report(loaded, err);
+    }
+    const game::Catalog catalog = game::Catalog::from_specs(loaded.modules);
+    std::vector<game::GameSummary> summaries;
+    std::string discover_error;
+    if (!game::discover_games(options.games_dir, file_reader(), catalog, summaries,
+                              discover_error)) {
+        err << discover_error << '\n';
+        return exit_invalid;
+    }
+
+    if (options.json) {
+        json::Value games = json::Value::array();
+        for (const game::GameSummary& summary : summaries) {
+            games.push_back(game::to_json(summary));
+        }
+        json::Value root = json::Value::object();
+        root.set("games", std::move(games));
+        out << json::dump(root) << '\n';
+        return exit_ok;
+    }
+    for (const game::GameSummary& summary : summaries) {
+        out << summary.name << "  \"" << summary.title << "\"  " << summary.version << "  "
+            << summary.window_width << 'x' << summary.window_height << "  "
+            << summary.modules.size() << " modules  " << (summary.valid ? "valid" : "INVALID")
+            << '\n';
+        for (const std::string& problem : summary.problems) {
+            out << "    " << problem << '\n';
+        }
+    }
+    return exit_ok;
+}
+
 int command_validate(const Options& options, std::ostream& out, std::ostream& err) {
     if (options.names.size() != 1) {
         err << "validate needs exactly one game file\n\n" << usage_text;
@@ -388,13 +513,7 @@ int command_validate(const Options& options, std::ostream& out, std::ostream& er
     if (!loaded.problems.empty()) {
         return report(loaded, err);
     }
-    const game::FileReader read = [](const std::string& path) -> std::optional<std::string> {
-        std::string text;
-        if (!read_file(path, text)) {
-            return std::nullopt;
-        }
-        return text;
-    };
+    const game::FileReader read = file_reader();
     const game::LoadedGame game =
         game::load_game(options.names.front(), read, game::Catalog::from_specs(loaded.modules));
     for (const module::Diagnostic& problem : game.diagnostics) {
@@ -406,6 +525,30 @@ int command_validate(const Options& options, std::ostream& out, std::ostream& er
     out << options.names.front() << ": valid (" << game.game.prefabs.size() << " prefabs, "
         << game.game.scenes.size() << " scenes)\n";
     return exit_ok;
+}
+
+int command_export(const Options& options, std::ostream& out, std::ostream& err) {
+    if (options.targets) {
+        print_export_targets(out);
+        return exit_ok;
+    }
+    if (options.names.size() != 1) {
+        err << "export needs exactly one game file\n\n" << usage_text;
+        return exit_usage;
+    }
+    ExportRequest request;
+    request.manifest = options.names.front();
+    request.target = options.target;
+    request.out_dir = options.out_given ? options.out_dir : "dist";
+    request.source_dir = options.source_dir;
+    request.build_dir = options.build_dir;
+    request.skip_tests = options.skip_tests;
+    request.cmake_arguments = options.cmake_arguments;
+    request.abis = options.abis;
+    request.install = options.install;
+    request.keystore = options.keystore;
+    request.key_alias = options.key_alias;
+    return export_game(request, out, err);
 }
 
 } // namespace
@@ -421,7 +564,8 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
         return exit_ok;
     }
     if (command != "check" && command != "catalog" && command != "generate" &&
-        command != "validate" && command != "schema" && command != "new-module") {
+        command != "validate" && command != "schema" && command != "new-module" &&
+        command != "list" && command != "export") {
         err << "unknown command \"" << command << "\"\n\n" << usage_text;
         return exit_usage;
     }
@@ -444,6 +588,12 @@ int run_gectl(const std::vector<std::string>& args, std::ostream& out, std::ostr
     }
     if (command == "validate") {
         return command_validate(options, out, err);
+    }
+    if (command == "list") {
+        return command_list(options, out, err);
+    }
+    if (command == "export") {
+        return command_export(options, out, err);
     }
     return command_generate(options, out, err);
 }

@@ -7,6 +7,7 @@
     "menu.title": "Treasure run",
     "menu.play": "Play",
     "menu.credits": "Credits",
+    "menu.quit": "Quit",
     "hud.score": "Score: {value}",
     "hud.items": "Hotbar",
     "item.count": "x{value}",

@@ -4,11 +4,16 @@
 1. Every modules/*/module.json is valid against schemas/module.schema.json
    (needs the `jsonschema` package; skipped with a notice when it is missing,
    unless --require-schema is given, as in CI).
-2. A module only includes what it declares: engine headers (`ge/...`), its own
-   headers and the headers of modules listed in its `depends`.
+2. A module's shipped code only includes what it declares: engine headers (`ge/...`), its own
+   headers and the headers of modules listed in its `depends`. Its tests (modules/<name>/tests)
+   may include any module: `depends` is what a game must list to use the module, so it must not
+   grow for the sake of a test.
 3. A module contains no platform code: no OS, windowing or graphics headers.
 4. SDL is used only inside platform/sdl: no other directory includes an SDL
    header, so the engine never depends on the window library.
+5. A module does not use what some of the targets lack: `std::to_chars` and
+   `std::from_chars` (missing for floating-point numbers on iOS and WebAssembly,
+   a failure that only those CI jobs show).
 
 Usage: scripts/check_modules.py [--require-schema]
 """
@@ -67,7 +72,8 @@ def check_includes(modules):
             for header in INCLUDE.findall(text):
                 relative = path.relative_to(ROOT)
                 owner = MODULE_HEADER.match(header)
-                if owner and owner.group(1) not in allowed:
+                in_tests = (MODULES / name / "tests") in path.parents
+                if owner and owner.group(1) not in allowed and not in_tests:
                     problems.append(
                         f"{relative}: includes {header}, but module '{owner.group(1)}' is not "
                         f"in the depends of '{name}'"
@@ -76,6 +82,25 @@ def check_includes(modules):
                     problems.append(
                         f"{relative}: includes {header}, which is platform code; modules must "
                         "go through engine interfaces"
+                    )
+    return problems
+
+
+CHARCONV = re.compile(r"\b(to_chars|from_chars)\b")
+
+
+def check_portability(modules):
+    problems = []
+    for name in modules:
+        for path in sorted((MODULES / name).rglob("*")):
+            if path.suffix not in SOURCE_SUFFIXES or not path.is_file():
+                continue
+            for number, line in enumerate(path.read_text().splitlines(), 1):
+                if CHARCONV.search(line.split("//")[0]):
+                    problems.append(
+                        f"{path.relative_to(ROOT)}:{number}: uses std::to_chars or "
+                        "std::from_chars, which iOS and WebAssembly lack for floating-point "
+                        "numbers; write the number with std::to_string or ge::json"
                     )
     return problems
 
@@ -105,7 +130,12 @@ def check_sdl_confined():
 def main():
     required = "--require-schema" in sys.argv[1:]
     modules = load_modules()
-    problems = check_schema(modules, required) + check_includes(modules) + check_sdl_confined()
+    problems = (
+        check_schema(modules, required)
+        + check_includes(modules)
+        + check_portability(modules)
+        + check_sdl_confined()
+    )
     for problem in problems:
         print(problem, file=sys.stderr)
     if problems:

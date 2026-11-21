@@ -1,0 +1,35 @@
+// A mortar of level 3: it picks a target in range and shoots at it. Click it to improve it or to sell it.
+{
+  "schema_version": 1,
+  "name": "mortar_3",
+  "components": {
+    "transform2d.Position": {},
+    "grid2d.GridPos": {
+      "grid": "board",
+      "from_position": true
+    },
+    "sprite2d.Sprite": {
+      "atlas": "towers",
+      "frame": 5,
+      "width": 44,
+      "height": 44,
+      "layer": 3
+    },
+    "autofire.AutoFire": {
+      "range": 180,
+      "cooldown": 80,
+      "prefab": "shot_mortar_3",
+      "projectile_speed": 240,
+      "targeting": 1,
+      "target_layer": [
+        "enemy"
+      ]
+    },
+    "economy.Sellable": {
+      "refund": 162
+    },
+    "phase.ActiveIn": {
+      "phases": 7
+    }
+  }
+}

@@ -1,0 +1,70 @@
+// Slide to the left: the tiles go to the edge, two equal ones make their sum, the one
+// that joins the other vanishes, and the score counts the new tile.
+{
+  "schema_version": 1,
+  "name": "tiles_merge",
+  "scene": "test_merge",
+  "ticks": 40,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "left",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "left",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 10,
+      "check": "t1.slide_merge.Tile.value == 4"
+    },
+    {
+      "at": 10,
+      "check": "t2.slide_merge.Tile.dying == true"
+    },
+    {
+      "at": 10,
+      "check": "t2.grid2d.GridPos.col == 0"
+    },
+    {
+      "at": 10,
+      "check": "t3.grid2d.GridPos.col == 1"
+    },
+    {
+      "at": 10,
+      "check": "t3.grid2d.GridPos.row == 0"
+    },
+    {
+      "at": 10,
+      "check": "board.slide_merge.SlideBoard.score == 4"
+    },
+    {
+      "at": 10,
+      "check": "board.slide_merge.SlideBoard.moves == 1"
+    },
+    {
+      "at": 10,
+      "check": "t1.sprite2d.Sprite.frame == 2"
+    },
+    {
+      "at": 10,
+      "check": "t1.text2d.Text.value == 4"
+    },
+    {
+      "at": 40,
+      "check": "t2 gone"
+    },
+    {
+      "at": 40,
+      "check": "t1 alive"
+    },
+    {
+      "at": 40,
+      "check": "entities == 39"
+    }
+  ]
+}

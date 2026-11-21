@@ -1,12 +1,29 @@
 #include "ge/game/game.hpp"
 
+#include "ge/core/path.hpp"
+
 #include "check.hpp"
 #include "scenario_read.hpp"
 
 #include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <set>
+#include <string>
+#include <utility>
 
 namespace ge::game {
+
+FileReader disk_reader() {
+    return [](const std::string& path) -> std::optional<std::string> {
+        std::ifstream stream(core::path_from_utf8(path), std::ios::binary);
+        if (!stream) {
+            return std::nullopt;
+        }
+        return std::string(std::istreambuf_iterator<char>(stream),
+                           std::istreambuf_iterator<char>());
+    };
+}
 
 namespace {
 
@@ -211,6 +228,54 @@ void read_window_size(Checker& checker, const json::Value& object, const char* k
     }
 }
 
+/// `window.adapt`: true (the usual range of phones, or of wide screens for a game that is wider
+/// than tall) or {"min_aspect": 0.4, "max_aspect": 0.8}, the aspects (width / height) between
+/// which the drawing area follows the screen.
+void read_window_adapt(Checker& checker, const json::Value& object, Manifest& manifest) {
+    const json::Value* adapt = object.find("adapt");
+    if (adapt == nullptr) {
+        return;
+    }
+    const bool portrait = manifest.window_width <= manifest.window_height;
+    const float design =
+        static_cast<float>(manifest.window_width) / static_cast<float>(manifest.window_height);
+    float low = portrait ? 0.4F : 1.25F;
+    float high = portrait ? 0.8F : 2.4F;
+    if (adapt->is_bool()) {
+        manifest.window_adapt = adapt->as_bool();
+        if (!manifest.window_adapt) {
+            return;
+        }
+    } else if (adapt->is_object()) {
+        checker.reject_unknown(*adapt, "window.adapt", {"min_aspect", "max_aspect"});
+        for (const auto& [key, out] : {std::pair<const char*, float*>{"min_aspect", &low},
+                                       std::pair<const char*, float*>{"max_aspect", &high}}) {
+            const json::Value* value = adapt->find(key);
+            if (value == nullptr) {
+                continue;
+            }
+            if (value->is_number() && value->as_real() > 0.0 && value->as_real() <= 100.0) {
+                *out = static_cast<float>(value->as_real());
+            } else {
+                checker.error(join_path("window.adapt", key),
+                              "expected a number above 0 (the width divided by the height)");
+            }
+        }
+        manifest.window_adapt = true;
+    } else {
+        checker.error("window.adapt", R"(expected true, false or {"min_aspect", "max_aspect"})");
+        return;
+    }
+    if (low > high || design < low || design > high) {
+        checker.error("window.adapt",
+                      "the aspects must be in order and include the window's own (" +
+                          std::to_string(design) + "): min_aspect <= " + std::to_string(design) +
+                          " <= max_aspect");
+    }
+    manifest.window_min_aspect = low;
+    manifest.window_max_aspect = high;
+}
+
 void read_window(Checker& checker, const json::Value& root, Manifest& manifest) {
     const json::Value* window = root.find("window");
     if (window == nullptr) {
@@ -220,9 +285,10 @@ void read_window(Checker& checker, const json::Value& root, Manifest& manifest) 
     if (object == nullptr) {
         return;
     }
-    checker.reject_unknown(*object, "window", {"width", "height"});
+    checker.reject_unknown(*object, "window", {"width", "height", "adapt"});
     read_window_size(checker, *object, "width", manifest.window_width);
     read_window_size(checker, *object, "height", manifest.window_height);
+    read_window_adapt(checker, *object, manifest);
 }
 
 void read_modules(const Context& context, Checker& checker, const json::Value& root,
@@ -404,16 +470,98 @@ void read_lists(Checker& checker, const json::Value& root, Manifest& manifest) {
     }
 }
 
+/// "1.2.3": three numbers separated by dots.
+bool is_version(std::string_view text) {
+    int dots = 0;
+    bool digit_before = false;
+    for (const char c : text) {
+        if (c >= '0' && c <= '9') {
+            digit_before = true;
+        } else if (c == '.' && digit_before && dots < 2) {
+            ++dots;
+            digit_before = false;
+        } else {
+            return false;
+        }
+    }
+    return dots == 2 && digit_before;
+}
+
+/// "ge.games.doodle_jump": at least two lowercase snake_case segments joined by dots.
+bool is_package_id(std::string_view text) {
+    int segments = 0;
+    bool segment_start = true;
+    for (const char c : text) {
+        if (c == '.') {
+            if (segment_start) {
+                return false;
+            }
+            segment_start = true;
+        } else if (segment_start) {
+            if (c < 'a' || c > 'z') {
+                return false;
+            }
+            segment_start = false;
+            ++segments;
+        } else {
+            const bool allowed = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+            if (!allowed) {
+                return false;
+            }
+        }
+    }
+    return segments >= 2 && !segment_start;
+}
+
+/// The optional `title`, `version`, `id` and `icon`: how the game presents itself.
+void read_identity(const Context& context, Checker& checker, const json::Value& root,
+                   Manifest& manifest) {
+    static_cast<void>(checker.text(root, "title", "", false, manifest.title));
+    std::string version;
+    if (checker.text(root, "version", "", false, version) && !version.empty()) {
+        if (is_version(version)) {
+            manifest.version = version;
+        } else {
+            checker.error("version", "\"" + version + "\" must be three numbers like 1.2.3");
+        }
+    }
+    if (checker.text(root, "id", "", false, manifest.id) && !manifest.id.empty() &&
+        !is_package_id(manifest.id)) {
+        checker.error("id", "\"" + manifest.id +
+                                "\" must be lowercase names joined by dots, like ge.games.my_game");
+        manifest.id.clear();
+    }
+    std::string icon;
+    if (!checker.text(root, "icon", "", false, icon) || icon.empty()) {
+        return;
+    }
+    if (!is_safe_relative(icon)) {
+        checker.error("icon",
+                      "\"" + icon + "\" must be a relative path inside the game's directory");
+        return;
+    }
+    const std::optional<std::string> image = (*context.read)(context.directory + icon);
+    if (!image) {
+        checker.error("icon", "cannot read the image \"" + context.directory + icon + "\"");
+    } else if (!image->starts_with("\x89PNG\r\n\x1a\n")) {
+        checker.error("icon", "\"" + icon + "\" is not a PNG image");
+    } else {
+        manifest.icon_file = icon;
+    }
+}
+
 bool read_manifest(const Context& context, Checker& checker, const json::Value& root,
                    Manifest& manifest) {
     const json::Value* object = checker.object(root, "");
     if (object == nullptr) {
         return false;
     }
-    checker.reject_unknown(*object, "",
-                           {"$schema", "schema_version", "name", "description", "modules",
-                            "simulation", "window", "params", "lists", "locale", "strings",
-                            "atlases", "prefabs", "scenes", "scenarios", "input", "start_scene"});
+    checker.reject_unknown(*object, "", {"$schema",    "schema_version", "name",      "description",
+                                         "title",      "version",        "id",        "icon",
+                                         "modules",    "simulation",     "window",    "params",
+                                         "lists",      "locale",         "strings",   "atlases",
+                                         "prefabs",    "scenes",         "scenarios", "input",
+                                         "start_scene"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -421,6 +569,7 @@ bool read_manifest(const Context& context, Checker& checker, const json::Value& 
     }
     static_cast<void>(checker.name(*object, "name", "", true, manifest.name));
     static_cast<void>(checker.text(*object, "description", "", false, manifest.description));
+    read_identity(context, checker, *object, manifest);
     read_modules(context, checker, *object, manifest);
     read_simulation(checker, *object, manifest);
     read_window(checker, *object, manifest);

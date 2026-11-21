@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "locale": "fr",
+  "entries": {
+    "hud.gold": "Or {value}",
+    "hud.wave": "Vague {value}",
+    "hud.wave_last": "/ {value}",
+    "hud.lives": "Vies {value}",
+    "end.won": "La route a tenu : victoire !",
+    "end.lost": "La base est tomb\u00e9e",
+    "button.cannon": "Canon 50",
+    "button.mortar": "Mortier 90",
+    "button.ice": "Glace 70",
+    "button.sniper": "Sniper 120",
+    "button.upgrade": "Am\u00e9liorer {value}",
+    "button.sell": "Vendre {value}",
+    "button.next": "Vague suivante",
+    "button.new": "Nouvelle partie"
+  }
+}

@@ -1,0 +1,26 @@
+// With no game, every row is off and nothing is selected; Play does nothing.
+{
+  "schema_version": 1,
+  "name": "no_games",
+  "ticks": 12,
+  "lists": {
+    "games": []
+  },
+  "inputs": [
+    {
+      "tick": 3,
+      "action": "menu_accept",
+      "value": 1
+    },
+    {
+      "tick": 4,
+      "action": "menu_accept",
+      "value": 0
+    }
+  ],
+  "expect": [
+    "row0.ui.Button.enabled == false",
+    "list games selected == 4294967295",
+    "pages.ui.Pager.pages == 1"
+  ]
+}

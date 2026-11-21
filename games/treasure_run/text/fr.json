@@ -7,6 +7,7 @@
     "menu.title": "La chasse au trésor",
     "menu.play": "Jouer",
     "menu.credits": "Crédits",
+    "menu.quit": "Quitter",
     "hud.score": "Score : {value}",
     "hud.items": "Barre d'objets",
     "item.count": "x{value}",

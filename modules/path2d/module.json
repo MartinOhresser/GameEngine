@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "version": "0.1.0",
+  "name": "path2d",
+  "description": "Things that follow a path: a line of waypoints (entities with a position and a number) and followers that walk it one after the other at their own speed, turning at each point. A follower that reaches the end can hurt something (a base, a player, a convoy's goal) and then disappears. Enemies on a road, vehicles, patrols that are not a loop, a projectile that follows a curve. The speed of a follower is scaled by its transform2d.SpeedScale, so a slow effect works on it.",
+  "depends": ["transform2d", "health", "tag"],
+  "components": [
+    {
+      "name": "Waypoint",
+      "description": "A point of a path: the entity's Position is where it is, path says which path it belongs to (an item of the game's \"path\" list) and index the order along that path (0 is the first point). The points of a path need not be in the scene in order.",
+      "replicable": false,
+      "fields": [
+        { "name": "path", "type": "u32", "default": 0, "ref": "path" },
+        { "name": "index", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "PathFollower",
+      "description": "The entity walks along the waypoints of its path, in the order of their index, at speed units per second (times the game's speed_scale and its own SpeedScale). index is the waypoint it is going to (it starts at the first point, which may be where it was created) and progress the distance walked so far (what \"the one furthest along\" is measured with). When it has passed the last waypoint it raises reached_action (none: no action), adds a Damage of end_damage to the entity tagged end_target (none: nobody) and is destroyed. Without waypoints it stays where it is.",
+      "replicable": false,
+      "fields": [
+        { "name": "path", "type": "u32", "default": 0, "ref": "path" },
+        { "name": "speed", "type": "f32", "default": 60 },
+        { "name": "index", "type": "u32", "default": 0 },
+        { "name": "progress", "type": "f32", "default": 0 },
+        { "name": "end_target", "type": "u32", "default": 4294967295, "ref": "tag" },
+        { "name": "end_damage", "type": "i32", "default": 1 },
+        { "name": "reached_action", "type": "u32", "default": 4294967295, "ref": "action" }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "follow",
+      "description": "Moves every PathFollower along its path; the ones that reach the end hurt their end target, raise their action and are destroyed.",
+      "stage": "FixedUpdate",
+      "reads": ["Waypoint", "tag.Tag", "transform2d.SpeedScale"],
+      "writes": ["PathFollower", "transform2d.Position", "health.Damage"],
+      "after": ["transform2d.integrate"],
+      "before": ["health.apply_damage"]
+    }
+  ]
+}

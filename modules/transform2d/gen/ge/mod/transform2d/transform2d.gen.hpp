@@ -49,9 +49,102 @@ struct Velocity {
     [[nodiscard]] friend bool operator==(const Velocity&, const Velocity&) = default;
 };
 
-/// Moves every entity that has a Velocity by velocity times the tick duration.
+/// The entity is not shown and does not take part in an interface: the drawing systems (sprites, texts, shapes) skip it and a menu ignores its button. Insert it to hide, remove it to show again. It has no effect on the simulation otherwise.
+struct Hidden {
+    void hash(::ge::Hasher& /*hasher*/) const {}
+
+    [[nodiscard]] friend bool operator==(const Hidden&, const Hidden&) = default;
+};
+
+/// The entity this one belongs to: the monster whose health bar this is, the gun that fired this bullet. entity holds a link (an entity's identifier plus one, 0 for none): the spawner fills it when a system asks for an entity with an owner. A link to an entity that is gone stays, and finds nothing.
+struct Owner {
+    std::uint64_t entity = 0ULL;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(entity);
+    }
+
+    [[nodiscard]] friend bool operator==(const Owner&, const Owner&) = default;
+};
+
+/// The entity follows its Owner: each tick its Position is the Owner's Position moved by offset_x and offset_y, and it disappears with the Owner (a health bar, a range circle, a shadow, a shield). Without an Owner, or while its Owner has no Position, it stays where it is.
+struct Attach {
+    float offset_x = 0.0F;
+    float offset_y = 0.0F;
+    bool despawn_with_owner = true;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(offset_x);
+        hasher.add(offset_y);
+        hasher.add(despawn_with_owner);
+    }
+
+    [[nodiscard]] friend bool operator==(const Attach&, const Attach&) = default;
+};
+
+/// How big the entity is drawn compared with its normal size: 1 is as it is, 2 twice as big, 0.5 half, around its Position. Sprites, texts and shapes (width, height, radius, text size and spacing) are multiplied by factor; it changes nothing else (not the collisions). Animate it for a pop, a grow, a shrink.
+struct Scale {
+    float factor = 1.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(factor);
+    }
+
+    [[nodiscard]] friend bool operator==(const Scale&, const Scale&) = default;
+};
+
+/// The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.
+struct Disabled {
+    void hash(::ge::Hasher& /*hasher*/) const {}
+
+    [[nodiscard]] friend bool operator==(const Disabled&, const Disabled&) = default;
+};
+
+/// A factor on the speed of this entity alone, on top of the game's speed_scale: 0.5 makes it move at half speed (a slowed enemy), 2 at double speed. With ticks above 0 the factor lasts that many ticks and the component is then removed; with 0 it lasts until it is removed or changed. Read by integrate, and by the modules that move entities by their own rules (a path follower).
+struct SpeedScale {
+    float factor = 1.0F;
+    std::uint32_t ticks = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(factor);
+        hasher.add(ticks);
+    }
+
+    [[nodiscard]] friend bool operator==(const SpeedScale&, const SpeedScale&) = default;
+};
+
+/// Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's "window"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.
+struct Anchor {
+    float anchor_x = 0.0F;
+    float anchor_y = 0.0F;
+    float offset_x = 0.0F;
+    float offset_y = 0.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(anchor_x);
+        hasher.add(anchor_y);
+        hasher.add(offset_x);
+        hasher.add(offset_y);
+    }
+
+    [[nodiscard]] friend bool operator==(const Anchor&, const Anchor&) = default;
+};
+
+/// Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).
 /// Runs in FixedUpdate.
 void integrate(::ge::ecs::World& world);
+
+/// Moves every Attach entity onto its Owner's Position, plus its offset; removes the ones whose Owner is gone when despawn_with_owner is on.
+/// Runs in FixedUpdate.
+void attach(::ge::ecs::World& world);
+
+/// Counts down the ticks of every SpeedScale that has some, and removes it when they are over.
+/// Runs in FixedUpdate.
+void wear_off(::ge::ecs::World& world);
+
+/// Puts every anchored entity where the window's size says.
+/// Runs in FixedUpdate.
+void anchor(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

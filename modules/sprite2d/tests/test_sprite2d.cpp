@@ -1,11 +1,14 @@
 #include "ge/app/app.hpp"
+#include "ge/app/fields.hpp"
 #include "ge/app/render.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include "mini_test.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <string>
 
 namespace {
 
@@ -199,4 +202,62 @@ TEST_CASE("sprite2d: an animation is part of the simulation, so runs repeat exac
         return app.world().fingerprint();
     };
     CHECK(run() == run());
+}
+
+TEST_CASE("sprite2d: a hidden sprite is not drawn") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, 1.0F, 2.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, transform2d::Hidden{}));
+    app.run_frames(1);
+    CHECK(renderer->commands().empty());
+}
+
+namespace {
+
+/// Where the field sits in the table of fields: what a game file's name becomes.
+std::uint32_t field_index(const ge::app::App& app, const std::string& name) {
+    const auto* table = app.world().resource<ge::app::FieldTable>();
+    const auto found = std::find_if(table->entries.begin(), table->entries.end(),
+                                    [&name](const auto& entry) { return entry.name == name; });
+    CHECK(found != table->entries.end());
+    return static_cast<std::uint32_t>(found - table->entries.begin());
+}
+
+std::uint32_t frame_after(float x, bool log2, std::uint32_t first, std::uint32_t count) {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, x, 0.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, sprite2d::FrameBind{field_index(app, "transform2d.Position.x"),
+                                                         first, log2, count}));
+    app.run_frames(1);
+    return app.world().get<sprite2d::Sprite>(entity)->frame;
+}
+
+} // namespace
+
+TEST_CASE("sprite2d: FrameBind picks the cell from a number of the entity") {
+    CHECK(frame_after(5.0F, false, 10U, 0U) == 15U);
+    CHECK(frame_after(0.0F, false, 3U, 0U) == 3U);
+    CHECK(frame_after(-4.0F, false, 3U, 0U) == 3U); // below 0 counts as 0
+    CHECK(frame_after(40.0F, false, 0U, 4U) == 3U); // stops on the last of 4 cells
+}
+
+TEST_CASE("sprite2d: FrameBind can use the base 2 logarithm of the number") {
+    CHECK(frame_after(1.0F, true, 0U, 0U) == 0U);
+    CHECK(frame_after(2.0F, true, 0U, 0U) == 1U);
+    CHECK(frame_after(8.0F, true, 0U, 0U) == 3U);
+    CHECK(frame_after(2048.0F, true, 1U, 0U) == 12U);
+    CHECK(frame_after(0.0F, true, 0U, 0U) == 0U);
+    CHECK(frame_after(4096.0F, true, 0U, 5U) == 4U);
+}
+
+TEST_CASE("sprite2d: a scaled sprite is drawn bigger") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, 1.0F, 2.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, transform2d::Scale{1.5F}));
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 1U);
+    CHECK(renderer->commands()[0].scale == 1.5F);
 }

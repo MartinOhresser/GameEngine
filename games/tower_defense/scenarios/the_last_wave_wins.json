@@ -1,0 +1,43 @@
+// When the last wave is cleared, the game is won.
+{
+  "schema_version": 1,
+  "name": "the_last_wave_wins",
+  "scene": "test_waves",
+  "ticks": 900,
+  "inputs": [
+    {
+      "tick": 5,
+      "action": "start_wave",
+      "value": 1
+    },
+    {
+      "tick": 6,
+      "action": "start_wave",
+      "value": 0
+    },
+    {
+      "tick": 300,
+      "action": "start_wave",
+      "value": 1
+    },
+    {
+      "tick": 301,
+      "action": "start_wave",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 320,
+      "check": "waves.waves.WaveController.current == 2"
+    },
+    {
+      "at": 900,
+      "check": "game_phase.phase.Phase.current == 3"
+    },
+    {
+      "at": 900,
+      "check": "base.health.Health.amount == 20"
+    }
+  ]
+}

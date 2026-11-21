@@ -10,7 +10,9 @@
       "name": "Camera",
       "description": "Marks the entity whose Position is at the centre of the screen. zoom 2 shows everything twice as big. If several entities have a Camera, the oldest one is used.",
       "replicable": false,
-      "fields": [{ "name": "zoom", "type": "f32", "default": 1 }]
+      "fields": [
+        { "name": "zoom", "type": "f32", "default": 1 }
+      ]
     },
     {
       "name": "CameraTarget",
@@ -20,14 +22,34 @@
     },
     {
       "name": "CameraFollow",
-      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it.",
+      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right.",
       "replicable": false,
       "fields": [
         { "name": "stiffness", "type": "f32", "default": 1 },
         { "name": "follow_x", "type": "bool", "default": true },
         { "name": "follow_y", "type": "bool", "default": true },
         { "name": "offset_y", "type": "f32", "default": 0 },
-        { "name": "only_up", "type": "bool", "default": false }
+        { "name": "only_up", "type": "bool", "default": false },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "only_down", "type": "bool", "default": false },
+        { "name": "only_left", "type": "bool", "default": false },
+        { "name": "only_right", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "CameraFit",
+      "description": "Makes the Camera's entity show a whole area of the world, whatever the shape of the screen: each tick (before drawing) its zoom and Position are set so that the area width by height, centred on (center_x, center_y), is as big as it can be in the window while still fitting entirely. The margins (pixels of the window) keep room at the edges for an interface (a score at the top, buttons at the bottom): the area is centred in what is left. max_zoom, when it is more than 0, stops the area from being enlarged past that zoom (a small board is not blown up on a huge screen). A board, a level seen at once, a map.",
+      "replicable": false,
+      "fields": [
+        { "name": "width", "type": "f32", "default": 100 },
+        { "name": "height", "type": "f32", "default": 100 },
+        { "name": "center_x", "type": "f32", "default": 0 },
+        { "name": "center_y", "type": "f32", "default": 0 },
+        { "name": "margin_left", "type": "f32", "default": 0 },
+        { "name": "margin_right", "type": "f32", "default": 0 },
+        { "name": "margin_top", "type": "f32", "default": 0 },
+        { "name": "margin_bottom", "type": "f32", "default": 0 },
+        { "name": "max_zoom", "type": "f32", "default": 0 }
       ]
     }
   ],
@@ -45,6 +67,14 @@
       "description": "Tells the renderer where the camera is and how far it is zoomed, before the frame's drawing systems run. Presentation only: it never changes the simulation.",
       "stage": "Update",
       "reads": ["Camera", "transform2d.Position"]
+    },
+    {
+      "name": "fit",
+      "description": "Sets the zoom and the Position of every Camera that has a CameraFit so that its area fits the window (the Viewport) inside its margins.",
+      "stage": "Update",
+      "reads": ["CameraFit"],
+      "writes": ["Camera", "transform2d.Position"],
+      "before": ["apply"]
     }
   ]
 }

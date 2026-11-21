@@ -47,9 +47,31 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Gravity* component = world.get<Gravity>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "x") {
+        component->x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "y") {
+        component->y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "terminal_speed") {
+        component->terminal_speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"x", "f32", "", false}, {"y", "f32", "", false}, {"terminal_speed", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Gravity", true, component_0_fields, insert_component_0, read_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Gravity", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"gravity2d.Gravity"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Velocity"};

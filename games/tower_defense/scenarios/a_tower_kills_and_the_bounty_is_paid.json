@@ -1,0 +1,52 @@
+// A cannon beside the road shoots the first monsters of the first wave: they are worth their bounty, and none reaches the base.
+{
+  "schema_version": 1,
+  "name": "a_tower_kills_and_the_bounty_is_paid",
+  "ticks": 900,
+  "inputs": [
+    {
+      "tick": 9,
+      "action": "pointer_x",
+      "value": 258
+    },
+    {
+      "tick": 9,
+      "action": "pointer_y",
+      "value": 145
+    },
+    {
+      "tick": 10,
+      "action": "click",
+      "value": 1
+    },
+    {
+      "tick": 11,
+      "action": "click",
+      "value": 0
+    },
+    {
+      "tick": 20,
+      "action": "start_wave",
+      "value": 1
+    },
+    {
+      "tick": 21,
+      "action": "start_wave",
+      "value": 0
+    }
+  ],
+  "expect": [
+    {
+      "at": 900,
+      "check": "wallet.economy.Wallet.amount > 100"
+    },
+    {
+      "at": 900,
+      "check": "base.health.Health.amount == 20"
+    },
+    {
+      "at": 900,
+      "check": "waves.waves.WaveController.current == 1"
+    }
+  ]
+}

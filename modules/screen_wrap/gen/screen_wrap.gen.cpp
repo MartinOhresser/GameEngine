@@ -52,9 +52,35 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    WrapArea* component = world.get<WrapArea>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "width") {
+        component->width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "height") {
+        component->height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "wrap_x") {
+        component->wrap_x = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "wrap_y") {
+        component->wrap_y = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"wrap_x", "bool", "", false}, {"wrap_y", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0, read_component_0}}};
+constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"WrapArea", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"screen_wrap.WrapArea"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};

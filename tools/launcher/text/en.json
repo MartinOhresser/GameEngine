@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "locale": "en",
+  "entries": {
+    "launcher.title": "Game Engine",
+    "launcher.hint": "Arrows: choose   Enter: play   Right, Enter: export   PgUp/PgDn: pages   Esc: quit",
+    "button.prev": "<",
+    "button.next": ">",
+    "button.quit": "Quit",
+    "button.back": "Back",
+    "export.title": "Export",
+    "export.hint": "Choose a platform, Enter: start   Backspace: back"
+  }
+}

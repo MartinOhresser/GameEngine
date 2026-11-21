@@ -7077,7 +7077,7 @@
       "name": "title",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.0,
           "anchor_y": 0.0,
           "offset_x": 12,
@@ -7097,7 +7097,7 @@
       "name": "hint",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.0,
           "anchor_y": 0.0,
           "offset_x": 12,
@@ -7120,7 +7120,7 @@
       "name": "score",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.0,
           "anchor_y": 0.0,
           "offset_x": 12,
@@ -7144,7 +7144,7 @@
       "name": "progress_back",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "offset_x": 12,
           "offset_y": 86
         },
@@ -7166,7 +7166,7 @@
       "name": "progress",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "offset_x": 12,
           "offset_y": 86
         },
@@ -7195,7 +7195,7 @@
       "name": "hotbar",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1,
           "offset_x": -88,
@@ -7311,7 +7311,7 @@
       "name": "hotbar_label",
       "components": {
         "transform2d.Position": {},
-        "ui.Anchor": {
+        "transform2d.Anchor": {
           "anchor_x": 0.5,
           "anchor_y": 1,
           "offset_x": 0,
@@ -7324,6 +7324,58 @@
           "screen": true,
           "pivot_x": 0.5,
           "pivot_y": 0.0
+        }
+      }
+    },
+    {
+      "name": "touch_stick",
+      "components": {
+        "transform2d.Position": {},
+        "transform2d.Anchor": {
+          "anchor_x": 0.0,
+          "anchor_y": 1.0,
+          "offset_x": 110,
+          "offset_y": -110
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 140,
+          "height": 140,
+          "screen": true,
+          "layer": 20,
+          "red": 90,
+          "green": 90,
+          "blue": 90
+        },
+        "touch_controls.TouchStick": {
+          "group": "touch_stick",
+          "action_x": "move_x",
+          "action_y": "move_y",
+          "radius": 55,
+          "zone": 120,
+          "opacity": 90
+        }
+      }
+    },
+    {
+      "name": "touch_knob",
+      "components": {
+        "transform2d.Position": {},
+        "sprite2d.Sprite": {
+          "atlas": "ui",
+          "frame": 0,
+          "width": 60,
+          "height": 60,
+          "screen": true,
+          "layer": 20,
+          "red": 60,
+          "green": 60,
+          "blue": 60
+        },
+        "touch_controls.TouchKnob": {
+          "group": "touch_stick",
+          "opacity": 200
         }
       }
     }

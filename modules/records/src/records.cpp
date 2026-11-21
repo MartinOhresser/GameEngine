@@ -2,7 +2,7 @@
 #include "ge/app/lists.hpp"
 #include "ge/app/save.hpp"
 #include "ge/mod/records/records.gen.hpp"
-#include "ge/mod/ui/ui.gen.hpp"
+#include "ge/mod/tag/find.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -14,24 +14,13 @@ namespace ge::mod::records {
 
 namespace {
 
-/// The oldest entity with this tag.
-ecs::Entity tagged(ecs::World& world, std::uint32_t tag) {
-    ecs::Entity found;
-    world.each<const ui::Tag>([&](ecs::Entity entity, const ui::Tag& candidate) {
-        if (found.is_null() && candidate.tag == tag) {
-            found = entity;
-        }
-    });
-    return found;
-}
-
 /// The number the record follows, if its source and field exist right now.
 std::optional<std::int32_t> read_source(ecs::World& world, const Record& record) {
     const auto* table = world.resource<app::FieldTable>();
     if (table == nullptr || record.field >= table->entries.size()) {
         return std::nullopt;
     }
-    const ecs::Entity source = tagged(world, record.source);
+    const ecs::Entity source = tag::find(world, record.source);
     const app::FieldEntry& field = table->entries[record.field];
     if (source.is_null() || field.component == nullptr || field.component->read == nullptr) {
         return std::nullopt;

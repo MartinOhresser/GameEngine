@@ -6,23 +6,26 @@
 {
   "schema_version": 1,
   "name": "doodle_jump",
+  "title": "Doodle Jump",
   "description": "Left and right (arrows or A and D) steer the jumper, which bounces by itself on every platform it lands on. Space or Up shoots upwards. The score is the height; the best one is kept between two runs.",
   "modules": [
     "transform2d", "gravity2d", "action_control", "screen_wrap", "collision2d", "bounce2d",
-    "patrol2d", "camera2d", "spawner2d", "combat2d", "altitude", "lifetime",
-    "sprite2d", "text2d", "scene_switch", "ui", "records",
+    "patrol2d", "camera2d", "spawner2d", "health", "bounds2d", "combat2d", "progress", "lifetime",
+    "sprite2d", "text2d", "scene_switch", "tag", "ui", "records", "host", "touch_controls",
   ],
   "simulation": { "tick_rate": 60, "seed": 2024 },
-  // A tall window, as on a phone.
-  "window": { "width": 480, "height": 720 },
+  // A tall window, as on a phone: 480 wide, and as high as the screen is (from the shape of a
+  // tablet to the longest phones), so every phone is filled. The interface is anchored to the
+  // edges (`transform2d.Anchor`), the world is built ahead of whatever height the screen shows.
+  "window": { "width": 480, "height": 720, "adapt": true },
   "input": "input.json",
   "lists": {
     // The things that bump into each other, one bit each (the order is fixed by the prefabs).
     "layer": ["player", "platform", "monster", "bullet"],
     // `died` is raised by the jumper's death; the others come from the buttons.
-    "action": ["died", "start_game", "restart_game", "show_menu"],
+    "action": ["died", "start_game", "restart_game", "show_menu", "quit_game", "move_x", "shoot"],
     "menu": ["main_menu", "gameover_menu"],
-    "group": ["menu_buttons", "gameover_buttons"],
+    "group": ["menu_buttons", "gameover_buttons", "touch_stick"],
     "tag": ["player", "scoreboard"],
     // The names under which numbers are saved between two runs of the program.
     "record": ["best_height"],
@@ -77,7 +80,10 @@
     "scenarios/game_over_shows_score.json",
     "scenarios/play_again_with_r.json",
     "scenarios/play_again_with_button.json",
+    "scenarios/touch_stick_steers.json",
     "scenarios/back_to_menu.json",
+    "scenarios/quit_from_the_menu.json",
+    "scenarios/play_does_not_quit.json",
   ],
   "start_scene": "boot",
 }

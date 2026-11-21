@@ -57,6 +57,36 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Slot* component = world.get<Slot>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "container") {
+        component->container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "index") {
+        component->index = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "accepts") {
+        component->accepts = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "max_stack") {
+        component->max_stack = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "locked") {
+        component->locked = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"container", "u32", "container", false}, {"index", "u32", "", false}, {"accepts", "u32", "category", true}, {"max_stack", "u32", "", false}, {"locked", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -112,6 +142,44 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Item* component = world.get<Item>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "kind") {
+        component->kind = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "categories") {
+        component->categories = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "quantity") {
+        component->quantity = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "max_stack") {
+        component->max_stack = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "stored") {
+        component->stored = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "container") {
+        component->container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "slot") {
+        component->slot = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 7> component_1_fields{{{"kind", "u32", "item_kind", false}, {"categories", "u32", "category", true}, {"quantity", "u32", "", false}, {"max_stack", "u32", "", false}, {"stored", "bool", "", false}, {"container", "u32", "container", false}, {"slot", "u32", "", false}}};
 
 void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
@@ -140,6 +208,24 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<double>(component->radius)};
     }
     return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Gatherer* component = world.get<Gatherer>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "container") {
+        component->container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "radius") {
+        component->radius = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"container", "u32", "container", false}, {"radius", "f32", "", false}}};
@@ -185,6 +271,36 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->status)};
     }
     return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Transfer* component = world.get<Transfer>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "from_container") {
+        component->from_container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "from_slot") {
+        component->from_slot = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "to_container") {
+        component->to_container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "to_slot") {
+        component->to_slot = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "status") {
+        component->status = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
 }
 
 constexpr std::array<::ge::app::FieldInfo, 5> component_3_fields{{{"from_container", "u32", "container", false}, {"from_slot", "u32", "", false}, {"to_container", "u32", "container", false}, {"to_slot", "u32", "", false}, {"status", "u32", "", false}}};
@@ -312,9 +428,103 @@ std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Hand* component = world.get<Hand>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "container") {
+        component->container = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "columns") {
+        component->columns = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "left") {
+        component->left = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "right") {
+        component->right = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "up") {
+        component->up = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "down") {
+        component->down = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "select") {
+        component->select = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "cancel") {
+        component->cancel = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "use_pointer") {
+        component->use_pointer = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "pointer_x") {
+        component->pointer_x = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "pointer_y") {
+        component->pointer_y = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "click") {
+        component->click = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "slot_width") {
+        component->slot_width = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "slot_height") {
+        component->slot_height = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "cursor_frame") {
+        component->cursor_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "holding_frame") {
+        component->holding_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "cursor") {
+        component->cursor = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "holding") {
+        component->holding = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "held_slot") {
+        component->held_slot = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "last_x") {
+        component->last_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "last_y") {
+        component->last_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
 constexpr std::array<::ge::app::FieldInfo, 21> component_4_fields{{{"container", "u32", "container", false}, {"columns", "u32", "", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"select", "u32", "action", false}, {"cancel", "u32", "action", false}, {"use_pointer", "bool", "", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"slot_width", "f32", "", false}, {"slot_height", "f32", "", false}, {"cursor_frame", "u32", "", false}, {"holding_frame", "u32", "", false}, {"cursor", "u32", "", false}, {"holding", "bool", "", false}, {"held_slot", "u32", "", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Slot", false, component_0_fields, insert_component_0, read_component_0}, {"Item", false, component_1_fields, insert_component_1, read_component_1}, {"Gatherer", false, component_2_fields, insert_component_2, read_component_2}, {"Transfer", false, component_3_fields, insert_component_3, read_component_3}, {"Hand", false, component_4_fields, insert_component_4, read_component_4}}};
+constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Slot", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Item", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Gatherer", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Transfer", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Hand", false, component_4_fields, insert_component_4, read_component_4, write_component_4}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"inventory.Slot", "transform2d.Position"};
 constexpr std::array<std::string_view, 4> system_0_writes{"inventory.Hand", "inventory.Item", "sprite2d.Sprite", "transform2d.Position"};

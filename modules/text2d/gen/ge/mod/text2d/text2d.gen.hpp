@@ -46,6 +46,19 @@ struct Text {
     [[nodiscard]] friend bool operator==(const Text&, const Text&) = default;
 };
 
+/// Makes the Text of the same entity show an item of a list filled while the game runs (the games a launcher found, the players of a lobby) instead of one of the game's own texts: list names an item of the game's "runtime_list" list, index the item. The text keeps its look and its {value}; an item that does not exist shows nothing. The host or a system fills the list (RuntimeLists); a scenario can fill it with "lists".
+struct Dynamic {
+    std::uint32_t list = 4294967295U;
+    std::uint32_t index = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(list);
+        hasher.add(index);
+    }
+
+    [[nodiscard]] friend bool operator==(const Dynamic&, const Dynamic&) = default;
+};
+
 /// Asks the renderer to draw every Text, one letter at a time. Presentation only: it never changes the simulation.
 /// Runs in PostUpdate.
 void draw(::ge::ecs::World& world);

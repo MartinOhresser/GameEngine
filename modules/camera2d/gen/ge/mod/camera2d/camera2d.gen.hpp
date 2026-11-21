@@ -29,13 +29,17 @@ struct CameraTarget {
     [[nodiscard]] friend bool operator==(const CameraTarget&, const CameraTarget&) = default;
 };
 
-/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it.
+/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right.
 struct CameraFollow {
     float stiffness = 1.0F;
     bool follow_x = true;
     bool follow_y = true;
     float offset_y = 0.0F;
     bool only_up = false;
+    float offset_x = 0.0F;
+    bool only_down = false;
+    bool only_left = false;
+    bool only_right = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(stiffness);
@@ -43,9 +47,40 @@ struct CameraFollow {
         hasher.add(follow_y);
         hasher.add(offset_y);
         hasher.add(only_up);
+        hasher.add(offset_x);
+        hasher.add(only_down);
+        hasher.add(only_left);
+        hasher.add(only_right);
     }
 
     [[nodiscard]] friend bool operator==(const CameraFollow&, const CameraFollow&) = default;
+};
+
+/// Makes the Camera's entity show a whole area of the world, whatever the shape of the screen: each tick (before drawing) its zoom and Position are set so that the area width by height, centred on (center_x, center_y), is as big as it can be in the window while still fitting entirely. The margins (pixels of the window) keep room at the edges for an interface (a score at the top, buttons at the bottom): the area is centred in what is left. max_zoom, when it is more than 0, stops the area from being enlarged past that zoom (a small board is not blown up on a huge screen). A board, a level seen at once, a map.
+struct CameraFit {
+    float width = 100.0F;
+    float height = 100.0F;
+    float center_x = 0.0F;
+    float center_y = 0.0F;
+    float margin_left = 0.0F;
+    float margin_right = 0.0F;
+    float margin_top = 0.0F;
+    float margin_bottom = 0.0F;
+    float max_zoom = 0.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(width);
+        hasher.add(height);
+        hasher.add(center_x);
+        hasher.add(center_y);
+        hasher.add(margin_left);
+        hasher.add(margin_right);
+        hasher.add(margin_top);
+        hasher.add(margin_bottom);
+        hasher.add(max_zoom);
+    }
+
+    [[nodiscard]] friend bool operator==(const CameraFit&, const CameraFit&) = default;
 };
 
 /// Moves every Camera that has a CameraFollow towards the CameraTarget's Position.
@@ -55,6 +90,10 @@ void follow(::ge::ecs::World& world);
 /// Tells the renderer where the camera is and how far it is zoomed, before the frame's drawing systems run. Presentation only: it never changes the simulation.
 /// Runs in Update.
 void apply(::ge::ecs::World& world);
+
+/// Sets the zoom and the Position of every Camera that has a CameraFit so that its area fits the window (the Viewport) inside its margins.
+/// Runs in Update.
+void fit(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

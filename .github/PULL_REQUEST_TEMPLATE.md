@@ -1,6 +1,6 @@
 ## What and why
 
-<!-- One or two sentences. Link the issue if there is one. -->
+<!-- One or two sentences. Target branch: dev. Link the issue with "Closes #12" if there is one. -->
 
 ## Checklist
 

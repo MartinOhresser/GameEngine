@@ -194,6 +194,10 @@ TEST_CASE("generate: components get a read function, one return per field type")
                    "return ::ge::app::Scalar{static_cast<double>(component->speed)};"));
     CHECK(contains(source->content,
                    "return ::ge::app::Scalar{static_cast<bool>(component->alive)};"));
-    CHECK(contains(source->content, "insert_component_0, read_component_0}"));
-    CHECK(contains(source->content, "insert_component_1, read_component_1}"));
+    CHECK(contains(source->content, "insert_component_0, read_component_0, write_component_0}"));
+    CHECK(contains(source->content, "insert_component_1, read_component_1, write_component_1}"));
+    // ...and a write function that converts back to the field's type.
+    CHECK(contains(source->content, "Stats* component = world.get<Stats>(entity);"));
+    CHECK(contains(source->content,
+                   "component->level = ::ge::app::scalar_as<std::uint32_t>(value);"));
 }
