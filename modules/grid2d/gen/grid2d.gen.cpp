@@ -28,6 +28,12 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.cell_width = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "cell_height") {
             component.cell_height = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "spacing_x") {
+            component.spacing_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "spacing_y") {
+            component.spacing_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "screen") {
+            component.screen = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -53,6 +59,15 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "cell_height") {
         return ::ge::app::Scalar{static_cast<double>(component->cell_height)};
+    }
+    if (field == "spacing_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->spacing_x)};
+    }
+    if (field == "spacing_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->spacing_y)};
+    }
+    if (field == "screen") {
+        return ::ge::app::Scalar{static_cast<bool>(component->screen)};
     }
     return std::nullopt;
 }
@@ -84,10 +99,22 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->cell_height = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "spacing_x") {
+        component->spacing_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "spacing_y") {
+        component->spacing_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "screen") {
+        component->screen = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"id", "u32", "grid", false}, {"columns", "u32", "", false}, {"rows", "u32", "", false}, {"cell_width", "f32", "", false}, {"cell_height", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"id", "u32", "grid", false}, {"columns", "u32", "", false}, {"rows", "u32", "", false}, {"cell_width", "f32", "", false}, {"cell_height", "f32", "", false}, {"spacing_x", "f32", "", false}, {"spacing_y", "f32", "", false}, {"screen", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -213,6 +240,24 @@ void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.row = ::ge::app::scalar_as<std::int32_t>(field.value);
         } else if (field.name == "clicked") {
             component.clicked = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "left") {
+            component.left = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "right") {
+            component.right = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "up") {
+            component.up = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "down") {
+            component.down = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "accept") {
+            component.accept = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "wrap") {
+            component.wrap = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "keyed") {
+            component.keyed = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "last_x") {
+            component.last_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "last_y") {
+            component.last_y = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -250,6 +295,33 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     }
     if (field == "clicked") {
         return ::ge::app::Scalar{static_cast<bool>(component->clicked)};
+    }
+    if (field == "left") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->left)};
+    }
+    if (field == "right") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->right)};
+    }
+    if (field == "up") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->up)};
+    }
+    if (field == "down") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->down)};
+    }
+    if (field == "accept") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->accept)};
+    }
+    if (field == "wrap") {
+        return ::ge::app::Scalar{static_cast<bool>(component->wrap)};
+    }
+    if (field == "keyed") {
+        return ::ge::app::Scalar{static_cast<bool>(component->keyed)};
+    }
+    if (field == "last_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->last_x)};
+    }
+    if (field == "last_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->last_y)};
     }
     return std::nullopt;
 }
@@ -297,10 +369,46 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->clicked = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "left") {
+        component->left = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "right") {
+        component->right = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "up") {
+        component->up = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "down") {
+        component->down = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "accept") {
+        component->accept = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "wrap") {
+        component->wrap = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "keyed") {
+        component->keyed = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "last_x") {
+        component->last_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "last_y") {
+        component->last_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_3_fields{{{"grid", "u32", "grid", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"action", "u32", "action", false}, {"over", "bool", "", false}, {"col", "i32", "", false}, {"row", "i32", "", false}, {"clicked", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 18> component_3_fields{{{"grid", "u32", "grid", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"click", "u32", "action", false}, {"action", "u32", "action", false}, {"over", "bool", "", false}, {"col", "i32", "", false}, {"row", "i32", "", false}, {"clicked", "bool", "", false}, {"left", "u32", "action", false}, {"right", "u32", "action", false}, {"up", "u32", "action", false}, {"down", "u32", "action", false}, {"accept", "u32", "action", false}, {"wrap", "bool", "", false}, {"keyed", "bool", "", false}, {"last_x", "f32", "", false}, {"last_y", "f32", "", false}}};
 
 void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -530,8 +638,8 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &place, "grid2d.place", ::ge::app::Order::between({"transform2d.attach"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &point, "grid2d.point");
+    app.add_system(::ge::app::Stage::FixedUpdate, &place, "grid2d.place", ::ge::app::Order::between({"transform2d.anchor"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &point, "grid2d.point", ::ge::app::Order::between({"transform2d.anchor"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &spawn, "grid2d.spawn", ::ge::app::Order::between({"grid2d.place"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &watch_zones, "grid2d.watch_zones", ::ge::app::Order::between({"grid2d.place"}, {}));
 }
