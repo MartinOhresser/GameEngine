@@ -18,6 +18,8 @@ cmake --build --preset dev
 ctest --preset dev
 ```
 
+clang-tidy est l'étape la plus longue de `check.sh`, et la seule qu'aucun cache n'accélère. Pour une pull request, `TIDY=changed ./scripts/check.sh` ne le passe que sur ce que la branche change depuis `origin/dev` (`TIDY_BASE` pour une autre base) : les `.cpp` modifiés et ceux qui incluent directement un en-tête modifié (`scripts/tidy_changed.sh`). Sans `TIDY=changed`, il passe sur tout le projet.
+
 Les presets disponibles sont `dev`, `release`, `asan`, `tidy` et `coverage` (voir `CMakePresets.json`).
 
 ## Ce que la CI contrôle

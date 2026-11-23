@@ -25,7 +25,7 @@ Un module est un dossier `modules/<nom>/` qui ajoute des **composants** (donnée
 6. **Écrire les systèmes** dans `src/<nom>.cpp` : une fonction par système déclaré, de signature `void <système>(ecs::World& world)`, dans `namespace ge::mod::<nom>`.
 7. **Écrire les tests** dans `modules/<nom>/tests/` : au minimum un test par système, qui installe le module (et ses dépendances), crée des entités, fait tourner `app.run_frames(n)` et vérifie le résultat. Le test d'exemple montre la forme.
 8. **Utiliser le module** dans un jeu (skill `game-from-prompt`) et prouver son effet par un scénario.
-9. **Contrôler** : `./scripts/check.sh`. Puis commit, push, PR **vers `dev`** (jamais vers `main`), avec `Closes #<issue>` dans la description.
+9. **Contrôler** : `TIDY=changed ./scripts/check.sh` (clang-tidy sur ce que la branche change). Puis commit, push, PR **vers `dev`** (jamais vers `main`), avec `Closes #<issue>` dans la description.
 
 ## Règles de code d'un système
 
