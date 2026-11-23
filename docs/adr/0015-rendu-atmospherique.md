@@ -1,6 +1,6 @@
 # ADR 0015 : un rendu 2D atmosphérique, et un plateformer pour le prouver
 
-Statut : accepté (cadrage validé par Martin le 23 novembre 2026), étapes B1 à B9 à réaliser.
+Statut : accepté (cadrage validé par Martin le 23 novembre 2026). B1 fait (SDL 3.4.20, mesure : voir « Mesure ») ; B2 à B9 à réaliser.
 
 ## Contexte
 
@@ -120,6 +120,34 @@ Une PR vers `dev` par étape, chacune vérifiée en local (`check.sh` avant chaq
 | B9 | documentation (`RENDERING.md`, `MODULES.md`), skills (`engine-catalog`, `game-from-prompt`), `CHANGELOG.md` | `scripts/check_skills.py` vert |
 
 Dès B3, on voit quelque chose de joli.
+
+## Mesure (B1, 23 novembre 2026)
+
+`gebench` (dans `platform/sdl`) dessine à travers le `Renderer` du moteur, comme un jeu, dans une fenêtre de 1280 × 720 sans synchronisation verticale. Il double chaque charge tant qu'une image prend moins de 1/60 s, et mesure deux cas :
+- des sprites de 32 × 32 tirés d'un atlas ;
+- des plans qui couvrent toute la fenêtre, à demi transparents, comme les plans d'une parallaxe ; c'est le remplissage des pixels qui les limite.
+
+Machine : PC portable de Martin, Intel Core Ultra 7 255U, **carte graphique intégrée** Intel, SDL 3.4.20, compilation Release (MSVC).
+
+| Pilote de `SDL_Renderer` | Sprites 32 × 32 à 60 i/s | Plans plein écran à 60 i/s |
+| --- | --- | --- |
+| choix de SDL (**direct3d11**) | 64 000 | 128 |
+| direct3d11 | 32 000 à 64 000 | 128 |
+| direct3d12 | 32 000 | 256 |
+| vulkan | 64 000 | 256 |
+| opengl | 64 000 | 512 |
+| gpu (sur Vulkan) | 64 000 | 128 |
+| gpu (sur Direct3D 12, son choix par défaut) | non mesurable | non mesurable |
+| software (processeur) | 2 000 | 1 |
+
+Chaque charge double à chaque pas : les chiffres donnent un ordre de grandeur, pas une limite exacte. Deux passages du même pilote peuvent tomber d'un côté ou de l'autre d'un doublement (direct3d11).
+
+Ce qu'on en tire :
+- **La marge est très grande.** Une scène du plateformer compte quelques centaines de sprites et une dizaine de plans plein écran. Même une carte intégrée en dessine dix fois plus à 60 i/s. Le dessin ne limitera pas la beauté du jeu sur PC ; sur téléphone, c'est le remplissage des pixels qu'il faudra surveiller (lumière et halo à demi-résolution, §Conséquences).
+- **Le pilote par défaut reste celui que SDL choisit** (Direct3D 11 sous Windows).
+- **Pilote « gpu »** : sur Direct3D 12, il reste calé sur l'écran (16,7 ms par image) même quand on lui demande de ne pas attendre. On ne peut donc pas mesurer sa marge, mais il tient 60 i/s. Sur Vulkan, il se comporte comme les autres. Le choix de l'API sous le pilote « gpu » pour les effets à shader se fait en B6.
+- Le rendu logiciel reste un secours (machines sans carte utilisable, tests sans tête) : 2 000 sprites, un seul plan plein écran.
+- Passer à SDL 3.4.20 n'a demandé aucun changement de code. Tous les tests passent, et les captures sans tête des jeux à l'image fixe sont identiques au pixel près à celles de SDL 3.2.30. Les jeux en mouvement ne se comparent pas ainsi : `geplay --headless` suit l'horloge réelle, et deux lancements donnent des images différentes même sans changer de version.
 
 ## Conséquences et risques
 

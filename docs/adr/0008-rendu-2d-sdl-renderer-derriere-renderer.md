@@ -18,6 +18,8 @@ M7 ajoute les sprites, les atlas, la caméra et les collisions. La roadmap prév
 
 **Il n'y a pas de GPU dans l'environnement où M7 a été écrit** : la performance du dessin n'a donc pas pu être chiffrée sur un vrai GPU, et le choix ci-dessus n'est pas issu d'un banc d'essai. Il repose sur le fait que `SDL_Renderer` regroupe lui-même les dessins qui partagent une texture et suffit largement à un jeu 2D de plusieurs milliers de sprites. À refaire sur une machine avec GPU (nombre de sprites par image à 60 images/s) avant de s'engager sur un jeu très chargé : si le résultat est insuffisant, il suffit de remplacer le `Renderer` (SDL_GPU en lots), sans toucher aux jeux ni aux modules.
 
+*Mesuré depuis (ADR 0015, étape B1, `gebench`)* : sur une carte graphique intégrée, `SDL_Renderer` dessine environ 64 000 sprites de 32 × 32, ou 128 plans plein écran, à 60 images/s. Le choix tient.
+
 ## Conséquences
 
 - Rien à installer pour dessiner, et les tests de rendu (capture de pixels en mode sans tête, pilotes dummy) tournent partout, CI comprise.

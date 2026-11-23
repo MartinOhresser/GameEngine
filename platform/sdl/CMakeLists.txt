@@ -16,10 +16,10 @@ set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
   SDL3
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG release-3.2.30
+  GIT_TAG release-3.4.20
   GIT_SHALLOW TRUE
   SYSTEM
-  FIND_PACKAGE_ARGS 3.2 CONFIG)
+  FIND_PACKAGE_ARGS 3.4 CONFIG)
 FetchContent_MakeAvailable(SDL3)
 
 if(TARGET SDL3::SDL3)
@@ -52,6 +52,11 @@ target_link_libraries(ge_play PUBLIC ge::game ge::app ge::platform_sdl)
 ge_target_options(ge_play)
 
 if(TARGET ge_runner)
+  # How much the window's renderer draws per frame, driver by driver (a measure, not a test).
+  add_executable(gebench src/gebench_main.cpp)
+  target_link_libraries(gebench PRIVATE ge::platform_sdl)
+  ge_target_options(gebench)
+
   add_executable(geplay src/geplay_main.cpp)
   target_link_libraries(geplay PRIVATE ge_play ge_runner)
   ge_target_options(geplay)
