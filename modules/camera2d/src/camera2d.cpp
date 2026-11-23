@@ -1,6 +1,7 @@
 #include "ge/app/render.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
@@ -92,9 +93,11 @@ void apply(ecs::World& world) {
     }
     bool found = false;
     world.each<const Camera, const transform2d::Position>(
-        [&](ecs::Entity, const Camera& camera, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Camera& camera, const transform2d::Position& now) {
             if (!found) {
                 found = true;
+                const transform2d::Position position =
+                    transform2d::drawn_position(world, entity, now);
                 backend->renderer().set_camera({position.x, position.y, camera.zoom});
             }
         });

@@ -612,9 +612,9 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
     if (object == nullptr) {
         return std::nullopt;
     }
-    checker.reject_unknown(
-        *object, "",
-        {"$schema", "schema_version", "name", "image", "cell_width", "cell_height", "glyphs"});
+    checker.reject_unknown(*object, "",
+                           {"$schema", "schema_version", "name", "image", "cell_width",
+                            "cell_height", "glyphs", "filter"});
     if (const json::Value* version = object->find("schema_version"); version == nullptr) {
         checker.error("", "missing required key \"schema_version\"");
     } else if (!version->is_int() || version->as_int() != 1) {
@@ -637,6 +637,15 @@ std::optional<AtlasData> read_atlas(const Context& context, const std::string& f
     static_cast<void>(read_cell_size(checker, *object, "cell_width", atlas.cell_width));
     static_cast<void>(read_cell_size(checker, *object, "cell_height", atlas.cell_height));
     static_cast<void>(checker.text(*object, "glyphs", "", false, atlas.glyphs));
+    std::string filter;
+    if (checker.text(*object, "filter", "", false, filter)) {
+        if (filter == "linear") {
+            atlas.smooth = true;
+        } else if (filter != "nearest") {
+            checker.error("filter", "must be \"nearest\" (sharp pixels, the default) or "
+                                    "\"linear\" (smoothed)");
+        }
+    }
     return atlas;
 }
 

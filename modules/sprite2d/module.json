@@ -8,7 +8,7 @@
   "components": [
     {
       "name": "Sprite",
-      "description": "Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json \"atlases\"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.",
+      "description": "Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json \"atlases\"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position.",
       "replicable": false,
       "fields": [
         { "name": "atlas", "type": "u32", "default": 0, "ref": "atlas" },
@@ -23,7 +23,19 @@
         { "name": "red", "type": "u32", "default": 255 },
         { "name": "green", "type": "u32", "default": 255 },
         { "name": "blue", "type": "u32", "default": 255 },
-        { "name": "alpha", "type": "u32", "default": 255 }
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "additive", "type": "bool", "default": false },
+        { "name": "multiply", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Parallax",
+      "description": "Makes the entity's Sprite a plane at a distance: x and y say how much of the camera's movement it follows (1 moves with the world, 0.5 half as much, as a far plane does; 0 stays put on the screen, as the sky does; above 1 moves faster, as a plane nearer than the action does). The zoom applies to it as to the rest. With repeat_x the picture is drawn again side by side, every width, across the whole view: one picture makes an endless band (hills, clouds, a ground). Put the farthest planes on the lowest layers.",
+      "replicable": false,
+      "fields": [
+        { "name": "x", "type": "f32", "default": 1 },
+        { "name": "y", "type": "f32", "default": 1 },
+        { "name": "repeat_x", "type": "bool", "default": false }
       ]
     },
     {
@@ -62,7 +74,7 @@
       "name": "draw",
       "description": "Asks the renderer to draw every Sprite, lowest layer first. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.",
       "stage": "PostUpdate",
-      "reads": ["Sprite", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale"]
+      "reads": ["Sprite", "Parallax", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale", "transform2d.Rotation"]
     },
     {
       "name": "bind_frame",

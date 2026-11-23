@@ -1,5 +1,6 @@
 #include "ge/app/render.hpp"
 #include "ge/mod/debug_draw/debug_draw.gen.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
@@ -37,7 +38,8 @@ void draw(ecs::World& world) {
     }
     app::Renderer& renderer = backend->renderer();
     world.each<const Square, const transform2d::Position>(
-        [&](ecs::Entity entity, const Square& square, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Square& square, const transform2d::Position& now) {
+            const transform2d::Position position = transform2d::drawn_position(world, entity, now);
             if (!world.has<transform2d::Hidden>(entity)) {
                 renderer.draw(app::DrawCommand{"square", position.x, position.y,
                                                square.size * scale_of(world, entity),
@@ -45,7 +47,8 @@ void draw(ecs::World& world) {
             }
         });
     world.each<const Rect, const transform2d::Position>(
-        [&](ecs::Entity entity, const Rect& rect, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Rect& rect, const transform2d::Position& now) {
+            const transform2d::Position position = transform2d::drawn_position(world, entity, now);
             if (world.has<transform2d::Hidden>(entity)) {
                 return;
             }
@@ -58,7 +61,8 @@ void draw(ecs::World& world) {
             renderer.draw(command);
         });
     world.each<const Circle, const transform2d::Position>(
-        [&](ecs::Entity entity, const Circle& circle, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Circle& circle, const transform2d::Position& now) {
+            const transform2d::Position position = transform2d::drawn_position(world, entity, now);
             if (world.has<transform2d::Hidden>(entity)) {
                 return;
             }
@@ -70,7 +74,8 @@ void draw(ecs::World& world) {
             renderer.draw(command);
         });
     world.each<const Line, const transform2d::Position>(
-        [&](ecs::Entity entity, const Line& line, const transform2d::Position& position) {
+        [&](ecs::Entity entity, const Line& line, const transform2d::Position& now) {
+            const transform2d::Position position = transform2d::drawn_position(world, entity, now);
             if (world.has<transform2d::Hidden>(entity)) {
                 return;
             }

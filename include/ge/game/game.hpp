@@ -113,6 +113,9 @@ struct AtlasData {
     int cell_height = 0;
     /// For a font: the characters the cells show, in cell order (UTF-8).
     std::string glyphs;
+    /// `"filter": "linear"`: smoothed when scaled or turned; `"nearest"` (the default) keeps
+    /// pixel art sharp.
+    bool smooth = false;
 };
 
 /// The words of one language: `entries` in file order, key then text.

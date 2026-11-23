@@ -34,13 +34,13 @@ TEST_CASE("modules: the generated info matches module.json") {
     CHECK(info.name == "transform2d");
     CHECK(info.version == "0.1.0");
     CHECK(info.depends.empty());
-    REQUIRE(info.components.size() == 9U);
+    REQUIRE(info.components.size() == 10U);
     CHECK(info.components[0].name == "Position");
     CHECK(info.components[0].replicable);
     REQUIRE(info.components[0].fields.size() == 2U);
     CHECK(info.components[0].fields[1].name == "y");
     CHECK(info.components[0].fields[1].type == "f32");
-    REQUIRE(info.systems.size() == 4U);
+    REQUIRE(info.systems.size() == 5U);
     CHECK(info.systems[0].name == "transform2d.integrate");
     CHECK(info.systems[0].stage == ge::app::Stage::FixedUpdate);
     REQUIRE(info.systems[0].writes.size() == 1U);
@@ -190,7 +190,7 @@ TEST_CASE("modules: settings are a resource the game can change") {
     REQUIRE(app.world().resource<transform2d::Params>() != nullptr);
     CHECK(app.world().resource<transform2d::Params>()->speed_scale == 1.0F);
     const ge::app::ModuleInfo& info = transform2d::info();
-    REQUIRE(info.params.size() == 1U);
+    REQUIRE(info.params.size() == 2U);
     CHECK(info.params[0].name == "speed_scale");
     CHECK(info.params[0].min == 0.0);
     CHECK(info.params[0].max == 10.0);

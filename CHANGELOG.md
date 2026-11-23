@@ -6,6 +6,14 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B2 : **un mouvement fluide sur tous les écrans**. En temps réel (`geplay`, le lanceur, un jeu exporté), chaque entité et la caméra sont dessinées entre leurs positions des deux derniers ticks, au prorata de `Time::alpha`. Un saut de plus de `snap_distance` (nouveau réglage de `transform2d`, 256 par défaut) est dessiné d'un coup. `Time::interpolate` (mis par `run_loop`) l'active ; les tests et les scénarios voient toujours exactement le dernier tick. Nouveau système `transform2d.remember` ; `ge/mod/transform2d/drawn.hpp` donne `drawn_position` aux modules de dessin (`sprite2d`, `debug_draw`, `text2d`, `camera2d`).
+- ADR 0015, B2 : **le renderer tourne, mélange, lisse et fait de la parallaxe**. Côté jeu :
+  - `transform2d.Rotation` (`angle` en degrés) tourne un sprite autour de sa `Position` ;
+  - `sprite2d.Sprite` gagne `additive` (ajoute sa lumière : halos, rayons) et `multiply` (assombrit : ombres, voiles) ;
+  - `sprite2d.Parallax` (`x`, `y`, `repeat_x`) fait d'un sprite un plan lointain qui suit la caméra en partie, et le répète en bande sans fin ;
+  - un atlas prend `"filter": "linear"` pour lisser les images peintes ; le pixel art reste net par défaut.
+
+  Côté moteur, `DrawCommand` gagne `angle`, `blend`, `parallax_x`, `parallax_y` et `repeat_x`, et `AtlasInfo` gagne `smooth`. Rien ne change pour les jeux existants.
 - ADR 0015, B1 : **SDL passe de 3.2.30 à 3.4.20**, sans changement de code. Tous les tests passent, et les images fixes des jeux sont identiques au pixel près. Nouveau programme **`gebench`** : combien de sprites et de plans plein écran le renderer dessine à 60 images/s, pilote par pilote. La mesure que l'ADR 0008 n'avait pas pu faire est dans l'ADR 0015 : environ 64 000 sprites ou 128 plans plein écran sur une carte graphique intégrée. `WindowOptions` gagne `render_driver` (demander un pilote de rendu SDL) et `vsync` ; `SdlBackend::render_driver()` dit lequel est utilisé. Sous Linux, SDL 3.4 demande en plus les en-têtes de XTest (`libxtst-dev`), ajoutés à la CI et à `scripts/setup_linux.sh`.
 - ADR 0015 (un rendu 2D atmosphérique, et un plateformer pour le prouver) : le style du jeu d'essai (silhouettes de Limbo, lumière d'Ori, petite cinématique), un seul renderer, l'actuel amélioré (SDL 3.4, effets sans shader partout, effets à shader sous le pilote « gpu » seulement), les modules génériques à ajouter (saut, côtés de contact, accélération, caméra, lumière, particules, effets d'écran, animation par états), les images générées par script et les étapes B1 à B9.
 

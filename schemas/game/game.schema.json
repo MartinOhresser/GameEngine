@@ -293,6 +293,11 @@
               "type": "number",
               "minimum": 0,
               "maximum": 10
+            },
+            "snap_distance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100000
             }
           },
           "additionalProperties": false

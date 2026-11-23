@@ -12,6 +12,14 @@
       "default": 1,
       "min": 0,
       "max": 10
+    },
+    {
+      "name": "snap_distance",
+      "description": "When the game is drawn in real time, each entity is drawn between where it was one tick before and where it is now, so that it moves smoothly on any screen; a move longer than this, in world units in one tick, is a jump (a teleport, a wrap around the screen) and is drawn at once instead of sliding. 0 never snaps.",
+      "type": "f32",
+      "default": 256,
+      "min": 0,
+      "max": 100000
     }
   ],
   "components": [
@@ -63,6 +71,14 @@
       "replicable": false,
       "fields": [
         { "name": "factor", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Rotation",
+      "description": "How much the entity is turned, in degrees, clockwise on the screen (90 points what was to the right downwards). Sprites turn around their Position (the pivot stays put); it changes nothing else (not the collisions). Animate it for a spin, a swing, a wobble.",
+      "replicable": false,
+      "fields": [
+        { "name": "angle", "type": "f32", "default": 0 }
       ]
     },
     {
@@ -122,6 +138,12 @@
       "reads": ["Anchor"],
       "writes": ["Position"],
       "after": ["attach"]
+    },
+    {
+      "name": "remember",
+      "description": "When the game is drawn in real time, keeps where every entity was at the last two ticks, so that the drawing modules place things between them (ge/mod/transform2d/drawn.hpp). Presentation only: nothing in the simulation reads it, and it does nothing in tests and scenarios.",
+      "stage": "PreUpdate",
+      "reads": ["Position"]
     }
   ]
 }

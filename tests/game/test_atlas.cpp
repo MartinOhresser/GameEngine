@@ -169,3 +169,33 @@ TEST_CASE("atlas: load_atlases hands every picture to the renderer, and reports 
     CHECK(renderer.atlases()[1].image == "g/art/hero.png");
     CHECK(renderer.atlases()[1].cell_width == 24);
 }
+
+namespace {
+/// The sample game, its hero atlas given this "filter".
+ge::game::LoadedGame with_filter(const char* filter) {
+    const std::string value = std::string(R"("filter": ")") + filter + R"(", "cell_width": 24)";
+    return load_changed("g/art/hero.json", R"("cell_width": 24)", value.c_str());
+}
+} // namespace
+
+TEST_CASE("atlas: \"filter\": \"linear\" smooths an atlas, pixel art stays sharp by default") {
+    const auto smooth = with_filter("linear");
+    REQUIRE(smooth.ok());
+    CHECK(!smooth.game.atlases[0].smooth);
+    CHECK(smooth.game.atlases[1].smooth);
+    ge::app::RecordingRenderer renderer;
+    CHECK(ge::game::load_atlases(smooth.game, renderer).empty());
+    REQUIRE(renderer.atlases().size() == 2U);
+    CHECK(!renderer.atlases()[0].smooth);
+    CHECK(renderer.atlases()[1].smooth);
+}
+
+TEST_CASE("atlas: \"filter\" is nearest or linear, nothing else") {
+    const auto sharp = with_filter("nearest");
+    REQUIRE(sharp.ok());
+    CHECK(!sharp.game.atlases[1].smooth);
+
+    const auto wrong = with_filter("blurry");
+    CHECK(!wrong.ok());
+    CHECK(mentions(wrong, "\"linear\""));
+}

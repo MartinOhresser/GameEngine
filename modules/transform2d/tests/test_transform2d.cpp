@@ -1,9 +1,12 @@
 #include "ge/app/app.hpp"
 #include "ge/app/spawn.hpp"
 #include "ge/app/viewport.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include "mini_test.hpp"
+
+#include <chrono>
 
 namespace {
 
@@ -175,4 +178,53 @@ TEST_CASE("transform2d: an anchored entity follows the window's edges") {
     app.run_frames(1);
     CHECK(position_of(app, top_right).x == 310.0F);
     CHECK(position_of(app, centre).y == 90.0F);
+}
+
+namespace {
+
+/// One tick of a 60 ticks per second game, as `App` counts it.
+constexpr std::chrono::nanoseconds tick_time{1'000'000'000 / 60};
+
+float drawn_x(ge::app::App& app, ge::ecs::Entity entity) {
+    const auto* position = app.world().get<transform2d::Position>(entity);
+    CHECK(position != nullptr);
+    return position == nullptr ? -1.0F
+                               : transform2d::drawn_position(app.world(), entity, *position).x;
+}
+
+} // namespace
+
+TEST_CASE("transform2d: in real time, an entity is drawn between its last two ticks") {
+    ge::app::App app = game();
+    app.world().resource<ge::app::Time>()->interpolate = true;
+    const ge::ecs::Entity entity = runner(app, 60.0F); // one unit per tick
+    app.advance(tick_time);                            // tick 1: at x = 1
+    CHECK(app.world().get<transform2d::Position>(entity)->x == 1.0F);
+    CHECK(drawn_x(app, entity) == 0.0F); // just reached tick 1: shown where tick 0 was
+    app.advance(tick_time / 2);          // half way to tick 2, no tick ran
+    CHECK(app.world().get<transform2d::Position>(entity)->x == 1.0F);
+    CHECK(drawn_x(app, entity) == 0.5F);
+    app.advance(tick_time / 2); // tick 2: at x = 2
+    CHECK(drawn_x(app, entity) == 1.0F);
+    app.advance(tick_time * 3); // several ticks in one frame: drawn where it is
+    CHECK(drawn_x(app, entity) == app.world().get<transform2d::Position>(entity)->x);
+}
+
+TEST_CASE("transform2d: without real time, a jump or a new entity, the Position is drawn as is") {
+    ge::app::App plain = game();
+    const ge::ecs::Entity still = runner(plain, 60.0F);
+    plain.advance(tick_time / 2);
+    plain.advance(tick_time);
+    CHECK(drawn_x(plain, still) == plain.world().get<transform2d::Position>(still)->x);
+
+    ge::app::App app = game();
+    app.world().resource<ge::app::Time>()->interpolate = true;
+    const ge::ecs::Entity jumper = runner(app, 60.0F * 300.0F); // 300 units a tick: a jump
+    app.advance(tick_time);
+    app.advance(tick_time / 2);
+    CHECK(drawn_x(app, jumper) == app.world().get<transform2d::Position>(jumper)->x);
+    CHECK(drawn_x(app, jumper) > 299.0F);            // beyond snap_distance (256): no slide
+    const ge::ecs::Entity late = runner(app, 60.0F); // born after the positions were taken
+    CHECK(drawn_x(app, late) == 0.0F);
+    CHECK(app.world().resource<transform2d::Trail>() != nullptr);
 }

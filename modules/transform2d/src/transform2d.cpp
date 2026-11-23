@@ -1,9 +1,40 @@
 #include "ge/app/time.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/ecs/commands.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
+#include <utility>
+
 namespace ge::mod::transform2d {
+
+void remember(ecs::World& world) {
+    const auto* time = world.resource<app::Time>();
+    if (time == nullptr || !time->interpolate) {
+        return; // nothing to smooth: tests and scenarios draw the last tick as it is
+    }
+    auto* trail = world.resource<Trail>();
+    if (trail == nullptr) {
+        trail = &world.insert_resource(Trail{});
+    }
+    trail->snap_distance = world.resource<Params>()->snap_distance;
+    if (trail->latest.taken && trail->latest.tick == time->tick) {
+        return; // no tick ran since the last look
+    }
+    std::swap(trail->older, trail->latest);
+    PositionsAt& now = trail->latest;
+    now.tick = time->tick;
+    now.taken = true;
+    for (PositionsAt::Entry& entry : now.entries) {
+        entry.present = false;
+    }
+    world.each<const Position>([&now](ecs::Entity entity, const Position& position) {
+        if (entity.index() >= now.entries.size()) {
+            now.entries.resize(static_cast<std::size_t>(entity.index()) + 1U);
+        }
+        now.entries[entity.index()] = {entity.generation(), true, position};
+    });
+}
 
 void integrate(ecs::World& world) {
     const float step =

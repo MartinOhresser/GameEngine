@@ -332,7 +332,7 @@ std::vector<std::string> load_atlases(const Game& game, app::Renderer& renderer)
     std::vector<std::string> problems;
     for (std::size_t index = 0; index < game.atlases.size(); ++index) {
         const AtlasData& atlas = game.atlases[index];
-        const app::AtlasInfo info{atlas.image, atlas.cell_width, atlas.cell_height};
+        const app::AtlasInfo info{atlas.image, atlas.cell_width, atlas.cell_height, atlas.smooth};
         std::string error;
         if (!renderer.load_atlas(static_cast<int>(index), info, error)) {
             problems.push_back("atlas \"" + atlas.name + "\": " + error);

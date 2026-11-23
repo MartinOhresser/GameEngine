@@ -478,6 +478,107 @@ TEST_CASE("sdl: the camera moves and zooms sprites and squares, for one frame") 
     CHECK(backend->last_frame().at(100, 100) == 0xFF0000FFU);
 }
 
+namespace {
+/// The red channel of a 0xRRGGBBAA pixel.
+std::uint32_t red_of(std::uint32_t pixel) {
+    return pixel >> 24U;
+}
+
+ge::app::DrawCommand cell(float x, float y, std::uint32_t frame) {
+    ge::app::DrawCommand command{"sprite", x, y, 0.0F, 0xFFFFFFFFU};
+    command.atlas = 0;
+    command.frame = frame;
+    return command;
+}
+} // namespace
+
+TEST_CASE("sdl: an added sprite brightens what is under it, a multiplied one darkens it") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+    renderer->draw(cell(100.0F, 100.0F, 1)); // green
+    ge::app::DrawCommand added = cell(100.0F, 100.0F, 0);
+    added.blend = ge::app::Blend::Add; // red light on green: yellow
+    renderer->draw(added);
+    renderer->draw(cell(200.0F, 100.0F, 1));
+    ge::app::DrawCommand multiplied = cell(200.0F, 100.0F, 0);
+    multiplied.blend = ge::app::Blend::Multiply; // green seen through red: black
+    renderer->draw(multiplied);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(frame.at(100, 100) == 0xFFFF00FFU);
+    CHECK(frame.at(200, 100) == 0x000000FFU);
+}
+
+TEST_CASE("sdl: a sprite turns around its centre") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+    ge::app::DrawCommand turned = cell(100.0F, 100.0F, 0);
+    turned.width = 32.0F; // big pixels, so the turn is easy to see
+    turned.height = 32.0F;
+    turned.angle = 90.0F;
+    renderer->draw(turned);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    // The darker left column of the red cell is now along the top (clockwise).
+    CHECK(red_of(frame.at(100, 86)) < 0xC0U);
+    CHECK(red_of(frame.at(86, 100)) == 0xFFU);
+    CHECK(red_of(frame.at(100, 100)) == 0xFFU);
+}
+
+TEST_CASE("sdl: a parallax plane follows the camera partly, and a repeated one fills the width") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+    renderer->set_camera({100.0F, 100.0F, 1.0F});
+    ge::app::DrawCommand half = cell(100.0F, 100.0F, 0);
+    half.parallax_x = 0.5F; // the camera moved 100 from the origin: the plane moved 50
+    half.parallax_y = 0.5F;
+    renderer->draw(half);
+    ge::app::DrawCommand band = cell(0.0F, 200.0F, 1);
+    band.repeat_x = true;
+    renderer->draw(band);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(frame.at(450, 350) == 0xFF0000FFU); // (100 - 50) + 400, (100 - 50) + 300
+    CHECK(frame.at(400, 300) != 0xFF0000FFU); // where a plane of the world would be
+    CHECK(frame.at(301, 400) == 0x00FF00FFU); // the band, at its own place...
+    CHECK(frame.at(5, 400) == 0x00FF00FFU);   // ...and copies to the left edge...
+    CHECK(frame.at(797, 400) == 0x00FF00FFU); // ...and to the right one
+    CHECK(frame.at(400, 410) == 0x121420FFU); // but not above or below it
+}
+
+TEST_CASE("sdl: a smooth atlas blends its pixels when enlarged, a sharp one does not") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8, false}, error));
+    REQUIRE(renderer->load_atlas(1, {test_atlas(), 8, 8, true}, error));
+    ge::app::DrawCommand sharp = cell(100.0F, 100.0F, 0);
+    sharp.width = 32.0F; // each pixel of the cell becomes 4 x 4
+    sharp.height = 32.0F;
+    ge::app::DrawCommand smooth = sharp;
+    smooth.atlas = 1;
+    smooth.x = 200.0F;
+    renderer->draw(sharp);
+    renderer->draw(smooth);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    // Between the darker first column and the second one (the cell starts at x - 16).
+    CHECK(red_of(frame.at(88, 100)) == 0xFFU);
+    const std::uint32_t blended = red_of(frame.at(188, 100));
+    CHECK(blended > 0x7FU);
+    CHECK(blended < 0xFFU);
+}
+
 TEST_CASE("sdl: an atlas that cannot be loaded says why") {
     auto backend = open();
     REQUIRE(backend != nullptr);

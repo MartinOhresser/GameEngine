@@ -148,7 +148,9 @@ public:
             error = "cannot use \"" + atlas.image + "\": " + sdl_error();
             return false;
         }
-        SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST); // pixel art stays sharp
+        // Pixel art stays sharp; painted pictures are smoothed.
+        SDL_SetTextureScaleMode(texture,
+                                atlas.smooth ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
         if (static_cast<std::size_t>(index) >= atlases_.size()) {
             atlases_.resize(static_cast<std::size_t>(index) + 1U);
         }
@@ -196,8 +198,21 @@ private:
             screen_y = world_y;
             return;
         }
-        screen_x = (world_x - camera_->x) * camera_->zoom + half_width_;
-        screen_y = (world_y - camera_->y) * camera_->zoom + half_height_;
+        // A far plane (parallax below 1) follows the camera only partly.
+        screen_x = (world_x - camera_->x * command.parallax_x) * camera_->zoom + half_width_;
+        screen_y = (world_y - camera_->y * command.parallax_y) * camera_->zoom + half_height_;
+    }
+
+    static SDL_BlendMode blend_mode(app::Blend blend) {
+        switch (blend) {
+        case app::Blend::Add:
+            return SDL_BLENDMODE_ADD;
+        case app::Blend::Multiply:
+            return SDL_BLENDMODE_MUL;
+        case app::Blend::Alpha:
+            break;
+        }
+        return SDL_BLENDMODE_BLEND;
     }
 
     [[nodiscard]] float zoom(const app::DrawCommand& command) const {
@@ -336,14 +351,29 @@ private:
         float x = 0.0F;
         float y = 0.0F;
         to_screen(command, x, y);
-        const SDL_FRect target{x - width / 2.0F, y - height / 2.0F, width, height};
+        SDL_FRect target{x - width / 2.0F, y - height / 2.0F, width, height};
         const std::uint32_t c = command.color;
         SDL_SetTextureColorMod(atlas.texture, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 8U) & 0xFFU));
         SDL_SetTextureAlphaMod(atlas.texture, static_cast<std::uint8_t>(c & 0xFFU));
-        SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, 0.0, nullptr,
-                                 command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+        SDL_SetTextureBlendMode(atlas.texture, blend_mode(command.blend));
+        const SDL_FlipMode flip = command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        if (!command.repeat_x || width < 1.0F) {
+            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, command.angle,
+                                     nullptr, flip);
+            return;
+        }
+        // An endless band: copies side by side from the left edge of the view to its right edge.
+        const float view_width = half_width_ * 2.0F;
+        float left = std::fmod(target.x, width);
+        if (left > 0.0F) {
+            left -= width;
+        }
+        for (target.x = left; target.x < view_width; target.x += width) {
+            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, command.angle,
+                                     nullptr, flip);
+        }
     }
 
     void open_frame() {

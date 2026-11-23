@@ -144,6 +144,9 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
                     const LoopOptions& options) {
     app.world().insert_resource(app::RenderBackend{backend.renderer()});
     app.world().insert_resource(app::AudioBackend{backend.audio()});
+    if (auto* time = app.world().resource<app::Time>(); time != nullptr) {
+        time->interpolate = true; // real time: draw between ticks
+    }
 
     LoopResult result;
     RawState raw;

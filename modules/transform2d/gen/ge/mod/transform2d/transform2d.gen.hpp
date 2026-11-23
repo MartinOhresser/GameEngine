@@ -15,9 +15,11 @@ namespace ge::mod::transform2d {
 /// `world.resource<Params>()`.
 struct Params {
     float speed_scale = 1.0F;
+    float snap_distance = 256.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(speed_scale);
+        hasher.add(snap_distance);
     }
 
     [[nodiscard]] friend bool operator==(const Params&, const Params&) = default;
@@ -93,6 +95,17 @@ struct Scale {
     [[nodiscard]] friend bool operator==(const Scale&, const Scale&) = default;
 };
 
+/// How much the entity is turned, in degrees, clockwise on the screen (90 points what was to the right downwards). Sprites turn around their Position (the pivot stays put); it changes nothing else (not the collisions). Animate it for a spin, a swing, a wobble.
+struct Rotation {
+    float angle = 0.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(angle);
+    }
+
+    [[nodiscard]] friend bool operator==(const Rotation&, const Rotation&) = default;
+};
+
 /// The entity is switched off: the systems that act for an entity (a board that moves its pieces, a button, a turret) skip it, and it keeps its place and its picture. Insert it to pause a part of a game (a board while a victory screen is up), remove it to resume. Hidden is the one that stops it being shown.
 struct Disabled {
     void hash(::ge::Hasher& /*hasher*/) const {}
@@ -145,6 +158,10 @@ void wear_off(::ge::ecs::World& world);
 /// Puts every anchored entity where the window's size says.
 /// Runs in FixedUpdate.
 void anchor(::ge::ecs::World& world);
+
+/// When the game is drawn in real time, keeps where every entity was at the last two ticks, so that the drawing modules place things between them (ge/mod/transform2d/drawn.hpp). Presentation only: nothing in the simulation reads it, and it does nothing in tests and scenarios.
+/// Runs in PreUpdate.
+void remember(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;
