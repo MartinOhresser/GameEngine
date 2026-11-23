@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "mist_near",
+  "image": "mist_near.png",
+  "cell_width": 2048,
+  "cell_height": 200,
+  "filter": "linear"
+}
