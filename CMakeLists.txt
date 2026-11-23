@@ -5,6 +5,10 @@ project(game_engine VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# No C++20 modules here (nor in SDL): no scan for them. The scan uses whatever clang-scan-deps it
+# finds on the machine, which cannot read the precompiled headers of another compiler (SDL 3.4's,
+# built by the Android NDK's clang), and it costs a step per file for nothing.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if(CMAKE_CROSSCOMPILING)
   set(GE_DEFAULT_TOOLS OFF)
