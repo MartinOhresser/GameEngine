@@ -93,6 +93,16 @@ flowchart LR
 
 **Après le MVP : l'export Android (planifié, ADR 0012).** Un `.apk` qu'on copie sur un téléphone, comme le zip Windows. Jalons : A0 essai à blanc d'un APK minimal dans un émulateur (**fait** : APK de 2,4 Mo, SDL 3.2.30 suffit, voir l'ADR), A1 export en étapes fournies par la cible (**fait**), A2 lecture des fichiers sans le disque (`assets/` de l'APK) (**fait**), A3 la cible `android` (gabarit Gradle) (**fait**), A4 le tactile (**fait**), A5 contrôles à l'écran (`touch_controls`) (**fait**), A6 CI avec émulateur et publication (**fait**), A7 confort (panneau du lanceur, `adb`, signature) (**fait**).
 
+**Objectifs à très long terme (23 novembre 2026) :** une grande bibliothèque de modules pour faire des jeux facilement, et des jeux beaux comme des jeux récents ; la 3D (ou la 2D isométrique) ; le multijoueur (à définir).
+
+**Des jeux beaux (en cours, ADR 0015).** Un plateformer 2D aux silhouettes de Limbo et à la lumière d'Ori, avec une petite cinématique, sert de preuve. Un seul renderer, l'actuel, amélioré :
+- SDL 3.4 ;
+- rotation, mélanges additif et multiplicatif, filtrage lissé, parallaxe ;
+- interpolation entre deux ticks ;
+- effets sans shader partout, effets à shader seulement sous le pilote « gpu » de SDL.
+
+De nouveaux modules génériques l'accompagnent : saut, côtés de contact, accélération, caméra vivante, `light2d`, `particles2d`, `postfx`, animation par états. Les images sont générées par script (numpy, Pillow). Étapes : B0 ADR (**fait**), B1 SDL 3.4 et mesure de performance, B2 renderer, B3 premier décor, B4 déplacement, B5 lumière et particules, B6 effets d'écran, B7 animation par états, B8 le jeu `lueur`, B9 documentation et skills.
+
 **Après le MVP, non planifié :** réseau, 3D, manette, iOS et web. Le jour où tu voudras en lancer un, il deviendra un jalon qui ajoute des modules, sans modifier le noyau ni les jeux existants. La section suivante liste ce qui est imposé dès maintenant pour que ce soit vrai.
 
 ## Garde-fous d'architecture

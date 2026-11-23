@@ -66,6 +66,8 @@ Voir [PLATFORM.md](PLATFORM.md). Le choix de `SDL_Renderer` et ce qui n'a pas é
 
 ## Pas encore
 
+L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit la rotation, les mélanges, la parallaxe, la lumière, les particules, les effets d'écran et l'interpolation.
+
 - **Polices TrueType** : le texte se dessine avec des polices en atlas PNG ; lire un `.ttf` directement viendra plus tard.
 - **Cartes de tuiles en tableau** : une tuile reste une entité.
 - Rotation, ordre de dessin par la position verticale, particules, lumière.
