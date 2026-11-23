@@ -30,7 +30,7 @@ Ce que le projet n'est pas : un éditeur visuel, ni un concurrent d'Unity/Godot.
 | `tools/launcher/` | Le lanceur de jeux, lui-même un jeu JSON |
 | `runner/` | `gerun`/`geplay` : joue un jeu ou ses scénarios |
 | `schemas/` | Schémas JSON (module, jeu, préfab, scène, scénario, entrées), générés par `gectl schema` |
-| `docs/` | Docs en français ; `docs/adr/` : décisions (0001 à 0013) ; `docs/MODULES.md`, `AUTHORING.md`, `TESTING.md`, `UI.md`, `EXPORT*.md`, jeux (`GAME_*.md`) |
+| `docs/` | Docs en français ; `docs/adr/` : décisions (0001 à 0015) ; `docs/MODULES.md`, `AUTHORING.md`, `TESTING.md`, `UI.md`, `EXPORT*.md`, jeux (`GAME_*.md`) |
 | `.claude/skills/` | Skills du dépôt : `engine-catalog`, `game-from-prompt`, `add-module`, `add-level`, `playtest-headless` (cohérence vérifiée par `scripts/check_skills.py`) |
 
 Jeux existants : `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
@@ -102,6 +102,12 @@ Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026)
    3. **Ensuite seulement** : discuter de pistes pour **améliorer les graphismes** en ajoutant d'autres modules de rendu avec un autre style graphique. Discussion, pas de code avant d'avoir fini 1 et 2.
 7. **20 novembre 2026, 21 h 49** : « C'est pas du tout assez efficace. On arrête tout. » → passage du projet Claude (sandbox cloud) à **Claude Code sur son PC** (§5) ; le travail non poussé de la branche `chore/audit-modules` du sandbox a été perdu.
 8. **20–21 novembre 2026, Claude Code** : « Je veux que la CI soit plus optimisée et rapide » → PR #62 à #64 (ccache local et en CI, export Windows des PR avec Ninja + ccache, clés de cache) : une PR passe de ~10 min à ~5,5 min. Puis « refait l'audit des modules : le plus générique possible, pouvoir servir à n'importe quel jeu ; un module qui ne sert à aucun jeu mais peut servir un futur jeu, c'est bien aussi » → branche `refactor/audit-modules` (§7).
+9. **23 novembre 2026, objectifs à très long terme** : une grande bibliothèque de modules (jeux faciles à faire et **beaux, dignes des jeux récents**), la 3D ou la 2D isométrique, le multijoueur (à définir). **Sprint en cours : rendre les jeux beaux** → un plateformer 2D façon Ori / Limbo (préférés à Little Nightmares, Hollow Knight, Inside), validé par Martin :
+   - style « silhouettes de Limbo, lumière d'Ori », avec une petite cinématique ;
+   - images générées par numpy + Pillow dans WSL ;
+   - **un seul renderer, l'existant amélioré** (pas un second).
+
+   Plan : **ADR 0015** (étapes B1 à B9).
 
 ## 7. État de l'audit des modules (21 novembre 2026)
 
@@ -123,7 +129,7 @@ Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026)
 
 - **Skills** : créer `docs/GAMES.md` (besoin → jeu de référence → doc) et y faire pointer les skills ; corriger les affirmations périmées (le tactile existe, le README dit encore « ni fenêtre, ni rendu ») ; retirer les listes de modules figées de `engine-catalog` ; dans `add-module`, ajouter les leçons de CI (pas de `to_chars/from_chars`, portabilité GCC/Clang/MSVC/iOS/WASM, tests nécessaires pour la couverture ≥ 90 % sur `main`) ; dans `playtest-headless` / `game-from-prompt`, documenter `"screen"`. Garder `scripts/check_skills.py` vert.
 - **Rappels à donner à Martin** : promouvoir `dev` → `main` (workflow « Promote dev to main »), activer « Automatically delete head branches », lancer une fois le workflow « Flaky tests ».
-- **Ensuite seulement** : discussion sur les graphismes (modules de rendu alternatifs ; `docs/RENDERING.md`, ADR 0008).
+- Les graphismes sont lancés (§6, point 9) : suivre l'ADR 0015.
 
 ## 8. Façon de travailler avec Martin
 
