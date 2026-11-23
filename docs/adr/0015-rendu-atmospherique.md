@@ -147,7 +147,7 @@ Ce qu'on en tire :
 - **Le pilote par défaut reste celui que SDL choisit** (Direct3D 11 sous Windows).
 - **Pilote « gpu »** : sur Direct3D 12, il reste calé sur l'écran (16,7 ms par image) même quand on lui demande de ne pas attendre. On ne peut donc pas mesurer sa marge, mais il tient 60 i/s. Sur Vulkan, il se comporte comme les autres. Le choix de l'API sous le pilote « gpu » pour les effets à shader se fait en B6.
 - Le rendu logiciel reste un secours (machines sans carte utilisable, tests sans tête) : 2 000 sprites, un seul plan plein écran.
-- Passer à SDL 3.4.20 n'a demandé aucun changement de code. Tous les tests passent, et les captures sans tête des jeux à l'image fixe sont identiques au pixel près à celles de SDL 3.2.30. Les jeux en mouvement ne se comparent pas ainsi : `geplay --headless` suit l'horloge réelle, et deux lancements donnent des images différentes même sans changer de version.
+- Passer à SDL 3.4.20 n'a demandé aucun changement de code, seulement une bibliothèque système de plus sous Linux (XTest, `libxtst-dev`). Tous les tests passent, et les captures sans tête des jeux à l'image fixe sont identiques au pixel près à celles de SDL 3.2.30. Les jeux en mouvement ne se comparent pas ainsi : `geplay --headless` suit l'horloge réelle, et deux lancements donnent des images différentes même sans changer de version.
 
 ## Conséquences et risques
 
