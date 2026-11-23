@@ -26,6 +26,12 @@ struct WindowOptions {
     /// Draw with the processor, not the graphics card (SDL's software renderer). Without
     /// this, the software renderer is still the fallback when the card cannot be used.
     bool software = false;
+    /// The SDL render driver to ask for first ("direct3d11", "vulkan", "gpu", "opengl"...); empty
+    /// lets SDL choose. The software renderer remains the fallback.
+    std::string render_driver;
+    /// Wait for the screen's refresh before showing a frame (no tearing, no wasted frames). Off
+    /// only to measure how fast the drawing is.
+    bool vsync = true;
 };
 
 /// A presented frame, as 0xRRGGBBAA pixels, row by row.
@@ -98,6 +104,9 @@ public:
 
     /// Asks the window to close, as the close button does.
     void inject_quit();
+
+    /// The name of the SDL render driver in use ("direct3d11", "gpu", "software"...).
+    [[nodiscard]] std::string render_driver() const;
 
     /// The last presented frame; empty unless `WindowOptions::capture` is set.
     [[nodiscard]] const Frame& last_frame() const noexcept;

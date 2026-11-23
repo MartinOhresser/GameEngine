@@ -596,6 +596,8 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
     };
     if (options.software) {
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+    } else if (!options.render_driver.empty()) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, options.render_driver.c_str());
     }
     // A computer without a usable graphics card still runs the game: draw with the processor.
     bool opened = open_window();
@@ -608,7 +610,8 @@ std::unique_ptr<SdlBackend> SdlBackend::create(const WindowOptions& options, std
         return nullptr;
     }
     if (!options.headless) {
-        SDL_SetRenderVSync(impl->session->renderer, 1);
+        // Said both ways: some drivers ("gpu") wait for the screen unless told not to.
+        SDL_SetRenderVSync(impl->session->renderer, options.vsync ? 1 : 0);
     }
     SDL_SetRenderLogicalPresentation(impl->session->renderer, options.width, options.height,
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -822,6 +825,11 @@ void SdlBackend::inject_quit() {
 
 const Frame& SdlBackend::last_frame() const noexcept {
     return impl_->renderer->last_frame();
+}
+
+std::string SdlBackend::render_driver() const {
+    const char* name = SDL_GetRendererName(impl_->session->renderer);
+    return name == nullptr ? std::string() : std::string(name);
 }
 
 bool SdlBackend::save_frame_bmp(const std::string& path, std::string& error) const {

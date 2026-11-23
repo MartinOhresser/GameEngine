@@ -347,6 +347,26 @@ TEST_CASE("sdl: the software renderer draws the same frame") {
     CHECK(backend->last_frame().at(400, 300) == 0x121420FFU);
 }
 
+TEST_CASE("sdl: a render driver can be asked for, and an unknown one falls back") {
+    sdl::WindowOptions options = headless(true);
+    options.render_driver = "software";
+    std::string error;
+    auto backend = sdl::SdlBackend::create(options, error);
+    REQUIRE(backend != nullptr);
+    CHECK(backend->render_driver() == "software");
+    backend.reset();
+
+    options.render_driver = "no_such_driver";
+    options.vsync = false;
+    backend = sdl::SdlBackend::create(options, error);
+    REQUIRE(backend != nullptr); // the software renderer is the fallback
+    CHECK(backend->render_driver() == "software");
+    auto renderer = backend->renderer();
+    renderer->draw({"square", 100.0F, 50.0F, 20.0F, 0xFF8000FFU});
+    renderer->end_frame();
+    CHECK(backend->last_frame().at(100, 50) == 0xFF8000FFU);
+}
+
 TEST_CASE("sdl: a frame is drawn, captured and saved") {
     auto backend = open(true);
     REQUIRE(backend != nullptr);

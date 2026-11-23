@@ -101,7 +101,7 @@ flowchart LR
 - interpolation entre deux ticks ;
 - effets sans shader partout, effets à shader seulement sous le pilote « gpu » de SDL.
 
-De nouveaux modules génériques l'accompagnent : saut, côtés de contact, accélération, caméra vivante, `light2d`, `particles2d`, `postfx`, animation par états. Les images sont générées par script (numpy, Pillow). Étapes : B0 ADR (**fait**), B1 SDL 3.4 et mesure de performance, B2 renderer, B3 premier décor, B4 déplacement, B5 lumière et particules, B6 effets d'écran, B7 animation par états, B8 le jeu `lueur`, B9 documentation et skills.
+De nouveaux modules génériques l'accompagnent : saut, côtés de contact, accélération, caméra vivante, `light2d`, `particles2d`, `postfx`, animation par états. Les images sont générées par script (numpy, Pillow). Étapes : B0 ADR (**fait**), B1 SDL 3.4 et mesure de performance (**fait**), B2 renderer, B3 premier décor, B4 déplacement, B5 lumière et particules, B6 effets d'écran, B7 animation par états, B8 le jeu `lueur`, B9 documentation et skills.
 
 **Après le MVP, non planifié :** réseau, 3D, manette, iOS et web. Le jour où tu voudras en lancer un, il deviendra un jalon qui ajoute des modules, sans modifier le noyau ni les jeux existants. La section suivante liste ce qui est imposé dès maintenant pour que ce soit vrai.
 
