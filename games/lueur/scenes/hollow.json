@@ -1008,21 +1008,31 @@
         },
         "collision2d.Body": {},
         "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "camera2d.CameraTarget": {},
+        "light2d.Light": {
+          "radius": 190,
+          "red": 255,
+          "green": 212,
+          "blue": 160,
+          "intensity": 0.45,
+          "offset_y": -20
+        },
         "collision2d.Contacts": {},
         "health.Health": {
           "amount": 1,
           "max": 1,
-          "on_zero": "died"
+          "on_zero": "died",
+          "despawn_on_zero": false
         },
         "scene_switch.GoToScene": {
-          "scene": "forest",
+          "scene": "ending",
           "touch_layers": [
             "exit"
           ]
-        },
-        "gravity2d.Gravity": {
-          "y": 1800,
-          "terminal_speed": 1100
         },
         "action_control.Controlled": {
           "speed": 260,
@@ -1035,15 +1045,6 @@
           "coyote_time": 0.1,
           "buffer_time": 0.12,
           "cut": 0.45
-        },
-        "camera2d.CameraTarget": {},
-        "light2d.Light": {
-          "radius": 190,
-          "red": 255,
-          "green": 212,
-          "blue": 160,
-          "intensity": 0.45,
-          "offset_y": -20
         }
       }
     },
@@ -1052,7 +1053,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "priority": 3,
+          "priority": 4,
           "field": "transform2d.Velocity.y",
           "max": -60,
           "first_frame": 20,
@@ -1066,12 +1067,28 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "priority": 2,
+          "priority": 3,
           "field": "collision2d.Blocked.below",
           "max": 0.5,
           "first_frame": 21,
           "frame_count": 1,
           "ticks_per_frame": 6
+        }
+      }
+    },
+    {
+      "name": "hero_walks",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 2,
+          "field": "transform2d.Velocity.x",
+          "min": 30,
+          "max": 150,
+          "absolute": true,
+          "first_frame": 8,
+          "frame_count": 12,
+          "ticks_per_frame": 7
         }
       }
     },
@@ -1444,16 +1461,11 @@
           "bound_right": 6144,
           "bound_top": -2000,
           "bound_bottom": 720
-        }
-      }
-    },
-    {
-      "name": "restart",
-      "components": {
-        "scene_switch.GoToScene": {
-          "scene": "hollow",
-          "use_action": true,
-          "action": "died"
+        },
+        "spawner2d.Shooter": {
+          "prefab": "fade_hollow",
+          "action": "died",
+          "speed": 0
         }
       }
     }

@@ -8,6 +8,10 @@ geplay games/lueur/game.json
 
 Gauche et droite (ou A et D) : marcher. Espace, Haut ou W : sauter, plus haut si on tient la touche.
 
+## L'histoire
+
+Le jeu s'ouvre sur la forêt avec des bandes noires de cinéma : le héros ne bouge pas encore, et l'esprit descend des arbres jusqu'à lui. Les bandes s'effacent, et la partie commence. À la sortie du sous-bois, la forêt s'ouvre sur le soleil bas : le héros marche seul vers la lumière, les bandes reviennent, l'image s'éteint, et le jeu recommence à l'ouverture.
+
 ## Les niveaux
 
 | Niveau | Ce qu'il faut faire |
@@ -15,7 +19,7 @@ Gauche et droite (ou A et D) : marcher. Espace, Haut ou W : sauter, plus haut si
 | **La forêt** (`forest`) | Sauter une fosse d'épines, puis une pierre. Pousser la caisse contre le rocher, trop haut pour un saut ; monter sur la caisse, puis sur le rocher. Sauter une seconde fosse. La lumière au bout mène au sous-bois. |
 | **Le sous-bois** (`hollow`), plus sombre | Attendre qu'une cosse épineuse remonte sur son fil pour passer dessous. Pousser la caisse dans une fosse trop large pour un saut : elle la comble à ras du sol, et il reste un saut court. Attendre une autre cosse, sauter une dernière fosse. La sortie ramène à la forêt. |
 
-Une seule touche d'épines ou d'une cosse suffit : le niveau recommence. Un saut monte d'environ 144 unités et porte d'environ 200 unités à pleine vitesse : une fosse plus large ou un rocher plus haut demande la caisse.
+Une seule touche d'épines ou d'une cosse suffit : l'écran s'assombrit, et le niveau recommence (sans l'ouverture). Un saut monte d'environ 144 unités et porte d'environ 200 unités à pleine vitesse : une fosse plus large ou un rocher plus haut demande la caisse.
 
 ## Ce qui le réalise
 
@@ -26,10 +30,12 @@ Une seule touche d'épines ou d'une cosse suffit : le niveau recommence. Un saut
 | Le sol, les fosses, les rochers | `collision2d.Collider` `solid`, `Body`, `Blocked` |
 | La caisse qu'on pousse, plus lentement qu'on ne court ; elle tombe dans une fosse | `collision2d.Pushable` (`speed`), avec `Body` et `gravity2d.Gravity` |
 | Les épines et les cosses tuent | `combat2d.ContactDamage` sur le héros, qui a `health.Health` (1) ; `on_zero` lève `died` |
-| Mourir fait recommencer le niveau | `scene_switch.GoToScene` (`use_action` `died`) vers la scène elle-même |
+| Mourir assombrit l'écran, puis fait recommencer le niveau | `spawner2d.Shooter` sur la caméra (action `died`) fait apparaître le préfab `fade_<niveau>` : une image noire en écran (`sprite2d.Sprite` `screen`) dont un `tween2d.Tween` monte l'opacité, et un `scene_switch.GoToScene` (`after_ticks`) qui recharge le niveau |
+| L'ouverture : bandes noires, héros immobile, esprit qui descend | scène `prologue` : `phase.Phase` (`opening`, puis `play`), `phase.ActiveIn` sur le héros (désactivé, il n'écoute plus les touches : `action_control` et `jump` ignorent une entité `Disabled`), `tween2d.Tween` sur `postfx.Effects.letterbox` qui lève l'action `opening_done` à la fin, `phase.Transition` |
+| La fin : il marche seul, l'image s'éteint, le jeu recommence | scène `ending` : un héros sans commandes avec une vitesse, un `Tween` qui fait entrer les bandes, une image noire qui s'opacifie, `GoToScene` (`after_ticks`) vers `prologue` |
 | Les cosses montent et descendent | `patrol2d.Patrol` sur l'axe y |
 | La sortie mène au niveau suivant | `scene_switch.GoToScene` (`touch_layers` `exit`) sur le héros, qui a `collision2d.Contacts` |
-| Le héros reste debout, court, monte, retombe, se retourne | `sprite2d.Animator`, quatre `AnimationClip`, `Facing` |
+| Le héros reste debout, marche, court, monte, retombe, se retourne | `sprite2d.Animator`, cinq `AnimationClip`, `Facing` |
 | L'esprit le suit en flottant, et éclaire | `follow2d.Follow` (`turn`, `wave_*`), `light2d.Light`, `particles2d.Emitter` |
 | La caméra le suit sans à-coups et ne sort pas du niveau | `camera2d.CameraFollow` (zone morte, anticipation, limites) |
 | Le crépuscule, la brume, les lucioles, les feuilles | `sprite2d.Parallax`, `light2d.Ambient`, `particles2d`, `postfx.Effects` |
@@ -40,12 +46,21 @@ Une seule touche d'épines ou d'une cosse suffit : le niveau recommence. Un saut
 python3 games/lueur/tools/make_assets.py      (numpy et Pillow)
 ```
 
-dessine toutes les images (ciel, plans de forêt, brume, sol, rochers, caisse, épines, cosses, héros, esprit, feuilles) et écrit les deux scènes. Les niveaux sont décrits en haut du script (`LEVELS`) : segments de sol, fosses et leur profondeur, rochers, caisses, cosses. Changer un niveau, c'est changer ces lignes et relancer le script.
+dessine toutes les images (ciel, plans de forêt, brume, sol, rochers, caisse, épines, cosses, héros, esprit, feuilles) et écrit les quatre scènes (`prologue`, `forest`, `hollow`, `ending`) et les préfabs du voile noir. Les niveaux sont décrits en haut du script (`LEVELS`) : segments de sol, fosses et leur profondeur, rochers, caisses, cosses. Changer un niveau, c'est changer ces lignes et relancer le script.
 
 ## Les scénarios
 
-`gerun games/lueur/game.json --test` joue neuf scénarios :
+`gerun games/lueur/game.json --test` joue onze scénarios :
 - les mouvements : marcher, sauter, la caméra qui reste dans le niveau ;
 - l'animation et l'esprit ;
 - les deux niveaux traversés de bout en bout, avec les entrées d'un joueur ;
-- une chute dans les épines et une cosse qui tue, suivies du niveau qui recommence.
+- une chute dans les épines et une cosse qui tue, suivies du niveau qui recommence ;
+- l'ouverture (les touches ne font rien, puis le héros part) et la fin (qui ramène à l'ouverture).
+
+## L'exporter
+
+```
+gectl export games/lueur/game.json --target windows     (ou linux, android)
+```
+
+donne une archive qu'on joue sans rien installer (voir `docs/EXPORT.md`).

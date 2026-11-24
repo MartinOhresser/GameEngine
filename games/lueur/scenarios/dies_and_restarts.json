@@ -1,17 +1,18 @@
 // Running on without jumping, the hero falls onto the thorns of the first pit: the level starts
-// over, the hero back at the start.
+// over once the screen has gone dark, the hero back at the start.
 {
   "schema_version": 1,
   "name": "dies_and_restarts",
   "scene": "forest",
-  "ticks": 300,
+  "ticks": 360,
   "inputs": [
     { "tick": 0, "action": "move_x", "value": 1 },
     { "tick": 280, "action": "move_x", "value": 0 },
   ],
   "expect": [
     { "at": 230, "check": "hero.transform2d.Position.x > 1450" },
-    { "at": 300, "check": "hero.transform2d.Position.x < 900" },
-    { "at": 300, "check": "hero.health.Health.amount == 1" },
+    { "at": 280, "check": "hero.health.Health.amount == 0" },
+    { "at": 360, "check": "hero.transform2d.Position.x < 900" },
+    { "at": 360, "check": "hero.health.Health.amount == 1" },
   ],
 }

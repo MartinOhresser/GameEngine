@@ -11,10 +11,11 @@
   "modules": [
     "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control", "jump",
     "light2d", "particles2d", "postfx", "tag", "follow2d", "health", "combat2d", "patrol2d",
-    "scene_switch",
+    "scene_switch", "phase", "tween2d", "spawner2d", "bounds2d",
   ],
   "lists": {
-    "action": ["move_x", "jump", "died"],
+    "action": ["move_x", "jump", "died", "opening_done"],
+    "phase": ["opening", "play"],
     "layer": ["hero", "ground", "crate", "hazard", "exit"],
     "tag": ["hero"],
     "animation_set": ["hero"],
@@ -27,13 +28,17 @@
     "art/mid_trees.json", "art/near_trees.json", "art/mist_far.json", "art/mist_mid.json",
     "art/mist_near.json", "art/ground.json", "art/foreground.json", "art/hero.json",
     "art/leaves.json", "art/spirit.json", "art/crate.json", "art/stone.json", "art/ledge.json",
-    "art/thorns.json", "art/pod.json", "art/shade.json",
+    "art/thorns.json", "art/pod.json", "art/shade.json", "art/black.json",
   ],
-  "scenes": ["scenes/forest.json", "scenes/hollow.json"],
+  "prefabs": ["prefabs/fade_forest.json", "prefabs/fade_hollow.json"],
+  "scenes": [
+    "scenes/prologue.json", "scenes/forest.json", "scenes/hollow.json", "scenes/ending.json",
+  ],
   "scenarios": [
     "scenarios/walks.json", "scenarios/jumps.json", "scenarios/camera_stays_in_level.json",
     "scenarios/animates.json", "scenarios/spirit_follows.json", "scenarios/forest_through.json",
     "scenarios/hollow_through.json", "scenarios/dies_and_restarts.json", "scenarios/pod_kills.json",
+    "scenarios/opening.json", "scenarios/the_end.json",
   ],
-  "start_scene": "forest",
+  "start_scene": "prologue",
 }

@@ -109,7 +109,7 @@ constexpr std::array<::ge::app::FieldInfo, 7> component_0_fields{{{"speed", "f32
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Controlled", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
-constexpr std::array<std::string_view, 1> system_0_reads{"action_control.Controlled"};
+constexpr std::array<std::string_view, 2> system_0_reads{"action_control.Controlled", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Velocity"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"action_control.steer", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 

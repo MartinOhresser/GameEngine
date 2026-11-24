@@ -1,0 +1,17 @@
+// The end: the hero walks on by himself towards the light, the bars come in, the picture goes
+// dark, and the game starts again with the opening.
+{
+  "schema_version": 1,
+  "name": "the_end",
+  "scene": "ending",
+  "ticks": 760,
+  "inputs": [],
+  "expect": [
+    { "at": 200, "check": "camera.postfx.Effects.letterbox > 0.12" },
+    { "at": 300, "check": "hero.transform2d.Position.x > 800" },
+    { "at": 300, "check": "hero.sprite2d.Sprite.frame >= 8" },
+    { "at": 300, "check": "the_end.sprite2d.Sprite.alpha == 0" },
+    { "at": 680, "check": "the_end.sprite2d.Sprite.alpha > 200" },
+    { "at": 760, "check": "story.phase.Phase.current == 0" },
+  ],
+}

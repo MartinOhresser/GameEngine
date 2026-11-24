@@ -1,6 +1,6 @@
 // The whole hollow: wait for the first pod to rise, push the crate into the wide pit (it fills it
 // to the brim), walk over it and jump the rest, wait for the last pod, jump the last pit, and reach
-// the exit, which leads back to the forest.
+// the exit, which leads to the end.
 {
   "schema_version": 1,
   "name": "hollow_through",
@@ -25,6 +25,6 @@
     { "at": 1000, "check": "hero.transform2d.Position.x > 3500" },
     { "at": 1150, "check": "hero.transform2d.Position.x > 4170" },
     { "at": 1150, "check": "hero.transform2d.Position.y == 514" },
-    { "at": 1600, "check": "crate_0.transform2d.Position.x == 2150" },
+    { "at": 1600, "check": "the_end.sprite2d.Sprite.alpha == 0" },
   ],
 }
