@@ -1,0 +1,30 @@
+// The whole hollow: wait for the first pod to rise, push the crate into the wide pit (it fills it
+// to the brim), walk over it and jump the rest, wait for the last pod, jump the last pit, and reach
+// the exit, which leads back to the forest.
+{
+  "schema_version": 1,
+  "name": "hollow_through",
+  "scene": "hollow",
+  "ticks": 1600,
+  "inputs": [
+    { "tick": 72, "action": "move_x", "value": 1 },
+    { "tick": 575, "action": "jump", "value": 1 },
+    { "tick": 600, "action": "jump", "value": 0 },
+    { "tick": 845, "action": "move_x", "value": 0 },
+    { "tick": 890, "action": "move_x", "value": 1 },
+    { "tick": 1095, "action": "jump", "value": 1 },
+    { "tick": 1125, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 150, "check": "hero.transform2d.Position.x > 840" },
+    { "at": 400, "check": "crate_0.transform2d.Position.x > 1600" },
+    { "at": 565, "check": "crate_0.transform2d.Position.y == 605" },
+    { "at": 565, "check": "hero.transform2d.Position.y < 515" },
+    { "at": 565, "check": "hero.collision2d.Blocked.below == true" },
+    { "at": 630, "check": "hero.transform2d.Position.x > 2060" },
+    { "at": 1000, "check": "hero.transform2d.Position.x > 3500" },
+    { "at": 1150, "check": "hero.transform2d.Position.x > 4170" },
+    { "at": 1150, "check": "hero.transform2d.Position.y == 514" },
+    { "at": 1600, "check": "crate_0.transform2d.Position.x == 2150" },
+  ],
+}

@@ -1,0 +1,33 @@
+// The whole first level: jump the first pit and the stone, push the crate against the rock, climb
+// the crate then the rock, jump the second pit, and reach the exit, which leads to the hollow.
+{
+  "schema_version": 1,
+  "name": "forest_through",
+  "scene": "forest",
+  "ticks": 1450,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 218, "action": "jump", "value": 1 },
+    { "tick": 250, "action": "jump", "value": 0 },
+    { "tick": 290, "action": "jump", "value": 1 },
+    { "tick": 320, "action": "jump", "value": 0 },
+    { "tick": 600, "action": "jump", "value": 1 },
+    { "tick": 630, "action": "jump", "value": 0 },
+    { "tick": 650, "action": "jump", "value": 1 },
+    { "tick": 680, "action": "jump", "value": 0 },
+    { "tick": 1078, "action": "jump", "value": 1 },
+    { "tick": 1108, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 270, "check": "hero.transform2d.Position.x > 1660" },
+    { "at": 270, "check": "hero.transform2d.Position.y == 514" },
+    { "at": 340, "check": "hero.transform2d.Position.x > 1822" },
+    { "at": 400, "check": "crate_0.transform2d.Position.x > 2200" },
+    { "at": 590, "check": "crate_0.transform2d.Position.x == 2534" },
+    { "at": 640, "check": "hero.transform2d.Position.y == 424" },
+    { "at": 700, "check": "hero.transform2d.Position.y == 314" },
+    { "at": 1140, "check": "hero.transform2d.Position.x > 4580" },
+    { "at": 1140, "check": "hero.transform2d.Position.y == 514" },
+    { "at": 1450, "check": "pod_0.transform2d.Position.x == 800" },
+  ],
+}

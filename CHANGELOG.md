@@ -6,6 +6,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B8 (première partie) : **les niveaux de `lueur`**.
+  - `collision2d.Pushable` : une caisse qu'un corps pousse en marchant contre elle, jusqu'à ce qu'un solide l'arrête, à une vitesse limitée si on le veut ; elle tombe quand on la pousse au-delà d'un bord.
+  - `lueur` : deux niveaux, la forêt et le sous-bois. Fosses d'épines, rocher à gravir grâce à la caisse, fosse que la caisse comble, cosses épineuses qui montent et descendent. Une touche d'épines fait recommencer le niveau ; la lumière au bout mène au niveau suivant. Six scénarios dont les deux traversées complètes. `docs/GAME_LUEUR.md`.
 - ADR 0015, B7 : **l'animation par états**, le héros et l'esprit.
   - `sprite2d` : `Animator` et `AnimationClip` (l'animation choisie par l'état de l'entité : une condition sur un de ses nombres, une priorité ; des ensembles partagés entre entités), `Facing` (l'image tournée vers où va l'entité).
   - Nouveau module **`follow2d`** (`Follow`) : une entité glisse après une autre, derrière ou devant elle, et peut flotter autour de sa place (compagnons, marqueurs, une file qui suit un meneur).

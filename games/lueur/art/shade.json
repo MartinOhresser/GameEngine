@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "shade",
+  "image": "shade.png",
+  "cell_width": 8,
+  "cell_height": 128,
+  "filter": "linear"
+}

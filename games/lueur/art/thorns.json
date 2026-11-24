@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "thorns",
+  "image": "thorns.png",
+  "cell_width": 256,
+  "cell_height": 72,
+  "filter": "linear"
+}

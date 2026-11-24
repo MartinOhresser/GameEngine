@@ -129,6 +129,7 @@ Le module `collision2d` ne dépend pas du dessin : il travaille sur les position
 
 - `Collider` : une boîte (`width`, `height`) centrée sur la `Position`. `layer` dit ce qu'est l'entité, `mask` à quelles couches elle réagit (ensembles de bits : 1, 2, 4, 8…). `solid` en fait un mur.
 - `Body` : l'entité est repoussée hors des murs solides par le chemin le plus court et perd la vitesse qui allait dans le mur (elle glisse le long). Un corps qui avance de plus que sa propre taille en un tick peut traverser un mur mince : gardez des murs au moins aussi épais.
+- `Pushable` : un mur solide qu'un `Body` pousse en marchant contre son côté. Il avance tant que la voie est libre (un autre solide de son `mask` l'arrête, et le corps avec lui). `speed` est la vitesse la plus grande à laquelle on le pousse : le corps avance alors à cette vitesse (une caisse lourde). Par-dessus, c'est un sol ordinaire. Avec un `Body` et une `gravity2d.Gravity`, il tombe quand on le pousse au-delà d'un bord.
 - `Contacts` : rempli à chaque tick pour une entité qui a aussi un `Collider` : `count` (combien de boîtes la touchent) et `layers` (leurs couches réunies). Deux boîtes qui ne partagent qu'un bord ne se touchent pas.
 
 La détection trie les boîtes par bord gauche et balaie : le coût suit le nombre de contacts, pas le carré du nombre de boîtes.

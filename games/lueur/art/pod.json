@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "pod",
+  "image": "pod.png",
+  "cell_width": 56,
+  "cell_height": 640,
+  "filter": "linear"
+}

@@ -361,7 +361,7 @@
       }
     },
     {
-      "name": "ground_0",
+      "name": "ground_0_0",
       "components": {
         "transform2d.Position": {
           "x": 256,
@@ -376,7 +376,7 @@
       }
     },
     {
-      "name": "ground_1",
+      "name": "ground_0_1",
       "components": {
         "transform2d.Position": {
           "x": 768,
@@ -391,10 +391,10 @@
       }
     },
     {
-      "name": "ground_2",
+      "name": "ground_0_2",
       "components": {
         "transform2d.Position": {
-          "x": 1280,
+          "x": 1244,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -406,10 +406,27 @@
       }
     },
     {
-      "name": "ground_3",
+      "name": "floor_0",
       "components": {
         "transform2d.Position": {
-          "x": 1792,
+          "x": 750.0,
+          "y": 710
+        },
+        "collision2d.Collider": {
+          "width": 1500,
+          "height": 300,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "ground_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1916,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -421,10 +438,10 @@
       }
     },
     {
-      "name": "ground_4",
+      "name": "ground_1_1",
       "components": {
         "transform2d.Position": {
-          "x": 2304,
+          "x": 2428,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -436,10 +453,10 @@
       }
     },
     {
-      "name": "ground_5",
+      "name": "ground_1_2",
       "components": {
         "transform2d.Position": {
-          "x": 2816,
+          "x": 2940,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -451,10 +468,10 @@
       }
     },
     {
-      "name": "ground_6",
+      "name": "ground_1_3",
       "components": {
         "transform2d.Position": {
-          "x": 3328,
+          "x": 3452,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -466,10 +483,10 @@
       }
     },
     {
-      "name": "ground_7",
+      "name": "ground_1_4",
       "components": {
         "transform2d.Position": {
-          "x": 3840,
+          "x": 3964,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -481,10 +498,10 @@
       }
     },
     {
-      "name": "ground_8",
+      "name": "ground_1_5",
       "components": {
         "transform2d.Position": {
-          "x": 4352,
+          "x": 4144,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -496,10 +513,27 @@
       }
     },
     {
-      "name": "ground_9",
+      "name": "floor_1",
       "components": {
         "transform2d.Position": {
-          "x": 4864,
+          "x": 3030.0,
+          "y": 710
+        },
+        "collision2d.Collider": {
+          "width": 2740,
+          "height": 300,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "ground_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 4836,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -511,10 +545,10 @@
       }
     },
     {
-      "name": "ground_10",
+      "name": "ground_2_1",
       "components": {
         "transform2d.Position": {
-          "x": 5376,
+          "x": 5348,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -526,7 +560,22 @@
       }
     },
     {
-      "name": "ground_11",
+      "name": "ground_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 5860,
+          "y": 674
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ground",
+          "width": 512,
+          "height": 256,
+          "layer": 0
+        }
+      }
+    },
+    {
+      "name": "ground_2_3",
       "components": {
         "transform2d.Position": {
           "x": 5888,
@@ -541,19 +590,169 @@
       }
     },
     {
-      "name": "floor",
+      "name": "floor_2",
       "components": {
         "transform2d.Position": {
-          "x": 3072.0,
-          "y": 660
+          "x": 5362.0,
+          "y": 710
         },
         "collision2d.Collider": {
-          "width": 6544,
+          "width": 1564,
+          "height": 300,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "pit_0_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1532,
+          "y": 804
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ground",
+          "width": 512,
+          "height": 256,
+          "layer": 0
+        }
+      }
+    },
+    {
+      "name": "pit_shade_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1580.0,
+          "y": 618.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "shade",
+          "width": 160,
+          "height": 144,
+          "layer": -1
+        }
+      }
+    },
+    {
+      "name": "pit_floor_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1580.0,
+          "y": 790
+        },
+        "collision2d.Collider": {
+          "width": 160,
           "height": 200,
           "layer": [
             "ground"
           ],
           "solid": true
+        }
+      }
+    },
+    {
+      "name": "thorns_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1580.0,
+          "y": 660.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "thorns",
+          "width": 160,
+          "height": 72,
+          "layer": 1
+        },
+        "collision2d.Collider": {
+          "width": 160,
+          "height": 36,
+          "layer": [
+            "hazard"
+          ]
+        },
+        "combat2d.ContactDamage": {
+          "amount": 1,
+          "layers": [
+            "hero"
+          ]
+        }
+      }
+    },
+    {
+      "name": "pit_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 4452,
+          "y": 804
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ground",
+          "width": 512,
+          "height": 256,
+          "layer": 0
+        }
+      }
+    },
+    {
+      "name": "pit_shade_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4490.0,
+          "y": 618.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "shade",
+          "width": 180,
+          "height": 144,
+          "layer": -1
+        }
+      }
+    },
+    {
+      "name": "pit_floor_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4490.0,
+          "y": 790
+        },
+        "collision2d.Collider": {
+          "width": 180,
+          "height": 200,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "thorns_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4490.0,
+          "y": 660.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "thorns",
+          "width": 180,
+          "height": 72,
+          "layer": 1
+        },
+        "collision2d.Collider": {
+          "width": 180,
+          "height": 36,
+          "layer": [
+            "hazard"
+          ]
+        },
+        "combat2d.ContactDamage": {
+          "amount": 1,
+          "layers": [
+            "hero"
+          ]
         }
       }
     },
@@ -592,6 +791,119 @@
       }
     },
     {
+      "name": "stone",
+      "components": {
+        "transform2d.Position": {
+          "x": 1790,
+          "y": 540.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "stone",
+          "width": 64,
+          "height": 100,
+          "pivot_y": 0.34,
+          "layer": 1
+        },
+        "collision2d.Collider": {
+          "width": 56,
+          "height": 40,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "ledge",
+      "components": {
+        "transform2d.Position": {
+          "x": 2950,
+          "y": 460.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ledge",
+          "width": 700,
+          "height": 260,
+          "pivot_y": 0.4385,
+          "layer": 1
+        },
+        "collision2d.Collider": {
+          "width": 692,
+          "height": 200,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "crate_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 2150,
+          "y": 515.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crate",
+          "width": 140,
+          "height": 90,
+          "layer": 9
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 140,
+          "height": 90,
+          "layer": [
+            "crate"
+          ],
+          "mask": [
+            "ground",
+            "crate"
+          ],
+          "solid": true
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "collision2d.Pushable": {
+          "speed": 110
+        },
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        }
+      }
+    },
+    {
+      "name": "exit",
+      "components": {
+        "transform2d.Position": {
+          "x": 5904,
+          "y": 400
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 420,
+          "height": 520,
+          "red": 255,
+          "green": 220,
+          "blue": 170,
+          "alpha": 150,
+          "additive": true,
+          "unlit": true,
+          "layer": 8
+        },
+        "collision2d.Collider": {
+          "width": 60,
+          "height": 320,
+          "layer": [
+            "exit"
+          ]
+        }
+      }
+    },
+    {
       "name": "hero",
       "components": {
         "transform2d.Position": {
@@ -620,11 +932,25 @@
             "hero"
           ],
           "mask": [
-            "ground"
+            "ground",
+            "crate",
+            "exit"
           ]
         },
         "collision2d.Body": {},
         "collision2d.Blocked": {},
+        "collision2d.Contacts": {},
+        "health.Health": {
+          "amount": 1,
+          "max": 1,
+          "on_zero": "died"
+        },
+        "scene_switch.GoToScene": {
+          "scene": "hollow",
+          "touch_layers": [
+            "exit"
+          ]
+        },
         "gravity2d.Gravity": {
           "y": 1800,
           "terminal_speed": 1100
@@ -1049,6 +1375,16 @@
           "bound_right": 6144,
           "bound_top": -2000,
           "bound_bottom": 720
+        }
+      }
+    },
+    {
+      "name": "restart",
+      "components": {
+        "scene_switch.GoToScene": {
+          "scene": "forest",
+          "use_action": true,
+          "action": "died"
         }
       }
     }
