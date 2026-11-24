@@ -6,6 +6,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B9 : **la doc et les skills du sprint graphismes**.
+  - `docs/GAMES.md` : pour chaque besoin, le jeu du dépôt qui le montre et sa doc.
+  - `docs/MODULES.md`, « Recettes » : rester générique (ensembles, champs nommés, `Disabled`), en-têtes publics, ordre entre modules, simulation et dessin, ce qui fait échouer la CI.
+  - Skills : `game-from-prompt` gagne « Faire un jeu beau » et ne dit plus que le tactile ou le rendu manquent ; `engine-catalog` renvoie à `docs/GAMES.md` au lieu d'une liste figée ; `add-module` reprend les leçons de CI ; `playtest-headless` documente `"screen"` et la façon de caler un long scénario.
+  - README : statut et feuille de route à jour.
 - ADR 0015, B8 (fin) : **l'histoire de `lueur`**.
   - Une ouverture : bandes noires, héros immobile pendant que l'esprit descend vers lui, puis les bandes s'effacent (`phase`, `tween2d` sur `postfx.Effects.letterbox`).
   - Une fin : le héros marche seul vers la lumière, l'image s'éteint, le jeu recommence.

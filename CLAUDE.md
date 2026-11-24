@@ -30,7 +30,7 @@ Ce que le projet n'est pas : un éditeur visuel, ni un concurrent d'Unity/Godot.
 | `tools/launcher/` | Le lanceur de jeux, lui-même un jeu JSON |
 | `runner/` | `gerun`/`geplay` : joue un jeu ou ses scénarios |
 | `schemas/` | Schémas JSON (module, jeu, préfab, scène, scénario, entrées), générés par `gectl schema` |
-| `docs/` | Docs en français ; `docs/adr/` : décisions (0001 à 0015) ; `docs/MODULES.md`, `AUTHORING.md`, `TESTING.md`, `UI.md`, `EXPORT*.md`, jeux (`GAME_*.md`) |
+| `docs/` | Docs en français ; `docs/adr/` : décisions (0001 à 0015) ; `docs/MODULES.md` (dont « Recettes »), `AUTHORING.md`, `TESTING.md`, `UI.md`, `RENDERING.md`, `EXPORT*.md`, `GAMES.md` (besoin → jeu de référence), jeux (`GAME_*.md`) |
 | `.claude/skills/` | Skills du dépôt : `engine-catalog`, `game-from-prompt`, `add-module`, `add-level`, `playtest-headless` (cohérence vérifiée par `scripts/check_skills.py`) |
 
 Jeux existants : `lueur` (le plateformer de l'ADR 0015, en cours), `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
@@ -128,9 +128,9 @@ Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026)
 
 ### Reste à faire ensuite
 
-- **Skills** : créer `docs/GAMES.md` (besoin → jeu de référence → doc) et y faire pointer les skills ; corriger les affirmations périmées (le tactile existe, le README dit encore « ni fenêtre, ni rendu ») ; retirer les listes de modules figées de `engine-catalog` ; dans `add-module`, ajouter les leçons de CI (pas de `to_chars/from_chars`, portabilité GCC/Clang/MSVC/iOS/WASM, tests nécessaires pour la couverture ≥ 90 % sur `main`) ; dans `playtest-headless` / `game-from-prompt`, documenter `"screen"`. Garder `scripts/check_skills.py` vert.
+- ~~Skills~~ : fait avec B9 (24 novembre 2026) : `docs/GAMES.md`, skills sans liste figée ni affirmation périmée, leçons de CI dans `add-module` et `docs/MODULES.md` (« Recettes »), `"screen"` documenté.
 - **Rappels à donner à Martin** : promouvoir `dev` → `main` (workflow « Promote dev to main »), activer « Automatically delete head branches », lancer une fois le workflow « Flaky tests ».
-- Les graphismes sont lancés (§6, point 9) : suivre l'ADR 0015.
+- Les graphismes (§6, point 9) : ADR 0015 faite de B0 à B9 (24 novembre 2026) ; seul reste, mis de côté, le niveau à shader de B6.
 
 ## 8. Façon de travailler avec Martin
 

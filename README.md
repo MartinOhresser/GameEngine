@@ -4,7 +4,7 @@
 
 Un moteur de jeu en **C++20**, construit autour d'un **ECS** (Entity-Component-System) volontairement minimal et générique : le cœur ne sait rien d'un jeu en particulier, tout le reste s'ajoute par **composants**, **systèmes** et **plugins**.
 
-> **Statut : très tôt (v0.1).** Le cœur ECS, les modules, les jeux décrits en JSON et leur test sans fenêtre existent. Il n'y a encore ni fenêtre, ni rendu, ni réseau. Le dépôt a d'abord été bâti pour que *chaque modification soit contrôlée* ; les fonctionnalités arrivent ensuite, une par une, derrière cette barrière.
+> **Statut : v0.1, en développement actif.** Le cœur ECS, une quarantaine de modules, des jeux décrits en JSON et testés sans fenêtre, une fenêtre et un rendu 2D (SDL3 : lumière, particules, effets d'écran), le clavier, la souris et le tactile, l'export Windows et Android existent. Une dizaine de jeux le prouvent, dont `games/lueur`, un plateformer d'ombres et de lumière. Pas encore : 3D, réseau, manette. Le dépôt a d'abord été bâti pour que *chaque modification soit contrôlée* ; les fonctionnalités arrivent une par une, derrière cette barrière.
 
 ## Les enjeux
 
@@ -148,7 +148,7 @@ Les releases sont publiées automatiquement sur tag `vX.Y.Z` (le tag doit corres
 
 ## Modules et `gectl`
 
-Un module ajoute des composants et des systèmes sans toucher au noyau : on décrit le module dans un `module.json`, `gectl generate` produit le code des composants et l'enregistrement des systèmes, il ne reste qu'à écrire la logique. Trois modules d'exemple sont dans `modules/`.
+Un module ajoute des composants et des systèmes sans toucher au noyau : on décrit le module dans un `module.json`, `gectl generate` produit le code des composants et l'enregistrement des systèmes, il ne reste qu'à écrire la logique. Les modules sont dans `modules/` ; `gectl catalog` dit ce que chacun offre.
 
 ```bash
 cmake --preset dev && cmake --build --preset dev
@@ -183,7 +183,7 @@ Détails : [docs/TESTING.md](docs/TESTING.md).
 
 ## Faire écrire un jeu à Claude
 
-Cinq skills (`.claude/skills/`) guident Claude de l'idée au jeu : lire le catalogue, écrire les JSON, créer un module si besoin (`gectl new-module`), valider, jouer sans fenêtre. Exemple complet : `games/coin_dash`, qui a demandé un nouveau module (`pickup`). Détails : [docs/AUTHORING.md](docs/AUTHORING.md).
+Cinq skills (`.claude/skills/`) guident Claude de l'idée au jeu : lire le catalogue, écrire les JSON, créer un module si besoin (`gectl new-module`), valider, jouer sans fenêtre. [docs/GAMES.md](docs/GAMES.md) donne, pour chaque besoin, le jeu du dépôt qui le montre. Exemple complet : `games/lueur`, fait sans C++ propre au jeu, avec les modules génériques qu'il a demandés (saut, lumière, particules, effets d'écran, animation par états). Détails : [docs/AUTHORING.md](docs/AUTHORING.md).
 
 ## Feuille de route
 
@@ -199,7 +199,9 @@ La roadmap détaillée (jalons, critères de sortie, décisions d'architecture, 
 8. ✅ **M7** Rendu 2D : atlas, sprites, animation, caméra, collisions 2D (`games/treasure_run`).
 9. ✅ **M8** Interface : texte par langue, changement de scène, HUD, menus, inventaire configurable (fin du MVP : `games/treasure_run`).
 10. ✅ **Doodle Jump** : premier jeu demandé après le MVP (`games/doodle_jump`, [docs/DOODLE_JUMP.md](docs/DOODLE_JUMP.md)) : gravité, rebonds, monde généré, mort, score, meilleur score sauvegardé, sans C++ dans le jeu.
-11. 🚧 **Lanceur et export** : `gelauncher` parcourt et joue les jeux ([docs/LAUNCHER.md](docs/LAUNCHER.md)), `gectl export` fabrique un zip autonome d'un jeu, d'abord pour Windows ([docs/EXPORT.md](docs/EXPORT.md)).
+11. ✅ **Lanceur et export** : `gelauncher` parcourt et joue les jeux ([docs/LAUNCHER.md](docs/LAUNCHER.md)), `gectl export` fabrique un zip autonome pour Windows ([docs/EXPORT.md](docs/EXPORT.md)) ou un APK Android ([docs/EXPORT_ANDROID.md](docs/EXPORT_ANDROID.md)).
+12. ✅ **Trois jeux sans C++** : 2048, les échecs et un tower defense, chacun avec ses modules génériques ([docs/GAMES.md](docs/GAMES.md)).
+13. ✅ **Des jeux beaux** : lumière, particules, effets d'écran, animation par états, et `games/lueur` pour le prouver ([docs/adr/0015-rendu-atmospherique.md](docs/adr/0015-rendu-atmospherique.md), [docs/GAME_LUEUR.md](docs/GAME_LUEUR.md)).
 
 Chaque jalon est une ou plusieurs pull requests qui passent la CI ci-dessus.
 
