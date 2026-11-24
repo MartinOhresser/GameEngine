@@ -1,0 +1,30 @@
+// What the hero does chooses his animation: standing, running (either way, the picture turned to
+// where he goes), going up, falling, standing again once landed.
+{
+  "schema_version": 1,
+  "name": "animates",
+  "scene": "forest",
+  "ticks": 240,
+  "inputs": [
+    { "tick": 10, "action": "move_x", "value": 1 },
+    { "tick": 60, "action": "move_x", "value": -1 },
+    { "tick": 100, "action": "move_x", "value": 0 },
+    { "tick": 140, "action": "jump", "value": 1 },
+    { "tick": 170, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 5, "check": "hero.sprite2d.Sprite.frame < 8" },
+    { "at": 5, "check": "hero.sprite2d.Sprite.flip_x == false" },
+    { "at": 30, "check": "hero.sprite2d.Sprite.frame >= 8" },
+    { "at": 30, "check": "hero.sprite2d.Sprite.frame <= 19" },
+    { "at": 30, "check": "hero.sprite2d.Sprite.flip_x == false" },
+    { "at": 90, "check": "hero.sprite2d.Sprite.frame >= 8" },
+    { "at": 90, "check": "hero.sprite2d.Sprite.frame <= 19" },
+    { "at": 90, "check": "hero.sprite2d.Sprite.flip_x == true" },
+    { "at": 130, "check": "hero.sprite2d.Sprite.frame < 8" },
+    { "at": 130, "check": "hero.sprite2d.Sprite.flip_x == true" },
+    { "at": 146, "check": "hero.sprite2d.Sprite.frame == 20" },
+    { "at": 178, "check": "hero.sprite2d.Sprite.frame == 21" },
+    { "at": 230, "check": "hero.sprite2d.Sprite.frame < 8" },
+  ],
+}

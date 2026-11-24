@@ -395,15 +395,235 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 4> component_3_fields{{{"field", "u32", "field", false}, {"first_frame", "u32", "", false}, {"log2", "bool", "", false}, {"frame_count", "u32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Sprite", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Parallax", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"SpriteAnimation", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"FrameBind", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Animator component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "set") {
+            component.set = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 0> system_0_reads{};
-constexpr std::array<std::string_view, 2> system_0_writes{"sprite2d.Sprite", "sprite2d.SpriteAnimation"};
-constexpr std::array<std::string_view, 6> system_1_reads{"sprite2d.Sprite", "sprite2d.Parallax", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale", "transform2d.Rotation"};
-constexpr std::array<std::string_view, 0> system_1_writes{};
-constexpr std::array<std::string_view, 0> system_2_reads{};
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Animator* component = world.get<Animator>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "set") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->set)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Animator* component = world.get<Animator>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "set") {
+        component->set = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 1> component_4_fields{{{"set", "u32", "animation_set", false}}};
+
+void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    AnimationClip component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "set") {
+            component.set = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "priority") {
+            component.priority = ::ge::app::scalar_as<std::int32_t>(field.value);
+        } else if (field.name == "field") {
+            component.field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "min") {
+            component.min = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "max") {
+            component.max = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "absolute") {
+            component.absolute = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "first_frame") {
+            component.first_frame = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "frame_count") {
+            component.frame_count = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "ticks_per_frame") {
+            component.ticks_per_frame = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "looping") {
+            component.looping = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const AnimationClip* component = world.get<AnimationClip>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "set") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->set)};
+    }
+    if (field == "priority") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->priority)};
+    }
+    if (field == "field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->field)};
+    }
+    if (field == "min") {
+        return ::ge::app::Scalar{static_cast<double>(component->min)};
+    }
+    if (field == "max") {
+        return ::ge::app::Scalar{static_cast<double>(component->max)};
+    }
+    if (field == "absolute") {
+        return ::ge::app::Scalar{static_cast<bool>(component->absolute)};
+    }
+    if (field == "first_frame") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->first_frame)};
+    }
+    if (field == "frame_count") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->frame_count)};
+    }
+    if (field == "ticks_per_frame") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->ticks_per_frame)};
+    }
+    if (field == "looping") {
+        return ::ge::app::Scalar{static_cast<bool>(component->looping)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    AnimationClip* component = world.get<AnimationClip>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "set") {
+        component->set = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "priority") {
+        component->priority = ::ge::app::scalar_as<std::int32_t>(value);
+        return true;
+    }
+    if (field == "field") {
+        component->field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "min") {
+        component->min = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "max") {
+        component->max = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "absolute") {
+        component->absolute = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "first_frame") {
+        component->first_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "frame_count") {
+        component->frame_count = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "ticks_per_frame") {
+        component->ticks_per_frame = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "looping") {
+        component->looping = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 10> component_5_fields{{{"set", "u32", "animation_set", false}, {"priority", "i32", "", false}, {"field", "u32", "field", false}, {"min", "f32", "", false}, {"max", "f32", "", false}, {"absolute", "bool", "", false}, {"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}}};
+
+void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Facing component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "field") {
+            component.field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "threshold") {
+            component.threshold = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "drawn_left") {
+            component.drawn_left = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_6(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Facing* component = world.get<Facing>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->field)};
+    }
+    if (field == "threshold") {
+        return ::ge::app::Scalar{static_cast<double>(component->threshold)};
+    }
+    if (field == "drawn_left") {
+        return ::ge::app::Scalar{static_cast<bool>(component->drawn_left)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Facing* component = world.get<Facing>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "field") {
+        component->field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "threshold") {
+        component->threshold = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "drawn_left") {
+        component->drawn_left = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 3> component_6_fields{{{"field", "u32", "field", false}, {"threshold", "f32", "", false}, {"drawn_left", "bool", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 7> components{{{"Sprite", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Parallax", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"SpriteAnimation", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"FrameBind", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Animator", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"AnimationClip", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Facing", false, component_6_fields, insert_component_6, read_component_6, write_component_6}}};
+
+constexpr std::array<std::string_view, 2> system_0_reads{"sprite2d.Animator", "sprite2d.AnimationClip"};
+constexpr std::array<std::string_view, 1> system_0_writes{"sprite2d.SpriteAnimation"};
+constexpr std::array<std::string_view, 0> system_1_reads{};
+constexpr std::array<std::string_view, 2> system_1_writes{"sprite2d.Sprite", "sprite2d.SpriteAnimation"};
+constexpr std::array<std::string_view, 2> system_2_reads{"sprite2d.Facing", "transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_2_writes{"sprite2d.Sprite"};
-constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"sprite2d.animate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"sprite2d.draw", ::ge::app::Stage::PostUpdate, system_1_reads, system_1_writes}, {"sprite2d.bind_frame", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
+constexpr std::array<std::string_view, 6> system_3_reads{"sprite2d.Sprite", "sprite2d.Parallax", "transform2d.Position", "transform2d.Hidden", "transform2d.Scale", "transform2d.Rotation"};
+constexpr std::array<std::string_view, 0> system_3_writes{};
+constexpr std::array<std::string_view, 0> system_4_reads{};
+constexpr std::array<std::string_view, 1> system_4_writes{"sprite2d.Sprite"};
+constexpr std::array<::ge::app::SystemInfo, 5> systems{{{"sprite2d.choose_clip", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"sprite2d.animate", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"sprite2d.face", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"sprite2d.draw", ::ge::app::Stage::PostUpdate, system_3_reads, system_3_writes}, {"sprite2d.bind_frame", ::ge::app::Stage::FixedUpdate, system_4_reads, system_4_writes}}};
 
 constexpr std::array<std::string_view, 1> depends{"transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -417,7 +637,9 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
+    app.add_system(::ge::app::Stage::FixedUpdate, &choose_clip, "sprite2d.choose_clip", ::ge::app::Order::between({}, {"sprite2d.animate"}));
     app.add_system(::ge::app::Stage::FixedUpdate, &animate, "sprite2d.animate");
+    app.add_system(::ge::app::Stage::FixedUpdate, &face, "sprite2d.face");
     app.add_system(::ge::app::Stage::PostUpdate, &draw, "sprite2d.draw");
     app.add_system(::ge::app::Stage::FixedUpdate, &bind_frame, "sprite2d.bind_frame", ::ge::app::Order::between({"sprite2d.animate"}, {}));
 }

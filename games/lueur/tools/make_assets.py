@@ -454,9 +454,10 @@ HERO_PIVOT_Y = round((CELL - HERO_H / 2 - HERO_FEET) / CELL, 4)
 def hero():
     """Cells 0-7: standing (breathing); 8-19: running; 20: going up; 21: coming down."""
     frames = []
-    for i in range(8):  # idle: the body rises and falls a little
+    for i in range(8):  # idle: feet apart, the body rises and falls a little
         bob = math.sin(i / 8 * 2 * math.pi) * 1.2
-        frames.append(hero_pose([(0.05, 0.0), (-0.05, 0.0)], [(0.1, 0.2), (-0.1, 0.2)], bob, 1))
+        frames.append(hero_pose([(0.16, -0.06), (-0.14, 0.1)], [(0.12, 0.2), (-0.12, 0.2)],
+                                bob, 1))
     for i in range(12):  # run: legs and arms swing in opposition
         t = i / 12 * 2 * math.pi
         swing = math.sin(t)
@@ -467,6 +468,45 @@ def hero():
     frames.append(hero_pose([(0.7, 1.2), (-0.3, 0.8)], [(-1.6, 0.4), (1.2, 0.5)], 6, 3))  # up
     frames.append(hero_pose([(0.3, 0.3), (-0.2, 0.5)], [(-2.3, 0.2), (2.2, 0.3)], 2, 2))  # down
     save_sheet(frames, "hero")
+
+
+# The spirit: a small being of light that floats after the hero. A white core in a blue halo, with
+# a few motes turning around it; it breathes (the halo swells and shrinks) over its cells. It is a
+# picture with its own colours, drawn over what is behind it: light added to the pale fog would
+# be lost in it.
+SPIRIT = 64
+SPIRIT_FRAMES = 8
+
+
+def spirit():
+    frames = []
+    size = SPIRIT
+    y, x = np.mgrid[0:size, 0:size]
+    c = size / 2 - 0.5
+    for index in range(SPIRIT_FRAMES):
+        t = index / SPIRIT_FRAMES * 2 * math.pi
+        breath = 1 + 0.12 * math.sin(t)
+        r = np.hypot(x - c, y - c) / (size / 2)
+        halo = np.clip(1 - r / (0.95 * breath), 0, 1) ** 1.8 * 0.85
+        core = np.exp(-(r / (0.16 * breath)) ** 2)
+        light = halo + core
+        whiteness = core.copy()
+        # Three motes on a slow circle, a third of a turn apart.
+        for mote in range(3):
+            angle = t / 3 + mote * 2 * math.pi / 3
+            mx = c + math.cos(angle) * size * 0.27
+            my = c + math.sin(angle) * size * 0.2
+            mote_light = np.exp(-(np.hypot(x - mx, y - my) / 2.2) ** 2)
+            light += mote_light
+            whiteness += mote_light
+        alpha = np.clip(light, 0, 1) * 255
+        whiteness = np.clip(whiteness, 0, 1)[..., None]
+        blue = np.array([70, 150, 255], dtype=float)
+        picture = np.zeros((size, size, 4), dtype=np.uint8)
+        picture[..., :3] = (blue + (255 - blue) * whiteness).astype(np.uint8)
+        picture[..., 3] = alpha.astype(np.uint8)
+        frames.append(Image.fromarray(picture, "RGBA"))
+    save_sheet(frames, "spirit")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -571,7 +611,10 @@ def scene():
         "atlas": "hero", "width": CELL, "height": CELL, "pivot_y": HERO_PIVOT_Y,
         "layer": LAYERS["hero"],
     }, None, {
-        "sprite2d.SpriteAnimation": {"first_frame": 0, "frame_count": 8, "ticks_per_frame": 9},
+        # What he does chooses his animation (the clips below), and he looks where he goes.
+        "sprite2d.Animator": {"set": "hero"},
+        "sprite2d.Facing": {},
+        "tag.Tag": {"tag": "hero"},
         "transform2d.Velocity": {},
         "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
                                  "mask": ["ground"]},
@@ -582,10 +625,42 @@ def scene():
                                       "braking": 2600},
         "jump.Jumper": {"speed": 720, "coyote_time": 0.1, "buffer_time": 0.12, "cut": 0.45},
         "camera2d.CameraTarget": {},
-        # The glimmer the game is named after: a warm, wavering light around the hero.
-        "light2d.Light": {"radius": 330, "red": 255, "green": 212, "blue": 160,
-                          "intensity": 0.9, "flicker": 0.15, "flicker_speed": 1.5,
-                          "offset_y": -20},
+        # A faint warm light of his own, so that he is never lost in the dark.
+        "light2d.Light": {"radius": 190, "red": 255, "green": 212, "blue": 160,
+                          "intensity": 0.45, "offset_y": -20},
+    }))
+    # His animations, the first that holds from the top: going up, falling (no ground under him),
+    # running (either way), standing.
+    for name, priority, condition, first, count, ticks in [
+            ("rises", 3, {"field": "transform2d.Velocity.y", "max": -60}, 20, 1, 6),
+            ("falls", 2, {"field": "collision2d.Blocked.below", "max": 0.5}, 21, 1, 6),
+            ("runs", 1, {"field": "transform2d.Velocity.x", "min": 30, "absolute": True}, 8, 12,
+             4),
+            ("stands", 0, {}, 0, 8, 9)]:
+        entities.append({"name": f"hero_{name}", "components": {"sprite2d.AnimationClip": {
+            "set": "hero", "priority": priority, **condition, "first_frame": first,
+            "frame_count": count, "ticks_per_frame": ticks}}})
+    # The spirit: the glimmer the game is named after. A small being of light that floats after
+    # the hero, behind him, and lights the forest around them with a cool, wavering light (it
+    # stands out against the warm sun).
+    entities.append(entity("spirit", 470, GROUND_Y - 150, {
+        "atlas": "spirit", "width": 88, "height": 88,
+        "unlit": True, "layer": LAYERS["hero"] + 1,
+    }, None, {
+        "sprite2d.SpriteAnimation": {"first_frame": 0, "frame_count": SPIRIT_FRAMES,
+                                     "ticks_per_frame": 8},
+        "follow2d.Follow": {"target": "hero", "offset_x": -56, "offset_y": -86,
+                            "stiffness": 0.06, "turn": True, "wave_x": 14, "wave_y": 10,
+                            "wave_period": 5},
+        "light2d.Light": {"radius": 340, "red": 190, "green": 222, "blue": 255,
+                          "intensity": 0.85, "flicker": 0.15, "flicker_speed": 1.5},
+        # A trail of sparks left behind as it floats.
+        "particles2d.Emitter": {
+            "rate": 16, "lifetime": 0.9, "lifetime_spread": 0.4, "speed": 14, "speed_spread": 8,
+            "angle": -90, "spread": 360, "gravity_y": -10, "wander": 10, "area_width": 14,
+            "area_height": 14, "size": 9, "end_size": 2, "red": 170, "green": 225,
+            "blue": 255, "alpha": 230, "fade": True, "additive": True, "unlit": True,
+            "layer": LAYERS["hero"] + 1, "max": 30},
     }))
     # Fireflies drifting over the grass, and leaves falling from the trees in front. Particles
     # are not entities: a few emitters spread along the level let them out.
@@ -644,6 +719,7 @@ def main():
     ground()
     foreground()
     hero()
+    spirit()
     leaves()
     scene()
     print("lueur: pictures, atlases and scene written in", GAME)

@@ -679,6 +679,49 @@
                 },
                 "additionalProperties": false
               },
+              "follow2d.Follow": {
+                "type": "object",
+                "properties": {
+                  "target": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "owner": {
+                    "type": "boolean"
+                  },
+                  "offset_x": {
+                    "type": "number"
+                  },
+                  "offset_y": {
+                    "type": "number"
+                  },
+                  "stiffness": {
+                    "type": "number"
+                  },
+                  "turn": {
+                    "type": "boolean"
+                  },
+                  "wave_x": {
+                    "type": "number"
+                  },
+                  "wave_y": {
+                    "type": "number"
+                  },
+                  "wave_period": {
+                    "type": "number"
+                  },
+                  "side": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "time": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "gesture.Swipe": {
                 "type": "object",
                 "properties": {
@@ -2559,6 +2602,82 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "sprite2d.Animator": {
+                "type": "object",
+                "properties": {
+                  "set": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "sprite2d.AnimationClip": {
+                "type": "object",
+                "properties": {
+                  "set": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "absolute": {
+                    "type": "boolean"
+                  },
+                  "first_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "frame_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "ticks_per_frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "looping": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "sprite2d.Facing": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "threshold": {
+                    "type": "number"
+                  },
+                  "drawn_left": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false

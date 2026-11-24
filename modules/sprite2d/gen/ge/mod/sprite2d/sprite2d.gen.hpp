@@ -105,9 +105,72 @@ struct FrameBind {
     [[nodiscard]] friend bool operator==(const FrameBind&, const FrameBind&) = default;
 };
 
+/// Chooses the entity's animation from its state, among the AnimationClips of its set (an item of the game's animation_set list): every tick, the clip with the highest priority whose condition holds for this entity is played by its SpriteAnimation (one is added when it has none). Switching to another clip starts it from its first cell; staying on the same one lets it run on. Many entities can share one set: every enemy of a kind, every copy of a prefab.
+struct Animator {
+    std::uint32_t set = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(set);
+    }
+
+    [[nodiscard]] friend bool operator==(const Animator&, const Animator&) = default;
+};
+
+/// One animation of a set, for the Animators of that set: an entity of its own, which draws nothing. It plays the cells first_frame to first_frame + frame_count - 1, each for ticks_per_frame ticks, over and over with looping, or once and then stays on the last. It is chosen when its condition holds: the animated entity's own number field ("module.Component.field", for example "transform2d.Velocity.y" or "collision2d.Blocked.below", a bool counting as 0 or 1) is between min and max. With absolute the size of the number is compared, whatever its sign (a speed in either direction). A clip without a field always holds: give it the lowest priority, it is what plays when nothing else does. Among the clips that hold, the highest priority wins, then the oldest. A missing component makes the condition fail.
+struct AnimationClip {
+    std::uint32_t set = 0U;
+    std::int32_t priority = 0;
+    std::uint32_t field = 4294967295U;
+    float min = -1e+09F;
+    float max = 1e+09F;
+    bool absolute = false;
+    std::uint32_t first_frame = 0U;
+    std::uint32_t frame_count = 1U;
+    std::uint32_t ticks_per_frame = 6U;
+    bool looping = true;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(set);
+        hasher.add(priority);
+        hasher.add(field);
+        hasher.add(min);
+        hasher.add(max);
+        hasher.add(absolute);
+        hasher.add(first_frame);
+        hasher.add(frame_count);
+        hasher.add(ticks_per_frame);
+        hasher.add(looping);
+    }
+
+    [[nodiscard]] friend bool operator==(const AnimationClip&, const AnimationClip&) = default;
+};
+
+/// Turns the Sprite towards where the entity goes: when its number (field, "module.Component.field"; none, the default, reads the entity's transform2d.Velocity x) goes above threshold the picture faces right, below -threshold it faces left, and in between it keeps its side (a character that stops keeps looking the way it went). drawn_left says the picture itself faces left. The side is kept in the Sprite's flip_x.
+struct Facing {
+    std::uint32_t field = 4294967295U;
+    float threshold = 1.0F;
+    bool drawn_left = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(field);
+        hasher.add(threshold);
+        hasher.add(drawn_left);
+    }
+
+    [[nodiscard]] friend bool operator==(const Facing&, const Facing&) = default;
+};
+
+/// Gives every Animator the clip of its set that its state asks for (see AnimationClip), before the animations advance.
+/// Runs in FixedUpdate.
+void choose_clip(::ge::ecs::World& world);
+
 /// Advances every SpriteAnimation by one tick and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.
 /// Runs in FixedUpdate.
 void animate(::ge::ecs::World& world);
+
+/// Turns every Sprite that has a Facing towards where its entity goes.
+/// Runs in FixedUpdate.
+void face(::ge::ecs::World& world);
 
 /// Asks the renderer to draw every Sprite, lowest layer first, with the drawings other modules put on a layer (LayeredDraws, ge/mod/sprite2d/layered.hpp). Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
 /// Runs in PostUpdate.

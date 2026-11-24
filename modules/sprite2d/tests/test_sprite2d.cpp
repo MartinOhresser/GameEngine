@@ -9,8 +9,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -367,4 +369,125 @@ TEST_CASE("sprite2d: drawings other modules put on a layer are drawn among the s
     renderer->clear();
     app.run_frames(1);
     CHECK(renderer->commands().size() == 2U);
+}
+
+namespace {
+
+/// A clip of set 0 that plays `count` cells from `first`, two ticks each.
+sprite2d::AnimationClip clip(std::int32_t priority, std::uint32_t first, std::uint32_t count) {
+    sprite2d::AnimationClip result;
+    result.priority = priority;
+    result.first_frame = first;
+    result.frame_count = count;
+    result.ticks_per_frame = 2U;
+    return result;
+}
+
+/// A clip of set 0 that holds while `field` of the animated entity is between min and max.
+sprite2d::AnimationClip clip_when(const ge::app::App& app, const std::string& field, float min,
+                                  float max, std::int32_t priority, std::uint32_t first) {
+    sprite2d::AnimationClip result = clip(priority, first, 1U);
+    result.field = field_index(app, field);
+    result.min = min;
+    result.max = max;
+    return result;
+}
+
+void add(ge::app::App& app, const sprite2d::AnimationClip& animation) {
+    CHECK(app.world().insert(app.world().spawn(), animation));
+}
+
+/// A walker of set 0: standing (cells 0-3), running either way (10-13), going up (20).
+struct Walker {
+    std::shared_ptr<ge::app::RecordingRenderer> renderer =
+        std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    ge::ecs::Entity entity;
+
+    Walker() {
+        add(app, clip(0, 0U, 4U));
+        sprite2d::AnimationClip run = clip(1, 10U, 4U);
+        run.field = field_index(app, "transform2d.Velocity.x");
+        run.min = 20.0F;
+        run.absolute = true;
+        add(app, run);
+        add(app, clip_when(app, "transform2d.Velocity.y", -1.0e9F, -60.0F, 2, 20U));
+        entity = spawn(app, 0.0F, 0.0F, sprite2d::Sprite{});
+        CHECK(app.world().insert(entity, transform2d::Velocity{}));
+        CHECK(app.world().insert(entity, sprite2d::Animator{}));
+    }
+
+    std::uint32_t frame_after(std::uint32_t ticks, float speed_x, float speed_y) {
+        *app.world().get<transform2d::Velocity>(entity) = transform2d::Velocity{speed_x, speed_y};
+        app.run_frames(ticks);
+        return app.world().get<sprite2d::Sprite>(entity)->frame;
+    }
+};
+
+} // namespace
+
+TEST_CASE("sprite2d: an Animator plays the clip its state asks for") {
+    Walker walker;
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U); // standing: a SpriteAnimation is added
+    CHECK(walker.app.world().has<sprite2d::SpriteAnimation>(walker.entity));
+    CHECK(walker.frame_after(1U, -30.0F, 0.0F) == 10U);   // running left: the size of the speed
+    CHECK(walker.frame_after(1U, 30.0F, -100.0F) == 20U); // going up wins over running
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U);
+}
+
+TEST_CASE("sprite2d: a clip that stays chosen runs on, a new one starts from its first cell") {
+    Walker walker;
+    CHECK(walker.frame_after(5U, 30.0F, 0.0F) == 12U); // five ticks, two per cell: the third
+    CHECK(walker.frame_after(2U, 30.0F, 0.0F) == 13U);
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U);
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 10U);
+}
+
+TEST_CASE("sprite2d: clips of another set, or on a missing component, are not chosen") {
+    Walker walker;
+    sprite2d::AnimationClip other = clip(9, 30U, 1U);
+    other.set = 1U;
+    add(walker.app, other);
+    add(walker.app, clip_when(walker.app, "transform2d.Scale.factor", 0.0F, 10.0F, 8, 40U));
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U);
+    CHECK(walker.app.world().insert(walker.entity, transform2d::Scale{2.0F}));
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 40U);
+}
+
+namespace {
+
+/// Whether the sprite is mirrored after one tick at each of these speeds, in turn.
+std::vector<bool> faced(const sprite2d::Facing& facing, const std::vector<float>& speeds,
+                        bool by_y = false) {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, 0.0F, 0.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, transform2d::Velocity{}));
+    sprite2d::Facing with_field = facing;
+    if (by_y) {
+        with_field.field = field_index(app, "transform2d.Velocity.y");
+    }
+    CHECK(app.world().insert(entity, with_field));
+    std::vector<bool> mirrored;
+    for (const float speed : speeds) {
+        *app.world().get<transform2d::Velocity>(entity) =
+            by_y ? transform2d::Velocity{0.0F, speed} : transform2d::Velocity{speed, 0.0F};
+        app.run_frames(1);
+        mirrored.push_back(app.world().get<sprite2d::Sprite>(entity)->flip_x);
+    }
+    return mirrored;
+}
+
+} // namespace
+
+TEST_CASE("sprite2d: Facing turns the picture to where the entity goes, and keeps it when still") {
+    sprite2d::Facing facing;
+    facing.threshold = 5.0F;
+    const std::vector<float> speeds{-40.0F, 0.0F, 3.0F, 40.0F, -2.0F};
+    const std::vector<bool> left_then_right{true, true, true, false, false};
+    const std::vector<bool> right_then_left{false, false, false, true, true};
+    CHECK(faced(facing, speeds) == left_then_right);
+    CHECK(faced(facing, speeds, true) == left_then_right);
+    facing.drawn_left = true;
+    CHECK(faced(facing, speeds) == right_then_left);
 }

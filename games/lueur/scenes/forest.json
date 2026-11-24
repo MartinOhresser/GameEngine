@@ -605,10 +605,12 @@
           "pivot_y": 0.5938,
           "layer": 10
         },
-        "sprite2d.SpriteAnimation": {
-          "first_frame": 0,
-          "frame_count": 8,
-          "ticks_per_frame": 9
+        "sprite2d.Animator": {
+          "set": "hero"
+        },
+        "sprite2d.Facing": {},
+        "tag.Tag": {
+          "tag": "hero"
         },
         "transform2d.Velocity": {},
         "collision2d.Collider": {
@@ -641,14 +643,131 @@
         },
         "camera2d.CameraTarget": {},
         "light2d.Light": {
-          "radius": 330,
+          "radius": 190,
           "red": 255,
           "green": 212,
           "blue": 160,
-          "intensity": 0.9,
-          "flicker": 0.15,
-          "flicker_speed": 1.5,
+          "intensity": 0.45,
           "offset_y": -20
+        }
+      }
+    },
+    {
+      "name": "hero_rises",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 3,
+          "field": "transform2d.Velocity.y",
+          "max": -60,
+          "first_frame": 20,
+          "frame_count": 1,
+          "ticks_per_frame": 6
+        }
+      }
+    },
+    {
+      "name": "hero_falls",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 2,
+          "field": "collision2d.Blocked.below",
+          "max": 0.5,
+          "first_frame": 21,
+          "frame_count": 1,
+          "ticks_per_frame": 6
+        }
+      }
+    },
+    {
+      "name": "hero_runs",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 1,
+          "field": "transform2d.Velocity.x",
+          "min": 30,
+          "absolute": true,
+          "first_frame": 8,
+          "frame_count": 12,
+          "ticks_per_frame": 4
+        }
+      }
+    },
+    {
+      "name": "hero_stands",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 0,
+          "first_frame": 0,
+          "frame_count": 8,
+          "ticks_per_frame": 9
+        }
+      }
+    },
+    {
+      "name": "spirit",
+      "components": {
+        "transform2d.Position": {
+          "x": 470,
+          "y": 410
+        },
+        "sprite2d.Sprite": {
+          "atlas": "spirit",
+          "width": 88,
+          "height": 88,
+          "unlit": true,
+          "layer": 11
+        },
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 0,
+          "frame_count": 8,
+          "ticks_per_frame": 8
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": -56,
+          "offset_y": -86,
+          "stiffness": 0.06,
+          "turn": true,
+          "wave_x": 14,
+          "wave_y": 10,
+          "wave_period": 5
+        },
+        "light2d.Light": {
+          "radius": 340,
+          "red": 190,
+          "green": 222,
+          "blue": 255,
+          "intensity": 0.85,
+          "flicker": 0.15,
+          "flicker_speed": 1.5
+        },
+        "particles2d.Emitter": {
+          "rate": 16,
+          "lifetime": 0.9,
+          "lifetime_spread": 0.4,
+          "speed": 14,
+          "speed_spread": 8,
+          "angle": -90,
+          "spread": 360,
+          "gravity_y": -10,
+          "wander": 10,
+          "area_width": 14,
+          "area_height": 14,
+          "size": 9,
+          "end_size": 2,
+          "red": 170,
+          "green": 225,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "max": 30
         }
       }
     },
