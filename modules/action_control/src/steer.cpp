@@ -1,8 +1,11 @@
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
+#include "ge/app/time.hpp"
 #include "ge/mod/action_control/action_control.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <string_view>
 
@@ -19,6 +22,19 @@ float value_of(const app::Actions& actions, const app::ActionNames* names, std::
     return actions.value(fallback);
 }
 
+/// The speed along one axis after a tick of steering towards `wanted`: at once without an
+/// acceleration, else by at most acceleration (braking when slowing down or turning) times `step`.
+float steered(const Controlled& controlled, float now, float wanted, float step) {
+    if (controlled.acceleration <= 0.0F) {
+        return wanted;
+    }
+    const bool faster = std::abs(wanted) > std::abs(now) && wanted * now >= 0.0F;
+    const float rate =
+        !faster && controlled.braking > 0.0F ? controlled.braking : controlled.acceleration;
+    const float most = rate * step;
+    return now + std::clamp(wanted - now, -most, most);
+}
+
 } // namespace
 
 void steer(ecs::World& world) {
@@ -27,15 +43,19 @@ void steer(ecs::World& world) {
         return;
     }
     const auto* names = world.resource<app::ActionNames>();
+    const float step = world.resource<app::Time>()->fixed_delta *
+                       world.resource<transform2d::Params>()->speed_scale;
     world.each<const Controlled, transform2d::Velocity>(
         [&](ecs::Entity, const Controlled& controlled, transform2d::Velocity& velocity) {
             if (controlled.horizontal) {
-                velocity.x =
+                const float wanted =
                     value_of(*actions, names, controlled.action_x, "move_x") * controlled.speed;
+                velocity.x = steered(controlled, velocity.x, wanted, step);
             }
             if (controlled.vertical) {
-                velocity.y =
+                const float wanted =
                     value_of(*actions, names, controlled.action_y, "move_y") * controlled.speed;
+                velocity.y = steered(controlled, velocity.y, wanted, step);
             }
         });
 }

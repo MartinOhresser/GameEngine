@@ -29,7 +29,7 @@ struct CameraTarget {
     [[nodiscard]] friend bool operator==(const CameraTarget&, const CameraTarget&) = default;
 };
 
-/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right.
+/// Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right. dead_x and dead_y make a dead zone: while the target stays within that distance of where the camera aims, the camera does not move, and past it the camera only follows the part that goes beyond (small steps and jumps leave the view still). look_ahead aims that far ahead of the target along x, on the side its Velocity goes, so that a moving character sees more of what comes. bounded keeps the view inside the area from (bound_left, bound_top) to (bound_right, bound_bottom): the edges of the level are never passed, whatever the size of the window, and an area smaller than the view is centred.
 struct CameraFollow {
     float stiffness = 1.0F;
     bool follow_x = true;
@@ -40,6 +40,14 @@ struct CameraFollow {
     bool only_down = false;
     bool only_left = false;
     bool only_right = false;
+    float dead_x = 0.0F;
+    float dead_y = 0.0F;
+    float look_ahead = 0.0F;
+    bool bounded = false;
+    float bound_left = 0.0F;
+    float bound_top = 0.0F;
+    float bound_right = 0.0F;
+    float bound_bottom = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(stiffness);
@@ -51,6 +59,14 @@ struct CameraFollow {
         hasher.add(only_down);
         hasher.add(only_left);
         hasher.add(only_right);
+        hasher.add(dead_x);
+        hasher.add(dead_y);
+        hasher.add(look_ahead);
+        hasher.add(bounded);
+        hasher.add(bound_left);
+        hasher.add(bound_top);
+        hasher.add(bound_right);
+        hasher.add(bound_bottom);
     }
 
     [[nodiscard]] friend bool operator==(const CameraFollow&, const CameraFollow&) = default;
@@ -83,7 +99,7 @@ struct CameraFit {
     [[nodiscard]] friend bool operator==(const CameraFit&, const CameraFit&) = default;
 };
 
-/// Moves every Camera that has a CameraFollow towards the CameraTarget's Position.
+/// Moves every Camera that has a CameraFollow towards the CameraTarget's Position (and ahead of its Velocity), then keeps its view within its bounds.
 /// Runs in FixedUpdate.
 void follow(::ge::ecs::World& world);
 

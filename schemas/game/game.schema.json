@@ -47,6 +47,7 @@
           "health",
           "host",
           "inventory",
+          "jump",
           "lifetime",
           "path2d",
           "patrol2d",
@@ -202,6 +203,11 @@
           "additionalProperties": false
         },
         "inventory": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "jump": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

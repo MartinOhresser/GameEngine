@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "jump",
+  "version": "0.1.0",
+  "description": "A jump the player asks for with an action: an upward launch allowed from the ground, with the forgiving touches that make it feel right (a short grace after walking off an edge, a press remembered just before landing, a lower jump for a shorter press) and an optional number of jumps in the air. The ground is what collision2d reports below the body; gravity2d (or any other system) brings it back down.",
+  "depends": ["transform2d", "collision2d"],
+  "components": [
+    {
+      "name": "Jumper",
+      "description": "The entity jumps when its action (jump when action is none) is pressed: its Velocity y becomes -speed (y grows downwards, so it goes up). It may jump while collision2d.Blocked says there is a floor below it, or up to coyote_time seconds after it left the floor without jumping; a press up to buffer_time seconds before it lands makes it jump on landing. Letting go of the action while still going up multiplies the upward speed by cut (1 always jumps full height, 0.5 halves the speed of a short press). air_jumps is how many more jumps it may make before it touches the ground again. Needs a collision2d.Blocked to know where the ground is. The other fields are kept by the jump itself: jumps counts the jumps made (an animation, a sound or a rule can watch it), since_ground and since_press are the seconds since the ground was last touched and the action last pressed, air_jumps_used the jumps made in the air since then, and holding is true while a jump is still going up with the action held.",
+      "replicable": true,
+      "fields": [
+        { "name": "speed", "type": "f32", "default": 400 },
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "coyote_time", "type": "f32", "default": 0.1 },
+        { "name": "buffer_time", "type": "f32", "default": 0.1 },
+        { "name": "cut", "type": "f32", "default": 0.5 },
+        { "name": "air_jumps", "type": "u32", "default": 0 },
+        { "name": "jumps", "type": "u32", "default": 0 },
+        { "name": "since_ground", "type": "f32", "default": 1000 },
+        { "name": "since_press", "type": "f32", "default": 1000 },
+        { "name": "air_jumps_used", "type": "u32", "default": 0 },
+        { "name": "holding", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "launch",
+      "description": "Starts the jumps that are asked for and allowed, and cuts the upward speed of a jump whose action is let go. Reads where the ground was at the end of the previous tick, and runs before transform2d.integrate so that a jump moves the very tick it starts.",
+      "stage": "FixedUpdate",
+      "reads": ["collision2d.Blocked"],
+      "writes": ["Jumper", "transform2d.Velocity"],
+      "before": ["transform2d.integrate"]
+    }
+  ]
+}

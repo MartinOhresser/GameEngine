@@ -1,0 +1,20 @@
+// The hero gathers speed, runs, and stops quickly once let go; the camera follows him to the right.
+{
+  "schema_version": 1,
+  "name": "walks",
+  "scene": "forest",
+  "ticks": 160,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 120, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    { "at": 1, "check": "hero.transform2d.Velocity.x == 30" },
+    { "at": 60, "check": "hero.transform2d.Velocity.x == 260" },
+    { "at": 60, "check": "hero.collision2d.Blocked.below == true" },
+    { "at": 120, "check": "hero.transform2d.Position.x > 1000" },
+    { "at": 120, "check": "camera.transform2d.Position.x > 900" },
+    { "at": 130, "check": "hero.transform2d.Velocity.x == 0" },
+    { "at": 160, "check": "hero.transform2d.Position.y == 514" },
+  ],
+}

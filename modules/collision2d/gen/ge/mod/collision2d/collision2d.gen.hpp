@@ -50,7 +50,24 @@ struct Contacts {
     [[nodiscard]] friend bool operator==(const Contacts&, const Contacts&) = default;
 };
 
-/// Pushes every Body out of the solid colliders it overlaps, along the shortest way out, and cancels its Velocity towards the wall. Entities are handled in creation order, so the result is the same on every run.
+/// Filled in every tick for a Body: the sides on which a solid collider stopped it during that tick. below is a floor under it (it stands on something), above a ceiling, left and right a wall on that side. A body resting on a floor is pulled into it by gravity every tick and pushed back out, so below stays true while it stands. Put it on the bodies whose rules depend on it (a jump allowed only from the ground, a slide along a wall).
+struct Blocked {
+    bool below = false;
+    bool above = false;
+    bool left = false;
+    bool right = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(below);
+        hasher.add(above);
+        hasher.add(left);
+        hasher.add(right);
+    }
+
+    [[nodiscard]] friend bool operator==(const Blocked&, const Blocked&) = default;
+};
+
+/// Pushes every Body out of the solid colliders it overlaps, along the shortest way out, cancels its Velocity towards the wall, and notes in its Blocked (when it has one) the sides that stopped it. Entities are handled in creation order, so the result is the same on every run.
 /// Runs in FixedUpdate.
 void block(::ge::ecs::World& world);
 

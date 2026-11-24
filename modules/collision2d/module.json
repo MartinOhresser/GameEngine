@@ -32,15 +32,26 @@
         { "name": "count", "type": "u32", "default": 0 },
         { "name": "layers", "type": "u32", "default": 0, "ref_set": "layer" }
       ]
+    },
+    {
+      "name": "Blocked",
+      "description": "Filled in every tick for a Body: the sides on which a solid collider stopped it during that tick. below is a floor under it (it stands on something), above a ceiling, left and right a wall on that side. A body resting on a floor is pulled into it by gravity every tick and pushed back out, so below stays true while it stands. Put it on the bodies whose rules depend on it (a jump allowed only from the ground, a slide along a wall).",
+      "replicable": true,
+      "fields": [
+        { "name": "below", "type": "bool", "default": false },
+        { "name": "above", "type": "bool", "default": false },
+        { "name": "left", "type": "bool", "default": false },
+        { "name": "right", "type": "bool", "default": false }
+      ]
     }
   ],
   "systems": [
     {
       "name": "block",
-      "description": "Pushes every Body out of the solid colliders it overlaps, along the shortest way out, and cancels its Velocity towards the wall. Entities are handled in creation order, so the result is the same on every run.",
+      "description": "Pushes every Body out of the solid colliders it overlaps, along the shortest way out, cancels its Velocity towards the wall, and notes in its Blocked (when it has one) the sides that stopped it. Entities are handled in creation order, so the result is the same on every run.",
       "stage": "FixedUpdate",
       "reads": ["Collider"],
-      "writes": ["transform2d.Position", "transform2d.Velocity"],
+      "writes": ["transform2d.Position", "transform2d.Velocity", "Blocked"],
       "after": ["transform2d.integrate"]
     },
     {

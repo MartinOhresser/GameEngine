@@ -1,5 +1,8 @@
-// No controls yet: the hero moves in a later step (ADR 0015, B4).
+// Left and right (or A and D) walk; Space, Up or W jumps, higher for a longer press.
 {
   "schema_version": 1,
-  "bindings": [],
+  "bindings": [
+    { "action": "move_x", "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:a": -1 } },
+    { "action": "jump", "sources": { "key:space": 1, "key:up": 1, "key:w": 1 } },
+  ],
 }

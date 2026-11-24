@@ -6,6 +6,7 @@
 
 #include "mini_test.hpp"
 
+#include <cmath>
 #include <memory>
 
 namespace {
@@ -287,4 +288,69 @@ TEST_CASE("camera2d: margins leave room for an interface and max_zoom keeps a sm
     app.world().get<camera2d::CameraFit>(camera)->max_zoom = 3.0F;
     app.run_frames(1);
     CHECK(view_of(*renderer).zoom == 3.0F);
+}
+
+TEST_CASE("camera2d: within the dead zone the camera stays, past it it follows the excess") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto target = spawn_target(app, 30.0F, -20.0F);
+    camera2d::CameraFollow follow;
+    follow.dead_x = 50.0F;
+    follow.dead_y = 40.0F;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 0.0F);
+    CHECK(position_of(app, camera).y == 0.0F);
+    app.world().get<transform2d::Position>(target)->x = 80.0F;
+    app.world().get<transform2d::Position>(target)->y = -100.0F;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 30.0F);  // the target is back on the zone's edge
+    CHECK(position_of(app, camera).y == -60.0F); // the same upwards
+}
+
+TEST_CASE("camera2d: look_ahead aims ahead of a moving target, on the side it goes") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto target = spawn_target(app, 100.0F, 0.0F);
+    camera2d::CameraFollow follow;
+    follow.look_ahead = 60.0F;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 100.0F); // no Velocity: standing still
+    CHECK(app.world().insert(target, transform2d::Velocity{-200.0F, 0.0F}));
+    app.run_frames(1);
+    // It moved by 200 / 60 to the left, and the camera aims 60 to the left of it.
+    const float x = app.world().get<transform2d::Position>(target)->x;
+    CHECK(std::abs(position_of(app, camera).x - (x - 60.0F)) < 0.001F);
+}
+
+TEST_CASE("camera2d: a bounded camera never shows past the edges of the area") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    app.world().insert_resource(ge::app::Viewport{400, 200});
+    const auto target = spawn_target(app, 0.0F, 0.0F);
+    camera2d::CameraFollow follow;
+    follow.bounded = true;
+    follow.bound_left = -100.0F;
+    follow.bound_top = -1000.0F;
+    follow.bound_right = 2000.0F;
+    follow.bound_bottom = 50.0F;
+    const auto camera = spawn_follower(app, 0.0F, 0.0F, follow);
+    app.run_frames(1);
+    // The view is 400 by 200: its centre stays 200 from the left edge, 100 from the bottom.
+    CHECK(position_of(app, camera).x == 100.0F);
+    CHECK(position_of(app, camera).y == -50.0F);
+    app.world().get<camera2d::Camera>(camera)->zoom = 2.0F; // a view of 200 by 100
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 0.0F);
+    CHECK(position_of(app, camera).y == 0.0F);
+    app.world().get<transform2d::Position>(target)->x = 5000.0F;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 1900.0F);
+
+    // An area narrower than the view: centred on it.
+    follow.bound_right = 100.0F;
+    *app.world().get<camera2d::CameraFollow>(camera) = follow;
+    app.run_frames(1);
+    CHECK(position_of(app, camera).x == 0.0F);
 }
