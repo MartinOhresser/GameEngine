@@ -19,6 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GAME = os.path.normpath(os.path.join(HERE, ".."))
 ART = os.path.join(GAME, "art")
 SCENES = os.path.join(GAME, "scenes")
+TEXT = os.path.join(GAME, "text")
 PREFABS = os.path.join(GAME, "prefabs")
 
 VIEW_W, VIEW_H = 1280, 720  # the window, in world units at zoom 1
@@ -261,6 +262,38 @@ def inventory_bubbles():
     return sheet
 
 
+FONT_GLYPHS = (" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+               "abcdefghijklmnopqrstuvwxyz{|}~àâäçéèêëîïôöùûüÿœÀÉÈÊÇ«»…’")
+FONT_W, FONT_H = 16, 32
+
+
+def font():
+    """The letters of the texts, each in a cell of FONT_W by FONT_H, white on clear."""
+    from PIL import ImageFont
+    face = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+                              26 * SUPER)
+    sheet = Image.new("RGBA", (FONT_W * len(FONT_GLYPHS), FONT_H), (0, 0, 0, 0))
+    for index, glyph in enumerate(FONT_GLYPHS):
+        cell = Image.new("L", (FONT_W * SUPER, FONT_H * SUPER), 0)
+        ImageDraw.Draw(cell).text((FONT_W * SUPER / 2, FONT_H * SUPER * 0.55), glyph, fill=255,
+                                  font=face, anchor="mm")
+        alpha = cell.resize((FONT_W, FONT_H), Image.LANCZOS)
+        letter = Image.new("RGBA", (FONT_W, FONT_H), (255, 255, 255, 0))
+        letter.putalpha(alpha)
+        sheet.paste(letter, (index * FONT_W, 0))
+    return sheet
+
+
+def save_font():
+    os.makedirs(ART, exist_ok=True)
+    font().save(os.path.join(ART, "font.png"), optimize=True)
+    atlas = {"schema_version": 1, "name": "font", "image": "font.png", "cell_width": FONT_W,
+             "cell_height": FONT_H, "filter": "linear", "glyphs": FONT_GLYPHS}
+    with open(os.path.join(ART, "font.json"), "w", encoding="utf-8") as out:
+        json.dump(atlas, out, indent=2, ensure_ascii=False)
+        out.write("\n")
+
+
 def sky():
     """Black, with a few grey stars."""
     rng = np.random.default_rng(3)
@@ -282,8 +315,8 @@ def entity(name, x, y, components):
     return {"name": name, "components": {"transform2d.Position": {"x": x, "y": y}, **components}}
 
 
-def hero_entity(x, y):
-    return entity("hero", x, y, {
+def hero_entity(x, y, locked=False):
+    hero = entity("hero", x, y, {
         "sprite2d.Sprite": {"atlas": "hero", "width": CELL, "height": CELL,
                             "layer": LAYERS["hero"]},
         "sprite2d.Facing": {},
@@ -308,6 +341,11 @@ def hero_entity(x, y):
         "reserve.Drain": {"kind": "matter", "field": "transform2d.Velocity.x",
                           "per_unit": 0.002},
     })
+    if locked:
+        # He does not know how to walk yet (D4): the tutorial gives him move_x, then jump.
+        hero["components"]["action_control.Controlled"]["action_x"] = "locked"
+        hero["components"]["jump.Jumper"]["action"] = "locked"
+    return hero
 
 
 def jump_hole():
@@ -338,7 +376,7 @@ def hands(unlocked=("black", "white"), offered=()):
     """The two hands (module loadout): the left one answers to the left button, the right one to
     the right button. Each is an arm beside the hero, coloured by its power (empty: grey). The
     kit says which powers work; black and white together make the harvest (GDD §6)."""
-    kit = entity("kit", 0, 0, {"loadout.Kit": {
+    kit = entity("kit", 0, 0, {"tag.Tag": {"tag": "kit"}, "loadout.Kit": {
         "unlocked": list(unlocked), "offered": list(offered), "together": 0.12}})
     combo = {"name": "harvest_combo", "components": {"loadout.Combo": {
         "a": "black", "b": "white", "result": "harvest"}}}
@@ -425,8 +463,9 @@ def powers():
              -100000, 100000, -100000, 100000, 1, onto="white_caster"),
     ] + walls + [
         gather, shortcut,
+        # The harvest leaves a hole (GDD §7), half as wide as its bubble.
         bind("harvest_digs", "harvest_bubble", "attractor2d.Attractor.heart",
-             "terrain2d.Digger.radius", 0, 1000, 0, 1000, 1, onto="harvest_bubble"),
+             "terrain2d.Digger.radius", 0, 1000, 0, 500, 1, onto="harvest_bubble"),
         bind("harvest_shows", "harvest_bubble", "attractor2d.Attractor.radius",
              "transform2d.Scale.factor", 0, 1000, 0, 1000, 1, onto="harvest_bubble"),
         hole,
@@ -577,7 +616,7 @@ def reserves(matter=100, carbon=100):
     ]
 
 
-def death():
+def death(watch_story=False):
     """Dying (GDD §8, D7): an action of a reserve that runs out sets the dead toggle (the hero
     stops) and starts a fade; at its end, revive puts back what the checkpoint kept and the
     picture comes back."""
@@ -589,7 +628,10 @@ def death():
         rule("dies_white", "out_of_matter", 1),
         rule("dies_black", "out_of_carbon", 1),
         rule("revives", "revive", 0),
-        entity("checkpoint", 0, 0, {"checkpoint.Checkpoint": {"load": "revive"}}),
+        entity("checkpoint", 0, 0, {"checkpoint.Checkpoint": dict(
+            {"load": "revive"},
+            # In the tutorial, each new step is a point to start again from.
+            **({"watch": "phase.Phase.current", "source": "story"} if watch_story else {}))}),
     ]
 
 
@@ -628,6 +670,177 @@ def bind(name, source_tag, source, target, low, high, out_low, out_high, power,
                       "power": power}}}
 
 
+# ---------------------------------------------------------------------------------------------
+# The tutorial (docs/complete_universe/TUTORIEL.md): one planet in the great barrier, played flat.
+
+TUTORIAL_W = 5600  # the planet's ground runs from x 0 to here
+TUTORIAL_TOP = -1000  # the ground's grid starts this high (walls at both ends go up to it)
+LANDING_X = 600
+WALK_TO = 1600  # step 6 ends here
+GAP = (1800, 1900)  # step 7: a pit to jump over...
+LEDGE = (2100, 2600, 110)  # ...then a ledge this high
+BASIN = (2700, 4000, 80)  # steps 8 and 9: a basin with fossils, then rocks
+
+STEPS = ["landing", "hands", "black", "white", "together", "inventory", "harvest", "walk", "jump",
+         "lack_white", "lack_black", "departure", "end"]
+
+# The texts of the controls (GDD §12: text is only for the controls), shown during each step.
+TEXTS = {
+    "hands": "Maj + clic gauche ou droit : mettre une couleur dans une main",
+    "black": "Main noire, clic maintenu : un trou noir là où tu vises",
+    "white": "Main blanche : clic, une bulle. Clic glissé, une barrière",
+    "together": "Les deux clics ensemble : récolter",
+    "inventory": "Tab : l'inventaire",
+    "harvest": "F maintenu : récolter là où tu vises",
+    "walk": "Q / D ou flèches : marcher",
+    "jump": "Espace maintenu, puis relâché : sauter",
+    "lack_white": "F : récolter du carbone",
+    "lack_black": "F : récolter de la matière",
+    "departure": "Main noire vers le ciel, clic maintenu",
+}
+
+
+def step_text(step):
+    return entity(f"text_{step}", VIEW_W / 2, VIEW_H - 56, {
+        "text2d.Text": {"string": f"tutorial.{step}", "font": "font", "size": 28,
+                        "pivot_x": 0.5, "pivot_y": 0.5, "screen": True, "alpha": 225},
+        "phase.ShowIn": {"phases": [step]},
+        "transform2d.Hidden": {},
+    })
+
+
+def watch(name, step, source, field, action, low=None, high=None, inside=False):
+    """Raises action when the number field of the tagged entity comes into [low, high], only
+    during step (it is not watched in the other steps)."""
+    rule = {"source": source, "own": False, "field": field, "action": action}
+    if low is not None:
+        rule["min"] = low
+    if high is not None:
+        rule["max"] = high
+    if inside:
+        # Already in the range when the step starts: it must leave it and come back.
+        rule["inside"] = True
+    return {"name": name, "components": {"rules.Watch": rule,
+                                         "phase.ActiveIn": {"phases": [step]},
+                                         "transform2d.Disabled": {}}}
+
+
+def on(name, action, source, field, value):
+    return {"name": name, "components": {"rules.OnAction": {
+        "action": action, "source": source, "field": field, "value": value}}}
+
+
+def story():
+    """The steps of the tutorial (module phase) and what ends each one (rules.Watch)."""
+    made = [entity("story", 0, 0, {"tag.Tag": {"tag": "story"},
+                                   "phase.Phase": {"current": "landing"}})]
+    ends = [
+        ("landing", "landed"), ("hands", "hands_ready"), ("black", "black_done"),
+        ("white", "white_done"), ("together", "together_done"),
+        ("inventory", "inventory_done"), ("harvest", "harvest_done"), ("walk", "walk_done"),
+        ("jump", "jump_done"), ("lack_white", "white_ok"), ("lack_black", "black_ok"),
+        ("departure", "departed"),
+    ]
+    for index, (step, action) in enumerate(ends):
+        made.append({"name": f"after_{step}", "components": {"phase.Transition": {
+            "action": action, "from": [step], "from_any": False, "to": STEPS[index + 1]}}})
+    # 1. The landing (the opening comes later, U11): a moment, then the hands.
+    made.append(entity("landing_timer", 0, 0, {"tween2d.Tween": {
+        "field": "transform2d.Position.x", "from": 0, "to": 1, "ticks": 90,
+        "use_action": True, "action": "landed"}}))
+    made += [
+        # 2. Black and white in the hands (bits 0 and 1 of the held powers: 3).
+        watch("hands_watch", "hands", "kit", "loadout.Kit.held", "hands_ready", 3, 3),
+        # 3. The black swallows a rock; the white raises a barrier; both harvest.
+        watch("black_watch", "black", "black_hole", "attractor2d.Attractor.swallowed",
+              "black_done", 1),
+        watch("white_watch", "white", "white_caster", "barrier2d.Caster.raised", "white_done",
+              1),
+        watch("together_watch", "together", "harvest_bubble", "loadout.Ability.uses",
+              "together_done", 1),
+        # 4. The inventory opened.
+        watch("inventory_watch", "inventory", "inventory", "toggle.Toggle.times",
+              "inventory_done", 1),
+        # 5. The fossil harvested: its carbon came in.
+        watch("harvest_watch", "harvest", "carbon", "reserve.Reserve.gained", "harvest_done",
+              15),
+        on("learns_walking", "harvest_done", "hero", "action_control.Controlled.action_x", 0),
+        # 6. Walking to the end of the path; 7. jumping the pit and onto the ledge.
+        watch("walk_watch", "walk", "hero", "transform2d.Position.x", "walk_done", WALK_TO),
+        on("learns_jumping", "walk_done", "hero", "jump.Jumper.action", 1),
+        watch("jump_watch", "jump", "hero", "transform2d.Position.x", "jump_done",
+              LEDGE[0] + 60),
+        # 8. The white runs low and fast: harvest carbon back above half.
+        on("white_falls", "jump_done", "carbon", "reserve.Reserve.amount", 25),
+        on("white_drains", "jump_done", "carbon", "reserve.Reserve.drain", 1.2),
+        watch("white_watch_back", "lack_white", "carbon", "reserve.Reserve.amount", "white_ok",
+              50, inside=True),
+        on("white_steadies", "white_ok", "carbon", "reserve.Reserve.drain", LIFE_DRAIN),
+        # 9. Then the black.
+        on("black_falls", "white_ok", "matter", "reserve.Reserve.amount", 25),
+        on("black_drains", "white_ok", "matter", "reserve.Reserve.drain", 1.2),
+        watch("black_watch_back", "lack_black", "matter", "reserve.Reserve.amount", "black_ok",
+              50, inside=True),
+        on("black_steadies", "black_ok", "matter", "reserve.Reserve.drain", LIFE_DRAIN),
+        # 10. A black hole as big as it gets, towards the sky: the departure (its film: U11).
+        watch("departure_watch", "departure", "black_hole", "attractor2d.Attractor.radius",
+              "departed", 85),
+    ]
+    made += [step_text(step) for step in TEXTS]
+    return made
+
+
+def tutorial():
+    """The planet of the tutorial, from left to right: the landing, the path, the basin, the
+    edge under the top of the dome."""
+    height = 2000
+    ground = terrain_entity("ground", 0, TUTORIAL_TOP, TUTORIAL_W, height, GROUND_Y,
+                            # Craters dug at the landing must not trap a hero who cannot jump yet:
+                            # their rounded sides can be walked up.
+                            {"amplitude": 1.2, "wavelength": 40, "seed": 3, "climb": 20})
+    shapes = [
+        # Walls at both ends, up to the top of the grid: the barrier holds the planet.
+        shape("wall_left", 32, (TUTORIAL_TOP + GROUND_Y) / 2, 64, GROUND_Y - TUTORIAL_TOP, True),
+        shape("wall_right", TUTORIAL_W - 32, (TUTORIAL_TOP + GROUND_Y) / 2, 64,
+              GROUND_Y - TUTORIAL_TOP, True),
+        # The landing is flat.
+        shape("landing_floor", 700, GROUND_Y + 40, 800, 80, True),
+        shape("landing_air", 700, GROUND_Y - 100, 800, 200, False),
+        # The pit, then the ledge.
+        shape("pit", (GAP[0] + GAP[1]) / 2, GROUND_Y + 90, GAP[1] - GAP[0], 180, False),
+        shape("ledge", (LEDGE[0] + LEDGE[1]) / 2, GROUND_Y - LEDGE[2] / 2 - 4,
+              LEDGE[1] - LEDGE[0], LEDGE[2] + 8, True),
+        # The basin.
+        shape("basin", (BASIN[0] + BASIN[1]) / 2, GROUND_Y + BASIN[2] / 2 - 8,
+              BASIN[1] - BASIN[0], BASIN[2] + 16, False),
+    ]
+    basin_floor = GROUND_Y + BASIN[2]
+    things = [
+        rock_entity("rock_b", 480, GROUND_Y - 11),
+        rock_entity("rock_a", 760, GROUND_Y - 11),
+        rock_entity("fossil_landing", 380, GROUND_Y - 11, kind="carbon", amount=15,
+                    atlas="fossil"),
+    ]
+    for index, x in enumerate((2850, 3000, 3150, 3300)):
+        things.append(rock_entity(f"fossil_{index + 1}", x, basin_floor - 11, kind="carbon",
+                                  amount=20, atlas="fossil"))
+    for index, x in enumerate((3500, 3650, 3800, 3950)):
+        things.append(rock_entity(f"rock_{index + 1}", x, basin_floor - 11, amount=20))
+    return ([sky_entity(), ground] + shapes + things +
+            [hero_entity(LANDING_X, GROUND_Y - HERO_H / 2, locked=True),
+             camera(TUTORIAL_W)] + hands() + powers() + inventory() + jump_hole() +
+            death(watch_story=True) + reserves(matter=70, carbon=60) + story())
+
+
+def write_strings():
+    os.makedirs(TEXT, exist_ok=True)
+    entries = {f"tutorial.{step}": text for step, text in TEXTS.items()}
+    with open(os.path.join(TEXT, "fr.json"), "w", encoding="utf-8") as out:
+        json.dump({"schema_version": 1, "locale": "fr", "entries": entries}, out, indent=2,
+                  ensure_ascii=False)
+        out.write("\n")
+
+
 def write_scene(name, entities):
     os.makedirs(SCENES, exist_ok=True)
     with open(os.path.join(SCENES, name + ".json"), "w", encoding="utf-8") as out:
@@ -650,6 +863,9 @@ def main():
     write_prefabs()
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
+    save_font()
+    write_strings()
+    write_scene("tutorial", tutorial())
 
 
 if __name__ == "__main__":

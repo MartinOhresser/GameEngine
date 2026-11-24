@@ -2136,6 +2136,11 @@
                   },
                   "restore": {
                     "type": "number"
+                  },
+                  "held": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false
@@ -2718,6 +2723,9 @@
                     "maximum": 4294967295
                   },
                   "fill": {
+                    "type": "number"
+                  },
+                  "gained": {
                     "type": "number"
                   }
                 },

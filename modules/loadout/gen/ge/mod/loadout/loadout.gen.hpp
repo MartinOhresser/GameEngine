@@ -11,7 +11,7 @@
 
 namespace ge::mod::loadout {
 
-/// The rules of the hands (the oldest Kit is used). unlocked is the set of powers that work; offered, the powers that may be held without working (shown, not yet earned). Holding the action change (none: the action named change) and pressing a hand's trigger gives that hand the next power, in the order of the list; holding change wheel_delay seconds without pressing a trigger opens the wheel: the game runs at wheel_slow of its speed (transform2d speed_scale) while it is open, the direction of the pointer (the actions pointer_x and pointer_y, none: those names) from where it was when it opened chooses a power (the powers are laid around a circle, the first at the top, clockwise; within wheel_dead pixels, none), and a hand's trigger gives it that power. A power given to a hand that the other hand holds is swapped: the other hand gets the first one's. Both triggers pressed within together seconds of each other use the two hands together (see Combo); a hand used alone waits that long first when a Combo could join it to the other hand. The module keeps wheel_open, wheel_choice, wheel_x and wheel_y (where the pointer was when it opened), change_time (how long change has been held; negative once a trigger changed a power during this hold) and restore (the speed to go back to).
+/// The rules of the hands (the oldest Kit is used). unlocked is the set of powers that work; offered, the powers that may be held without working (shown, not yet earned). Holding the action change (none: the action named change) and pressing a hand's trigger gives that hand the next power, in the order of the list; holding change wheel_delay seconds without pressing a trigger opens the wheel: the game runs at wheel_slow of its speed (transform2d speed_scale) while it is open, the direction of the pointer (the actions pointer_x and pointer_y, none: those names) from where it was when it opened chooses a power (the powers are laid around a circle, the first at the top, clockwise; within wheel_dead pixels, none), and a hand's trigger gives it that power. A power given to a hand that the other hand holds is swapped: the other hand gets the first one's. Both triggers pressed within together seconds of each other use the two hands together (see Combo); a hand used alone waits that long first when a Combo could join it to the other hand. The module keeps held (the set of powers in the hands: a rule can watch that two powers are held, whichever hands hold them), wheel_open, wheel_choice, wheel_x and wheel_y (where the pointer was when it opened), change_time (how long change has been held; negative once a trigger changed a power during this hold) and restore (the speed to go back to).
 struct Kit {
     std::uint32_t unlocked = 0U;
     std::uint32_t offered = 0U;
@@ -28,6 +28,7 @@ struct Kit {
     float wheel_y = 0.0F;
     float change_time = 0.0F;
     float restore = 1.0F;
+    std::uint32_t held = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(unlocked);
@@ -45,6 +46,7 @@ struct Kit {
         hasher.add(wheel_y);
         hasher.add(change_time);
         hasher.add(restore);
+        hasher.add(held);
     }
 
     [[nodiscard]] friend bool operator==(const Kit&, const Kit&) = default;

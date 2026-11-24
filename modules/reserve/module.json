@@ -8,7 +8,7 @@
   "components": [
     {
       "name": "Reserve",
-      "description": "The stock of one kind of resource (an item of the game's resource list; the oldest Reserve of a kind is the one used): amount, at most max. It loses drain every second by itself (a body that needs it to live, a fire that burns its wood) and never goes below floor through a drain or a cost (a place where the stock is spared: costs that would go below it are refused). When amount reaches 0, the action empty_action (none by default) is pressed once. The module keeps fill, amount divided by max (0 to 1), for a gauge, a picture or a rule. A transform2d.Disabled Reserve does not drain by itself.",
+      "description": "The stock of one kind of resource (an item of the game's resource list; the oldest Reserve of a kind is the one used): amount, at most max. It loses drain every second by itself (a body that needs it to live, a fire that burns its wood) and never goes below floor through a drain or a cost (a place where the stock is spared: costs that would go below it are refused). When amount reaches 0, the action empty_action (none by default) is pressed once. The module keeps gained (everything it was given, through a Gain or another module: what was gathered, for a rule) and fill, amount divided by max (0 to 1), for a gauge, a picture or a rule. A transform2d.Disabled Reserve does not drain by itself.",
       "replicable": true,
       "fields": [
         { "name": "kind", "type": "u32", "default": 0, "ref": "resource" },
@@ -17,7 +17,8 @@
         { "name": "drain", "type": "f32", "default": 0 },
         { "name": "floor", "type": "f32", "default": 0 },
         { "name": "empty_action", "type": "u32", "default": 4294967295, "ref": "action" },
-        { "name": "fill", "type": "f32", "default": 1 }
+        { "name": "fill", "type": "f32", "default": 1 },
+        { "name": "gained", "type": "f32", "default": 0 }
       ]
     },
     {

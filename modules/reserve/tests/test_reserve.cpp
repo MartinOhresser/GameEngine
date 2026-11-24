@@ -90,6 +90,7 @@ TEST_CASE("reserve: spending respects the floor, giving the max") {
     CHECK(reserve::spend(app.world(), water, 40.0F));
     CHECK(near(reserve::drain(app.world(), water, 5.0F), 0.0F)); // already at its floor
     CHECK(near(reserve::give(app.world(), water, 500.0F), 90.0F)); // up to its max
+    CHECK(near(reserve::stock_of(app.world(), water)->gained, 500.0F)); // all it was given
     CHECK(reserve::spend(app.world(), stone, 1000.0F)); // a kind nobody keeps costs nothing
     CHECK(reserve::give(app.world(), stone, 5.0F) == 0.0F);
 }

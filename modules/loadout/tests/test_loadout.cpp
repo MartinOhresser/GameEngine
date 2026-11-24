@@ -105,6 +105,7 @@ TEST_CASE("loadout: change and a trigger give the next power, swapping with the 
     table.tap("right"); // wind, then round to fire again: swapped with the left hand
     CHECK(table.hand_of(table.right).item == fire);
     CHECK(table.hand_of(table.left).item == wind);
+    CHECK(table.rules().held == 0b101U); // fire and wind in the hands
     CHECK(!table.rules().wheel_open); // a trigger was used: no wheel during this hold
     table.set("change", 0.0F);
     table.run(30);
