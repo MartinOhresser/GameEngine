@@ -33,7 +33,7 @@ Ce que le projet n'est pas : un éditeur visuel, ni un concurrent d'Unity/Godot.
 | `docs/` | Docs en français ; `docs/adr/` : décisions (0001 à 0015) ; `docs/MODULES.md` (dont « Recettes »), `AUTHORING.md`, `TESTING.md`, `UI.md`, `RENDERING.md`, `EXPORT*.md`, `GAMES.md` (besoin → jeu de référence), jeux (`GAME_*.md`) |
 | `.claude/skills/` | Skills du dépôt : `engine-catalog`, `game-from-prompt`, `add-module`, `add-level`, `playtest-headless` (cohérence vérifiée par `scripts/check_skills.py`) |
 
-Jeux existants : `lueur` (le plateformer de l'ADR 0015, en cours), `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
+Jeux existants : `complete_universe` (le grand jeu, sur la branche `complete-universe`, à venir), `lueur` (le plateformer de l'ADR 0015), `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
 
 Modules (42) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `combat2d`, `health`, `bounds2d`, `gravity2d`, `bounce2d`, `action_control`, `touch_controls`, `gesture`, `screen_wrap`, `spawner2d`, `lifetime`, `patrol2d`, `pickup`, `progress`, `phase`, `scene_switch`, `tween2d`, `debug_draw`, `host`, `records`, `ui`, `inventory`, `grid2d`, `grid_moves`, `turns`, `slide_merge`, `rules`, `path2d`, `autofire`, `waves`, `economy`, `tag`, `jump`, `light2d`, `particles2d`, `postfx`, `follow2d`.
 
@@ -109,6 +109,21 @@ Ancien environnement (sandbox cloud du projet Claude, avant le 20 novembre 2026)
    - **un seul renderer, l'existant amélioré** (pas un second).
 
    Plan : **ADR 0015** (étapes B1 à B9).
+10. **24 novembre 2026, « Complete Universe »** : un jeu complet de 5 à 10 heures, décrit par le GDD et les fiches fragments de Martin (`docs/complete_universe/`). Tout se fait sur la **branche longue `complete-universe`**, avec le **minimum de CI et de contrôles** : voir la section suivante. Roadmap globale, roadmap du tutoriel, décisions de Martin et propositions par défaut : `docs/complete_universe/ROADMAP.md`, `TUTORIEL.md`, `DECISIONS.md`. Pour une question de design (le jeu), demander à Martin ; pour la technique, décider seul et noter le choix dans `DECISIONS.md`.
+
+### Travailler sur `complete-universe`
+
+Ces règles remplacent celles du §4 pour cette branche :
+
+- Chaque étape est une PR vers `complete-universe`, pas vers `dev`. Martin la fusionne.
+- La CI ne tourne pas sur ces PR (exclues de `ci.yml`).
+- Avant de pousser :
+  - `gectl generate` et `gectl schema` si un `module.json` change ;
+  - la compilation Windows ;
+  - les tests du module touché ;
+  - `gerun games/complete_universe/game.json --test`.
+- Pas de `check.sh`, ni de clang-tidy, de clang-format, de WSL ou d'export entre deux jalons.
+- **Aux jalons J1 à J7 seulement** : la vérification complète (`check.sh` dans WSL, tous les tests, `gectl list`, export Windows), puis une PR `complete-universe` → `dev` avec la CI normale. Le protocole est dans `docs/complete_universe/ROADMAP.md`.
 
 ## 7. État de l'audit des modules (21 novembre 2026)
 
