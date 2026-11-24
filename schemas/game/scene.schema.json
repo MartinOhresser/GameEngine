@@ -56,6 +56,48 @@
                 },
                 "additionalProperties": false
               },
+              "aim2d.Aim": {
+                "type": "object",
+                "properties": {
+                  "pointer_x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pointer_y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "range": {
+                    "type": "number"
+                  },
+                  "lock": {
+                    "type": "boolean"
+                  },
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "distance": {
+                    "type": "number"
+                  },
+                  "dir_x": {
+                    "type": "number"
+                  },
+                  "dir_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "autofire.AutoFire": {
                 "type": "object",
                 "properties": {
@@ -1757,6 +1799,164 @@
                     "type": "number"
                   },
                   "offset_y": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "loadout.Kit": {
+                "type": "object",
+                "properties": {
+                  "unlocked": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "offered": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "change": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pointer_x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pointer_y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "wheel_delay": {
+                    "type": "number"
+                  },
+                  "wheel_slow": {
+                    "type": "number"
+                  },
+                  "wheel_dead": {
+                    "type": "number"
+                  },
+                  "together": {
+                    "type": "number"
+                  },
+                  "wheel_open": {
+                    "type": "boolean"
+                  },
+                  "wheel_choice": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "wheel_x": {
+                    "type": "number"
+                  },
+                  "wheel_y": {
+                    "type": "number"
+                  },
+                  "change_time": {
+                    "type": "number"
+                  },
+                  "restore": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "loadout.Hand": {
+                "type": "object",
+                "properties": {
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "item": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "trigger": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "acting": {
+                    "type": "boolean"
+                  },
+                  "joined": {
+                    "type": "boolean"
+                  },
+                  "since": {
+                    "type": "number"
+                  },
+                  "waiting": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "loadout.Combo": {
+                "type": "object",
+                "properties": {
+                  "a": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "b": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "result": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "loadout.Ability": {
+                "type": "object",
+                "properties": {
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "per_use": {
+                    "type": "number"
+                  },
+                  "per_second": {
+                    "type": "number"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "uses": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "refused": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "stopped": {
+                    "type": "boolean"
+                  },
+                  "time": {
                     "type": "number"
                   }
                 },

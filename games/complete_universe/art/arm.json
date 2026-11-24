@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "arm",
+  "image": "arm.png",
+  "cell_width": 48,
+  "cell_height": 48,
+  "filter": "linear"
+}

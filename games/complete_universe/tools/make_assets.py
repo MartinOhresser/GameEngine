@@ -92,11 +92,34 @@ def hero():
     oval(draw, cx + 4, feet - 10, 6, 11, WHITE)  # near leg
     oval(draw, cx - 4, feet - 44, 10, 22, BLACK)  # chest: the far half
     oval(draw, cx + 2, feet - 44, 11, 22, WHITE)  # chest: the near half
-    oval(draw, cx - 10, feet - 44, 5, 16, GREY, angle=12)  # far arm
-    oval(draw, cx + 12, feet - 44, 5, 16, GREY, angle=-12)  # near arm
     oval(draw, cx + 2, feet - 76, 10, 11, WHITE)  # head
     oval(draw, cx - 3, feet - 76, 6, 10, BLACK)
     return reduce(picture, CELL, CELL)
+
+
+# The powers (GDD §6), in the order of the game's power list; the last ones are what two hands make
+# together. A hand's arm takes the colour of its power (GDD §3).
+POWERS = ["black", "white", "blue", "green", "red", "yellow", "orange", "violet", "pink",
+          "harvest"]
+ARM_COLOURS = {"black": (14, 14, 16), "white": (240, 240, 236), "blue": (70, 130, 230),
+               "green": (80, 190, 110), "red": (220, 60, 50), "yellow": (240, 210, 80),
+               "orange": (240, 140, 50), "violet": (150, 90, 210), "pink": (240, 130, 190)}
+ARM = 48  # one picture of an arm
+
+
+def arms():
+    """One arm for each power that a hand can hold, then the empty arm (grey): the cells of the
+    arm atlas, chosen by the power of the hand."""
+    frames = []
+    for colour in list(ARM_COLOURS.values()) + [GREY]:
+        picture, draw = canvas(ARM, ARM)
+        oval(draw, ARM / 2, ARM / 2, 5, 15, colour + (255,), angle=-8)
+        # A thin rim, so that a black arm shows against the dark and a white one in the light.
+        frames.append(reduce(picture, ARM, ARM))
+    sheet = Image.new("RGBA", (ARM * len(frames), ARM), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        sheet.paste(frame, (index * ARM, 0))
+    return sheet
 
 
 def sky():
@@ -142,6 +165,29 @@ def hero_entity(x, y):
 # What the lens adds at rest: a dark vignette, as in Limbo, a little glow and grain.
 BASE_VIGNETTE = 0.45
 BASE_VIGNETTE_SIZE = 0.45
+
+
+def hands(unlocked=("black", "white"), offered=()):
+    """The two hands (module loadout): the left one answers to the left button, the right one to
+    the right button. Each is an arm beside the hero, coloured by its power (empty: grey). The
+    kit says which powers work; black and white together make the harvest (GDD §6)."""
+    kit = entity("kit", 0, 0, {"loadout.Kit": {
+        "unlocked": list(unlocked), "offered": list(offered), "together": 0.12}})
+    combo = {"name": "harvest_combo", "components": {"loadout.Combo": {
+        "a": "black", "b": "white", "result": "harvest"}}}
+    made = [kit, combo]
+    for name, slot, side in (("hand_left", 0, -1), ("hand_right", 1, 1)):
+        made.append(entity(name, 0, 0, {
+            "loadout.Hand": {"slot": slot, "trigger": name},
+            "sprite2d.Sprite": {"atlas": "arm", "width": ARM, "height": ARM,
+                                "layer": LAYERS["hero"] + side},
+            "sprite2d.FrameBind": {"field": "loadout.Hand.item",
+                                   "frame_count": len(ARM_COLOURS) + 1},
+            # The left arm is the far one when he faces right, the near one when he faces left.
+            "follow2d.Follow": {"target": "hero", "offset_x": side * 9, "offset_y": -6,
+                                "stiffness": 1, "turn": True},
+        }))
+    return made
 
 
 def camera(bound_right):
@@ -198,7 +244,7 @@ def sandbox():
             shape("pit", 232, GROUND_Y + 80, 64, 160, False),
             shape("step", 800, GROUND_Y - 4, 200, 8, True),
             shape("wall", 1250, GROUND_Y - 60, 32, 120, True),
-            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + reserves()
+            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + reserves()
 
 
 def sandbox_low():
@@ -250,6 +296,7 @@ def write_scene(name, entities):
 def main():
     save(hero(), "hero")
     save(sky(), "sky")
+    save(arms(), "arm", cell=(ARM, ARM))
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
 

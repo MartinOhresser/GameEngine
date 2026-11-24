@@ -177,6 +177,93 @@
       }
     },
     {
+      "name": "kit",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "loadout.Kit": {
+          "unlocked": [
+            "black",
+            "white"
+          ],
+          "offered": [],
+          "together": 0.12
+        }
+      }
+    },
+    {
+      "name": "harvest_combo",
+      "components": {
+        "loadout.Combo": {
+          "a": "black",
+          "b": "white",
+          "result": "harvest"
+        }
+      }
+    },
+    {
+      "name": "hand_left",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "loadout.Hand": {
+          "slot": 0,
+          "trigger": "hand_left"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "arm",
+          "width": 48,
+          "height": 48,
+          "layer": 9
+        },
+        "sprite2d.FrameBind": {
+          "field": "loadout.Hand.item",
+          "frame_count": 10
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": -9,
+          "offset_y": -6,
+          "stiffness": 1,
+          "turn": true
+        }
+      }
+    },
+    {
+      "name": "hand_right",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "loadout.Hand": {
+          "slot": 1,
+          "trigger": "hand_right"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "arm",
+          "width": 48,
+          "height": 48,
+          "layer": 11
+        },
+        "sprite2d.FrameBind": {
+          "field": "loadout.Hand.item",
+          "frame_count": 10
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": 9,
+          "offset_y": -6,
+          "stiffness": 1,
+          "turn": true
+        }
+      }
+    },
+    {
       "name": "matter",
       "components": {
         "transform2d.Position": {

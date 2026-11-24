@@ -1,0 +1,82 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "loadout",
+  "version": "0.1.0",
+  "description": "What a character holds and uses: hands (or slots, weapons, spells) that each hold one item of the game's power list, changed one after the other or chosen on a wheel, used with a button each, alone or together for a combined effect, at a cost in reserves. The effects themselves are entities of their own (a fire, a shield, a hook) that this module switches on and off with transform2d.Disabled, so any module can be an effect.",
+  "depends": ["transform2d", "reserve"],
+  "components": [
+    {
+      "name": "Kit",
+      "description": "The rules of the hands (the oldest Kit is used). unlocked is the set of powers that work; offered, the powers that may be held without working (shown, not yet earned). Holding the action change (none: the action named change) and pressing a hand's trigger gives that hand the next power, in the order of the list; holding change wheel_delay seconds without pressing a trigger opens the wheel: the game runs at wheel_slow of its speed (transform2d speed_scale) while it is open, the direction of the pointer (the actions pointer_x and pointer_y, none: those names) from where it was when it opened chooses a power (the powers are laid around a circle, the first at the top, clockwise; within wheel_dead pixels, none), and a hand's trigger gives it that power. A power given to a hand that the other hand holds is swapped: the other hand gets the first one's. Both triggers pressed within together seconds of each other use the two hands together (see Combo); a hand used alone waits that long first when a Combo could join it to the other hand. The module keeps wheel_open, wheel_choice, wheel_x and wheel_y (where the pointer was when it opened), change_time (how long change has been held; negative once a trigger changed a power during this hold) and restore (the speed to go back to).",
+      "replicable": true,
+      "fields": [
+        { "name": "unlocked", "type": "u32", "default": 0, "ref_set": "power" },
+        { "name": "offered", "type": "u32", "default": 0, "ref_set": "power" },
+        { "name": "change", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pointer_x", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pointer_y", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "wheel_delay", "type": "f32", "default": 0.33 },
+        { "name": "wheel_slow", "type": "f32", "default": 0.2 },
+        { "name": "wheel_dead", "type": "f32", "default": 30 },
+        { "name": "together", "type": "f32", "default": 0.1 },
+        { "name": "wheel_open", "type": "bool", "default": false },
+        { "name": "wheel_choice", "type": "u32", "default": 4294967295, "ref": "power" },
+        { "name": "wheel_x", "type": "f32", "default": 0 },
+        { "name": "wheel_y", "type": "f32", "default": 0 },
+        { "name": "change_time", "type": "f32", "default": 0 },
+        { "name": "restore", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Hand",
+      "description": "A hand (a slot): item is the power it holds (none: empty), used while the action trigger is held. slot orders the hands (the first two are the ones a Combo joins). The module keeps acting (the hand is being used, alone or with the other one), joined (it is used together with the other hand), since (seconds since its trigger was pressed) and waiting (it has been used for something else, a change of power or a joined use that ended: it does nothing until its trigger is let go).",
+      "replicable": true,
+      "fields": [
+        { "name": "slot", "type": "u32", "default": 0 },
+        { "name": "item", "type": "u32", "default": 4294967295, "ref": "power" },
+        { "name": "trigger", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "acting", "type": "bool", "default": false },
+        { "name": "joined", "type": "bool", "default": false },
+        { "name": "since", "type": "f32", "default": 0 },
+        { "name": "waiting", "type": "bool", "default": false }
+      ]
+    },
+    {
+      "name": "Combo",
+      "description": "Two powers used together, a and b (in either hand), make the power result instead: fire and wind make a storm. Both must be unlocked.",
+      "replicable": true,
+      "fields": [
+        { "name": "a", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "b", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "result", "type": "u32", "default": 0, "ref": "power" }
+      ]
+    },
+    {
+      "name": "Ability",
+      "description": "The entity is the effect of power: it works (it has no transform2d.Disabled) while an unlocked hand uses that power alone, or while two hands make it together, and as long as its costs are paid: per_use of the reserve kind (none: free) when it starts, per_second of it while it works. A use that cannot be paid does not start (refused counts them); one that runs out stops; either way it does not try again until its hand is let go (stopped says so). The module keeps active, uses (the uses started) and time (seconds since the current use started: an effect that grows while it is held).",
+      "replicable": true,
+      "fields": [
+        { "name": "power", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "kind", "type": "u32", "default": 4294967295, "ref": "resource" },
+        { "name": "per_use", "type": "f32", "default": 0 },
+        { "name": "per_second", "type": "f32", "default": 0 },
+        { "name": "active", "type": "bool", "default": false },
+        { "name": "uses", "type": "u32", "default": 0 },
+        { "name": "refused", "type": "u32", "default": 0 },
+        { "name": "stopped", "type": "bool", "default": false },
+        { "name": "time", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "select",
+      "description": "Reads the triggers and the change action: changes the powers of the hands, opens and closes the wheel, joins the hands, then switches every Ability on or off and pays for it.",
+      "stage": "FixedUpdate",
+      "reads": ["Kit", "Combo", "reserve.Reserve"],
+      "writes": ["Kit", "Hand", "Ability", "transform2d.Disabled", "reserve.Reserve"],
+      "before": ["transform2d.integrate"]
+    }
+  ]
+}
