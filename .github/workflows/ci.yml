@@ -434,7 +434,7 @@ jobs:
           key: apk-${{ matrix.game }}
       # Gradle and its tools come from Maven Central and Gradle's servers: kept from one run of a
       # pull request to the next, so that they are not asked for again.
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v6
         id: gradle-cache
         with:
           path: |
@@ -495,7 +495,7 @@ jobs:
             { echo "### On the emulator"; cat game-output/summary.md; } >> "$GITHUB_STEP_SUMMARY"
           fi
       # Kept even when the export failed: what was downloaded before the failure is not asked again.
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@v6
         if: always() && steps.gradle-cache.outputs.cache-hit != 'true'
         with:
           path: |
