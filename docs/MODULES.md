@@ -103,6 +103,35 @@ Un module est **un dossier** : CMake trouve tout dossier de `modules/` qui conti
 
 Claude suit la même marche avec le skill `add-module` ; voir [AUTHORING.md](AUTHORING.md).
 
+## Recettes
+
+Ce que les modules du dépôt ont appris, pour ne pas le réinventer.
+
+### Rester générique
+
+- **Un ensemble plutôt que des emplacements figés.** Quand un comportement a plusieurs variantes (plusieurs animations, plusieurs façons de se déplacer), chaque variante est une entité à part qui nomme son ensemble dans une liste du jeu (`"ref": "animation_set"`, `"ref": "mover_kind"`). Ce sont `sprite2d.AnimationClip` et `grid_moves.Pattern`, pas des champs `idle_frame`, `run_frame`, `jump_frame`. Toutes les copies d'un préfab partagent l'ensemble.
+- **Un nombre nommé par le jeu.** Un champ `"ref": "field"` laisse le jeu désigner n'importe quel nombre (`"transform2d.Velocity.x"`, `"collision2d.Blocked.below"`). On le lit par la ressource `app::FieldTable` ; un booléen vaut 0 ou 1. Exemples : `sprite2d.FrameBind`, `sprite2d.AnimationClip`, `tween2d.Tween`, `rules.Watch`. « Aucun champ » s'écrit avec le défaut `4294967295`.
+- **Une autre entité** se désigne par son étiquette (`"ref": "tag"`, `ge/mod/tag/find.hpp`), ou par `transform2d.Owner` pour une entité créée pour une autre.
+- **`Disabled` arrête une entité.** Un module qui fait agir une entité (déplacer, sauter, tirer, compter) ne le fait pas quand elle a `transform2d.Disabled`. C'est ce qui permet à `phase.ActiveIn` de figer un personnage pendant une cinématique ou un menu.
+
+### Entre modules
+
+- **Un en-tête public** (`modules/<nom>/include/ge/mod/<nom>/…`, en-tête seul) offre une aide aux modules qui dépendent de celui-ci, sans appel d'un module à l'autre : `tag/find.hpp` (retrouver une entité), `transform2d/drawn.hpp` (où dessiner entre deux ticks), `sprite2d/layered.hpp` (dessiner sur une couche de sprites).
+- **L'ordre ne se règle qu'avec ses dépendances.** `after` et `before` ne peuvent nommer qu'un système du module ou de ses `depends` : un nom inconnu est une erreur du programme (`schedule().problems()`). Un module qui lit l'état d'un autre sans en dépendre doit donc donner le même résultat quel que soit l'ordre. Il lit un fait stable (`collision2d.Blocked.below` : « posé au sol ») plutôt qu'une valeur qui change au milieu du tick (la vitesse verticale, que la gravité vient de modifier).
+
+### Simulation et dessin
+
+- **La simulation** (`FixedUpdate`) ne lit que `Time`, `Random` et les actions. **Le dessin** (`Update`, `PostUpdate`) peut garder ses propres ressources ; il les exclut de l'empreinte du monde par un `hash` vide (`particles2d`, `transform2d::Trail`). Ainsi la vérification du déterminisme ne dépend pas de ce qui est dessiné.
+- **Le renderer** reçoit des `DrawCommand` ; un module de dessin n'appelle jamais SDL. Lumière, effets d'écran, couches : voir [RENDERING.md](RENDERING.md).
+
+### Ce qui fait échouer la CI (à vérifier en local)
+
+- Portabilité : le code doit compiler avec GCC, Clang, MSVC, AppleClang, le NDK et Emscripten. Pas de `std::to_chars` / `std::from_chars` sur des flottants (absents sur iOS et WebAssembly). Pas d'exceptions, de RTTI ni de tableaux C.
+- Conversions explicites : `-Wdouble-promotion` refuse un `float` passé là où un `double` est attendu sans `static_cast<double>` ; MSVC refuse les conversions qui perdent de la précision.
+- clang-tidy : complexité cognitive ≤ 25 par fonction, et **les `CHECK` d'un test comptent**. Un long test se coupe en plusieurs, ou en petites fonctions d'aide. Pas de `++` dans une expression. `auto` pour une variable initialisée par un `static_cast`.
+- Couverture ≥ 90 % sur `main` : chaque branche d'un système a son test.
+- `TIDY=changed ./scripts/check.sh` lance clang-tidy sur les seuls fichiers que la branche change : quelques minutes au lieu d'une demi-heure.
+
 ## Règles vérifiées en CI
 
 `scripts/check_modules.py` échoue si un module :

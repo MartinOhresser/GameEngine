@@ -45,7 +45,18 @@ Vérifications (comparaisons `== != < <= > >=`) :
 | entité présente / disparue | `hero alive`, `spark gone` |
 | empreinte de l'état | `fingerprint == 5f4962bd950cf9b3` (fragile, à éviter) |
 
-Les entités citées sont **nommées** (`"name"`) dans la scène du scénario. Les nombres sont comparés à 0,01 % près. Un booléen se compare à `true`/`false` avec `==` ou `!=`.
+Les entités citées sont **nommées** (`"name"`) dans la scène du scénario ; après un changement de scène, on les cherche dans la nouvelle (ce qui permet de vérifier qu'une sortie mène au bon niveau). Les nombres sont comparés à 0,01 % près. Un booléen se compare à `true`/`false` avec `==` ou `!=`.
+
+Deux clés facultatives de plus :
+
+- `"screen": { "width": 360, "height": 800 }` joue le scénario sur un écran de téléphone : un jeu dont la fenêtre suit l'écran (`window.adapt`) en prend la forme, et les touchers sont en pixels de cette zone. On vérifie ainsi en local, sans émulateur, qu'un bouton reste dans l'écran et qu'un doigt l'atteint.
+- `"lists"` remplit des listes d'exécution avant le premier tick, comme le ferait un hôte.
+
+Détails : `docs/TESTING.md`.
+
+## Caler un long scénario
+
+Pour un scénario qui traverse un niveau (sauter au bon moment, pousser une caisse jusqu'à un mur), ne devine pas les ticks. Écris d'abord des vérifications volontairement fausses (`hero.transform2d.Position.x > 99999`) aux ticks qui t'intéressent : l'échec affiche la vraie valeur. Place ensuite les entrées d'après ces valeurs, et remplace les sondes par de vraies vérifications. Les scénarios de `games/lueur` (`forest_through`, `hollow_through`) ont été écrits ainsi.
 
 ## Que vérifier
 

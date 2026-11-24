@@ -34,9 +34,21 @@ Un module est un dossier `modules/<nom>/` qui ajoute des **composants** (donnée
 - **Pendant `world.each`**, on ne crée ni ne détruit d'entité ni de composant : passe par `world.resource<ecs::Commands>()` (`despawn`, `insert`, `remove`), appliqué après le système. Pour comparer des entités entre elles, copie d'abord ce qu'il faut dans un `std::vector`, puis boucle.
 - **Entrées** : lis `world.resource<app::Actions>()` (`value`, `down`, `pressed`, `released`), jamais un clavier.
 - **Aucun code de plateforme** (pas de `<windows.h>`, SDL, etc.) et seulement des inclusions du module, de ses dépendances déclarées et de `ge/...`. `scripts/check_modules.py` le vérifie.
-- Types de champs : `i32 u32 i64 u64 f32 f64 bool`. Pas de texte, pas de pointeur, pas de référence à une autre entité pour l'instant.
-- Ordre entre systèmes : `after`/`before` dans `module.json`, avec des noms complets `module.système`.
+- Types de champs : `i32 u32 i64 u64 f32 f64 bool`. Pas de texte ni de pointeur. Une autre entité se désigne par une étiquette (`"ref": "tag"`, `ge/mod/tag/find.hpp`) ou par `transform2d.Owner` ; un nombre choisi par le jeu, par un champ `"ref": "field"` lu dans `app::FieldTable`.
+- Plusieurs variantes d'un comportement (animations, façons de bouger) : une entité par variante, rangée dans un ensemble nommé par une liste du jeu, pas des champs `truc_1`, `truc_2`.
+- Une entité qui a `transform2d.Disabled` ne fait rien : un module qui la fait agir l'ignore (c'est ainsi qu'on fige un personnage pendant une cinématique).
+- Ordre entre systèmes : `after`/`before` dans `module.json`, avec des noms complets `module.système`, **seulement** vers le module lui-même ou ses `depends`. Sans dépendance, le résultat doit être le même quel que soit l'ordre : lis un fait stable (`collision2d.Blocked.below`) plutôt qu'une valeur qui change au milieu du tick.
 - Nommage : modules et systèmes en `snake_case`, composants en `PascalCase`.
+
+## Ce qui casse la CI
+
+La CI compile sur GCC, Clang, MSVC, AppleClang, le NDK Android, Emscripten et iOS ; `check.sh` ajoute clang-tidy et les sanitizers. Les pièges déjà rencontrés (le détail est dans `docs/MODULES.md`, « Recettes ») :
+
+- pas de `std::to_chars` / `std::from_chars` sur des flottants (absents sur iOS et WebAssembly), pas d'exceptions, de RTTI ni de tableaux C ;
+- conversions explicites : un `float` passé où un `double` est attendu demande `static_cast<double>` (clang `-Wdouble-promotion`) ; MSVC refuse les conversions qui perdent de la précision ;
+- complexité cognitive ≤ 25 par fonction, **`CHECK` compris** dans les tests : coupe un long test en plusieurs ;
+- couverture ≥ 90 % sur `main` : un test par branche d'un système, pas seulement le cas heureux ;
+- formate avec `clang-format-18` (une autre version change certaines lignes).
 
 ## Après
 

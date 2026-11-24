@@ -22,7 +22,7 @@ Si `gectl` n'existe pas encore : `cmake --preset dev && cmake --build --preset d
   "modules": [ { "name", "version", "description", "depends": [...],
                  "params":     [ { "name", "type", "default", "min", "max" } ],
                  "components": [ { "name", "description", "replicable",
-                                   "fields": [ { "name", "type", "default" } ] } ],
+                                   "fields": [ { "name", "type", "default", "ref" } ] } ],
                  "systems":    [ { "name", "stage", "reads", "writes", "after", "before" } ] } ] }
 ```
 
@@ -38,9 +38,11 @@ Si `gectl` n'existe pas encore : `cmake --preset dev && cmake --build --preset d
 4. Un réglage de module (`params`) se pose dans `params` du manifeste : `"params": { "transform2d": { "speed_scale": 1.5 } }`, dans les bornes `min`/`max`.
 5. Vérifie les effets croisés : un système qui `writes` un composant que d'autres lisent. `after`/`before` donnent l'ordre voulu entre systèmes.
 
-## Modules disponibles au départ
+## Voir comment les modules se combinent
 
-Lis le catalogue plutôt que cette liste, qui vieillit : `transform2d` (position, vitesse, déplacement), `lifetime` (disparition après N ticks), `screen_wrap` (réapparition de l'autre côté), `action_control` (pilotage par les actions `move_x` et `move_y`), et pour l'affichage `sprite2d`, `text2d`, `camera2d`, pour les niveaux `scene_switch`, pour l'interface `ui` (ancrage, grilles, barres, menus) et `inventory` (conteneurs, cases à règles, objets), `touch_controls` (joystick et boutons à l'écran pour le tactile). Les noms propres au jeu (catégories, conteneurs, menus…) se déclarent dans `lists` de `game.json` : voir `docs/UI.md`.
+Le catalogue dit ce que fait chaque module, pas comment les assembler. Pour cela, `docs/GAMES.md` donne, besoin par besoin, le jeu du dépôt qui le fait déjà et la doc qui l'explique. Par exemple : un plateformer, une cinématique ou un jeu beau (lumière, particules, effets d'écran), c'est `games/lueur` ; un jeu de plateau, `games/chess` ; une interface, `games/treasure_run`. Lis ce jeu avant d'écrire le tien.
+
+Les noms propres au jeu (couches, catégories, ensembles d'animations, phases…) se déclarent dans `lists` de `game.json` : un champ dont le catalogue donne `"ref": "<liste>"` prend un nom de cette liste.
 
 ## Quand rien ne convient
 
