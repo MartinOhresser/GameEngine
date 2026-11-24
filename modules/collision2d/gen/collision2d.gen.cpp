@@ -164,10 +164,76 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"count", "u32", "", false}, {"layers", "u32", "layer", true}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
+void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Blocked component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "below") {
+            component.below = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "above") {
+            component.above = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "left") {
+            component.left = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "right") {
+            component.right = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Blocked* component = world.get<Blocked>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "below") {
+        return ::ge::app::Scalar{static_cast<bool>(component->below)};
+    }
+    if (field == "above") {
+        return ::ge::app::Scalar{static_cast<bool>(component->above)};
+    }
+    if (field == "left") {
+        return ::ge::app::Scalar{static_cast<bool>(component->left)};
+    }
+    if (field == "right") {
+        return ::ge::app::Scalar{static_cast<bool>(component->right)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Blocked* component = world.get<Blocked>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "below") {
+        component->below = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "above") {
+        component->above = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "left") {
+        component->left = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "right") {
+        component->right = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 4> component_3_fields{{{"below", "bool", "", false}, {"above", "bool", "", false}, {"left", "bool", "", false}, {"right", "bool", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Blocked", true, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
 
 constexpr std::array<std::string_view, 1> system_0_reads{"collision2d.Collider"};
-constexpr std::array<std::string_view, 2> system_0_writes{"transform2d.Position", "transform2d.Velocity"};
+constexpr std::array<std::string_view, 3> system_0_writes{"transform2d.Position", "transform2d.Velocity", "collision2d.Blocked"};
 constexpr std::array<std::string_view, 2> system_1_reads{"collision2d.Collider", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_1_writes{"collision2d.Contacts"};
 constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"collision2d.block", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"collision2d.detect", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};

@@ -67,8 +67,13 @@ void push_out(ecs::World& world, Box& body, const Box& wall) {
     const float along_y = std::min(up, down);
     auto* position = world.get<transform2d::Position>(body.entity);
     auto* velocity = world.get<transform2d::Velocity>(body.entity);
+    auto* blocked = world.get<Blocked>(body.entity);
     if (along_x < along_y) {
         const float shift = left < right ? -left : right;
+        if (blocked != nullptr) {
+            // Pushed to the left: the wall is on the right.
+            (shift < 0.0F ? blocked->right : blocked->left) = true;
+        }
         position->x += shift;
         body.min_x += shift;
         body.max_x += shift;
@@ -77,6 +82,10 @@ void push_out(ecs::World& world, Box& body, const Box& wall) {
         }
     } else {
         const float shift = up < down ? -up : down;
+        if (blocked != nullptr) {
+            // Pushed up (y grows downwards): the floor is below.
+            (shift < 0.0F ? blocked->below : blocked->above) = true;
+        }
         position->y += shift;
         body.min_y += shift;
         body.max_y += shift;
@@ -89,6 +98,7 @@ void push_out(ecs::World& world, Box& body, const Box& wall) {
 } // namespace
 
 void block(ecs::World& world) {
+    world.each<Blocked>([](ecs::Entity, Blocked& blocked) { blocked = Blocked{}; });
     std::vector<Box> boxes = boxes_of(world);
     std::vector<Box> walls;
     float widest = 0.0F;

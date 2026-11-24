@@ -46,6 +46,12 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  },
+                  "acceleration": {
+                    "type": "number"
+                  },
+                  "braking": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false
@@ -196,6 +202,30 @@
                   },
                   "only_right": {
                     "type": "boolean"
+                  },
+                  "dead_x": {
+                    "type": "number"
+                  },
+                  "dead_y": {
+                    "type": "number"
+                  },
+                  "look_ahead": {
+                    "type": "number"
+                  },
+                  "bounded": {
+                    "type": "boolean"
+                  },
+                  "bound_left": {
+                    "type": "number"
+                  },
+                  "bound_top": {
+                    "type": "number"
+                  },
+                  "bound_right": {
+                    "type": "number"
+                  },
+                  "bound_bottom": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false
@@ -275,6 +305,24 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "collision2d.Blocked": {
+                "type": "object",
+                "properties": {
+                  "below": {
+                    "type": "boolean"
+                  },
+                  "above": {
+                    "type": "boolean"
+                  },
+                  "left": {
+                    "type": "boolean"
+                  },
+                  "right": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -1484,6 +1532,53 @@
                   },
                   "last_y": {
                     "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "jump.Jumper": {
+                "type": "object",
+                "properties": {
+                  "speed": {
+                    "type": "number"
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "coyote_time": {
+                    "type": "number"
+                  },
+                  "buffer_time": {
+                    "type": "number"
+                  },
+                  "cut": {
+                    "type": "number"
+                  },
+                  "air_jumps": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "jumps": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "since_ground": {
+                    "type": "number"
+                  },
+                  "since_press": {
+                    "type": "number"
+                  },
+                  "air_jumps_used": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "holding": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false

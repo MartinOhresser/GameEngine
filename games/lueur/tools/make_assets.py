@@ -26,6 +26,7 @@ SCENES = os.path.join(GAME, "scenes")
 
 VIEW_W, VIEW_H = 1280, 720  # the window, in world units at zoom 1
 GROUND_Y = 560  # top of the ground the hero walks on
+LEVEL_W = 12 * 512  # the level runs from x 0 to here: the camera never shows past its ends
 SUPER = 2  # shapes are drawn this many times bigger, then reduced: smooth edges
 
 # Dusk: deep blue above, warm haze at the horizon, a cold grey-green fog.
@@ -414,6 +415,12 @@ def hero_pose(legs, arms, bob, lean):
     return Image.alpha_composite(body, light)
 
 
+# The hero's box: its feet are at the bottom of the picture, a little above the bottom of the cell.
+HERO_W, HERO_H = 34, 92
+HERO_FEET = 6  # empty pixels of the cell under the feet (the drawing's margin)
+HERO_PIVOT_Y = round((CELL - HERO_H / 2 - HERO_FEET) / CELL, 4)
+
+
 def hero():
     """Cells 0-7: standing (breathing); 8-19: running; 20: going up; 21: coming down."""
     frames = []
@@ -497,20 +504,49 @@ def scene():
             "atlas": "ray", "width": 180, "height": 900, "pivot_y": 0.0, "red": 255,
             "green": 214, "blue": 150, "alpha": alpha, "additive": True, "layer": LAYERS["rays"],
         }, {"x": 0.6, "y": 0.6}, {"transform2d.Rotation": {"angle": angle}}))
-    # The ground: blocks side by side, on the plane of the action.
-    for index in range(-2, 12):
-        entities.append(entity(f"ground_{index + 2}", index * 512 + 256, GROUND_Y + 128 - 14,
+    # The ground: blocks side by side, on the plane of the action. What stops the hero is one
+    # long solid box under them, and a wall at each end of the level.
+    for index in range(LEVEL_W // 512):
+        entities.append(entity(f"ground_{index}", index * 512 + 256, GROUND_Y + 128 - 14,
                                {"atlas": "ground", "width": 512, "height": 256,
                                 "layer": LAYERS["ground"]}))
-    entities.append(entity("hero", 520, GROUND_Y + 4, {
-        "atlas": "hero", "width": CELL, "height": CELL, "pivot_y": 1.0, "layer": LAYERS["hero"],
-    }, None, {"sprite2d.SpriteAnimation": {"first_frame": 0, "frame_count": 8,
-                                           "ticks_per_frame": 9}}))
-    # The camera drifts to the right, so that the planes slide past at their own speeds.
+    for name, x, y, width, height in [
+            ("floor", LEVEL_W / 2, GROUND_Y + 100, LEVEL_W + 400, 200),
+            ("wall_left", -100, GROUND_Y - 1000, 200, 2400),
+            ("wall_right", LEVEL_W + 100, GROUND_Y - 1000, 200, 2400)]:
+        entities.append({"name": name, "components": {
+            "transform2d.Position": {"x": x, "y": y},
+            "collision2d.Collider": {"width": width, "height": height, "layer": ["ground"],
+                                     "solid": True},
+        }})
+    # The hero: its Position is the middle of its box (HERO_H tall), so the picture hangs from a
+    # pivot that puts its feet on the bottom of the box.
+    entities.append(entity("hero", 520, GROUND_Y - HERO_H / 2, {
+        "atlas": "hero", "width": CELL, "height": CELL, "pivot_y": HERO_PIVOT_Y,
+        "layer": LAYERS["hero"],
+    }, None, {
+        "sprite2d.SpriteAnimation": {"first_frame": 0, "frame_count": 8, "ticks_per_frame": 9},
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
+                                 "mask": ["ground"]},
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
+        "action_control.Controlled": {"speed": 260, "vertical": False, "acceleration": 1800,
+                                      "braking": 2600},
+        "jump.Jumper": {"speed": 720, "coyote_time": 0.1, "buffer_time": 0.12, "cut": 0.45},
+        "camera2d.CameraTarget": {},
+    }))
+    # The camera follows the hero loosely: small steps and hops leave the view still, it looks
+    # ahead of where he runs, and it never shows past the ends of the level or below the ground.
+    resting_y = GROUND_Y - HERO_H / 2
     entities.append({"name": "camera", "components": {
         "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
-        "transform2d.Velocity": {"x": 60, "y": 0},
         "camera2d.Camera": {"zoom": 1},
+        "camera2d.CameraFollow": {
+            "stiffness": 0.08, "offset_y": VIEW_H / 2 - resting_y, "dead_x": 40, "dead_y": 110,
+            "look_ahead": 140, "bounded": True, "bound_left": 0, "bound_right": LEVEL_W,
+            "bound_top": -2000, "bound_bottom": VIEW_H},
     }})
     os.makedirs(SCENES, exist_ok=True)
     with open(os.path.join(SCENES, "forest.json"), "w", encoding="utf-8") as out:

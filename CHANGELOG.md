@@ -6,6 +6,12 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B4 : **le héros de `games/lueur` marche et saute**, et la caméra le suit.
+  - Nouveau module **`jump`** (`jump.Jumper`) : un saut commandé par une action, permis au sol, avec un délai de grâce après le bord (`coyote_time`), un appui mémorisé juste avant l'atterrissage (`buffer_time`), un saut plus bas pour un appui court (`cut`) et des sauts en l'air (`air_jumps`). `jumps` compte les sauts faits.
+  - `collision2d.Blocked` : les côtés (`below`, `above`, `left`, `right`) où un mur solide a arrêté un `Body` pendant le tick. Un jeu sait enfin si son héros est au sol.
+  - `action_control.Controlled` gagne `acceleration` et `braking` : la vitesse rejoint la commande peu à peu (0 garde le comportement d'avant).
+  - `camera2d.CameraFollow` gagne une zone morte (`dead_x`, `dead_y`), l'anticipation dans le sens de la marche (`look_ahead`) et des limites de niveau (`bounded`, `bound_left`, `bound_top`, `bound_right`, `bound_bottom`) : la vue ne dépasse jamais les bords, quelle que soit la taille de la fenêtre.
+  - `lueur` : sol et bords du niveau solides, héros piloté au clavier (flèches ou A/D, saut avec Espace, Haut ou W), trois scénarios (`walks`, `jumps`, `camera_stays_in_level`).
 - ADR 0015, B3 : **`games/lueur`, la forêt**. Premier décor du plateformer aux silhouettes de Limbo et à la lumière d'Ori :
   - un ciel de crépuscule et un soleil bas, avec sa lumière ajoutée devant les plans lointains ;
   - une crête et trois plans de forêt de plus en plus pâles et flous avec la distance ;

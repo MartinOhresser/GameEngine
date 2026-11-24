@@ -86,6 +86,40 @@ TEST_CASE("collision2d: bodies are pushed out of floors, ceilings and right-hand
     CHECK(position_of(other, from_right).x == 115.0F);
 }
 
+TEST_CASE("collision2d: blocked tells on which sides walls stopped a body this tick") {
+    ge::app::App app = game();
+    app.set_tick_rate(1);
+    wall(app, 0.0F, 100.0F, 200.0F, 20.0F);  // a floor: y 90..110
+    wall(app, 100.0F, 50.0F, 20.0F, 100.0F); // a wall on the right: x 90..110
+    const ge::ecs::Entity body = mover(app, 70.0F, 80.0F, 20.0F, 8.0F);
+    CHECK(app.world().insert(body, collision2d::Blocked{}));
+    app.run_frames(1); // into the floor and into the wall
+    const auto* blocked = app.world().get<collision2d::Blocked>(body);
+    REQUIRE(blocked != nullptr);
+    CHECK(blocked->below);
+    CHECK(blocked->right);
+    CHECK(!blocked->above);
+    CHECK(!blocked->left);
+
+    // Thrown up and to the left, away from everything: nothing stops it any more.
+    app.world().get<transform2d::Velocity>(body)->x = -20.0F;
+    app.world().get<transform2d::Velocity>(body)->y = -30.0F;
+    app.run_frames(1);
+    CHECK(!blocked->below);
+    CHECK(!blocked->right);
+}
+
+TEST_CASE("collision2d: blocked above tells a body hit a ceiling") {
+    ge::app::App app = game();
+    app.set_tick_rate(1);
+    wall(app, 0.0F, 0.0F, 200.0F, 20.0F); // a ceiling: y -10..10
+    const ge::ecs::Entity rising = mover(app, 0.0F, 20.0F, 0.0F, -8.0F);
+    CHECK(app.world().insert(rising, collision2d::Blocked{}));
+    app.run_frames(1); // y 12, top edge 7: 3 into the ceiling
+    CHECK(app.world().get<collision2d::Blocked>(rising)->above);
+    CHECK(!app.world().get<collision2d::Blocked>(rising)->below);
+}
+
 TEST_CASE("collision2d: only bodies are stopped, and only by layers in their mask") {
     ge::app::App app = game();
     app.set_tick_rate(1);

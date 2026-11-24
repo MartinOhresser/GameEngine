@@ -1,0 +1,17 @@
+// Walking left from the start, the hero stops against the end of the level; the camera stays put,
+// so the view never shows what lies past the level's edge or under the ground.
+{
+  "schema_version": 1,
+  "name": "camera_stays_in_level",
+  "scene": "forest",
+  "ticks": 180,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": -1 },
+  ],
+  "expect": [
+    { "at": 180, "check": "hero.transform2d.Position.x == 17" },
+    { "at": 180, "check": "hero.collision2d.Blocked.left == true" },
+    { "at": 180, "check": "camera.transform2d.Position.x == 640" },
+    { "at": 180, "check": "camera.transform2d.Position.y == 360" },
+  ],
+}

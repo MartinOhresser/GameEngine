@@ -5,24 +5,12 @@
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <optional>
 
 namespace ge::mod::camera2d {
 
 namespace {
-
-/// The Position of the first entity that has `Marker` (the oldest one).
-template <typename Marker>
-std::optional<transform2d::Position> first_position(ecs::World& world) {
-    std::optional<transform2d::Position> found;
-    world.each<const Marker, const transform2d::Position>(
-        [&found](ecs::Entity, const Marker&, const transform2d::Position& position) {
-            if (!found) {
-                found = position;
-            }
-        });
-    return found;
-}
 
 /// Where an axis goes: `next`, unless the camera may not move that way. `smaller_only` keeps it
 /// from ever growing (it only goes to smaller numbers: up or left), `bigger_only` the contrary.
@@ -36,25 +24,84 @@ float limited(float now, float next, bool smaller_only, bool bigger_only) {
     return next;
 }
 
+/// The CameraTarget seen by a camera: where it is, and how fast it goes along x.
+struct Target {
+    transform2d::Position position;
+    float speed_x = 0.0F;
+};
+
+/// The first CameraTarget (the oldest one), with its Velocity when it has one.
+std::optional<Target> first_target(ecs::World& world) {
+    std::optional<Target> found;
+    world.each<const CameraTarget, const transform2d::Position>(
+        [&](ecs::Entity entity, const CameraTarget&, const transform2d::Position& position) {
+            if (!found) {
+                const auto* velocity = world.get<transform2d::Velocity>(entity);
+                found = Target{position, velocity != nullptr ? velocity->x : 0.0F};
+            }
+        });
+    return found;
+}
+
+/// One step of an axis towards `goal`: nothing while the goal is within `dead` of the camera,
+/// else `stiffness` of the way to the edge of that dead zone.
+float towards(float now, float goal, float dead, float stiffness) {
+    const float gap = goal - now;
+    const float reach = std::max(dead, 0.0F);
+    if (std::abs(gap) <= reach) {
+        return now;
+    }
+    const float aim = gap > 0.0F ? goal - reach : goal + reach;
+    return now + (aim - now) * stiffness;
+}
+
+/// `centre` moved so that a view of half size `half` stays within [low, high]; centred when
+/// the view is bigger than the area.
+float bounded(float centre, float half, float low, float high) {
+    if (high - low <= half * 2.0F) {
+        return (low + high) / 2.0F;
+    }
+    return std::clamp(centre, low + half, high - half);
+}
+
+/// Speeds below this (units per second) are standing still for the look-ahead.
+constexpr float still_speed = 1.0F;
+
 } // namespace
 
 void follow(ecs::World& world) {
-    const std::optional<transform2d::Position> target = first_position<CameraTarget>(world);
+    const std::optional<Target> target = first_target(world);
     if (!target) {
         return;
     }
+    const auto* viewport = world.resource<app::Viewport>();
     world.each<const CameraFollow, transform2d::Position>(
-        [&target](ecs::Entity, const CameraFollow& follow, transform2d::Position& position) {
+        [&](ecs::Entity entity, const CameraFollow& follow, transform2d::Position& position) {
             const float stiffness = std::clamp(follow.stiffness, 0.0F, 1.0F);
             if (follow.follow_x) {
-                const float goal = target->x + follow.offset_x;
-                const float next = position.x + (goal - position.x) * stiffness;
+                float ahead = 0.0F;
+                if (std::abs(target->speed_x) > still_speed) {
+                    ahead = target->speed_x > 0.0F ? follow.look_ahead : -follow.look_ahead;
+                }
+                const float goal = target->position.x + follow.offset_x + ahead;
+                const float next = towards(position.x, goal, follow.dead_x, stiffness);
                 position.x = limited(position.x, next, follow.only_left, follow.only_right);
             }
             if (follow.follow_y) {
-                const float goal = target->y + follow.offset_y;
-                const float next = position.y + (goal - position.y) * stiffness;
+                const float goal = target->position.y + follow.offset_y;
+                const float next = towards(position.y, goal, follow.dead_y, stiffness);
                 position.y = limited(position.y, next, follow.only_up, follow.only_down);
+            }
+            if (follow.bounded) {
+                const auto* camera = world.get<Camera>(entity);
+                const float zoom = camera != nullptr && camera->zoom > 0.0F ? camera->zoom : 1.0F;
+                const float half_width =
+                    viewport != nullptr ? static_cast<float>(viewport->width) / 2.0F / zoom : 0.0F;
+                const float half_height =
+                    viewport != nullptr ? static_cast<float>(viewport->height) / 2.0F / zoom : 0.0F;
+                position.x = bounded(position.x, half_width, follow.bound_left, follow.bound_right);
+                position.y =
+                    bounded(position.y, half_height, follow.bound_top, follow.bound_bottom);
             }
         });
 }

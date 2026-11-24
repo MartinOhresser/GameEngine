@@ -330,7 +330,7 @@
       "name": "ground_0",
       "components": {
         "transform2d.Position": {
-          "x": -768,
+          "x": 256,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -345,7 +345,7 @@
       "name": "ground_1",
       "components": {
         "transform2d.Position": {
-          "x": -256,
+          "x": 768,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -360,7 +360,7 @@
       "name": "ground_2",
       "components": {
         "transform2d.Position": {
-          "x": 256,
+          "x": 1280,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -375,7 +375,7 @@
       "name": "ground_3",
       "components": {
         "transform2d.Position": {
-          "x": 768,
+          "x": 1792,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -390,7 +390,7 @@
       "name": "ground_4",
       "components": {
         "transform2d.Position": {
-          "x": 1280,
+          "x": 2304,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -405,7 +405,7 @@
       "name": "ground_5",
       "components": {
         "transform2d.Position": {
-          "x": 1792,
+          "x": 2816,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -420,7 +420,7 @@
       "name": "ground_6",
       "components": {
         "transform2d.Position": {
-          "x": 2304,
+          "x": 3328,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -435,7 +435,7 @@
       "name": "ground_7",
       "components": {
         "transform2d.Position": {
-          "x": 2816,
+          "x": 3840,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -450,7 +450,7 @@
       "name": "ground_8",
       "components": {
         "transform2d.Position": {
-          "x": 3328,
+          "x": 4352,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -465,7 +465,7 @@
       "name": "ground_9",
       "components": {
         "transform2d.Position": {
-          "x": 3840,
+          "x": 4864,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -480,7 +480,7 @@
       "name": "ground_10",
       "components": {
         "transform2d.Position": {
-          "x": 4352,
+          "x": 5376,
           "y": 674
         },
         "sprite2d.Sprite": {
@@ -495,36 +495,6 @@
       "name": "ground_11",
       "components": {
         "transform2d.Position": {
-          "x": 4864,
-          "y": 674
-        },
-        "sprite2d.Sprite": {
-          "atlas": "ground",
-          "width": 512,
-          "height": 256,
-          "layer": 0
-        }
-      }
-    },
-    {
-      "name": "ground_12",
-      "components": {
-        "transform2d.Position": {
-          "x": 5376,
-          "y": 674
-        },
-        "sprite2d.Sprite": {
-          "atlas": "ground",
-          "width": 512,
-          "height": 256,
-          "layer": 0
-        }
-      }
-    },
-    {
-      "name": "ground_13",
-      "components": {
-        "transform2d.Position": {
           "x": 5888,
           "y": 674
         },
@@ -537,24 +507,105 @@
       }
     },
     {
+      "name": "floor",
+      "components": {
+        "transform2d.Position": {
+          "x": 3072.0,
+          "y": 660
+        },
+        "collision2d.Collider": {
+          "width": 6544,
+          "height": 200,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "wall_left",
+      "components": {
+        "transform2d.Position": {
+          "x": -100,
+          "y": -440
+        },
+        "collision2d.Collider": {
+          "width": 200,
+          "height": 2400,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
+      "name": "wall_right",
+      "components": {
+        "transform2d.Position": {
+          "x": 6244,
+          "y": -440
+        },
+        "collision2d.Collider": {
+          "width": 200,
+          "height": 2400,
+          "layer": [
+            "ground"
+          ],
+          "solid": true
+        }
+      }
+    },
+    {
       "name": "hero",
       "components": {
         "transform2d.Position": {
           "x": 520,
-          "y": 564
+          "y": 514.0
         },
         "sprite2d.Sprite": {
           "atlas": "hero",
           "width": 128,
           "height": 128,
-          "pivot_y": 1.0,
+          "pivot_y": 0.5938,
           "layer": 10
         },
         "sprite2d.SpriteAnimation": {
           "first_frame": 0,
           "frame_count": 8,
           "ticks_per_frame": 9
-        }
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 34,
+          "height": 92,
+          "layer": [
+            "hero"
+          ],
+          "mask": [
+            "ground"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "action_control.Controlled": {
+          "speed": 260,
+          "vertical": false,
+          "acceleration": 1800,
+          "braking": 2600
+        },
+        "jump.Jumper": {
+          "speed": 720,
+          "coyote_time": 0.1,
+          "buffer_time": 0.12,
+          "cut": 0.45
+        },
+        "camera2d.CameraTarget": {}
       }
     },
     {
@@ -564,12 +615,20 @@
           "x": 640.0,
           "y": 360.0
         },
-        "transform2d.Velocity": {
-          "x": 60,
-          "y": 0
-        },
         "camera2d.Camera": {
           "zoom": 1
+        },
+        "camera2d.CameraFollow": {
+          "stiffness": 0.08,
+          "offset_y": -154.0,
+          "dead_x": 40,
+          "dead_y": 110,
+          "look_ahead": 140,
+          "bounded": true,
+          "bound_left": 0,
+          "bound_right": 6144,
+          "bound_top": -2000,
+          "bound_bottom": 720
         }
       }
     }

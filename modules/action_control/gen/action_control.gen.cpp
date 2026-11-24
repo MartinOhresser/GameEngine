@@ -28,6 +28,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.action_x = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "action_y") {
             component.action_y = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "acceleration") {
+            component.acceleration = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "braking") {
+            component.braking = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -53,6 +57,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "action_y") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->action_y)};
+    }
+    if (field == "acceleration") {
+        return ::ge::app::Scalar{static_cast<double>(component->acceleration)};
+    }
+    if (field == "braking") {
+        return ::ge::app::Scalar{static_cast<double>(component->braking)};
     }
     return std::nullopt;
 }
@@ -84,10 +94,18 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->action_y = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "acceleration") {
+        component->acceleration = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "braking") {
+        component->braking = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_0_fields{{{"speed", "f32", "", false}, {"horizontal", "bool", "", false}, {"vertical", "bool", "", false}, {"action_x", "u32", "action", false}, {"action_y", "u32", "action", false}}};
+constexpr std::array<::ge::app::FieldInfo, 7> component_0_fields{{{"speed", "f32", "", false}, {"horizontal", "bool", "", false}, {"vertical", "bool", "", false}, {"action_x", "u32", "action", false}, {"action_y", "u32", "action", false}, {"acceleration", "f32", "", false}, {"braking", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Controlled", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

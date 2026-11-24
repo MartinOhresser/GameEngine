@@ -102,6 +102,22 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.only_left = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "only_right") {
             component.only_right = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "dead_x") {
+            component.dead_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "dead_y") {
+            component.dead_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "look_ahead") {
+            component.look_ahead = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "bounded") {
+            component.bounded = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "bound_left") {
+            component.bound_left = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "bound_top") {
+            component.bound_top = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "bound_right") {
+            component.bound_right = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "bound_bottom") {
+            component.bound_bottom = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -139,6 +155,30 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     }
     if (field == "only_right") {
         return ::ge::app::Scalar{static_cast<bool>(component->only_right)};
+    }
+    if (field == "dead_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->dead_x)};
+    }
+    if (field == "dead_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->dead_y)};
+    }
+    if (field == "look_ahead") {
+        return ::ge::app::Scalar{static_cast<double>(component->look_ahead)};
+    }
+    if (field == "bounded") {
+        return ::ge::app::Scalar{static_cast<bool>(component->bounded)};
+    }
+    if (field == "bound_left") {
+        return ::ge::app::Scalar{static_cast<double>(component->bound_left)};
+    }
+    if (field == "bound_top") {
+        return ::ge::app::Scalar{static_cast<double>(component->bound_top)};
+    }
+    if (field == "bound_right") {
+        return ::ge::app::Scalar{static_cast<double>(component->bound_right)};
+    }
+    if (field == "bound_bottom") {
+        return ::ge::app::Scalar{static_cast<double>(component->bound_bottom)};
     }
     return std::nullopt;
 }
@@ -186,10 +226,42 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->only_right = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "dead_x") {
+        component->dead_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "dead_y") {
+        component->dead_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "look_ahead") {
+        component->look_ahead = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "bounded") {
+        component->bounded = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "bound_left") {
+        component->bound_left = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "bound_top") {
+        component->bound_top = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "bound_right") {
+        component->bound_right = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "bound_bottom") {
+        component->bound_bottom = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}, {"offset_x", "f32", "", false}, {"only_down", "bool", "", false}, {"only_left", "bool", "", false}, {"only_right", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 17> component_2_fields{{{"stiffness", "f32", "", false}, {"follow_x", "bool", "", false}, {"follow_y", "bool", "", false}, {"offset_y", "f32", "", false}, {"only_up", "bool", "", false}, {"offset_x", "f32", "", false}, {"only_down", "bool", "", false}, {"only_left", "bool", "", false}, {"only_right", "bool", "", false}, {"dead_x", "f32", "", false}, {"dead_y", "f32", "", false}, {"look_ahead", "f32", "", false}, {"bounded", "bool", "", false}, {"bound_left", "f32", "", false}, {"bound_top", "f32", "", false}, {"bound_right", "f32", "", false}, {"bound_bottom", "f32", "", false}}};
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -304,7 +376,7 @@ constexpr std::array<::ge::app::FieldInfo, 9> component_3_fields{{{"width", "f32
 
 constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"CameraFit", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
 
-constexpr std::array<std::string_view, 2> system_0_reads{"camera2d.CameraFollow", "camera2d.CameraTarget"};
+constexpr std::array<std::string_view, 4> system_0_reads{"camera2d.CameraFollow", "camera2d.CameraTarget", "camera2d.Camera", "transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
 constexpr std::array<std::string_view, 2> system_1_reads{"camera2d.Camera", "transform2d.Position"};
 constexpr std::array<std::string_view, 0> system_1_writes{};

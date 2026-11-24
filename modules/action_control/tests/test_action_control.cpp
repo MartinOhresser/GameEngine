@@ -68,3 +68,29 @@ TEST_CASE("action_control: an entity that names its actions follows them, the ot
     CHECK(second_velocity.x == -10.0F);
     CHECK(second_velocity.y == 5.0F);
 }
+
+TEST_CASE("action_control: with an acceleration the speed builds up, and braking slows it") {
+    ge::app::App app;
+    transform2d::install(app);
+    action_control::install(app);
+    app.set_tick_rate(10); // a tick lasts 0.1 s
+    action_control::Controlled runner{100.0F};
+    runner.vertical = false;
+    runner.acceleration = 400.0F; // 40 per tick
+    runner.braking = 1000.0F;     // 100 per tick
+    const auto entity = spawn_controlled(app, runner);
+    auto* actions = app.world().resource<ge::app::Actions>();
+    actions->set("move_x", 1.0F);
+    app.run_frames(1);
+    CHECK(velocity_of(app, entity).x == 40.0F);
+    app.run_frames(2);
+    CHECK(velocity_of(app, entity).x == 100.0F); // 80, then the asked speed
+    actions->set("move_x", -1.0F);
+    app.run_frames(1);
+    CHECK(velocity_of(app, entity).x == 0.0F); // turning around brakes
+    app.run_frames(1);
+    CHECK(velocity_of(app, entity).x == -40.0F); // then speeds up the other way
+    actions->set("move_x", 0.0F);
+    app.run_frames(1);
+    CHECK(velocity_of(app, entity).x == 0.0F);
+}

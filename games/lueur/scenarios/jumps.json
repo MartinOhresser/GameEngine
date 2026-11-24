@@ -1,0 +1,27 @@
+// A long press jumps high and lands back on the ground; a tap jumps lower. A press in the air
+// does nothing.
+{
+  "schema_version": 1,
+  "name": "jumps",
+  "scene": "forest",
+  "ticks": 200,
+  "inputs": [
+    { "tick": 10, "action": "jump", "value": 1 },
+    { "tick": 40, "action": "jump", "value": 0 },
+    { "tick": 50, "action": "jump", "value": 1 },
+    { "tick": 51, "action": "jump", "value": 0 },
+    { "tick": 120, "action": "jump", "value": 1 },
+    { "tick": 121, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 11, "check": "hero.jump.Jumper.jumps == 1" },
+    { "at": 34, "check": "hero.transform2d.Position.y < 380" },
+    { "at": 34, "check": "hero.collision2d.Blocked.below == false" },
+    { "at": 55, "check": "hero.jump.Jumper.jumps == 1" },
+    { "at": 100, "check": "hero.transform2d.Position.y == 514" },
+    { "at": 121, "check": "hero.jump.Jumper.jumps == 2" },
+    { "at": 128, "check": "hero.transform2d.Position.y > 460" },
+    { "at": 128, "check": "hero.transform2d.Position.y < 500" },
+    { "at": 200, "check": "hero.collision2d.Blocked.below == true" },
+  ],
+}

@@ -22,7 +22,7 @@
     },
     {
       "name": "CameraFollow",
-      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right.",
+      "description": "Makes the Camera's entity move towards the CameraTarget each tick. stiffness is the share of the distance covered per tick: 1 sticks to the target, 0.1 trails it smoothly, 0 does not follow. follow_x and follow_y turn an axis off (a camera that only scrolls up and down keeps follow_x false). offset_y puts the camera that many units below the target (y grows downwards), so a target that climbs is shown above the middle of the screen. only_up makes the camera never move down (y never grows): a climber that falls back does not drag the view with it. offset_x is the same for x (the camera is that many units to the right of the target), and only_down, only_left and only_right are the three other directions of only_up: a runner whose camera never goes back uses only_right. dead_x and dead_y make a dead zone: while the target stays within that distance of where the camera aims, the camera does not move, and past it the camera only follows the part that goes beyond (small steps and jumps leave the view still). look_ahead aims that far ahead of the target along x, on the side its Velocity goes, so that a moving character sees more of what comes. bounded keeps the view inside the area from (bound_left, bound_top) to (bound_right, bound_bottom): the edges of the level are never passed, whatever the size of the window, and an area smaller than the view is centred.",
       "replicable": false,
       "fields": [
         { "name": "stiffness", "type": "f32", "default": 1 },
@@ -33,7 +33,15 @@
         { "name": "offset_x", "type": "f32", "default": 0 },
         { "name": "only_down", "type": "bool", "default": false },
         { "name": "only_left", "type": "bool", "default": false },
-        { "name": "only_right", "type": "bool", "default": false }
+        { "name": "only_right", "type": "bool", "default": false },
+        { "name": "dead_x", "type": "f32", "default": 0 },
+        { "name": "dead_y", "type": "f32", "default": 0 },
+        { "name": "look_ahead", "type": "f32", "default": 0 },
+        { "name": "bounded", "type": "bool", "default": false },
+        { "name": "bound_left", "type": "f32", "default": 0 },
+        { "name": "bound_top", "type": "f32", "default": 0 },
+        { "name": "bound_right", "type": "f32", "default": 0 },
+        { "name": "bound_bottom", "type": "f32", "default": 0 }
       ]
     },
     {
@@ -56,9 +64,9 @@
   "systems": [
     {
       "name": "follow",
-      "description": "Moves every Camera that has a CameraFollow towards the CameraTarget's Position.",
+      "description": "Moves every Camera that has a CameraFollow towards the CameraTarget's Position (and ahead of its Velocity), then keeps its view within its bounds.",
       "stage": "FixedUpdate",
-      "reads": ["CameraFollow", "CameraTarget"],
+      "reads": ["CameraFollow", "CameraTarget", "Camera", "transform2d.Velocity"],
       "writes": ["transform2d.Position"],
       "after": ["transform2d.integrate"]
     },
