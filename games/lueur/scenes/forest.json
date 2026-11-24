@@ -907,6 +907,18 @@
           "green": 100,
           "blue": 132
         },
+        "postfx.Effects": {
+          "bloom": 0.35,
+          "vignette": 0.65,
+          "vignette_size": 0.4,
+          "grain": 0.12,
+          "tint_red": 255,
+          "tint_green": 246,
+          "tint_blue": 232,
+          "lift_red": 3,
+          "lift_green": 5,
+          "lift_blue": 12
+        },
         "camera2d.CameraFollow": {
           "stiffness": 0.08,
           "offset_y": -154.0,

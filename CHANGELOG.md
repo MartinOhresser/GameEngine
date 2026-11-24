@@ -6,6 +6,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B6 : **les effets d'écran**, sans shader.
+  - Nouveau module **`postfx`** (`Effects`) : halo autour de ce qui est clair (`bloom`), vignettage, grain de pellicule, étalonnage simple (teinte multipliée, ombres relevées vers une couleur), bandes noires de cinéma (`letterbox`).
+  - Renderer : `ScreenEffects` et `Renderer::set_effects`. Avec des effets, le monde est dessiné dans une image à part, les effets la posent sur l'écran, puis l'interface est dessinée par-dessus. Uniquement des modes de mélange de base : marche avec tous les pilotes.
+  - `lueur` : halo, coins assombris, léger grain et ombres bleutées.
 - ADR 0015, B5 (2/2) : **les particules et le tremblement de caméra**.
   - Nouveau module **`particles2d`** (`Emitter`) : débit et éclat, zone, durée de vie, vitesse et direction, gravité, freinage, ondulation, taille, couleur et fondu, disque doux ou image d'atlas, mélange additif, éclairage, couche. Les particules ne sont pas des entités, n'entrent pas dans l'empreinte de la simulation, et sont pourtant les mêmes d'une partie à l'autre.
   - `sprite2d` : `LayeredDraws` (`ge/mod/sprite2d/layered.hpp`) laisse d'autres modules dessiner parmi les sprites, sur une couche.

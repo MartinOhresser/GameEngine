@@ -1933,6 +1933,57 @@
           },
           "additionalProperties": false
         },
+        "postfx.Effects": {
+          "type": "object",
+          "properties": {
+            "bloom": {
+              "type": "number"
+            },
+            "vignette": {
+              "type": "number"
+            },
+            "vignette_size": {
+              "type": "number"
+            },
+            "grain": {
+              "type": "number"
+            },
+            "tint_red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "tint_green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "tint_blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "lift_red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "lift_green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "lift_blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "letterbox": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
         "progress.Progress": {
           "type": "object",
           "properties": {

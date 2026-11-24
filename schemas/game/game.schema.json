@@ -55,6 +55,7 @@
           "patrol2d",
           "phase",
           "pickup",
+          "postfx",
           "progress",
           "records",
           "rules",
@@ -245,6 +246,11 @@
           "additionalProperties": false
         },
         "pickup": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "postfx": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

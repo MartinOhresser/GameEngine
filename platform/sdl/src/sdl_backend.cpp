@@ -94,11 +94,12 @@ public:
                 SDL_DestroyTexture(atlas.texture);
             }
         }
-        for (SDL_Texture* texture : {glow_, light_map_, world_, mask_}) {
+        for (SDL_Texture* texture : {glow_, light_map_, world_, mask_, vignette_, grain_}) {
             if (texture != nullptr) {
                 SDL_DestroyTexture(texture);
             }
         }
+        destroy_effect_targets();
     }
     SdlRenderer(const SdlRenderer&) = delete;
     SdlRenderer& operator=(const SdlRenderer&) = delete;
@@ -121,10 +122,25 @@ public:
 
     void set_camera(const app::CameraView& camera) override { camera_ = camera; }
     void set_lighting(const app::Lighting& lighting) override { lighting_ = lighting; }
+    void set_effects(const app::ScreenEffects& effects) override { effects_ = effects; }
 
     void end_frame() override {
         open_frame(); // a frame with nothing in it is still a frame: the screen is cleared
-        compose();
+        if (effects_.any() && make_effect_targets()) {
+            // The world goes to a picture of its own, the effects lay it on the screen, then the
+            // interface is drawn over them.
+            base_ = scene_;
+            SDL_SetRenderTarget(renderer_, scene_);
+            SDL_SetRenderDrawColor(renderer_, 18, 20, 32, 255);
+            SDL_RenderClear(renderer_);
+            compose(Part::World);
+            base_ = nullptr;
+            SDL_SetRenderTarget(renderer_, nullptr);
+            apply_effects();
+            compose(Part::Screen);
+        } else {
+            compose(Part::All);
+        }
         if (capture_) {
             capture_frame();
         }
@@ -132,6 +148,7 @@ public:
         open_ = false;
         camera_.reset();
         lighting_ = {};
+        effects_ = {};
         pending_.clear();
         ++presented_;
     }
@@ -140,11 +157,15 @@ public:
     [[nodiscard]] std::uint64_t presented() const noexcept { return presented_; }
 
 private:
+    /// Which drawings a pass of `compose` draws: all of them, or the world and the interface
+    /// apart (with screen effects between them).
+    enum class Part : std::uint8_t { All, World, Screen };
+
     /// Draws the frame's commands in their order. With lighting, the light drawings make the
     /// light map first; then each run of lit drawings is drawn darkened by it, between the unlit
     /// ones.
-    void compose() {
-        const bool lighting = lighting_.on && make_targets();
+    void compose(Part part) {
+        const bool lighting = part != Part::Screen && lighting_.on && make_targets();
         if (lighting) {
             draw_light_map();
         }
@@ -154,8 +175,10 @@ private:
         std::size_t index = 0;
         while (index < pending_.size()) {
             const app::DrawCommand& command = pending_[index];
-            if (command.light) {
-                ++index; // in the light map, or nowhere without lighting
+            // Drawn in the other part, or a light: in the light map, or nowhere without lighting.
+            if ((part == Part::World && command.screen) ||
+                (part == Part::Screen && !command.screen) || command.light) {
+                ++index;
             } else if (!lit(command)) {
                 draw_now(command);
                 ++index;
@@ -204,7 +227,7 @@ private:
             draw_now(shadow);
         }
 
-        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_SetRenderTarget(renderer_, base_);
         SDL_RenderTexture(renderer_, mask_, nullptr, nullptr);
         SDL_RenderTexture(renderer_, world_, nullptr, nullptr);
     }
@@ -564,7 +587,246 @@ private:
                 draw_now(light);
             }
         }
+        SDL_SetRenderTarget(renderer_, base_);
+    }
+
+    /// The pictures the screen effects need, the size of the view (the blur ones smaller). False
+    /// if they cannot be made: the frame is then drawn without effects.
+    bool make_effect_targets() {
+        const int width = static_cast<int>(std::lround(half_width_ * 2.0F));
+        const int height = static_cast<int>(std::lround(half_height_ * 2.0F));
+        if (scene_ != nullptr && width == effect_width_ && height == effect_height_) {
+            return true;
+        }
+        destroy_effect_targets();
+        const auto make = [this](int w, int h) {
+            SDL_Texture* texture =
+                SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET,
+                                  std::max(w, 1), std::max(h, 1));
+            if (texture != nullptr) {
+                SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+                SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
+            }
+            return texture;
+        };
+        scene_ = make(width, height);
+        quarter_ = make(width / 4, height / 4);
+        blur_ = make(width / 16, height / 16);
+        bright_ = make(width / 16, height / 16);
+        if (scene_ == nullptr || quarter_ == nullptr || blur_ == nullptr || bright_ == nullptr) {
+            destroy_effect_targets();
+            return false;
+        }
+        effect_width_ = width;
+        effect_height_ = height;
+        return true;
+    }
+
+    void destroy_effect_targets() {
+        for (SDL_Texture** texture : {&scene_, &quarter_, &blur_, &bright_}) {
+            if (*texture != nullptr) {
+                SDL_DestroyTexture(*texture);
+                *texture = nullptr;
+            }
+        }
+        effect_width_ = 0;
+        effect_height_ = 0;
+    }
+
+    /// Lays the picture of the world on the screen, with the effects of the frame. Each uses only
+    /// the plain blend modes, so it works with every renderer, software included.
+    void apply_effects() {
+        SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        if (effects_.bloom > 0.0F) {
+            apply_bloom(std::min(effects_.bloom, 1.0F));
+        }
+        apply_grade();
+        if (effects_.vignette > 0.0F) {
+            apply_vignette();
+        }
+        if (effects_.grain > 0.0F) {
+            apply_grain();
+        }
+        if (effects_.letterbox > 0.0F) {
+            const float view_width = half_width_ * 2.0F;
+            const float bar = std::min(effects_.letterbox, 1.0F) * half_height_;
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_NONE);
+            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+            const std::array<SDL_FRect, 2> bars{
+                {{0.0F, 0.0F, view_width, bar},
+                 {0.0F, (half_height_ * 2.0F) - bar, view_width, bar}}};
+            SDL_RenderFillRects(renderer_, bars.data(), static_cast<int>(bars.size()));
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+        }
+    }
+
+    /// The picture shrunk twice, its bright parts kept by multiplying it by itself (a dark grey
+    /// cubed is nearly black, white stays white), spread out, then enlarged and added over the
+    /// screen: a soft glow around what is bright.
+    void apply_bloom(float strength) {
+        SDL_SetRenderTarget(renderer_, quarter_);
+        SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        SDL_SetRenderTarget(renderer_, blur_);
+        SDL_RenderTexture(renderer_, quarter_, nullptr, nullptr);
+        SDL_SetRenderTarget(renderer_, bright_);
+        SDL_RenderTexture(renderer_, blur_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(blur_, SDL_BLENDMODE_MOD);
+        SDL_RenderTexture(renderer_, blur_, nullptr, nullptr);
+        SDL_RenderTexture(renderer_, blur_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(blur_, SDL_BLENDMODE_NONE);
+        spread(bright_, blur_);
+        spread(blur_, bright_);
         SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
+        SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(std::lround(strength * 255.0F)));
+        SDL_RenderTexture(renderer_, bright_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
+        SDL_SetTextureAlphaMod(bright_, 255U);
+    }
+
+    /// `target` becomes `source` blurred: the average of five copies, one in place and four
+    /// moved by two pixels in each direction (each copy is laid over the average of the
+    /// previous ones with its share of the weight).
+    void spread(SDL_Texture* source, SDL_Texture* target) {
+        constexpr float step = 2.0F;
+        float width = 0.0F;
+        float height = 0.0F;
+        SDL_GetTextureSize(source, &width, &height);
+        SDL_SetRenderTarget(renderer_, target);
+        SDL_RenderTexture(renderer_, source, nullptr, nullptr);
+        SDL_SetTextureBlendMode(source, SDL_BLENDMODE_BLEND);
+        const std::array<std::array<float, 2>, 4> moves{
+            {{-step, 0.0F}, {step, 0.0F}, {0.0F, -step}, {0.0F, step}}};
+        float copies = 1.0F;
+        for (const std::array<float, 2>& move : moves) {
+            copies += 1.0F;
+            SDL_SetTextureAlphaMod(source, static_cast<std::uint8_t>(std::lround(255.0F / copies)));
+            const SDL_FRect moved{move[0], move[1], width, height};
+            SDL_RenderTexture(renderer_, source, nullptr, &moved);
+        }
+        SDL_SetTextureAlphaMod(source, 255U);
+        SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+    }
+
+    /// The tint multiplies the whole picture, the lift is added to it.
+    void apply_grade() {
+        const std::uint32_t tint = effects_.tint;
+        const std::uint32_t lift = effects_.lift;
+        if ((tint | 0xFFU) != 0xFFFFFFFFU) {
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_MOD);
+            SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((tint >> 24U) & 0xFFU),
+                                   static_cast<std::uint8_t>((tint >> 16U) & 0xFFU),
+                                   static_cast<std::uint8_t>((tint >> 8U) & 0xFFU), 255U);
+            SDL_RenderFillRect(renderer_, nullptr);
+        }
+        if ((lift & 0xFFFFFF00U) != 0U) {
+            SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_ADD);
+            SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((lift >> 24U) & 0xFFU),
+                                   static_cast<std::uint8_t>((lift >> 16U) & 0xFFU),
+                                   static_cast<std::uint8_t>((lift >> 8U) & 0xFFU), 255U);
+            SDL_RenderFillRect(renderer_, nullptr);
+        }
+        SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    }
+
+    /// Black, more opaque towards the corners, over the whole screen.
+    void apply_vignette() {
+        if (vignette_ == nullptr || vignette_made_for_ != effects_.vignette_size) {
+            if (vignette_ != nullptr) {
+                SDL_DestroyTexture(vignette_);
+            }
+            vignette_ = make_vignette(effects_.vignette_size);
+            vignette_made_for_ = effects_.vignette_size;
+        }
+        if (vignette_ == nullptr) {
+            return;
+        }
+        SDL_SetTextureAlphaMod(vignette_, static_cast<std::uint8_t>(std::lround(
+                                              std::min(effects_.vignette, 1.0F) * 255.0F)));
+        SDL_RenderTexture(renderer_, vignette_, nullptr, nullptr);
+    }
+
+    SDL_Texture* make_vignette(float size) {
+        constexpr int side = 256;
+        SDL_Surface* surface = SDL_CreateSurface(side, side, SDL_PIXELFORMAT_RGBA32);
+        if (surface == nullptr) {
+            return nullptr;
+        }
+        auto* bytes = static_cast<std::uint8_t*>(surface->pixels);
+        const float start = std::clamp(size, 0.0F, 0.99F);
+        for (int y = 0; y < side; ++y) {
+            std::uint8_t* row = bytes + static_cast<std::ptrdiff_t>(y) * surface->pitch;
+            for (int x = 0; x < side; ++x) {
+                // Distance from the middle, 1 at a corner.
+                const float dx =
+                    ((static_cast<float>(x) + 0.5F) / static_cast<float>(side) - 0.5F) * 2.0F;
+                const float dy =
+                    ((static_cast<float>(y) + 0.5F) / static_cast<float>(side) - 0.5F) * 2.0F;
+                const float distance = std::sqrt((dx * dx + dy * dy) / 2.0F);
+                const float t = std::clamp((distance - start) / (1.0F - start), 0.0F, 1.0F);
+                std::uint8_t* pixel = row + static_cast<std::ptrdiff_t>(x) * 4;
+                pixel[0] = 0U;
+                pixel[1] = 0U;
+                pixel[2] = 0U;
+                pixel[3] =
+                    static_cast<std::uint8_t>(std::lround(t * t * (3.0F - 2.0F * t) * 255.0F));
+            }
+        }
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+        SDL_DestroySurface(surface);
+        if (texture != nullptr) {
+            SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        }
+        return texture;
+    }
+
+    /// A picture of random greys laid over the screen, moved to another place every frame.
+    void apply_grain() {
+        constexpr int side = 256;
+        if (grain_ == nullptr) {
+            SDL_Surface* surface = SDL_CreateSurface(side, side, SDL_PIXELFORMAT_RGBA32);
+            if (surface == nullptr) {
+                return;
+            }
+            auto* bytes = static_cast<std::uint8_t*>(surface->pixels);
+            std::uint32_t state = 0x9E3779B9U;
+            for (int y = 0; y < side; ++y) {
+                std::uint8_t* row = bytes + static_cast<std::ptrdiff_t>(y) * surface->pitch;
+                for (int x = 0; x < side; ++x) {
+                    state ^= state << 13U;
+                    state ^= state >> 17U;
+                    state ^= state << 5U;
+                    const auto grey = static_cast<std::uint8_t>(state >> 24U);
+                    std::uint8_t* pixel = row + static_cast<std::ptrdiff_t>(x) * 4;
+                    pixel[0] = grey;
+                    pixel[1] = grey;
+                    pixel[2] = grey;
+                    pixel[3] = 255U;
+                }
+            }
+            grain_ = SDL_CreateTextureFromSurface(renderer_, surface);
+            SDL_DestroySurface(surface);
+            if (grain_ == nullptr) {
+                return;
+            }
+            SDL_SetTextureScaleMode(grain_, SDL_SCALEMODE_NEAREST);
+            SDL_SetTextureBlendMode(grain_, SDL_BLENDMODE_BLEND);
+        }
+        SDL_SetTextureAlphaMod(
+            grain_, static_cast<std::uint8_t>(std::lround(std::min(effects_.grain, 1.0F) * 64.0F)));
+        // A new place each frame, the same on every run.
+        const auto shift_x = static_cast<int>((presented_ * 97U) % side);
+        const auto shift_y = static_cast<int>((presented_ * 61U) % side);
+        const auto view_width = static_cast<int>(std::lround(half_width_ * 2.0F));
+        const auto view_height = static_cast<int>(std::lround(half_height_ * 2.0F));
+        for (int y = -shift_y; y < view_height; y += side) {
+            for (int x = -shift_x; x < view_width; x += side) {
+                const SDL_FRect target{static_cast<float>(x), static_cast<float>(y),
+                                       static_cast<float>(side), static_cast<float>(side)};
+                SDL_RenderTexture(renderer_, grain_, nullptr, &target);
+            }
+        }
     }
 
     void open_frame() {
@@ -617,6 +879,18 @@ private:
     SDL_Texture* light_map_ = nullptr;
     SDL_Texture* world_ = nullptr;
     SDL_Texture* mask_ = nullptr;
+    app::ScreenEffects effects_;
+    /// Where the world is drawn: the screen, or the picture the effects start from.
+    SDL_Texture* base_ = nullptr;
+    SDL_Texture* scene_ = nullptr;
+    SDL_Texture* quarter_ = nullptr;
+    SDL_Texture* blur_ = nullptr;
+    SDL_Texture* bright_ = nullptr;
+    SDL_Texture* vignette_ = nullptr;
+    SDL_Texture* grain_ = nullptr;
+    float vignette_made_for_ = -1.0F;
+    int effect_width_ = 0;
+    int effect_height_ = 0;
     int target_width_ = 0;
     int target_height_ = 0;
     float half_width_;

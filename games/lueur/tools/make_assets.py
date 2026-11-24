@@ -616,6 +616,11 @@ def scene():
         "camera2d.Camera": {"zoom": 1},
         # The dusk under the trees: what the near planes look like where no light reaches.
         "light2d.Ambient": {"red": 92, "green": 100, "blue": 132},
+        # What the lens adds: a soft glow around the light, darker corners, a little grain, and
+        # shadows lifted towards blue.
+        "postfx.Effects": {"bloom": 0.35, "vignette": 0.65, "vignette_size": 0.4,
+                           "grain": 0.12, "tint_red": 255, "tint_green": 246,
+                           "tint_blue": 232, "lift_red": 3, "lift_green": 5, "lift_blue": 12},
         "camera2d.CameraFollow": {
             "stiffness": 0.08, "offset_y": VIEW_H / 2 - resting_y, "dead_x": 40, "dead_y": 110,
             "look_ahead": 140, "bounded": True, "bound_left": 0, "bound_right": LEVEL_W,

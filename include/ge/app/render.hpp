@@ -86,6 +86,36 @@ struct Lighting {
     friend bool operator==(const Lighting&, const Lighting&) = default;
 };
 
+/// Effects on the whole picture of the world, applied after it is drawn and before the
+/// interface (`screen` drawings), which they never touch. The defaults change nothing.
+struct ScreenEffects {
+    /// Bright parts glow softly over what is around them (0: none, 1: strong).
+    float bloom = 0.0F;
+    /// The edges and corners of the picture darken (0: none, 1: black corners).
+    float vignette = 0.0F;
+    /// How far from the middle the darkening starts, as a share of the half diagonal.
+    float vignette_size = 0.6F;
+    /// A fine moving grain, as on film (0: none, 1: strong).
+    float grain = 0.0F;
+    /// Every colour is multiplied by this one (0xRRGGBBAA; white changes nothing): a cold night,
+    /// a warm evening.
+    std::uint32_t tint = 0xFFFFFFFFU;
+    /// This colour is added everywhere (0xRRGGBBAA; black changes nothing): shadows lifted
+    /// towards a colour.
+    std::uint32_t lift = 0x000000FFU;
+    /// Black bars at the top and bottom, as in a film: the share of the height they cover
+    /// together (0 to 1).
+    float letterbox = 0.0F;
+
+    /// Whether any effect is asked for.
+    [[nodiscard]] bool any() const noexcept {
+        return bloom > 0.0F || vignette > 0.0F || grain > 0.0F || (tint | 0xFFU) != 0xFFFFFFFFU ||
+               (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F;
+    }
+
+    friend bool operator==(const ScreenEffects&, const ScreenEffects&) = default;
+};
+
 /// A picture cut into equal cells, as a renderer was told about it.
 struct AtlasInfo {
     std::string image; ///< Path of the image file.
@@ -137,6 +167,9 @@ public:
 
     /// Sets the light of this frame. A frame with no call has no lighting.
     virtual void set_lighting(const Lighting& /*lighting*/) {}
+
+    /// Sets the screen effects of this frame. A frame with no call has none.
+    virtual void set_effects(const ScreenEffects& /*effects*/) {}
 };
 
 /// Draws nothing. The default: a game with no window still runs.
@@ -161,6 +194,7 @@ public:
     }
     void set_camera(const CameraView& camera) override { camera_ = camera; }
     void set_lighting(const Lighting& lighting) override { lighting_ = lighting; }
+    void set_effects(const ScreenEffects& effects) override { effects_ = effects; }
 
     [[nodiscard]] const std::vector<DrawCommand>& commands() const noexcept { return commands_; }
     [[nodiscard]] std::size_t frames() const noexcept { return frames_; }
@@ -169,6 +203,8 @@ public:
     [[nodiscard]] const std::optional<CameraView>& camera() const noexcept { return camera_; }
     /// The last lighting set, or nothing if none was.
     [[nodiscard]] const std::optional<Lighting>& lighting() const noexcept { return lighting_; }
+    /// The last screen effects set, or nothing if none were.
+    [[nodiscard]] const std::optional<ScreenEffects>& effects() const noexcept { return effects_; }
     void clear() { commands_.clear(); }
 
 private:
@@ -177,6 +213,7 @@ private:
     std::vector<AtlasInfo> atlases_;
     std::optional<CameraView> camera_;
     std::optional<Lighting> lighting_;
+    std::optional<ScreenEffects> effects_;
 };
 
 /// The renderer of an app, stored in the world as a resource. `App` installs a
