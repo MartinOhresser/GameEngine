@@ -359,9 +359,10 @@ private:
         SDL_SetTextureAlphaMod(atlas.texture, static_cast<std::uint8_t>(c & 0xFFU));
         SDL_SetTextureBlendMode(atlas.texture, blend_mode(command.blend));
         const SDL_FlipMode flip = command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        const double angle = static_cast<double>(command.angle);
         if (!command.repeat_x || width < 1.0F) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, command.angle,
-                                     nullptr, flip);
+            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
+                                     flip);
             return;
         }
         // An endless band: copies side by side from the left edge of the view to its right edge.
@@ -371,8 +372,8 @@ private:
             left -= width;
         }
         for (target.x = left; target.x < view_width; target.x += width) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, command.angle,
-                                     nullptr, flip);
+            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
+                                     flip);
         }
     }
 
