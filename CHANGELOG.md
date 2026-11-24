@@ -6,6 +6,12 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B8 (fin) : **l'histoire de `lueur`**.
+  - Une ouverture : bandes noires, héros immobile pendant que l'esprit descend vers lui, puis les bandes s'effacent (`phase`, `tween2d` sur `postfx.Effects.letterbox`).
+  - Une fin : le héros marche seul vers la lumière, l'image s'éteint, le jeu recommence.
+  - Mourir assombrit l'écran avant de recommencer le niveau.
+  - Un clip de marche lente pour le héros. Deux scénarios de plus (onze).
+- `action_control.Controlled` et `jump.Jumper` ignorent une entité `transform2d.Disabled` (un personnage pendant une cinématique) : elle ralentit jusqu'à l'arrêt et ne saute plus.
 - ADR 0015, B8 (première partie) : **les niveaux de `lueur`**.
   - `collision2d.Pushable` : une caisse qu'un corps pousse en marchant contre elle, jusqu'à ce qu'un solide l'arrête, à une vitesse limitée si on le veut ; elle tombe quand on la pousse au-delà d'un bord.
   - `lueur` : deux niveaux, la forêt et le sous-bois. Fosses d'épines, rocher à gravir grâce à la caisse, fosse que la caisse comble, cosses épineuses qui montent et descendent. Une touche d'épines fait recommencer le niveau ; la lumière au bout mène au niveau suivant. Six scénarios dont les deux traversées complètes. `docs/GAME_LUEUR.md`.

@@ -641,7 +641,7 @@ LEVELS = {
     # The hollow, deeper and darker: pods to pass under, then a pit too wide to jump, which the
     # crate fills up to the brim, then a last pit and more pods.
     "hollow": {
-        "next": "forest",
+        "next": "ending",
         "segments": [(0, 1800), (2060, 4000), (4170, LEVEL_W)],
         "pits": [(1800, 2060, CRATE_H), (4000, 4170, 130)],
         "rocks": [],
@@ -649,7 +649,27 @@ LEVELS = {
         "pods": [(800, 0.5), (2900, 0.3), (3250, 0.7)],
         "look": {"ambient": (66, 74, 108), "tint": (232, 240, 255), "sun": 0.55},
     },
+    # The end: the forest opens onto the low sun. Nothing to do; the hero walks on by himself
+    # towards the light, the black bars come in, the picture fades out, and the game starts again.
+    "ending": {
+        "segments": [(0, LEVEL_W)],
+        "pits": [],
+        "rocks": [],
+        "crates": [],
+        "pods": [],
+        "look": {"ambient": (128, 118, 120), "tint": (255, 238, 214), "sun": 1.5},
+        "walker": True,
+    },
 }
+
+# The game starts with the forest and a short opening (the prologue): the black bars are on, the
+# hero cannot move yet, and the spirit comes down to him from the trees; then the bars slide away
+# and the game begins. A death in it starts the forest over, without the opening.
+LEVELS["prologue"] = dict(LEVELS["forest"], opening=True, restart="forest")
+
+# What starts each level over after a death: the black veil spawned by the death (the prefab
+# fade_<level>), which goes dark and then reloads the level.
+FADE_TICKS = 40
 
 ROCKS = {"stone": 21, "ledge": 22}
 
@@ -742,38 +762,14 @@ def scene(name, level):
     entities += obstacles_of(level)
     # The hero: its Position is the middle of its box (HERO_H tall), so the picture hangs from a
     # pivot that puts its feet on the bottom of the box.
-    entities.append(entity("hero", 520, GROUND_Y - HERO_H / 2, {
-        "atlas": "hero", "width": CELL, "height": CELL, "pivot_y": HERO_PIVOT_Y,
-        "layer": LAYERS["hero"],
-    }, None, {
-        # What he does chooses his animation (the clips below), and he looks where he goes.
-        "sprite2d.Animator": {"set": "hero"},
-        "sprite2d.Facing": {},
-        "tag.Tag": {"tag": "hero"},
-        "transform2d.Velocity": {},
-        "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
-                                 "mask": ["ground", "crate", "exit"]},
-        "collision2d.Body": {},
-        "collision2d.Blocked": {},
-        "collision2d.Contacts": {},
-        # One touch of thorns or of a pod is enough: the level starts over (the restart below).
-        "health.Health": {"amount": 1, "max": 1, "on_zero": "died"},
-        # Reaching the exit at the end of the level leads to the next one.
-        "scene_switch.GoToScene": {"scene": level["next"], "touch_layers": ["exit"]},
-        "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
-        "action_control.Controlled": {"speed": 260, "vertical": False, "acceleration": 1800,
-                                      "braking": 2600},
-        "jump.Jumper": {"speed": 720, "coyote_time": 0.1, "buffer_time": 0.12, "cut": 0.45},
-        "camera2d.CameraTarget": {},
-        # A faint warm light of his own, so that he is never lost in the dark.
-        "light2d.Light": {"radius": 190, "red": 255, "green": 212, "blue": 160,
-                          "intensity": 0.45, "offset_y": -20},
-    }))
+    entities.append(hero_entity(level))
     # His animations, the first that holds from the top: going up, falling (no ground under him),
-    # running (either way), standing.
+    # walking (slowly, either way), running, standing.
     for clip, priority, condition, first, count, ticks in [
-            ("rises", 3, {"field": "transform2d.Velocity.y", "max": -60}, 20, 1, 6),
-            ("falls", 2, {"field": "collision2d.Blocked.below", "max": 0.5}, 21, 1, 6),
+            ("rises", 4, {"field": "transform2d.Velocity.y", "max": -60}, 20, 1, 6),
+            ("falls", 3, {"field": "collision2d.Blocked.below", "max": 0.5}, 21, 1, 6),
+            ("walks", 2, {"field": "transform2d.Velocity.x", "min": 30, "max": 150,
+                          "absolute": True}, 8, 12, 7),
             ("runs", 1, {"field": "transform2d.Velocity.x", "min": 30, "absolute": True}, 8, 12,
              4),
             ("stands", 0, {}, 0, 8, 9)]:
@@ -783,7 +779,9 @@ def scene(name, level):
     # The spirit: the glimmer the game is named after. A small being of light that floats after
     # the hero, behind him, and lights the forest around them with a cool, wavering light (it
     # stands out against the warm sun).
-    entities.append(entity("spirit", 470, GROUND_Y - 150, {
+    # In the opening it starts high in the trees ahead, and comes down to him.
+    spirit_at = (1150, 120) if level.get("opening") else (470, GROUND_Y - 150)
+    entities.append(entity("spirit", *spirit_at, {
         "atlas": "spirit", "width": 88, "height": 88,
         "unlit": True, "layer": LAYERS["hero"] + 1,
     }, None, {
@@ -825,31 +823,145 @@ def scene(name, level):
         }})
     # The camera follows the hero loosely: small steps and hops leave the view still, it looks
     # ahead of where he runs, and it never shows past the ends of the level or below the ground.
+    entities.append(camera(name, level))
+    entities += story(level)
+    os.makedirs(SCENES, exist_ok=True)
+    with open(os.path.join(SCENES, name + ".json"), "w", encoding="utf-8") as out:
+        out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")
+        json.dump({"schema_version": 1, "name": name, "entities": entities}, out, indent=2)
+        out.write("\n")
+
+
+def hero_entity(level):
+    """The hero: its Position is the middle of its box (HERO_H tall), so the picture hangs from a
+    pivot that puts its feet on the bottom of the box. In the ending nobody steers him: he walks
+    on by himself."""
+    components = {
+        # What he does chooses his animation (the clips), and he looks where he goes.
+        "sprite2d.Animator": {"set": "hero"},
+        "sprite2d.Facing": {},
+        "tag.Tag": {"tag": "hero"},
+        "transform2d.Velocity": {"x": 80} if level.get("walker") else {},
+        "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
+                                 "mask": ["ground", "crate", "exit"]},
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
+        "camera2d.CameraTarget": {},
+        # A faint warm light of his own, so that he is never lost in the dark.
+        "light2d.Light": {"radius": 190, "red": 255, "green": 212, "blue": 160,
+                          "intensity": 0.45, "offset_y": -20},
+    }
+    if not level.get("walker"):
+        components.update({
+            "collision2d.Contacts": {},
+            # One touch of thorns or of a pod is enough: the level starts over (see story).
+            "health.Health": {"amount": 1, "max": 1, "on_zero": "died", "despawn_on_zero": False},
+            # Reaching the exit at the end of the level leads to the next one.
+            "scene_switch.GoToScene": {"scene": level["next"], "touch_layers": ["exit"]},
+            "action_control.Controlled": {"speed": 260, "vertical": False,
+                                          "acceleration": 1800, "braking": 2600},
+            "jump.Jumper": {"speed": 720, "coyote_time": 0.1, "buffer_time": 0.12,
+                            "cut": 0.45},
+        })
+    if level.get("opening"):
+        components["phase.ActiveIn"] = {"phases": ["play"]}  # still during the opening
+    return entity("hero", 520, GROUND_Y - HERO_H / 2, {
+        "atlas": "hero", "width": CELL, "height": CELL, "pivot_y": HERO_PIVOT_Y,
+        "layer": LAYERS["hero"]}, None, components)
+
+
+LETTERBOX = 0.13  # the share of the height under each black bar, in the opening and the ending
+
+
+def camera(name, level):
+    """The camera follows the hero loosely: small steps and hops leave the view still, it looks
+    ahead of where he runs, and it never shows past the ends of the level or below the ground."""
+    look = level["look"]
     resting_y = GROUND_Y - HERO_H / 2
-    entities.append({"name": "camera", "components": {
+    effects = {"bloom": 0.35, "vignette": 0.65, "vignette_size": 0.4, "grain": 0.12,
+               "tint_red": look["tint"][0], "tint_green": look["tint"][1],
+               "tint_blue": look["tint"][2], "lift_red": 3, "lift_green": 5, "lift_blue": 12}
+    components = {
         "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
         "camera2d.Camera": {"zoom": 1},
         # The dusk under the trees: what the near planes look like where no light reaches.
         "light2d.Ambient": dict(zip(("red", "green", "blue"), look["ambient"])),
         # What the lens adds: a soft glow around the light, darker corners, a little grain, and
         # shadows lifted towards blue.
-        "postfx.Effects": {"bloom": 0.35, "vignette": 0.65, "vignette_size": 0.4,
-                           "grain": 0.12, "tint_red": look["tint"][0],
-                           "tint_green": look["tint"][1], "tint_blue": look["tint"][2],
-                           "lift_red": 3, "lift_green": 5, "lift_blue": 12},
+        "postfx.Effects": effects,
         "camera2d.CameraFollow": {
             "stiffness": 0.08, "offset_y": VIEW_H / 2 - resting_y, "dead_x": 40, "dead_y": 110,
             "look_ahead": 140, "bounded": True, "bound_left": 0, "bound_right": LEVEL_W,
             "bound_top": -2000, "bound_bottom": VIEW_H},
-    }})
-    # A death starts the level over.
-    entities.append({"name": "restart", "components": {
-        "scene_switch.GoToScene": {"scene": name, "use_action": True, "action": "died"}}})
-    os.makedirs(SCENES, exist_ok=True)
-    with open(os.path.join(SCENES, name + ".json"), "w", encoding="utf-8") as out:
-        out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")
-        json.dump({"schema_version": 1, "name": name, "entities": entities}, out, indent=2)
-        out.write("\n")
+    }
+    if level.get("opening"):
+        # The bars are on, then slide away; when they are gone the game begins.
+        effects["letterbox"] = LETTERBOX
+        components["tween2d.Tween"] = {
+            "field": "postfx.Effects.letterbox", "from": LETTERBOX, "to": 0, "ticks": 70,
+            "delay": 110, "easing": 3, "use_action": True, "action": "opening_done"}
+    elif level.get("walker"):
+        components["tween2d.Tween"] = {  # the bars come in
+            "field": "postfx.Effects.letterbox", "from": 0, "to": LETTERBOX, "ticks": 90,
+            "delay": 30, "easing": 3}
+    else:
+        # A death lets out the black veil that starts the level over.
+        components["spawner2d.Shooter"] = {"prefab": "fade_" + level.get("restart", name),
+                                           "action": "died", "speed": 0}
+    return {"name": "camera", "components": components}
+
+
+ENDING_TICKS = 720  # how long the ending lasts before the game starts again
+
+
+def veil(name, extra):
+    """A black picture over the whole window, drawn above everything (the interface too), clear
+    at first: its tween darkens it. Its size covers any window wherever its Position lands."""
+    components = {
+        "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
+        "sprite2d.Sprite": {"atlas": "black", "width": 20000, "height": 20000, "screen": True,
+                            "alpha": 0, "unlit": True, "layer": 1000},
+    }
+    components.update(extra)
+    return {"name": name, "components": components}
+
+
+def story(level):
+    """What tells the story around the level: the phases of the opening, the end that fades out
+    and starts the game again."""
+    if level.get("opening"):
+        return [{"name": "story", "components": {
+            "phase.Phase": {"current": "opening"},
+            "phase.Transition": {"action": "opening_done", "from": ["opening"], "to": "play"}}}]
+    if level.get("walker"):
+        return [veil("the_end", {
+            "tween2d.Tween": {"field": "sprite2d.Sprite.alpha", "from": 0, "to": 255,
+                              "ticks": 120, "delay": ENDING_TICKS - 140},
+            "scene_switch.GoToScene": {"scene": "prologue", "after_ticks": ENDING_TICKS}})]
+    return []
+
+
+def fades():
+    """The black veils that start a level over after a death: a prefab for each level, let out
+    by the camera on the action died."""
+    folder = os.path.join(GAME, "prefabs")
+    os.makedirs(folder, exist_ok=True)
+    for name in ("forest", "hollow"):
+        prefab = veil("fade_" + name, {
+            "tween2d.Tween": {"field": "sprite2d.Sprite.alpha", "from": 0, "to": 255,
+                              "ticks": FADE_TICKS, "easing": 2},
+            "scene_switch.GoToScene": {"scene": name, "after_ticks": FADE_TICKS + 10}})
+        with open(os.path.join(folder, prefab["name"] + ".json"), "w", encoding="utf-8") as out:
+            out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")
+            json.dump({"schema_version": 1, "name": prefab["name"],
+                       "components": prefab["components"]}, out, indent=2)
+            out.write("\n")
+
+
+def black():
+    picture = Image.new("RGBA", (8, 8), INK + (255,))
+    save(picture, "black")
 
 
 def solid(name, x, y, width, height, layer="ground"):
@@ -932,6 +1044,8 @@ def obstacles_of(level):
                                 "max_y": low},
             "collision2d.Collider": {"width": 34, "height": 40, "layer": ["hazard"]},
             "combat2d.ContactDamage": {"amount": 1, "layers": ["hero"]}}))
+    if level.get("walker"):
+        return entities
     # The exit: past the last obstacle, where the light comes through the trees.
     entities.append(entity("exit", LEVEL_W - 240, GROUND_Y - 160, {
         "atlas": "glow", "width": 420, "height": 520, "red": 255, "green": 220, "blue": 170,
@@ -961,6 +1075,8 @@ def main():
     thorns()
     pod()
     shade()
+    black()
+    fades()
     for name, level in LEVELS.items():
         scene(name, level)
     print("lueur: pictures, atlases and scene written in", GAME)

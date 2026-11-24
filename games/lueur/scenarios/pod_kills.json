@@ -4,13 +4,14 @@
   "schema_version": 1,
   "name": "pod_kills",
   "scene": "hollow",
-  "ticks": 90,
+  "ticks": 150,
   "inputs": [
     { "tick": 0, "action": "move_x", "value": 1 },
     { "tick": 70, "action": "move_x", "value": 0 },
   ],
   "expect": [
     { "at": 50, "check": "hero.transform2d.Position.x > 700" },
-    { "at": 90, "check": "hero.transform2d.Position.x < 600" },
+    { "at": 90, "check": "hero.health.Health.amount == 0" },
+    { "at": 150, "check": "hero.transform2d.Position.x < 600" },
   ],
 }
