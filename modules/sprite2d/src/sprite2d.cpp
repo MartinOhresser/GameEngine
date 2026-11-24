@@ -1,11 +1,14 @@
 #include "ge/app/fields.hpp"
 #include "ge/app/render.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
 #include <bit>
+#include <cmath>
 #include <cstdint>
+#include <numbers>
 #include <vector>
 
 namespace ge::mod::sprite2d {
@@ -26,6 +29,54 @@ struct Queued {
     std::int32_t layer = 0;
     app::DrawCommand command;
 };
+
+/// Where the centre of a picture goes, from the pivot's offset: the pivot says which point of the
+/// picture sits on the Position (0.5: the middle), and needs a size in world units to move
+/// anything. The renderer turns a picture around its centre, so the centre of a picture turned by
+/// `angle` degrees turns around the pivot.
+void turn_offset(float angle, float& offset_x, float& offset_y) {
+    const float radians = angle * std::numbers::pi_v<float> / 180.0F;
+    const float cosine = std::cos(radians);
+    const float sine = std::sin(radians);
+    const float turned_x = offset_x * cosine - offset_y * sine;
+    offset_y = offset_x * sine + offset_y * cosine;
+    offset_x = turned_x;
+}
+
+app::DrawCommand sprite_command(const ecs::World& world, ecs::Entity entity, const Sprite& sprite,
+                                const transform2d::Position& position) {
+    float offset_x = (0.5F - sprite.pivot_x) * sprite.width;
+    float offset_y = (0.5F - sprite.pivot_y) * sprite.height;
+    float angle = 0.0F;
+    if (const auto* rotation = world.get<transform2d::Rotation>(entity);
+        rotation != nullptr && rotation->angle != 0.0F) {
+        angle = rotation->angle;
+        turn_offset(angle, offset_x, offset_y);
+    }
+    app::DrawCommand command{"sprite", position.x + offset_x, position.y + offset_y, 0.0F,
+                             pack(sprite)};
+    command.angle = angle;
+    if (sprite.additive) {
+        command.blend = app::Blend::Add;
+    } else if (sprite.multiply) {
+        command.blend = app::Blend::Multiply;
+    }
+    if (const auto* parallax = world.get<Parallax>(entity); parallax != nullptr) {
+        command.parallax_x = parallax->x;
+        command.parallax_y = parallax->y;
+        command.repeat_x = parallax->repeat_x;
+    }
+    command.atlas = static_cast<int>(std::min<std::uint32_t>(sprite.atlas, 0x7FFFFFFFU));
+    command.frame = sprite.frame;
+    command.width = sprite.width;
+    command.height = sprite.height;
+    command.flip_x = sprite.flip_x;
+    command.screen = sprite.screen;
+    if (const auto* scale = world.get<transform2d::Scale>(entity); scale != nullptr) {
+        command.scale = scale->factor;
+    }
+    return command;
+}
 
 } // namespace
 
@@ -78,24 +129,11 @@ void draw(ecs::World& world) {
     std::vector<Queued> queue;
     world.each<const Sprite, const transform2d::Position>(
         [&](ecs::Entity entity, const Sprite& sprite, const transform2d::Position& position) {
-            if (world.has<transform2d::Hidden>(entity)) {
-                return;
+            if (!world.has<transform2d::Hidden>(entity)) {
+                queue.push_back({sprite.layer, sprite_command(world, entity, sprite,
+                                                              transform2d::drawn_position(
+                                                                  world, entity, position))});
             }
-            // The pivot says which point of the picture sits on the Position (0.5:
-            // the middle). It needs a size in world units to move anything.
-            const float x = position.x + (0.5F - sprite.pivot_x) * sprite.width;
-            const float y = position.y + (0.5F - sprite.pivot_y) * sprite.height;
-            app::DrawCommand command{"sprite", x, y, 0.0F, pack(sprite)};
-            command.atlas = static_cast<int>(std::min<std::uint32_t>(sprite.atlas, 0x7FFFFFFFU));
-            command.frame = sprite.frame;
-            command.width = sprite.width;
-            command.height = sprite.height;
-            command.flip_x = sprite.flip_x;
-            command.screen = sprite.screen;
-            if (const auto* scale = world.get<transform2d::Scale>(entity); scale != nullptr) {
-                command.scale = scale->factor;
-            }
-            queue.push_back({sprite.layer, command});
         });
     // Stable: sprites of one layer keep the order the world visits them in.
     std::ranges::stable_sort(queue,

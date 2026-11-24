@@ -23,9 +23,13 @@ struct Time {
     float frame_delta = 0.0F;
     /// How far the next tick is, in [0, 1): for interpolating what is drawn.
     float alpha = 0.0F;
+    /// Set by a host that draws in real time (`platform::run_loop`): the drawing then places
+    /// things between the last two ticks by `alpha`, so that they move smoothly on any screen.
+    /// Off in tests and scenarios, which see exactly the last tick.
+    bool interpolate = false;
 
-    /// Hashes only what the simulation depends on: `frame_delta` and `alpha`
-    /// follow the real clock, so they are left out.
+    /// Hashes only what the simulation depends on: `frame_delta`, `alpha` and
+    /// `interpolate` follow the real clock or the host, so they are left out.
     void hash(Hasher& hasher) const {
         hasher.add(tick);
         hasher.add(tick_rate);

@@ -11,7 +11,7 @@
 
 namespace ge::mod::sprite2d {
 
-/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls.
+/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position.
 struct Sprite {
     std::uint32_t atlas = 0U;
     std::uint32_t frame = 0U;
@@ -26,6 +26,8 @@ struct Sprite {
     std::uint32_t green = 255U;
     std::uint32_t blue = 255U;
     std::uint32_t alpha = 255U;
+    bool additive = false;
+    bool multiply = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(atlas);
@@ -41,9 +43,26 @@ struct Sprite {
         hasher.add(green);
         hasher.add(blue);
         hasher.add(alpha);
+        hasher.add(additive);
+        hasher.add(multiply);
     }
 
     [[nodiscard]] friend bool operator==(const Sprite&, const Sprite&) = default;
+};
+
+/// Makes the entity's Sprite a plane at a distance: x and y say how much of the camera's movement it follows (1 moves with the world, 0.5 half as much, as a far plane does; 0 stays put on the screen, as the sky does; above 1 moves faster, as a plane nearer than the action does). The zoom applies to it as to the rest. With repeat_x the picture is drawn again side by side, every width, across the whole view: one picture makes an endless band (hills, clouds, a ground). Put the farthest planes on the lowest layers.
+struct Parallax {
+    float x = 1.0F;
+    float y = 1.0F;
+    bool repeat_x = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(x);
+        hasher.add(y);
+        hasher.add(repeat_x);
+    }
+
+    [[nodiscard]] friend bool operator==(const Parallax&, const Parallax&) = default;
 };
 
 /// Makes the entity's Sprite play the cells first_frame, first_frame + 1, ... for frame_count cells, each shown for ticks_per_frame simulation ticks. With looping it starts over; without, it stays on the last cell. elapsed counts the ticks played and is the animation's own state: leave it at 0, or set it to start part-way.

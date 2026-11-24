@@ -2138,6 +2138,27 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "additive": {
+              "type": "boolean"
+            },
+            "multiply": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "sprite2d.Parallax": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "repeat_x": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -2436,6 +2457,15 @@
           "type": "object",
           "properties": {
             "factor": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "transform2d.Rotation": {
+          "type": "object",
+          "properties": {
+            "angle": {
               "type": "number"
             }
           },

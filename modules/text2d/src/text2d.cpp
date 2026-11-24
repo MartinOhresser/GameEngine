@@ -3,6 +3,7 @@
 #include "ge/app/runtime_lists.hpp"
 #include "ge/app/text.hpp"
 #include "ge/mod/text2d/text2d.gen.hpp"
+#include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
@@ -169,10 +170,11 @@ void draw(ecs::World& world) {
     }
     app::Renderer& renderer = backend->renderer();
     world.each<const Text, const transform2d::Position>([&](ecs::Entity entity, const Text& text,
-                                                            const transform2d::Position& position) {
+                                                            const transform2d::Position& now) {
         if (world.has<transform2d::Hidden>(entity)) {
             return;
         }
+        const transform2d::Position position = transform2d::drawn_position(world, entity, now);
         if (const std::optional<std::string> words = words_of(world, entity, *table, text); words) {
             const auto* grow = world.get<transform2d::Scale>(entity);
             draw_text(renderer, *table, text, *words, position,

@@ -12,6 +12,13 @@
 
 namespace ge::app {
 
+/// How a drawing is mixed with what is already on the screen.
+enum class Blend : std::uint8_t {
+    Alpha,    ///< Covers it, as much as its transparency says (the usual).
+    Add,      ///< Adds its light: glows, sparks, rays; black adds nothing.
+    Multiply, ///< Darkens it by its colour: shadows, tints; white changes nothing.
+};
+
 /// What a game asks the screen to show. The direction of the dependency is the
 /// point: game logic decides what exists, a separate system turns that into
 /// draw commands, and a `Renderer` is the only thing that knows what a screen
@@ -44,6 +51,18 @@ struct DrawCommand {
     float scale = 1.0F;
     /// Outline or line thickness, in world units; 0 fills a shape.
     float thickness = 0.0F;
+    /// Sprites: turned by this many degrees around their centre, clockwise on the screen.
+    float angle = 0.0F;
+    /// Sprites: how they mix with what is under them.
+    Blend blend = Blend::Alpha;
+    /// How much of the camera's movement applies, per axis: 1 moves with the world, 0.5 moves
+    /// half as much (a far plane of a parallax background), 0 stays put on the screen. The zoom
+    /// applies the same to all. No effect without a camera or on `screen` drawings.
+    float parallax_x = 1.0F;
+    float parallax_y = 1.0F;
+    /// Sprites: drawn again side by side, every `width`, across the whole width of the view, so
+    /// one picture makes an endless band (a sky, a row of hills, a ground).
+    bool repeat_x = false;
 
     friend bool operator==(const DrawCommand&, const DrawCommand&) = default;
 };
@@ -53,6 +72,9 @@ struct AtlasInfo {
     std::string image; ///< Path of the image file.
     int cell_width = 0;
     int cell_height = 0;
+    /// Smoothed when enlarged, shrunk or turned (painted pictures). Without it each pixel stays a
+    /// sharp square (pixel art).
+    bool smooth = false;
 
     friend bool operator==(const AtlasInfo&, const AtlasInfo&) = default;
 };

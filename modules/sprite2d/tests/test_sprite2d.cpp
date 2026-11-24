@@ -7,6 +7,7 @@
 #include "mini_test.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <string>
 
@@ -260,4 +261,71 @@ TEST_CASE("sprite2d: a scaled sprite is drawn bigger") {
     app.run_frames(1);
     REQUIRE(renderer->commands().size() == 1U);
     CHECK(renderer->commands()[0].scale == 1.5F);
+}
+
+namespace {
+
+/// The command of one 40 x 20 sprite at (100, 50) with this pivot, turned by 90 degrees.
+ge::app::DrawCommand turned(float pivot_x) {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    sprite.width = 40.0F;
+    sprite.height = 20.0F;
+    sprite.pivot_x = pivot_x;
+    const ge::ecs::Entity entity = spawn(app, 100.0F, 50.0F, sprite);
+    CHECK(app.world().insert(entity, transform2d::Rotation{90.0F}));
+    app.run_frames(1);
+    CHECK(renderer->commands().size() == 1U);
+    return renderer->commands().empty() ? ge::app::DrawCommand{} : renderer->commands()[0];
+}
+
+} // namespace
+
+TEST_CASE("sprite2d: a turned sprite turns around its own middle by default") {
+    const ge::app::DrawCommand command = turned(0.5F);
+    CHECK(command.angle == 90.0F);
+    CHECK(command.x == 100.0F); // it stays where it is
+    CHECK(command.y == 50.0F);
+}
+
+TEST_CASE("sprite2d: a turned sprite turns around its pivot") {
+    // A hand on the left edge: the picture swings around it.
+    const ge::app::DrawCommand command = turned(0.0F);
+    CHECK(command.angle == 90.0F);
+    CHECK(std::abs(command.x - 100.0F) < 0.001F); // the centre, 20 to the right of the pivot...
+    CHECK(std::abs(command.y - 70.0F) < 0.001F);  // ...is now 20 below it (clockwise, y down)
+}
+
+TEST_CASE("sprite2d: additive and multiply choose how the sprite mixes") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    spawn(app, 0.0F, 0.0F, sprite);
+    sprite.additive = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    sprite.additive = false;
+    sprite.multiply = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 3U);
+    CHECK(renderer->commands()[0].blend == ge::app::Blend::Alpha);
+    CHECK(renderer->commands()[1].blend == ge::app::Blend::Add);
+    CHECK(renderer->commands()[2].blend == ge::app::Blend::Multiply);
+}
+
+TEST_CASE("sprite2d: a Parallax makes a plane that follows the camera partly") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    spawn(app, 0.0F, 0.0F, sprite2d::Sprite{}); // no Parallax: moves with the world
+    const ge::ecs::Entity far = spawn(app, 0.0F, 0.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(far, sprite2d::Parallax{0.25F, 0.5F, true}));
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 2U);
+    CHECK(renderer->commands()[0].parallax_x == 1.0F);
+    CHECK(renderer->commands()[0].parallax_y == 1.0F);
+    CHECK(!renderer->commands()[0].repeat_x);
+    CHECK(renderer->commands()[1].parallax_x == 0.25F);
+    CHECK(renderer->commands()[1].parallax_y == 0.5F);
+    CHECK(renderer->commands()[1].repeat_x);
 }
