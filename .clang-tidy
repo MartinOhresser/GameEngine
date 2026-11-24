@@ -1,7 +1,11 @@
 ---
 # Run by the `tidy` preset and the CI "clang-tidy" job (clang-tidy 18).
+# clang-diagnostic-* reports clang's own compiler warnings (the -W flags of the build) as errors:
+# GCC and MSVC miss some of them (-Wdouble-promotion on an argument), and the macOS, iOS and
+# Android builds of CI fail on them.
 Checks: >
   -*,
+  clang-diagnostic-*,
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   clang-analyzer-*,

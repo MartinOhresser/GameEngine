@@ -3,7 +3,9 @@
 # sanitizers and clang-tidy. Run it before opening a pull request.
 #
 # Usage: ./scripts/check.sh
-# Overrides: CXX (default g++), CLANG_FORMAT (default clang-format).
+# Overrides: CXX (default g++), CLANG_FORMAT (default clang-format), TIDY (all, the default: every
+# file; changed: only what the branch changes since TIDY_BASE, origin/dev by default, see
+# scripts/tidy_changed.sh).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -39,8 +41,13 @@ for game in games/*/game.json tools/launcher/game.json; do
   ./build/dev/tools/gectl validate "$game"
 done
 
-echo "==> tidy"
-cmake --preset tidy > /dev/null
-cmake --build --preset tidy
+if [ "${TIDY:-all}" = "changed" ]; then
+  echo "==> tidy (what the branch changes)"
+  ./scripts/tidy_changed.sh "${TIDY_BASE:-origin/dev}"
+else
+  echo "==> tidy"
+  cmake --preset tidy > /dev/null
+  cmake --build --preset tidy
+fi
 
 echo "All checks passed."
