@@ -39,6 +39,7 @@ Un jeu de ce dépôt est **uniquement des fichiers JSON** dans `games/<nom>/` : 
 - Les particules existent : `particles2d.Emitter` (poussière, étincelles, lucioles, feuilles, pluie, éclat d'un coup avec `burst`) ; la caméra tremble avec `camera2d.CameraShake`. Voir `docs/RENDERING.md`.
 - Les effets d'écran existent : `postfx.Effects` (halo, vignettage, grain, teinte et ombres relevées, bandes de cinéma `letterbox`).
 - Un personnage s'anime selon ce qu'il fait avec `sprite2d.Animator` et des `sprite2d.AnimationClip` (une condition sur un nombre, une priorité), et se tourne vers où il va avec `sprite2d.Facing`. Un compagnon suit avec `follow2d.Follow`.
+- Une caisse à pousser : `collision2d.Pushable` (avec `Body` et `gravity2d.Gravity`, elle tombe dans les trous). Exemple complet de plateformer : `games/lueur` (`docs/GAME_LUEUR.md`).
 - Les jeux de stratégie existent : chemins et suiveurs (`path2d`), tourelles à visée automatique (`autofire`), vagues d'ennemis (`waves`), or, primes, achat, amélioration et vente sur une grille (`economy`). Lis `docs/GAME_TOWER_DEFENSE.md`.
 - Une entité ne peut pas en désigner une autre dans les fichiers ; une règle qui en a besoin se règle par un module. Créer une entité en cours de partie se fait par un préfab (liste `prefab`, `spawner2d`) et changer de scène par `scene_switch`.
 - Un nombre garde d'une partie à l'autre (`SaveData`) est un entier ; il s'écrit sur le disque avec `geplay` seulement (voir `docs/PLATFORM.md`).

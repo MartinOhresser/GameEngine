@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "ledge",
+  "image": "ledge.png",
+  "cell_width": 700,
+  "cell_height": 260,
+  "filter": "linear"
+}

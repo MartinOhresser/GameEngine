@@ -230,9 +230,48 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 4> component_3_fields{{{"below", "bool", "", false}, {"above", "bool", "", false}, {"left", "bool", "", false}, {"right", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Blocked", true, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Pushable component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "speed") {
+            component.speed = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 1> system_0_reads{"collision2d.Collider"};
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Pushable* component = world.get<Pushable>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "speed") {
+        return ::ge::app::Scalar{static_cast<double>(component->speed)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Pushable* component = world.get<Pushable>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "speed") {
+        component->speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 1> component_4_fields{{{"speed", "f32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Collider", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Body", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Contacts", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Blocked", true, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Pushable", true, component_4_fields, insert_component_4, read_component_4, write_component_4}}};
+
+constexpr std::array<std::string_view, 2> system_0_reads{"collision2d.Collider", "collision2d.Pushable"};
 constexpr std::array<std::string_view, 3> system_0_writes{"transform2d.Position", "transform2d.Velocity", "collision2d.Blocked"};
 constexpr std::array<std::string_view, 2> system_1_reads{"collision2d.Collider", "transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_1_writes{"collision2d.Contacts"};

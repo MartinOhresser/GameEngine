@@ -1,0 +1,16 @@
+// In the hollow, walking straight on runs into the first pod as it comes down: the level starts
+// over.
+{
+  "schema_version": 1,
+  "name": "pod_kills",
+  "scene": "hollow",
+  "ticks": 90,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 70, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    { "at": 50, "check": "hero.transform2d.Position.x > 700" },
+    { "at": 90, "check": "hero.transform2d.Position.x < 600" },
+  ],
+}

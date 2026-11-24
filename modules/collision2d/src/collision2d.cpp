@@ -1,9 +1,12 @@
+#include "ge/app/time.hpp"
 #include "ge/mod/collision2d/collision2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 namespace ge::mod::collision2d {
@@ -21,15 +24,25 @@ struct Box {
     std::uint32_t mask = 0;
     bool solid = false;
     bool body = false;
+    bool pushable = false;
+    /// The farthest a Pushable can be moved in one tick (pushables only).
+    float push_step = 0;
 };
+
+/// The duration of a tick, 0 without a clock.
+float tick_of(const ecs::World& world) {
+    const auto* time = world.resource<app::Time>();
+    return time == nullptr ? 0.0F : time->fixed_delta;
+}
 
 /// Every collider as a box, sorted from left to right (ties: oldest first), so
 /// that overlaps can be found by sweeping along x.
 std::vector<Box> boxes_of(ecs::World& world) {
     std::vector<Box> boxes;
+    const float tick = tick_of(world);
     world.each<const Collider, const transform2d::Position>(
-        [&boxes, &world](ecs::Entity entity, const Collider& collider,
-                         const transform2d::Position& position) {
+        [&boxes, &world, tick](ecs::Entity entity, const Collider& collider,
+                               const transform2d::Position& position) {
             const float half_width = collider.width / 2.0F;
             const float half_height = collider.height / 2.0F;
             Box box;
@@ -42,6 +55,11 @@ std::vector<Box> boxes_of(ecs::World& world) {
             box.mask = collider.mask;
             box.solid = collider.solid;
             box.body = world.get<Body>(entity) != nullptr;
+            if (const auto* pushable = world.get<Pushable>(entity); pushable != nullptr) {
+                box.pushable = collider.solid;
+                box.push_step = pushable->speed > 0.0F ? pushable->speed * tick
+                                                       : std::numeric_limits<float>::infinity();
+            }
             boxes.push_back(box);
         });
     std::ranges::sort(boxes, [](const Box& a, const Box& b) {
@@ -95,11 +113,79 @@ void push_out(ecs::World& world, Box& body, const Box& wall) {
     }
 }
 
+/// The part of `shift` (along x) that `crate` can make before it meets a solid of its mask that
+/// lies across its way (`pusher` and itself aside).
+float room(const std::vector<Box>& walls, const Box& crate, const Box& pusher, float shift) {
+    float allowed = std::abs(shift);
+    for (const Box& other : walls) {
+        if (other.entity == crate.entity || other.entity == pusher.entity ||
+            (crate.mask & other.layer) == 0U || other.min_y >= crate.max_y ||
+            crate.min_y >= other.max_y) {
+            continue;
+        }
+        const float gap = shift > 0.0F ? other.min_x - crate.max_x : crate.min_x - other.max_x;
+        if (gap >= 0.0F) {
+            allowed = std::min(allowed, gap);
+        }
+    }
+    return shift > 0.0F ? allowed : -allowed;
+}
+
+void shift_x(ecs::World& world, Box& box, float shift) {
+    world.get<transform2d::Position>(box.entity)->x += shift;
+    box.min_x += shift;
+    box.max_x += shift;
+}
+
+/// After a push: a body that could not move the crate is stopped by it; one that moved it less
+/// than it pushed (a heavy crate, a wall ahead) goes along at the crate's pace.
+void after_push(ecs::World& world, ecs::Entity body, float push, float moved, float tick) {
+    auto* velocity = world.get<transform2d::Velocity>(body);
+    if (moved == 0.0F) {
+        if (auto* blocked = world.get<Blocked>(body); blocked != nullptr) {
+            (push > 0.0F ? blocked->right : blocked->left) = true;
+        }
+        if (velocity != nullptr && velocity->x * push > 0.0F) {
+            velocity->x = 0.0F;
+        }
+    } else if (velocity != nullptr && tick > 0.0F && moved != push &&
+               std::abs(velocity->x) * tick > std::abs(moved)) {
+        velocity->x = moved / tick;
+    }
+}
+
+/// `body` walks into the side of the Pushable `crate`: the crate moves along as far as it can,
+/// and the body gives back what the crate could not make. False when the body comes from above
+/// or below: the crate is then an ordinary wall.
+bool shove(ecs::World& world, std::vector<Box>& boxes, const std::vector<Box>& walls, Box& body,
+           Box& crate, float tick) {
+    const float left = body.max_x - crate.min_x;
+    const float right = crate.max_x - body.min_x;
+    const float along_y = std::min(body.max_y - crate.min_y, crate.max_y - body.min_y);
+    if (std::min(left, right) >= along_y) {
+        return false;
+    }
+    const float push = left < right ? left : -right; // the crate goes the way the body comes
+    const float moved =
+        room(walls, crate, body, std::clamp(push, -crate.push_step, crate.push_step));
+    shift_x(world, crate, moved);
+    for (Box& copy : boxes) { // the crate's own box, for its turn as a Body
+        if (copy.entity == crate.entity) {
+            copy.min_x = crate.min_x;
+            copy.max_x = crate.max_x;
+        }
+    }
+    shift_x(world, body, moved - push);
+    after_push(world, body.entity, push, moved, tick);
+    return true;
+}
+
 } // namespace
 
 void block(ecs::World& world) {
     world.each<Blocked>([](ecs::Entity, Blocked& blocked) { blocked = Blocked{}; });
     std::vector<Box> boxes = boxes_of(world);
+    const float tick = tick_of(world);
     std::vector<Box> walls;
     float widest = 0.0F;
     for (const Box& box : boxes) {
@@ -123,14 +209,15 @@ void block(ecs::World& world) {
         auto first = std::ranges::lower_bound(walls, earliest, {},
                                               [](const Box& wall) { return wall.min_x; });
         for (; first != walls.end(); ++first) {
-            const Box& wall = *first;
+            Box& wall = *first;
             if (wall.min_x >= body.max_x) {
                 break;
             }
             if (wall.entity == body.entity || (body.mask & wall.layer) == 0U) {
                 continue;
             }
-            if (overlap(body, wall)) {
+            if (overlap(body, wall) &&
+                !(wall.pushable && shove(world, boxes, walls, body, wall, tick))) {
                 push_out(world, body, wall);
             }
         }

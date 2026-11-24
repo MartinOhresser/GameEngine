@@ -510,6 +510,151 @@ def spirit():
 
 
 # ---------------------------------------------------------------------------------------------
+# What the levels are made of: a crate to push, rocks to climb, thorns that kill, pods that swing
+# on a thread. Black silhouettes, like the hero.
+
+CRATE_W, CRATE_H = 140, 90
+
+
+def crate():
+    """A wooden crate: black, with the grooves of its planks and a brace a shade lighter."""
+    s = SUPER * 2
+    w, h = CRATE_W * s, CRATE_H * s
+    picture = Image.new("RGBA", (w, h), INK + (255,))
+    draw = ImageDraw.Draw(picture)
+    groove = (26, 28, 32, 255)
+    for y in (h * 0.34, h * 0.67):  # planks
+        draw.line([(4 * s, y), (w - 4 * s, y)], fill=groove, width=2 * s)
+    draw.rectangle((3 * s, 3 * s, w - 3 * s, h - 3 * s), outline=groove, width=2 * s)
+    draw.line([(6 * s, h - 6 * s), (w - 6 * s, 6 * s)], fill=groove, width=3 * s)  # brace
+    save(picture.resize((CRATE_W, CRATE_H), Image.LANCZOS), "crate")
+
+
+def rock(name, width, height, seed):
+    """A block of rock and earth with grass on top: `height` above the ground line, and 60 more
+    below it so that its foot sinks into the ground. The top of the picture is the grass."""
+    rng = np.random.default_rng(seed)
+    total = height + 60
+    big_w, big_h = width * SUPER, total * SUPER
+    mask = Image.new("L", (big_w, big_h), 0)
+    draw = ImageDraw.Draw(mask)
+    top = 14 * SUPER
+    line = periodic_noise(rng, big_w, [(1, 1.0), (5, 0.4)]) * 5 * SUPER + top
+    side = periodic_noise(rng, big_h, [(2, 1.0), (7, 0.5)]) * 4 * SUPER
+    outline = [(abs(side[y]) + 2 * SUPER, y) for y in range(big_h - 1, top, -4)]
+    outline += [(x, line[x]) for x in range(0, big_w, 4)]
+    outline += [(big_w - abs(side[y]) - 2 * SUPER, y) for y in range(top, big_h, 4)]
+    draw.polygon(outline, fill=255)
+    for x in range(int(4 * SUPER), big_w - int(4 * SUPER), 3):
+        if rng.random() < 0.6:
+            blade = rng.uniform(5, 18) * SUPER
+            lean = rng.normal(0, blade * 0.3)
+            draw.polygon([(x - 2.5, line[x] + 4), (x + lean, line[x] - blade),
+                          (x + 2.5, line[x] + 4)], fill=255)
+    save(tinted(reduce(mask, (width, total)), INK), name)
+
+
+THORNS_W, THORNS_H = 256, 72
+
+
+def thorns():
+    """Brambles at the bottom of a pit: sharp spikes leaning every way over a tangle of stems.
+    A band that repeats sideways."""
+    rng = np.random.default_rng(51)
+    big_w, big_h = THORNS_W * SUPER, THORNS_H * SUPER
+    mask = Image.new("L", (big_w, big_h), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rectangle((0, big_h - 10 * SUPER, big_w, big_h), fill=255)
+    for _ in range(60):
+        x = rng.uniform(0, big_w)
+        tall = rng.uniform(20, 66) * SUPER
+        lean = rng.normal(0, tall * 0.35)
+        foot = rng.uniform(3, 7) * SUPER
+        for shift in (-big_w, 0, big_w):
+            draw.polygon([(x + shift - foot, big_h), (x + shift + lean, big_h - tall),
+                          (x + shift + foot, big_h)], fill=255)
+    save(tinted(reduce(mask, (THORNS_W, THORNS_H)), INK), "thorns")
+
+
+def shade():
+    """Dark coming up from the bottom: clear at the top, black at the bottom. The inside of a
+    pit."""
+    height = 128
+    alpha = (np.linspace(0, 1, height) ** 0.8 * 255).astype(np.uint8)
+    picture = np.zeros((height, 8, 4), dtype=np.uint8)
+    picture[..., :3] = INK
+    picture[..., 3] = alpha[:, None]
+    save(Image.fromarray(picture, "RGBA"), "shade")
+
+
+POD_W, POD_H = 56, 640
+POD_R = 20  # the radius of the pod itself, at the bottom of the picture
+
+
+def pod():
+    """A thorny seed pod hanging from a long thread: the pod at the bottom, the thread up to the
+    top of the picture (higher than the view, so its end is never seen)."""
+    s = SUPER * 2
+    big_w, big_h = POD_W * s, POD_H * s
+    mask = Image.new("L", (big_w, big_h), 0)
+    draw = ImageDraw.Draw(mask)
+    cx, cy = big_w / 2, big_h - (POD_R + 8) * s
+    draw.line([(cx, 0), (cx, cy)], fill=255, width=2 * s)
+    draw.ellipse((cx - POD_R * 0.8 * s, cy - POD_R * s, cx + POD_R * 0.8 * s, cy + POD_R * s),
+                 fill=255)
+    for index in range(14):  # spikes all around
+        angle = index / 14 * 2 * math.pi
+        base = 0.35
+        tip = (cx + math.cos(angle) * (POD_R + 9) * s, cy + math.sin(angle) * (POD_R + 9) * s)
+        left = (cx + math.cos(angle - base) * POD_R * 0.75 * s,
+                cy + math.sin(angle - base) * POD_R * 0.9 * s)
+        right = (cx + math.cos(angle + base) * POD_R * 0.75 * s,
+                 cy + math.sin(angle + base) * POD_R * 0.9 * s)
+        draw.polygon([left, tip, right], fill=255)
+    save(tinted(reduce(mask, (POD_W, POD_H)), INK), "pod")
+
+
+# Where the pod is in its picture, from the top: its Position is the middle of the pod.
+POD_PIVOT_Y = round((POD_H - POD_R - 8) / POD_H, 4)
+
+
+# ---------------------------------------------------------------------------------------------
+# The levels. Each is a stretch of forest from x 0 to LEVEL_W: ground in segments, with pits
+# between them (thorns at the bottom), rocks to climb, crates to push, pods to pass under, and an
+# exit at the end that leads to the next level.
+#
+# What the hero can do: a jump rises 144 units at most and carries him about 200 units forward
+# at full speed. A pit wider than that, or a rock higher, needs the crate.
+
+LEVELS = {
+    # The first level teaches the moves: a pit to jump, a rock too high to climb without the crate
+    # (a small stone keeps the crate from being pushed back into the first pit), a second pit.
+    "forest": {
+        "next": "hollow",
+        "segments": [(0, 1500), (1660, 4400), (4580, LEVEL_W)],
+        "pits": [(1500, 1660, 130), (4400, 4580, 130)],
+        "rocks": [("stone", 1790, 64, 40), ("ledge", 2950, 700, 200)],
+        "crates": [2150],
+        "pods": [],
+        "look": {"ambient": (92, 100, 132), "tint": (255, 246, 232), "sun": 1.0},
+    },
+    # The hollow, deeper and darker: pods to pass under, then a pit too wide to jump, which the
+    # crate fills up to the brim, then a last pit and more pods.
+    "hollow": {
+        "next": "forest",
+        "segments": [(0, 1800), (2060, 4000), (4170, LEVEL_W)],
+        "pits": [(1800, 2060, CRATE_H), (4000, 4170, 130)],
+        "rocks": [],
+        "crates": [1350],
+        "pods": [(800, 0.5), (2900, 0.3), (3250, 0.7)],
+        "look": {"ambient": (66, 74, 108), "tint": (232, 240, 255), "sun": 0.55},
+    },
+}
+
+ROCKS = {"stone": 21, "ledge": 22}
+
+
+# ---------------------------------------------------------------------------------------------
 # The scene: the planes, far to near, around the place the hero stands.
 
 LAYERS = {
@@ -556,18 +701,20 @@ def plane(name, atlas, depth, y, width, height, color=None, additive=False):
     return entity(name, x, y, sprite, {"x": depth, "y": depth, "repeat_x": True})
 
 
-def scene():
+def scene(name, level):
+    look = level["look"]
+    sun = look["sun"]
     entities = [
         entity("sky", 0, 0, {"atlas": "sky", "width": VIEW_W, "height": VIEW_H,
                              "layer": LAYERS["sky"], "unlit": True}, {"x": 0, "y": 0}),
         entity("sun", *at_screen(420, 470, 0.05), {
             "atlas": "glow", "width": 900, "height": 700, "red": 255, "green": 196, "blue": 128,
-            "alpha": 200, "additive": True, "layer": LAYERS["sun"], "unlit": True},
+            "alpha": round(200 * sun), "additive": True, "layer": LAYERS["sun"], "unlit": True},
             {"x": 0.05, "y": 0.05}),
         # The low sun as a light: it lights the near planes on its side of the view.
         entity("sunlight", *at_screen(380, 470, 0.3), {
             "atlas": "glow", "width": 1500, "height": 1100, "red": 255, "green": 186,
-            "blue": 120, "alpha": 210, "light": True, "layer": LAYERS["haze"]},
+            "blue": 120, "alpha": round(210 * sun), "light": True, "layer": LAYERS["haze"]},
             {"x": 0.3, "y": 0.3}),
         plane("mist_far", "mist_far", 0.2, 440, 2048, 220, (230, 214, 186, 120)),
         plane("mist_mid", "mist_mid", 0.42, 490, 2048, 240, (196, 206, 198, 110)),
@@ -575,36 +722,24 @@ def scene():
         # The low sun again, in front of the far planes: its light bleeds through the trees.
         entity("haze", *at_screen(420, 450, 0.3), {
             "atlas": "glow", "width": 1400, "height": 900, "red": 255, "green": 180,
-            "blue": 110, "alpha": 90, "additive": True, "layer": LAYERS["haze"],
+            "blue": 110, "alpha": round(90 * sun), "additive": True, "layer": LAYERS["haze"],
             "unlit": True},
             {"x": 0.3, "y": 0.3}),
         plane("foreground", "foreground", 1.35, VIEW_H / 2, 2048, VIEW_H),
     ]
-    for name, _, depth, ground, *_ in PLANES:
+    for plane_name, _, depth, ground, *_ in PLANES:
         centre = ground - plane_ground_in_picture(ground) + PLANE_H / 2
-        entities.append(plane(name, name, depth, centre, 2048, PLANE_H))
+        entities.append(plane(plane_name, plane_name, depth, centre, 2048, PLANE_H))
     # Shafts of warm light through the trees, added on top of the far planes.
     for index, (x, angle, alpha) in enumerate([(300, -28, 70), (520, -24, 50), (760, -31, 40)]):
         entities.append(entity(f"ray_{index}", *at_screen(x, -60, 0.6), {
             "atlas": "ray", "width": 180, "height": 900, "pivot_y": 0.0, "red": 255,
-            "green": 214, "blue": 150, "alpha": alpha, "additive": True, "layer": LAYERS["rays"],
+            "green": 214, "blue": 150, "alpha": round(alpha * sun), "additive": True,
+            "layer": LAYERS["rays"],
             "unlit": True,
         }, {"x": 0.6, "y": 0.6}, {"transform2d.Rotation": {"angle": angle}}))
-    # The ground: blocks side by side, on the plane of the action. What stops the hero is one
-    # long solid box under them, and a wall at each end of the level.
-    for index in range(LEVEL_W // 512):
-        entities.append(entity(f"ground_{index}", index * 512 + 256, GROUND_Y + 128 - 14,
-                               {"atlas": "ground", "width": 512, "height": 256,
-                                "layer": LAYERS["ground"]}))
-    for name, x, y, width, height in [
-            ("floor", LEVEL_W / 2, GROUND_Y + 100, LEVEL_W + 400, 200),
-            ("wall_left", -100, GROUND_Y - 1000, 200, 2400),
-            ("wall_right", LEVEL_W + 100, GROUND_Y - 1000, 200, 2400)]:
-        entities.append({"name": name, "components": {
-            "transform2d.Position": {"x": x, "y": y},
-            "collision2d.Collider": {"width": width, "height": height, "layer": ["ground"],
-                                     "solid": True},
-        }})
+    entities += ground_of(level)
+    entities += obstacles_of(level)
     # The hero: its Position is the middle of its box (HERO_H tall), so the picture hangs from a
     # pivot that puts its feet on the bottom of the box.
     entities.append(entity("hero", 520, GROUND_Y - HERO_H / 2, {
@@ -617,9 +752,14 @@ def scene():
         "tag.Tag": {"tag": "hero"},
         "transform2d.Velocity": {},
         "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
-                                 "mask": ["ground"]},
+                                 "mask": ["ground", "crate", "exit"]},
         "collision2d.Body": {},
         "collision2d.Blocked": {},
+        "collision2d.Contacts": {},
+        # One touch of thorns or of a pod is enough: the level starts over (the restart below).
+        "health.Health": {"amount": 1, "max": 1, "on_zero": "died"},
+        # Reaching the exit at the end of the level leads to the next one.
+        "scene_switch.GoToScene": {"scene": level["next"], "touch_layers": ["exit"]},
         "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
         "action_control.Controlled": {"speed": 260, "vertical": False, "acceleration": 1800,
                                       "braking": 2600},
@@ -631,13 +771,13 @@ def scene():
     }))
     # His animations, the first that holds from the top: going up, falling (no ground under him),
     # running (either way), standing.
-    for name, priority, condition, first, count, ticks in [
+    for clip, priority, condition, first, count, ticks in [
             ("rises", 3, {"field": "transform2d.Velocity.y", "max": -60}, 20, 1, 6),
             ("falls", 2, {"field": "collision2d.Blocked.below", "max": 0.5}, 21, 1, 6),
             ("runs", 1, {"field": "transform2d.Velocity.x", "min": 30, "absolute": True}, 8, 12,
              4),
             ("stands", 0, {}, 0, 8, 9)]:
-        entities.append({"name": f"hero_{name}", "components": {"sprite2d.AnimationClip": {
+        entities.append({"name": f"hero_{clip}", "components": {"sprite2d.AnimationClip": {
             "set": "hero", "priority": priority, **condition, "first_frame": first,
             "frame_count": count, "ticks_per_frame": ticks}}})
     # The spirit: the glimmer the game is named after. A small being of light that floats after
@@ -690,22 +830,114 @@ def scene():
         "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
         "camera2d.Camera": {"zoom": 1},
         # The dusk under the trees: what the near planes look like where no light reaches.
-        "light2d.Ambient": {"red": 92, "green": 100, "blue": 132},
+        "light2d.Ambient": dict(zip(("red", "green", "blue"), look["ambient"])),
         # What the lens adds: a soft glow around the light, darker corners, a little grain, and
         # shadows lifted towards blue.
         "postfx.Effects": {"bloom": 0.35, "vignette": 0.65, "vignette_size": 0.4,
-                           "grain": 0.12, "tint_red": 255, "tint_green": 246,
-                           "tint_blue": 232, "lift_red": 3, "lift_green": 5, "lift_blue": 12},
+                           "grain": 0.12, "tint_red": look["tint"][0],
+                           "tint_green": look["tint"][1], "tint_blue": look["tint"][2],
+                           "lift_red": 3, "lift_green": 5, "lift_blue": 12},
         "camera2d.CameraFollow": {
             "stiffness": 0.08, "offset_y": VIEW_H / 2 - resting_y, "dead_x": 40, "dead_y": 110,
             "look_ahead": 140, "bounded": True, "bound_left": 0, "bound_right": LEVEL_W,
             "bound_top": -2000, "bound_bottom": VIEW_H},
     }})
+    # A death starts the level over.
+    entities.append({"name": "restart", "components": {
+        "scene_switch.GoToScene": {"scene": name, "use_action": True, "action": "died"}}})
     os.makedirs(SCENES, exist_ok=True)
-    with open(os.path.join(SCENES, "forest.json"), "w", encoding="utf-8") as out:
+    with open(os.path.join(SCENES, name + ".json"), "w", encoding="utf-8") as out:
         out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")
-        json.dump({"schema_version": 1, "name": "forest", "entities": entities}, out, indent=2)
+        json.dump({"schema_version": 1, "name": name, "entities": entities}, out, indent=2)
         out.write("\n")
+
+
+def solid(name, x, y, width, height, layer="ground"):
+    return {"name": name, "components": {
+        "transform2d.Position": {"x": x, "y": y},
+        "collision2d.Collider": {"width": width, "height": height, "layer": [layer],
+                                 "solid": True},
+    }}
+
+
+def tiles(prefix, start, end, top):
+    """Ground blocks (512 wide) from start to end, their grass at `top`: side by side, the last
+    one moved back so that it ends at `end` (black earth over black earth does not show)."""
+    xs = list(range(start + 256, end - 255, 512))
+    if not xs or xs[-1] + 256 < end:
+        xs.append(end - 256)
+    return [entity(f"{prefix}_{index}", x, top + 128 - 14, {
+        "atlas": "ground", "width": 512, "height": 256, "layer": LAYERS["ground"]})
+        for index, x in enumerate(xs)]
+
+
+def ground_of(level):
+    """The ground in segments, and the pits between them: a floor at their bottom, thorns on it.
+    What stops the hero is a solid box under each segment, and a wall at each end of the level."""
+    entities = []
+    for index, (start, end) in enumerate(level["segments"]):
+        entities += tiles(f"ground_{index}", start, end, GROUND_Y)
+        entities.append(solid(f"floor_{index}", (start + end) / 2, GROUND_Y + 150, end - start,
+                              300))
+    for index, (start, end, depth) in enumerate(level["pits"]):
+        bottom = GROUND_Y + depth
+        entities += tiles(f"pit_{index}", start - 128, end + 128, bottom)
+        entities.append(entity(f"pit_shade_{index}", (start + end) / 2,
+                               GROUND_Y + depth / 2 - 7, {
+            "atlas": "shade", "width": end - start, "height": depth + 14,
+            "layer": LAYERS["ground"] - 1}))
+        entities.append(solid(f"pit_floor_{index}", (start + end) / 2, bottom + 100,
+                              end - start, 200))
+        entities.append(entity(f"thorns_{index}", (start + end) / 2, bottom - THORNS_H / 2 + 6, {
+            "atlas": "thorns", "width": end - start, "height": THORNS_H,
+            "layer": LAYERS["ground"] + 1}, None, {
+            "collision2d.Collider": {"width": end - start, "height": 36, "layer": ["hazard"]},
+            "combat2d.ContactDamage": {"amount": 1, "layers": ["hero"]}}))
+    entities.append(solid("wall_left", -100, GROUND_Y - 1000, 200, 2400))
+    entities.append(solid("wall_right", LEVEL_W + 100, GROUND_Y - 1000, 200, 2400))
+    return entities
+
+
+def obstacles_of(level):
+    entities = []
+    for name, x, width, height in level["rocks"]:
+        # The Position is the middle of the part above the ground (the collider); the picture
+        # hangs from a pivot that puts its grass (14 from its top) on the collider's top.
+        entities.append(entity(name, x, GROUND_Y - height / 2, {
+            "atlas": name, "width": width, "height": height + 60,
+            "pivot_y": round((14 + height / 2) / (height + 60), 4),
+            "layer": LAYERS["ground"] + 1}, None, {
+            "collision2d.Collider": {"width": width - 8, "height": height, "layer": ["ground"],
+                                     "solid": True}}))
+    for index, x in enumerate(level["crates"]):
+        entities.append(entity(f"crate_{index}", x, GROUND_Y - CRATE_H / 2, {
+            "atlas": "crate", "width": CRATE_W, "height": CRATE_H,
+            "layer": LAYERS["hero"] - 1}, None, {
+            "transform2d.Velocity": {},
+            "collision2d.Collider": {"width": CRATE_W, "height": CRATE_H, "layer": ["crate"],
+                                     "mask": ["ground", "crate"], "solid": True},
+            "collision2d.Body": {},
+            "collision2d.Blocked": {},
+            "collision2d.Pushable": {"speed": 110},
+            "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100}}))
+    # Pods go up and down on their thread, between a little above the hero's head and the
+    # ground; `phase` (0 to 1) says where on its way each one starts, going down.
+    high, low = GROUND_Y - 300, GROUND_Y - 36
+    for index, (x, phase) in enumerate(level["pods"]):
+        entities.append(entity(f"pod_{index}", x, round(high + (low - high) * phase, 2), {
+            "atlas": "pod", "width": POD_W, "height": POD_H, "pivot_y": POD_PIVOT_Y,
+            "layer": LAYERS["hero"] + 1}, None, {
+            "transform2d.Velocity": {"x": 0, "y": 120},
+            "patrol2d.Patrol": {"patrol_x": False, "patrol_y": True, "min_y": high,
+                                "max_y": low},
+            "collision2d.Collider": {"width": 34, "height": 40, "layer": ["hazard"]},
+            "combat2d.ContactDamage": {"amount": 1, "layers": ["hero"]}}))
+    # The exit: past the last obstacle, where the light comes through the trees.
+    entities.append(entity("exit", LEVEL_W - 240, GROUND_Y - 160, {
+        "atlas": "glow", "width": 420, "height": 520, "red": 255, "green": 220, "blue": 170,
+        "alpha": 150, "additive": True, "unlit": True, "layer": LAYERS["hero"] - 2}, None, {
+        "collision2d.Collider": {"width": 60, "height": 320, "layer": ["exit"]}}))
+    return entities
 
 
 def main():
@@ -721,7 +953,16 @@ def main():
     hero()
     spirit()
     leaves()
-    scene()
+    crate()
+    for name, seed in ROCKS.items():
+        _, _, width, height = next(rock for level in LEVELS.values() for rock in level["rocks"]
+                                   if rock[0] == name)
+        rock(name, width, height, seed)
+    thorns()
+    pod()
+    shade()
+    for name, level in LEVELS.items():
+        scene(name, level)
     print("lueur: pictures, atlases and scene written in", GAME)
 
 
