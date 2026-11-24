@@ -698,6 +698,122 @@ TEST_CASE("sdl: under a white ambient, a soft-edged picture looks as it does unl
     CHECK(worst <= 2);
 }
 
+namespace {
+/// The green channel of a 0xRRGGBBAA pixel.
+std::uint32_t green_of(std::uint32_t pixel) {
+    return (pixel >> 16U) & 0xFFU;
+}
+
+/// The blue channel of a 0xRRGGBBAA pixel.
+std::uint32_t blue_of(std::uint32_t pixel) {
+    return (pixel >> 8U) & 0xFFU;
+}
+
+/// One frame of a white square over the whole 800 by 600 view, with `effects`.
+const sdl::Frame& white_frame(sdl::SdlBackend& backend, const ge::app::ScreenEffects& effects) {
+    auto renderer = backend.renderer();
+    renderer->set_effects(effects);
+    renderer->draw(flat(400.0F, 300.0F, 1000.0F));
+    renderer->end_frame();
+    return backend.last_frame();
+}
+} // namespace
+
+TEST_CASE("sdl: a vignette darkens the corners and leaves the middle") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    ge::app::ScreenEffects effects;
+    effects.vignette = 1.0F;
+    effects.vignette_size = 0.3F;
+    const sdl::Frame& frame = white_frame(*backend, effects);
+    CHECK(frame.at(400, 300) == 0xFFFFFFFFU);
+    CHECK(red_of(frame.at(2, 2)) < 0x20U);
+    CHECK(red_of(frame.at(797, 597)) < 0x20U);
+}
+
+TEST_CASE("sdl: a tint multiplies the picture, a lift adds to it, the interface is left alone") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    ge::app::ScreenEffects effects;
+    effects.tint = 0x8040FFFFU;
+    effects.lift = 0x000020FFU;
+    renderer->set_effects(effects);
+    renderer->draw(flat(200.0F, 300.0F, 100.0F));
+    ge::app::DrawCommand interface = flat(600.0F, 300.0F, 100.0F);
+    interface.screen = true;
+    renderer->draw(interface);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    const std::uint32_t graded = frame.at(200, 300);
+    CHECK(red_of(graded) >= 0x7FU);
+    CHECK(red_of(graded) <= 0x81U);
+    CHECK(green_of(graded) >= 0x3FU);
+    CHECK(green_of(graded) <= 0x41U);
+    CHECK(blue_of(graded) == 0xFFU);
+    CHECK(frame.at(600, 300) == 0xFFFFFFFFU);
+    // The background: (18, 20, 32) tinted, then lifted in blue.
+    CHECK(blue_of(frame.at(400, 50)) >= 0x3FU);
+}
+
+TEST_CASE("sdl: bloom lights up around bright things, and not the dark far from them") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->draw(flat(400.0F, 300.0F, 40.0F));
+    renderer->end_frame();
+    const std::uint32_t near_before = red_of(backend->last_frame().at(440, 300));
+    const std::uint32_t far_before = red_of(backend->last_frame().at(60, 60));
+    ge::app::ScreenEffects effects;
+    effects.bloom = 1.0F;
+    renderer->set_effects(effects);
+    renderer->draw(flat(400.0F, 300.0F, 40.0F));
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(red_of(frame.at(440, 300)) > near_before + 8U);
+    CHECK(red_of(frame.at(60, 60)) <= far_before + 2U);
+    CHECK(frame.at(400, 300) == 0xFFFFFFFFU);
+}
+
+TEST_CASE("sdl: letterbox bars cover the top and bottom, under the interface") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    ge::app::ScreenEffects effects;
+    effects.letterbox = 0.2F; // 60 pixels at the top, 60 at the bottom
+    renderer->set_effects(effects);
+    renderer->draw(flat(400.0F, 300.0F, 1000.0F));
+    ge::app::DrawCommand title = flat(400.0F, 20.0F, 10.0F, 0xFF0000FFU);
+    title.screen = true;
+    renderer->draw(title);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(frame.at(100, 30) == 0x000000FFU);
+    CHECK(frame.at(100, 580) == 0x000000FFU);
+    CHECK(frame.at(100, 300) == 0xFFFFFFFFU);
+    CHECK(frame.at(400, 20) == 0xFF0000FFU);
+}
+
+TEST_CASE("sdl: grain changes the picture a little, and differently from frame to frame") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    ge::app::ScreenEffects effects;
+    effects.grain = 1.0F;
+    const std::uint32_t first = white_frame(*backend, effects).at(300, 200);
+    int changed = 0;
+    for (int x = 300; x < 340; ++x) {
+        const std::uint32_t pixel = backend->last_frame().at(x, 200);
+        changed += red_of(pixel) < 0xFFU ? 1 : 0;
+        CHECK(red_of(pixel) >= 0xBFU); // a quarter at most
+    }
+    CHECK(changed > 10);
+    bool moved = false;
+    for (int frame = 0; frame < 3 && !moved; ++frame) {
+        moved = white_frame(*backend, effects).at(300, 200) != first;
+    }
+    CHECK(moved);
+}
+
 TEST_CASE("sdl: a smooth atlas blends its pixels when enlarged, a sharp one does not") {
     auto backend = open(true);
     REQUIRE(backend != nullptr);

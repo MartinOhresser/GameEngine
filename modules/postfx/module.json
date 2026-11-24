@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "postfx",
+  "version": "0.1.0",
+  "description": "Effects on the whole picture of the world, as a camera would add them: a soft glow around bright things, darkened corners, film grain, a colour grade, and black bars for a cinematic moment. The interface is drawn after them and never touched. Presentation only: nothing in the simulation changes.",
+  "depends": [],
+  "components": [
+    {
+      "name": "Effects",
+      "description": "The effects of the picture (only the oldest Effects is used; put it on the camera, for example). bloom (0 to 1) makes bright parts glow over what is around them. vignette (0 to 1) darkens the corners, from vignette_size (the share of the way from the middle to a corner where it starts). grain (0 to 1) lays a fine moving grain, as on film. tint_red, tint_green and tint_blue (0 to 255) multiply every colour (255, 255, 255 changes nothing: a cold night is blue, a warm evening orange); lift_red, lift_green and lift_blue are added everywhere (0 changes nothing: dark parts take that colour). letterbox (0 to 1) is the share of the height covered by black bars at the top and bottom; a tween can slide it in and out for a cut scene.",
+      "replicable": false,
+      "fields": [
+        { "name": "bloom", "type": "f32", "default": 0 },
+        { "name": "vignette", "type": "f32", "default": 0 },
+        { "name": "vignette_size", "type": "f32", "default": 0.6 },
+        { "name": "grain", "type": "f32", "default": 0 },
+        { "name": "tint_red", "type": "u32", "default": 255 },
+        { "name": "tint_green", "type": "u32", "default": 255 },
+        { "name": "tint_blue", "type": "u32", "default": 255 },
+        { "name": "lift_red", "type": "u32", "default": 0 },
+        { "name": "lift_green", "type": "u32", "default": 0 },
+        { "name": "lift_blue", "type": "u32", "default": 0 },
+        { "name": "letterbox", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "apply",
+      "description": "Tells the renderer the effects of the frame, from the oldest Effects.",
+      "stage": "Update",
+      "reads": ["Effects"]
+    }
+  ]
+}

@@ -86,6 +86,17 @@ Un module qui veut dessiner parmi les sprites, sur une couche, ajoute ses dessin
 
 `camera2d.CameraShake` sur la caméra : tant que `strength` est au-dessus de 0, l'image bouge d'au plus `strength` unités dans tous les sens, `speed` fois par seconde, et `strength` baisse de `decay` par seconde. Un jeu fait trembler la caméra en mettant `strength` (une chute, un coup, une explosion) ; la `Position` de la caméra ne bouge pas, seul le dessin tremble.
 
+## Les effets d'écran
+
+Le module `postfx` ajoute à l'image du monde ce qu'y ajouterait un objectif. `postfx.Effects` (sur la caméra, par exemple ; seul le plus ancien compte) :
+- `bloom` (0 à 1) : ce qui est clair rayonne doucement autour de lui ;
+- `vignette` (0 à 1) assombrit les coins, à partir de `vignette_size` (la part du chemin du centre à un coin où cela commence) ;
+- `grain` (0 à 1) : un grain fin qui bouge, comme sur une pellicule ;
+- `tint_red`, `tint_green`, `tint_blue` multiplient toutes les couleurs (255 ne change rien : une nuit froide est bleue, un soir chaud orangé) ; `lift_red`, `lift_green`, `lift_blue` sont ajoutés partout (les ombres prennent cette couleur) ;
+- `letterbox` (0 à 1) : la part de la hauteur couverte par des bandes noires en haut et en bas, pour une cinématique (un tween peut les faire entrer et sortir).
+
+L'interface (`screen`) est dessinée après les effets, qui ne la touchent jamais. Tous ces effets n'utilisent que les modes de mélange de base de SDL : ils marchent avec tous les pilotes, rendu logiciel compris. Le halo, par exemple, réduit l'image deux fois (ce qui la lisse), la multiplie par elle-même pour ne garder que ce qui est clair, puis l'agrandit et l'ajoute.
+
 ## Les tuiles
 
 Il n'y a pas de type « carte de tuiles » : une tuile est une entité avec `Position` et `Sprite`, et un mur y ajoute un `Collider`. Pour un grand niveau, écrire la scène à la main est pénible ; on la génère depuis une carte en texte, comme `games/treasure_run/tools/make_assets.py` (le script produit aussi les images). Le fichier généré est versionné et validé comme les autres.
@@ -125,7 +136,7 @@ Rien de cela ne touche la simulation. Les tests et les scénarios voient exactem
 
 ## Pas encore
 
-L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore les effets d'écran.
+L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore des effets à shader (étalonnage par table de couleurs, flou), là où le pilote le permet.
 
 - **Polices TrueType** : le texte se dessine avec des polices en atlas PNG ; lire un `.ttf` directement viendra plus tard.
 - **Cartes de tuiles en tableau** : une tuile reste une entité.
