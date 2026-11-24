@@ -35,7 +35,7 @@ Ce que le projet n'est pas : un éditeur visuel, ni un concurrent d'Unity/Godot.
 
 Jeux existants : `lueur` (le plateformer de l'ADR 0015, en cours), `doodle_jump`, `treasure_run`, `coin_dash`, `sideways_jump`, `sparks`, `pilot`, `move_sprite` (référence), et les trois jeux d'essai de l'ADR 0013 : `game_2048`, `chess`, `tower_defense`.
 
-Modules (38) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `combat2d`, `health`, `bounds2d`, `gravity2d`, `bounce2d`, `action_control`, `touch_controls`, `gesture`, `screen_wrap`, `spawner2d`, `lifetime`, `patrol2d`, `pickup`, `progress`, `phase`, `scene_switch`, `tween2d`, `debug_draw`, `host`, `records`, `ui`, `inventory`, `grid2d`, `grid_moves`, `turns`, `slide_merge`, `rules`, `path2d`, `autofire`, `waves`, `economy`, `tag`, `jump`.
+Modules (39) : `transform2d`, `camera2d`, `sprite2d`, `text2d`, `collision2d`, `combat2d`, `health`, `bounds2d`, `gravity2d`, `bounce2d`, `action_control`, `touch_controls`, `gesture`, `screen_wrap`, `spawner2d`, `lifetime`, `patrol2d`, `pickup`, `progress`, `phase`, `scene_switch`, `tween2d`, `debug_draw`, `host`, `records`, `ui`, `inventory`, `grid2d`, `grid_moves`, `turns`, `slide_merge`, `rules`, `path2d`, `autofire`, `waves`, `economy`, `tag`, `jump`, `light2d`.
 
 ### Règles d'un module (vérifiées par `scripts/check_modules.py` et clang-tidy)
 

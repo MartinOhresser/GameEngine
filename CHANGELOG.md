@@ -6,6 +6,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B5 (1/2) : **la lumière**.
+  - Nouveau module **`light2d`** : `Ambient` (la couleur de l'obscurité, qui allume l'éclairage) et `Light` (lumière ronde et douce : rayon, couleur, intensité, décalage, vacillement).
+  - `sprite2d.Sprite` gagne `unlit` (garde ses couleurs : ciel, plans lointains) et `light` (l'image devient une lumière qui éclaire ce qui l'entoure).
+  - Le renderer compose l'image : carte de lumière (couleur ambiante + lumières ajoutées), dessins éclairés multipliés par elle, dessins non éclairés et interface tels quels, dans leur ordre. `DrawCommand` gagne `lit`, `light` et la forme `"glow"` (disque doux) ; `Renderer::set_lighting`. Sans éclairage, rien ne change.
+  - `lueur` : les plans proches sont dans la pénombre, éclairés par le soleil bas et par une lueur chaude et vacillante autour du héros.
 - ADR 0015, B4 : **le héros de `games/lueur` marche et saute**, et la caméra le suit.
   - Nouveau module **`jump`** (`jump.Jumper`) : un saut commandé par une action, permis au sol, avec un délai de grâce après le bord (`coyote_time`), un appui mémorisé juste avant l'atterrissage (`buffer_time`), un saut plus bas pour un appui court (`cut`) et des sauts en l'air (`air_jumps`). `jumps` compte les sauts faits.
   - `collision2d.Blocked` : les côtés (`below`, `above`, `left`, `right`) où un mur solide a arrêté un `Body` pendant le tick. Un jeu sait enfin si son héros est au sol.

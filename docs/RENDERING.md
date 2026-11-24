@@ -49,7 +49,7 @@ Une entité avec `camera2d.Camera` et une `Position` : ce point du monde est au 
 
 ![lueur](img/lueur.png)
 
-*`games/lueur` : un ciel, une crête, trois plans de forêt de plus en plus pâles et flous, trois nappes de brume, le soleil et ses rayons en lumière ajoutée (`additive`), le sol et le héros, et un premier plan qui défile plus vite que le monde. Toutes les images sont générées par `games/lueur/tools/make_assets.py` (numpy, Pillow) et lissées (`"filter": "linear"`).*
+*`games/lueur` : un ciel, une crête, trois plans de forêt de plus en plus pâles et flous, trois nappes de brume, le soleil et ses rayons en lumière ajoutée (`additive`), le sol et le héros, et un premier plan qui défile plus vite que le monde. Les plans proches sont dans la pénombre, éclairés par le soleil bas et par la lueur du héros (voir « La lumière »). Toutes les images sont générées par `games/lueur/tools/make_assets.py` (numpy, Pillow) et lissées (`"filter": "linear"`).*
 
 `sprite2d.Parallax` fait d'un sprite un plan lointain : `x` et `y` disent quelle part du mouvement de la caméra il suit.
 - 1 bouge avec le monde (sans `Parallax`, c'est le cas) ;
@@ -60,6 +60,16 @@ Une entité avec `camera2d.Camera` et une `Position` : ce point du monde est au 
 Avec `repeat_x`, l'image est redessinée côte à côte, tous les `width`, sur toute la largeur de la vue : une seule image fait une bande sans fin (collines, nuages, sol). Le zoom s'applique à tous les plans de la même façon. Mettez les plans les plus lointains sur les couches (`layer`) les plus basses.
 
 Un plan de parallaxe `p` montre, quand la caméra est en `C`, son point `C × p` au centre de l'écran. Pour qu'il soit centré au départ d'un niveau où la caméra est en `C0`, placez-le en `C0 × p`.
+
+## La lumière
+
+Le module `light2d` plonge la scène dans la pénombre et l'éclaire par endroits.
+- `light2d.Ambient` (sur n'importe quelle entité, la caméra par exemple) allume l'éclairage : `red`, `green`, `blue` sont la couleur de l'obscurité, ce que devient un dessin là où aucune lumière n'arrive (255, 255, 255 ne change rien, un bleu sombre fait une nuit). Sans `Ambient`, pas d'éclairage : les lumières ne font rien.
+- `light2d.Light` est une lumière ronde et douce sur l'entité : `radius`, couleur (`red`, `green`, `blue`), `intensity` (0 à 1), décalage (`offset_x`, `offset_y`, une lanterne au-dessus d'une tête). `flicker` (0 à 1) la fait vaciller comme une flamme, `flicker_speed` fois par seconde ; deux lumières ne vacillent jamais ensemble.
+- Un sprite est **éclairé** par défaut. `unlit` lui garde ses propres couleurs : un ciel, un plan lointain déjà peint avec sa lumière, un halo. `light` en fait une lumière de la forme de son image (un rai de soleil, une fenêtre allumée) : elle éclaire ce qui l'entoure sans être dessinée elle-même.
+- L'interface (`screen`) n'est jamais éclairée.
+
+Comment c'est dessiné : la carte de lumière est remplie de la couleur ambiante, puis chaque lumière y est ajoutée. Les dessins éclairés sont multipliés par elle ; les autres sont dessinés tels quels, dans l'ordre des couches. Tout se fait avec les modes de mélange de base de SDL et des textures cibles : cela marche avec tous les pilotes, rendu logiciel compris (celui des captures sans tête et de la CI). La lumière ne touche pas la simulation.
 
 ## Les tuiles
 
@@ -100,8 +110,8 @@ Rien de cela ne touche la simulation. Les tests et les scénarios voient exactem
 
 ## Pas encore
 
-L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore la lumière, les particules et les effets d'écran.
+L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore les particules et les effets d'écran.
 
 - **Polices TrueType** : le texte se dessine avec des polices en atlas PNG ; lire un `.ttf` directement viendra plus tard.
 - **Cartes de tuiles en tableau** : une tuile reste une entité.
-- Ordre de dessin par la position verticale, particules, lumière.
+- Ordre de dessin par la position verticale, particules ; ombres portées par les lumières.

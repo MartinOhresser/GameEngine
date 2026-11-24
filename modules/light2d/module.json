@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "light2d",
+  "version": "0.1.0",
+  "description": "Light and darkness: an ambient colour that darkens the scene, and coloured lights that brighten it around them (a lamp, a fire, a glowing creature, a window at night). Drawings are lit unless their sprite says unlit (sprite2d), so a painted background can keep its own colours while the scene in front of it is in the dark. Presentation only: lights change nothing in the simulation.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Ambient",
+      "description": "Turns lighting on: red, green and blue (0 to 255) are the colour of the dark, what a lit drawing looks like where no light reaches it (255, 255, 255 leaves it as it is, 0, 0, 0 hides it entirely, a dark blue makes a night). Only the oldest Ambient is used; without one, there is no lighting and lights do nothing.",
+      "replicable": true,
+      "fields": [
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 }
+      ]
+    },
+    {
+      "name": "Light",
+      "description": "A soft round light on the entity, offset_x and offset_y away from its Position (a lantern held above a head): brightest in the middle and fading to nothing at radius. red, green and blue (0 to 255) are its colour, intensity (0 to 1) how much it brightens. flicker (0 to 1) makes it waver like a flame, its intensity going down by up to that share, flicker_speed times a second; two lights never waver together.",
+      "replicable": true,
+      "fields": [
+        { "name": "radius", "type": "f32", "default": 150 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "intensity", "type": "f32", "default": 1 },
+        { "name": "flicker", "type": "f32", "default": 0 },
+        { "name": "flicker_speed", "type": "f32", "default": 6 },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "shine",
+      "description": "Tells the renderer the ambient colour of the frame and adds every Light to its light map, where the entity is drawn.",
+      "stage": "Update",
+      "reads": ["Ambient", "Light", "transform2d.Position"]
+    }
+  ]
+}
