@@ -1,0 +1,21 @@
+// The hero walks right on the test ground and stops once let go.
+{
+  "schema_version": 1,
+  "name": "walks",
+  "scene": "sandbox",
+  "ticks": 120,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 60, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    // 1600 units/s² for one tick of 1/60 s.
+    { "at": 1, "check": "hero.transform2d.Velocity.x > 26" },
+    { "at": 60, "check": "hero.transform2d.Velocity.x == 240" },
+    { "at": 60, "check": "hero.collision2d.Blocked.below == true" },
+    { "at": 60, "check": "hero.transform2d.Position.x > 600" },
+    { "at": 120, "check": "hero.transform2d.Velocity.x == 0" },
+    // Standing on the ground: its top (600) minus half the hero's height (42).
+    "hero.transform2d.Position.y == 558",
+  ],
+}

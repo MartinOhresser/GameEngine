@@ -1,0 +1,19 @@
+// A press jumps, the hero leaves the ground and lands back on it.
+{
+  "schema_version": 1,
+  "name": "jumps",
+  "scene": "sandbox",
+  "ticks": 150,
+  "inputs": [
+    { "tick": 10, "action": "jump", "value": 1 },
+    { "tick": 40, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 11, "check": "hero.jump.Jumper.jumps == 1" },
+    { "at": 30, "check": "hero.collision2d.Blocked.below == false" },
+    // 680² / (2 × 1800) is about 128 units above the resting 558.
+    { "at": 30, "check": "hero.transform2d.Position.y < 450" },
+    "hero.collision2d.Blocked.below == true",
+    "hero.transform2d.Position.y == 558",
+  ],
+}
