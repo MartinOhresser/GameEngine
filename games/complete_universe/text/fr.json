@@ -12,6 +12,7 @@
     "tutorial.jump": "Espace maintenu, puis relâché : sauter",
     "tutorial.lack_white": "F : récolter du carbone",
     "tutorial.lack_black": "F : récolter de la matière",
-    "tutorial.departure": "Main noire vers le ciel, clic maintenu"
+    "tutorial.departure": "Main noire vers le ciel, clic maintenu",
+    "tutorial.next": "À suivre…"
   }
 }

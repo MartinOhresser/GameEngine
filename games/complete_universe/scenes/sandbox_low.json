@@ -329,6 +329,11 @@
         "camera2d.Camera": {
           "zoom": 1
         },
+        "camera2d.CameraShake": {
+          "strength": 0,
+          "decay": 3,
+          "speed": 30
+        },
         "spawner2d.Shooter": {
           "prefab": "fade_back",
           "action": "revive"

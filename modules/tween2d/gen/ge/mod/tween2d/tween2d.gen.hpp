@@ -63,6 +63,57 @@ struct Settle {
     [[nodiscard]] friend bool operator==(const Settle&, const Settle&) = default;
 };
 
+/// A number played along keys: for keys keys (2 to 6), the number field ("camera2d.Camera.zoom") of the entity that answers to onto (a tag.Tag; none: this entity) is v0 at tick t0, v1 at tick t1 and so on (the ticks are counted from the start and go up), and slides from one to the next, smoothly at both ends of each slide with smooth. It starts on the first tick, or with start when that action is pressed; before its first key it is not written, after its last it is left at the last value and end_action is pressed once (none: nothing). Several Tracks can play several numbers of the same entity at once: a camera that moves, zooms and fades in a cut scene. The module keeps started, elapsed (ticks since the start) and done.
+struct Track {
+    std::uint32_t field = 4294967295U;
+    std::uint32_t onto = 4294967295U;
+    std::uint32_t start = 4294967295U;
+    bool smooth = true;
+    std::uint32_t keys = 2U;
+    std::uint32_t t0 = 0U;
+    float v0 = 0.0F;
+    std::uint32_t t1 = 0U;
+    float v1 = 0.0F;
+    std::uint32_t t2 = 0U;
+    float v2 = 0.0F;
+    std::uint32_t t3 = 0U;
+    float v3 = 0.0F;
+    std::uint32_t t4 = 0U;
+    float v4 = 0.0F;
+    std::uint32_t t5 = 0U;
+    float v5 = 0.0F;
+    std::uint32_t end_action = 4294967295U;
+    bool started = false;
+    std::uint32_t elapsed = 0U;
+    bool done = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(field);
+        hasher.add(onto);
+        hasher.add(start);
+        hasher.add(smooth);
+        hasher.add(keys);
+        hasher.add(t0);
+        hasher.add(v0);
+        hasher.add(t1);
+        hasher.add(v1);
+        hasher.add(t2);
+        hasher.add(v2);
+        hasher.add(t3);
+        hasher.add(v3);
+        hasher.add(t4);
+        hasher.add(v4);
+        hasher.add(t5);
+        hasher.add(v5);
+        hasher.add(end_action);
+        hasher.add(started);
+        hasher.add(elapsed);
+        hasher.add(done);
+    }
+
+    [[nodiscard]] friend bool operator==(const Track&, const Track&) = default;
+};
+
 /// Advances every Tween by one tick and writes the number it gives.
 /// Runs in FixedUpdate.
 void run(::ge::ecs::World& world);
@@ -70,6 +121,10 @@ void run(::ge::ecs::World& world);
 /// Moves every Settle's number a share of the way to its goal.
 /// Runs in FixedUpdate.
 void settle(::ge::ecs::World& world);
+
+/// Moves every started Track one tick on and writes its number.
+/// Runs in FixedUpdate.
+void play(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "hero_curled",
+  "image": "hero_curled.png",
+  "cell_width": 128,
+  "cell_height": 128,
+  "filter": "linear"
+}

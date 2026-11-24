@@ -1,0 +1,15 @@
+// Escape skips the opening: the tutorial starts at once.
+{
+  "schema_version": 1,
+  "name": "opening_skips",
+  "scene": "opening",
+  "ticks": 30,
+  "inputs": [
+    { "tick": 10, "action": "skip", "value": 1 },
+    { "tick": 11, "action": "skip", "value": 0 },
+  ],
+  "expect": [
+    "story.phase.Phase.current == 0",
+    "hero alive",
+  ],
+}

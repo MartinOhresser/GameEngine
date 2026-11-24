@@ -13,5 +13,6 @@
     { "action": "pointer_y", "sources": { "mouse:y": 1 } },
     { "action": "harvest", "sources": { "key:f": 1 } },
     { "action": "inventory", "sources": { "key:tab": 1 } },
+    { "action": "skip", "sources": { "key:escape": 1 } },
   ],
 }
