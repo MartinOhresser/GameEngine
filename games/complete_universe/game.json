@@ -8,15 +8,15 @@
   "description": "A being of black and white ovals crosses a grey universe with two hands of power: a black hole and a barrier. Harvest, survive, and give the universe its colours back.",
   "modules": [
     "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control", "jump",
-    "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout", "follow2d",
+    "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout", "follow2d", "attractor2d",
   ],
   "lists": {
     "action": [
       "move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right", "change",
       "pointer_x", "pointer_y",
     ],
-    "layer": ["hero", "ground"],
-    "tag": ["hero", "camera", "matter", "carbon"],
+    "layer": ["hero", "ground", "rock"],
+    "tag": ["hero", "camera", "matter", "carbon", "black_hole"],
     // One kind of resource for each power (GDD §7): matter feeds the black, carbon the white.
     "resource": ["matter", "carbon"],
     // The powers a hand can hold (GDD §6), then what two hands make together.
@@ -27,12 +27,14 @@
   "simulation": { "tick_rate": 60, "seed": 11 },
   "window": { "width": 1280, "height": 720 },
   "input": "input.json",
-  "atlases": ["art/sky.json", "art/hero.json", "art/arm.json"],
+  "atlases": [
+    "art/sky.json", "art/hero.json", "art/arm.json", "art/black_hole.json", "art/rock.json",
+  ],
   "scenes": ["scenes/sandbox.json", "scenes/sandbox_low.json"],
   "scenarios": [
     "scenarios/walks.json", "scenarios/jumps.json", "scenarios/terrain.json",
     "scenarios/life_drains.json", "scenarios/edges_turn.json", "scenarios/assigns_hands.json",
-    "scenarios/wheel.json", "scenarios/hands_together.json",
+    "scenarios/wheel.json", "scenarios/hands_together.json", "scenarios/black_hole.json",
   ],
   "start_scene": "sandbox",
 }

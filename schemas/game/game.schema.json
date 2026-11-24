@@ -33,6 +33,7 @@
         "enum": [
           "action_control",
           "aim2d",
+          "attractor2d",
           "autofire",
           "bind",
           "bounce2d",
@@ -142,6 +143,11 @@
           "additionalProperties": false
         },
         "aim2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "attractor2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

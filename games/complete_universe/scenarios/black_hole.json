@@ -1,0 +1,33 @@
+// The black in the left hand: held on the first rock, the black hole grows, swallows it (its
+// matter comes in) and digs the ground under it; the second rock, further, is left.
+{
+  "schema_version": 1,
+  "name": "black_hole",
+  "scene": "sandbox_low",
+  "ticks": 140,
+  "inputs": [
+    { "tick": 0, "action": "change", "value": 1 },
+    { "tick": 1, "action": "hand_left", "value": 1 },
+    { "tick": 2, "action": "hand_left", "value": 0 },
+    { "tick": 3, "action": "change", "value": 0 },
+    { "tick": 10, "action": "pointer_x", "value": 560 },
+    { "tick": 10, "action": "pointer_y", "value": 589 },
+    { "tick": 12, "action": "hand_left", "value": 1 },
+    { "tick": 100, "action": "hand_left", "value": 0 },
+  ],
+  "expect": [
+    { "at": 11, "check": "black_hole.attractor2d.Attractor.radius == 0" },
+    { "at": 20, "check": "black_hole.loadout.Ability.active == true" },
+    { "at": 20, "check": "black_hole.attractor2d.Attractor.radius > 12" },
+    "rock_1 gone",
+    "rock_2 alive",
+    "black_hole.attractor2d.Attractor.swallowed == 1",
+    // A heart of up to 31 units, 11 above the ground: a slice of about 13 cells of 8 by 8.
+    "black_hole.terrain2d.Digger.removed > 8",
+    // From 20: the life drain (0.8) and the costs of the hole (about 4) take some; the rock (12)
+    // and the dug cells (about 1) give more: about 28.
+    "matter.reserve.Reserve.amount > 25",
+    { "at": 120, "check": "black_hole.loadout.Ability.active == false" },
+    "black_hole.attractor2d.Attractor.radius == 0",
+  ],
+}

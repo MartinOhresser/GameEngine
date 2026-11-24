@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "attractor2d",
+  "version": "0.1.0",
+  "description": "Wells that pull and swallow: a black hole, a whirlpool, a vacuum, a magnet that eats what it catches. A well grows while it works, pulls the moving things around it, and swallows the small things that reach its heart, giving what they held (reserve.Yield) to the game's reserves, at once or when it stops.",
+  "depends": ["transform2d", "collision2d", "reserve"],
+  "components": [
+    {
+      "name": "Attractor",
+      "description": "While the entity is not transform2d.Disabled, it grows from start_radius by grow units a second up to max_radius; once Disabled it shrinks by shrink units a second down to 0 (radius is kept by the module). Within radius, every entity with a Velocity and a collision2d.Collider whose layer meets pulls is pulled towards it, pull units a second faster each second at its heart, less towards the edge. Every Absorbable whose middle is within inner × radius of it, and whose mass is no more than radius, is swallowed (destroyed): what it holds (reserve.Yield) goes to the reserve of convert (none: its own kind), at once, or with deferred when the well stops. The module keeps radius, heart (inner × radius: a digger or a picture can follow it), swallowed (things swallowed) and pending (what will be given when it stops).",
+      "replicable": true,
+      "fields": [
+        { "name": "start_radius", "type": "f32", "default": 8 },
+        { "name": "grow", "type": "f32", "default": 40 },
+        { "name": "max_radius", "type": "f32", "default": 120 },
+        { "name": "shrink", "type": "f32", "default": 200 },
+        { "name": "pull", "type": "f32", "default": 900 },
+        { "name": "pulls", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "inner", "type": "f32", "default": 0.4 },
+        { "name": "convert", "type": "u32", "default": 4294967295, "ref": "resource" },
+        { "name": "deferred", "type": "bool", "default": false },
+        { "name": "radius", "type": "f32", "default": 0 },
+        { "name": "heart", "type": "f32", "default": 0 },
+        { "name": "swallowed", "type": "u32", "default": 0 },
+        { "name": "pending", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Absorbable",
+      "description": "A well can swallow the entity once its radius is at least mass (a pebble goes at once, a boulder needs a bigger well).",
+      "replicable": true,
+      "fields": [
+        { "name": "mass", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "pull",
+      "description": "Grows or shrinks every Attractor, pulls what is around the working ones, and swallows what reaches their heart; a well that stops gives what it was keeping.",
+      "stage": "FixedUpdate",
+      "reads": ["Absorbable", "collision2d.Collider", "reserve.Yield", "transform2d.Disabled"],
+      "writes": ["Attractor", "transform2d.Velocity", "reserve.Reserve"],
+      "before": ["transform2d.integrate"]
+    }
+  ]
+}

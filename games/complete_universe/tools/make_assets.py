@@ -122,6 +122,51 @@ def arms():
     return sheet
 
 
+HOLE = 256  # the picture of a black hole, drawn for a radius of 1 (a sprite 2 units wide)
+
+
+def black_hole():
+    """A black hole seen from the side of its disc: a black heart (the share of the radius that
+    swallows, 0.4), a thin bright ring of matter falling in, and a faint halo out to the edge of
+    its pull."""
+    size = HOLE
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    r = np.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2)
+    heart = 0.4
+    ring = np.exp(-((r - heart - 0.035) / 0.03) ** 2)
+    halo = np.clip(1.0 - (r - heart) / (1.0 - heart), 0, 1) ** 3 * 0.35
+    light = np.clip(ring * 1.0 + halo, 0, 1)
+    alpha = np.where(r <= heart, 1.0, np.clip(light * 1.4, 0, 1))
+    alpha *= np.clip((1.0 - r) * 20, 0, 1)
+    soft = np.clip((r - heart + 0.01) / 0.02, 0, 1)  # a smooth edge to the heart
+    value = light * soft * 255
+    rgba = np.zeros((size, size, 4), np.uint8)
+    rgba[..., 0] = value.astype(np.uint8)
+    rgba[..., 1] = value.astype(np.uint8)
+    rgba[..., 2] = np.clip(value * 1.05, 0, 255).astype(np.uint8)
+    rgba[..., 3] = (alpha * 255).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
+
+
+ROCK = 40
+
+
+def rock(seed, colour=(70, 70, 74), light=(150, 150, 154)):
+    """A rock (matter): a lumpy grey stone, lit from above."""
+    rng = np.random.default_rng(seed)
+    picture, draw = canvas(ROCK, ROCK)
+    points = []
+    for i in range(11):
+        t = 2 * math.pi * i / 11
+        radius = 15 * rng.uniform(0.75, 1.05)
+        points.append(((ROCK / 2 + radius * math.cos(t)) * SUPER,
+                       (ROCK / 2 + 3 + radius * 0.8 * math.sin(t)) * SUPER))
+    draw.polygon(points, fill=colour + (255,))
+    draw.ellipse([(ROCK / 2 - 9) * SUPER, (ROCK / 2 - 6) * SUPER, (ROCK / 2 + 5) * SUPER,
+                  (ROCK / 2 - 1) * SUPER], fill=light + (255,))
+    return reduce(picture.filter(ImageFilter.GaussianBlur(SUPER * 0.6)), ROCK, ROCK)
+
+
 def sky():
     """Black, with a few grey stars."""
     rng = np.random.default_rng(3)
@@ -190,6 +235,53 @@ def hands(unlocked=("black", "white"), offered=()):
     return made
 
 
+def powers():
+    """The effects of the hands (loadout.Ability), each switched on while a hand uses it.
+
+    The black (GDD, Noir): a black hole where the pointer is, within reach, that grows while the
+    button is held and costs more matter the bigger it is. It pulls loose things, swallows what
+    reaches its heart and digs the ground there: alone, it turns everything into matter."""
+    hole = entity("black_hole", 0, 0, {
+        "tag.Tag": {"tag": "black_hole"},
+        "transform2d.Disabled": {},
+        "loadout.Ability": {"power": "black", "kind": "matter", "per_use": 1},
+        "aim2d.Aim": {"from": "hero", "range": 240},
+        "attractor2d.Attractor": {"start_radius": 12, "grow": 45, "max_radius": 90,
+                                  "shrink": 260, "pull": 1500, "pulls": ["rock"],
+                                  "inner": 0.4, "convert": "matter"},
+        # Matter a second for each unit of radius: 1.8 a second at 60.
+        "reserve.Drain": {"kind": "matter", "field": "attractor2d.Attractor.radius",
+                          "per_unit": 0.03},
+        "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
+        "reserve.Gain": {"kind": "matter", "field": "terrain2d.Digger.last", "per_unit": 0.08},
+        "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                            "layer": LAYERS["hero"] + 5, "unlit": True},
+        "transform2d.Scale": {"factor": 0},
+    })
+    return [
+        hole,
+        bind("black_hole_digs", "black_hole", "attractor2d.Attractor.heart",
+             "terrain2d.Digger.radius", 0, 1000, 0, 1000, 1, onto="black_hole"),
+        bind("black_hole_shows", "black_hole", "attractor2d.Attractor.radius",
+             "transform2d.Scale.factor", 0, 1000, 0, 1000, 1, onto="black_hole"),
+    ]
+
+
+def rock_entity(name, x, y, kind="matter", amount=12, atlas="rock"):
+    """A loose rock on the ground: it falls, a black hole pulls and swallows it."""
+    return entity(name, x, y, {
+        "sprite2d.Sprite": {"atlas": atlas, "width": ROCK, "height": ROCK,
+                            "layer": LAYERS["hero"] - 2},
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {"width": 26, "height": 22, "layer": ["rock"],
+                                 "mask": ["ground"]},
+        "collision2d.Body": {},
+        "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
+        "attractor2d.Absorbable": {"mass": 10},
+        "reserve.Yield": {"kind": kind, "amount": amount},
+    })
+
+
 def camera(bound_right):
     return entity("camera", VIEW_W / 2, VIEW_H / 2, {
         "tag.Tag": {"tag": "camera"},
@@ -244,7 +336,9 @@ def sandbox():
             shape("pit", 232, GROUND_Y + 80, 64, 160, False),
             shape("step", 800, GROUND_Y - 4, 200, 8, True),
             shape("wall", 1250, GROUND_Y - 60, 32, 120, True),
-            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + reserves()
+            rock_entity("rock_1", 560, GROUND_Y - 11), rock_entity("rock_2", 640, GROUND_Y - 11),
+            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + powers() \
+        + reserves()
 
 
 def sandbox_low():
@@ -277,10 +371,11 @@ def reserves(matter=100, carbon=100):
     ]
 
 
-def bind(name, source_tag, source, target, low, high, out_low, out_high, power):
-    """A number of the camera that follows a number of a reserve (module bind)."""
+def bind(name, source_tag, source, target, low, high, out_low, out_high, power,
+         onto="camera"):
+    """A number of an entity (the camera by default) that follows a number of another one."""
     return {"name": name, "components": {
-        "bind.Bind": {"source": source, "from": source_tag, "target": target, "onto": "camera",
+        "bind.Bind": {"source": source, "from": source_tag, "target": target, "onto": onto,
                       "low": low, "high": high, "out_low": out_low, "out_high": out_high,
                       "power": power}}}
 
@@ -297,6 +392,8 @@ def main():
     save(hero(), "hero")
     save(sky(), "sky")
     save(arms(), "arm", cell=(ARM, ARM))
+    save(black_hole(), "black_hole")
+    save(rock(5), "rock")
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
 
