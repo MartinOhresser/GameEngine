@@ -11,10 +11,14 @@ name: CI
 # pull requests into `dev` start from. Nobody waits on it.
 # What `./scripts/check.sh` checks locally (AddressSanitizer, clang-tidy, the GCC Debug build, the
 # scenarios of every game, including on a phone's screen) is not repeated here.
+# A pull request into `complete-universe` (the long-running branch of that game) runs nothing: the
+# branch is checked as a whole at the milestones of its roadmap, by a pull request into `dev`
+# (docs/complete_universe/ROADMAP.md).
 on:
   push:
     branches: [main, dev]
   pull_request:
+    branches-ignore: [complete-universe]
   merge_group:
   # Called by "Promote dev to main": the tip of dev gets the whole tier before it becomes main.
   workflow_call:

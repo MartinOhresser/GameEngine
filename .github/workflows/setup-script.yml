@@ -5,6 +5,7 @@ name: Setup script
 # Not part of "CI success": it runs when the script changes, or on demand.
 on:
   pull_request:
+    branches-ignore: [complete-universe]
     paths: ["scripts/setup_linux.sh", ".github/workflows/setup-script.yml"]
   workflow_dispatch:
 
