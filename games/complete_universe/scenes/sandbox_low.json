@@ -304,6 +304,11 @@
           "wobble": 160,
           "full_action": "take_off"
         },
+        "toggle.ActiveBy": {
+          "toggle": "dead",
+          "inverse": true
+        },
+        "checkpoint.Saved": {},
         "reserve.Drain": {
           "kind": "matter",
           "field": "transform2d.Velocity.x",
@@ -323,6 +328,10 @@
         },
         "camera2d.Camera": {
           "zoom": 1
+        },
+        "spawner2d.Shooter": {
+          "prefab": "fade_back",
+          "action": "revive"
         },
         "postfx.Effects": {
           "vignette": 0.45,
@@ -920,6 +929,64 @@
       }
     },
     {
+      "name": "dead",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "dead"
+        },
+        "toggle.Toggle": {}
+      }
+    },
+    {
+      "name": "dies_white",
+      "components": {
+        "rules.OnAction": {
+          "action": "out_of_matter",
+          "source": "dead",
+          "field": "toggle.Toggle.on",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "dies_black",
+      "components": {
+        "rules.OnAction": {
+          "action": "out_of_carbon",
+          "source": "dead",
+          "field": "toggle.Toggle.on",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "revives",
+      "components": {
+        "rules.OnAction": {
+          "action": "revive",
+          "source": "dead",
+          "field": "toggle.Toggle.on",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "checkpoint",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "checkpoint.Checkpoint": {
+          "load": "revive"
+        }
+      }
+    },
+    {
       "name": "matter",
       "components": {
         "transform2d.Position": {
@@ -929,12 +996,17 @@
         "tag.Tag": {
           "tag": "matter"
         },
+        "checkpoint.Saved": {},
         "reserve.Reserve": {
           "kind": "matter",
           "amount": 20,
           "max": 100,
           "drain": 0.3333333333333333,
           "empty_action": "out_of_matter"
+        },
+        "spawner2d.Shooter": {
+          "prefab": "fade_white",
+          "action": "out_of_matter"
         }
       }
     },
@@ -948,12 +1020,17 @@
         "tag.Tag": {
           "tag": "carbon"
         },
+        "checkpoint.Saved": {},
         "reserve.Reserve": {
           "kind": "carbon",
           "amount": 8,
           "max": 100,
           "drain": 0.3333333333333333,
           "empty_action": "out_of_carbon"
+        },
+        "spawner2d.Shooter": {
+          "prefab": "fade_black",
+          "action": "out_of_carbon"
         }
       }
     },

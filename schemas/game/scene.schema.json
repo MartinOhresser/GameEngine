@@ -562,6 +562,53 @@
                 },
                 "additionalProperties": false
               },
+              "checkpoint.Checkpoint": {
+                "type": "object",
+                "properties": {
+                  "save": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "load": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "at_start": {
+                    "type": "boolean"
+                  },
+                  "watch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "saves": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "loads": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "seen": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "checkpoint.Saved": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
               "collision2d.Collider": {
                 "type": "object",
                 "properties": {
@@ -3586,6 +3633,20 @@
                 "additionalProperties": false
               },
               "toggle.ShownBy": {
+                "type": "object",
+                "properties": {
+                  "toggle": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "inverse": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "toggle.ActiveBy": {
                 "type": "object",
                 "properties": {
                   "toggle": {

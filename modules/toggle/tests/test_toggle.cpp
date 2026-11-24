@@ -79,3 +79,14 @@ TEST_CASE("toggle: with hold it is on only while the action is held") {
     screen.run(10);
     CHECK(!screen.on());
 }
+
+TEST_CASE("toggle: ActiveBy switches an entity off while its toggle is on") {
+    Screen screen(false);
+    const ge::ecs::Entity hero = screen.app.world().spawn();
+    CHECK(screen.app.world().insert(hero, toggle::ActiveBy{map_tag, true}));
+    screen.run(1);
+    CHECK(!screen.app.world().has<transform2d::Disabled>(hero));
+    screen.app.world().get<toggle::Toggle>(screen.map)->on = true; // set by a rule, say
+    screen.run(1);
+    CHECK(screen.app.world().has<transform2d::Disabled>(hero));
+}

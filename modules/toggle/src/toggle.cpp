@@ -29,16 +29,27 @@ void flip(ecs::World& world) {
     }
     const tag::Tagged tags(world);
     auto* commands = world.resource<ecs::Commands>();
-    world.each<const ShownBy>([&](ecs::Entity entity, const ShownBy& shown) {
-        const ecs::Entity holder = tags.find(shown.toggle);
+    const auto on_of = [&](std::uint32_t name) {
+        const ecs::Entity holder = tags.find(name);
         const auto* toggle = holder.is_null() ? nullptr : world.get<Toggle>(holder);
-        const bool on = toggle != nullptr && toggle->on;
-        const bool show = on != shown.inverse;
+        return toggle != nullptr && toggle->on;
+    };
+    world.each<const ShownBy>([&](ecs::Entity entity, const ShownBy& shown) {
+        const bool show = on_of(shown.toggle) != shown.inverse;
         const bool hidden = world.has<transform2d::Hidden>(entity);
         if (show && hidden) {
             commands->remove<transform2d::Hidden>(entity);
         } else if (!show && !hidden) {
             commands->insert(entity, transform2d::Hidden{});
+        }
+    });
+    world.each<const ActiveBy>([&](ecs::Entity entity, const ActiveBy& active) {
+        const bool work = on_of(active.toggle) != active.inverse;
+        const bool disabled = world.has<transform2d::Disabled>(entity);
+        if (work && disabled) {
+            commands->remove<transform2d::Disabled>(entity);
+        } else if (!work && !disabled) {
+            commands->insert(entity, transform2d::Disabled{});
         }
     });
 }

@@ -40,6 +40,7 @@
           "bounce2d",
           "bounds2d",
           "camera2d",
+          "checkpoint",
           "collision2d",
           "combat2d",
           "debug_draw",
@@ -180,6 +181,11 @@
           "additionalProperties": false
         },
         "camera2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "checkpoint": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

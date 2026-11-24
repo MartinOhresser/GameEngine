@@ -1,5 +1,5 @@
 // Little black and white left: the edges whiten (matter at 20 of 100) and darken (carbon at 8).
-// The carbon runs out after 24 seconds: its action is pressed and the screen is black.
+// The carbon runs out after 24 seconds: the screen is black.
 {
   "schema_version": 1,
   "name": "edges_turn",
@@ -12,8 +12,9 @@
     // Carbon 0.08 full: 0.84 of the way, so 0.45 + 0.55 × 0.84^1.5 = 0.873 of the dark vignette.
     { "at": 1, "check": "camera.postfx.Effects.vignette > 0.86" },
     { "at": 1, "check": "camera.postfx.Effects.vignette < 0.88" },
-    { "at": 1500, "check": "carbon.reserve.Reserve.amount == 0" },
-    "camera.postfx.Effects.vignette == 1",
-    "camera.postfx.Effects.vignette_size == -3",
+    // At 0 (tick 1440) the screen is all black, until the step starts again (D7).
+    { "at": 1450, "check": "carbon.reserve.Reserve.amount == 0" },
+    { "at": 1450, "check": "camera.postfx.Effects.vignette == 1" },
+    { "at": 1450, "check": "camera.postfx.Effects.vignette_size == -3" },
   ],
 }
