@@ -205,3 +205,39 @@ TEST_CASE("jump: a Disabled jumper does not jump, and jumps again once enabled")
     level.run(1);
     CHECK(level.jumps() == 1U);
 }
+
+TEST_CASE("jump: a charged jump goes higher the longer it was held, and wobbles at full charge") {
+    jump::Jumper charged;
+    charged.speed = 300.0F;
+    charged.charge_time = 1.0F;
+    charged.charge_low = 0.5F;
+    charged.charge_high = 1.5F;
+    charged.wobble = 200.0F;
+    Level level(charged);
+    level.run(3);
+    level.hold(30); // half a second: half the charge
+    level.run(29);
+    CHECK(std::abs(level.app.world().get<jump::Jumper>(level.hero)->charge - 0.5F) < 0.03F);
+    CHECK(level.jumps() == 0U); // held: not yet
+    level.run(2);
+    CHECK(level.jumps() == 1U);
+    // 300 × (0.5 + 1 × 0.5), less what gravity took in the tick: about 300 up.
+    CHECK(level.app.world().get<transform2d::Velocity>(level.hero)->y < -270.0F);
+    CHECK(level.app.world().get<transform2d::Velocity>(level.hero)->y > -310.0F);
+    CHECK(level.app.world().get<jump::Jumper>(level.hero)->full_jumps == 0U);
+    level.run(120);
+    CHECK(level.on_floor());
+    // Nothing brakes it here: the sideways part of the first leap is taken away by hand.
+    level.app.world().get<transform2d::Velocity>(level.hero)->x = 0.0F;
+    level.app.world().get<transform2d::Position>(level.hero)->x = 0.0F;
+    level.hold(80); // more than the whole second: a full charge
+    level.run(40);
+    CHECK(level.app.world().get<jump::Jumper>(level.hero)->charge > 0.6F);
+    CHECK(level.app.world().get<collision2d::Blocked>(level.hero)->below);
+    level.run(30);
+    CHECK(level.app.world().get<jump::Jumper>(level.hero)->charge == 1.0F);
+    level.run(11);
+    CHECK(level.app.world().get<jump::Jumper>(level.hero)->full_jumps == 1U);
+    CHECK(level.app.world().get<transform2d::Velocity>(level.hero)->y < -400.0F);
+    CHECK(level.app.world().get<transform2d::Velocity>(level.hero)->x != 0.0F);
+}

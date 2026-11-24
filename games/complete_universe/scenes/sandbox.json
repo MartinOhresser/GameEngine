@@ -297,10 +297,17 @@
           "braking": 2400
         },
         "jump.Jumper": {
-          "speed": 680,
-          "coyote_time": 0.1,
-          "buffer_time": 0.12,
-          "cut": 0.45
+          "speed": 560,
+          "charge_time": 1.2,
+          "charge_low": 0.55,
+          "charge_high": 1.8,
+          "wobble": 160,
+          "full_action": "take_off"
+        },
+        "reserve.Drain": {
+          "kind": "matter",
+          "field": "transform2d.Velocity.x",
+          "per_unit": 0.002
         }
       }
     },
@@ -861,6 +868,54 @@
           "out_low": 0.15,
           "out_high": 1,
           "power": 0.5
+        }
+      }
+    },
+    {
+      "name": "jump_hole",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "jump_hole"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -80,
+          "stiffness": 1
+        },
+        "reserve.Drain": {
+          "kind": "matter",
+          "field": "transform2d.Scale.factor",
+          "per_unit": 0.15
+        }
+      }
+    },
+    {
+      "name": "jump_hole_grows",
+      "components": {
+        "bind.Bind": {
+          "source": "jump.Jumper.charge",
+          "from": "hero",
+          "target": "transform2d.Scale.factor",
+          "onto": "jump_hole",
+          "low": 0,
+          "high": 1,
+          "out_low": 0,
+          "out_high": 24,
+          "power": 1
         }
       }
     },

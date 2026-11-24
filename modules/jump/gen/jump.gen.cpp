@@ -40,6 +40,20 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.air_jumps_used = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "holding") {
             component.holding = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "charge_time") {
+            component.charge_time = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "charge_low") {
+            component.charge_low = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "charge_high") {
+            component.charge_high = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "wobble") {
+            component.wobble = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "full_action") {
+            component.full_action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "charge") {
+            component.charge = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "full_jumps") {
+            component.full_jumps = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -83,6 +97,27 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "holding") {
         return ::ge::app::Scalar{static_cast<bool>(component->holding)};
+    }
+    if (field == "charge_time") {
+        return ::ge::app::Scalar{static_cast<double>(component->charge_time)};
+    }
+    if (field == "charge_low") {
+        return ::ge::app::Scalar{static_cast<double>(component->charge_low)};
+    }
+    if (field == "charge_high") {
+        return ::ge::app::Scalar{static_cast<double>(component->charge_high)};
+    }
+    if (field == "wobble") {
+        return ::ge::app::Scalar{static_cast<double>(component->wobble)};
+    }
+    if (field == "full_action") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->full_action)};
+    }
+    if (field == "charge") {
+        return ::ge::app::Scalar{static_cast<double>(component->charge)};
+    }
+    if (field == "full_jumps") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->full_jumps)};
     }
     return std::nullopt;
 }
@@ -138,10 +173,38 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->holding = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "charge_time") {
+        component->charge_time = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "charge_low") {
+        component->charge_low = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "charge_high") {
+        component->charge_high = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "wobble") {
+        component->wobble = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "full_action") {
+        component->full_action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "charge") {
+        component->charge = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "full_jumps") {
+        component->full_jumps = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 11> component_0_fields{{{"speed", "f32", "", false}, {"action", "u32", "action", false}, {"coyote_time", "f32", "", false}, {"buffer_time", "f32", "", false}, {"cut", "f32", "", false}, {"air_jumps", "u32", "", false}, {"jumps", "u32", "", false}, {"since_ground", "f32", "", false}, {"since_press", "f32", "", false}, {"air_jumps_used", "u32", "", false}, {"holding", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 18> component_0_fields{{{"speed", "f32", "", false}, {"action", "u32", "action", false}, {"coyote_time", "f32", "", false}, {"buffer_time", "f32", "", false}, {"cut", "f32", "", false}, {"air_jumps", "u32", "", false}, {"jumps", "u32", "", false}, {"since_ground", "f32", "", false}, {"since_press", "f32", "", false}, {"air_jumps_used", "u32", "", false}, {"holding", "bool", "", false}, {"charge_time", "f32", "", false}, {"charge_low", "f32", "", false}, {"charge_high", "f32", "", false}, {"wobble", "f32", "", false}, {"full_action", "u32", "action", false}, {"charge", "f32", "", false}, {"full_jumps", "u32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Jumper", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

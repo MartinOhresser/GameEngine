@@ -11,7 +11,7 @@
 
 namespace ge::mod::jump {
 
-/// The entity jumps when its action (jump when action is none) is pressed: its Velocity y becomes -speed (y grows downwards, so it goes up). It may jump while collision2d.Blocked says there is a floor below it, or up to coyote_time seconds after it left the floor without jumping; a press up to buffer_time seconds before it lands makes it jump on landing. Letting go of the action while still going up multiplies the upward speed by cut (1 always jumps full height, 0.5 halves the speed of a short press). air_jumps is how many more jumps it may make before it touches the ground again. Needs a collision2d.Blocked to know where the ground is. A transform2d.Disabled jumper does not hear its action (a character during a cutscene). The other fields are kept by the jump itself: jumps counts the jumps made (an animation, a sound or a rule can watch it), since_ground and since_press are the seconds since the ground was last touched and the action last pressed, air_jumps_used the jumps made in the air since then, and holding is true while a jump is still going up with the action held.
+/// The entity jumps when its action (jump when action is none) is pressed: its Velocity y becomes -speed (y grows downwards, so it goes up). It may jump while collision2d.Blocked says there is a floor below it, or up to coyote_time seconds after it left the floor without jumping; a press up to buffer_time seconds before it lands makes it jump on landing. Letting go of the action while still going up multiplies the upward speed by cut (1 always jumps full height, 0.5 halves the speed of a short press). air_jumps is how many more jumps it may make before it touches the ground again. Needs a collision2d.Blocked to know where the ground is. With charge_time more than 0 the jump is charged instead: the action held on the ground fills charge from 0 to 1 in charge_time seconds, and letting it go jumps at speed times a share that goes from charge_low (a tap) to charge_high (a full charge), sideways by up to wobble units a second, more the fuller the charge (a strong leap is less precise; the game's Random says which way); letting go at a full charge also presses full_action (none: nothing) and counts in full_jumps (a leap into the sky, out of a level). A transform2d.Disabled jumper does not hear its action (a character during a cutscene). The other fields are kept by the jump itself: jumps counts the jumps made (an animation, a sound or a rule can watch it), since_ground and since_press are the seconds since the ground was last touched and the action last pressed, air_jumps_used the jumps made in the air since then, and holding is true while a jump is still going up with the action held.
 struct Jumper {
     float speed = 400.0F;
     std::uint32_t action = 4294967295U;
@@ -24,6 +24,13 @@ struct Jumper {
     float since_press = 1000.0F;
     std::uint32_t air_jumps_used = 0U;
     bool holding = false;
+    float charge_time = 0.0F;
+    float charge_low = 0.5F;
+    float charge_high = 1.5F;
+    float wobble = 0.0F;
+    std::uint32_t full_action = 4294967295U;
+    float charge = 0.0F;
+    std::uint32_t full_jumps = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(speed);
@@ -37,6 +44,13 @@ struct Jumper {
         hasher.add(since_press);
         hasher.add(air_jumps_used);
         hasher.add(holding);
+        hasher.add(charge_time);
+        hasher.add(charge_low);
+        hasher.add(charge_high);
+        hasher.add(wobble);
+        hasher.add(full_action);
+        hasher.add(charge);
+        hasher.add(full_jumps);
     }
 
     [[nodiscard]] friend bool operator==(const Jumper&, const Jumper&) = default;

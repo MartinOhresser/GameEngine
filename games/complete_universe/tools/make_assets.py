@@ -296,8 +296,33 @@ def hero_entity(x, y):
         "camera2d.CameraTarget": {},
         "action_control.Controlled": {"speed": 240, "vertical": False, "acceleration": 1600,
                                       "braking": 2400},
-        "jump.Jumper": {"speed": 680, "coyote_time": 0.1, "buffer_time": 0.12, "cut": 0.45},
+        # Jumping (GDD §5, D5): Space held makes a small black hole above his head that grows;
+        # let go, he leaps, higher and less straight the bigger it was. Full, he takes off.
+        "jump.Jumper": {"speed": 560, "charge_time": 1.2, "charge_low": 0.55,
+                        "charge_high": 1.8, "wobble": 160, "full_action": "take_off"},
+        # Walking (GDD §5): he pulls his legs by gravity where his steps fall, at a small cost.
+        "reserve.Drain": {"kind": "matter", "field": "transform2d.Velocity.x",
+                          "per_unit": 0.002},
     })
+
+
+def jump_hole():
+    """The small black hole above the hero's head while he charges a jump: its size follows the
+    charge, and it costs matter while it is there."""
+    return [
+        entity("jump_hole", 0, 0, {
+            "tag.Tag": {"tag": "jump_hole"},
+            "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                                "layer": LAYERS["hero"] + 5, "unlit": True},
+            "transform2d.Scale": {"factor": 0},
+            "follow2d.Follow": {"target": "hero", "offset_y": -80, "stiffness": 1},
+            # 0.15 matter a second for each unit of its radius: 3.6 a second when full.
+            "reserve.Drain": {"kind": "matter", "field": "transform2d.Scale.factor",
+                              "per_unit": 0.15},
+        }),
+        bind("jump_hole_grows", "hero", "jump.Jumper.charge", "transform2d.Scale.factor",
+             0, 1, 0, 24, 1, onto="jump_hole"),
+    ]
 
 
 # What the lens adds at rest: a dark vignette, as in Limbo, a little glow and grain.
@@ -507,7 +532,7 @@ def sandbox():
             rock_entity("fossil_1", 330, GROUND_Y - 11, kind="carbon", amount=15,
                         atlas="fossil"),
             hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + powers() \
-        + inventory() + reserves()
+        + inventory() + jump_hole() + reserves()
 
 
 def sandbox_low():

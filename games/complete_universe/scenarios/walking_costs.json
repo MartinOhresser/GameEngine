@@ -1,0 +1,17 @@
+// Walking costs a little matter (0.002 for each unit of speed a second: about 0.5 a second at
+// full speed), on top of the life drain (a third a second).
+{
+  "schema_version": 1,
+  "name": "walking_costs",
+  "scene": "sandbox",
+  "ticks": 180,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+  ],
+  "expect": [
+    // Standing still, 3 seconds take 1; walking takes about 1.4 more.
+    "matter.reserve.Reserve.amount < 98.0",
+    "matter.reserve.Reserve.amount > 97.4",
+    "carbon.reserve.Reserve.amount > 98.9",
+  ],
+}

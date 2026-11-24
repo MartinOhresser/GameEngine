@@ -14,12 +14,12 @@
   "lists": {
     "action": [
       "move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right", "change",
-      "pointer_x", "pointer_y", "harvest", "inventory",
+      "pointer_x", "pointer_y", "harvest", "inventory", "take_off",
     ],
     "layer": ["hero", "ground", "rock", "barrier"],
     "tag": [
       "hero", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
-      "inventory", "matter_bubble", "carbon_bubble",
+      "inventory", "matter_bubble", "carbon_bubble", "jump_hole",
     ],
     // One kind of resource for each power (GDD §7): matter feeds the black, carbon the white.
     "resource": ["matter", "carbon"],
@@ -41,7 +41,8 @@
     "scenarios/life_drains.json", "scenarios/edges_turn.json", "scenarios/assigns_hands.json",
     "scenarios/wheel.json", "scenarios/hands_together.json", "scenarios/black_hole.json",
     "scenarios/barrier_catches_rock.json", "scenarios/harvest_sorts.json",
-    "scenarios/inventory_opens.json",
+    "scenarios/inventory_opens.json", "scenarios/walking_costs.json",
+    "scenarios/charged_jump.json",
   ],
   "start_scene": "sandbox",
 }

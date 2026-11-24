@@ -1930,6 +1930,31 @@
                   },
                   "holding": {
                     "type": "boolean"
+                  },
+                  "charge_time": {
+                    "type": "number"
+                  },
+                  "charge_low": {
+                    "type": "number"
+                  },
+                  "charge_high": {
+                    "type": "number"
+                  },
+                  "wobble": {
+                    "type": "number"
+                  },
+                  "full_action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "charge": {
+                    "type": "number"
+                  },
+                  "full_jumps": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false

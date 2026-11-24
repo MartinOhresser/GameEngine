@@ -1,0 +1,22 @@
+// Space held past the whole charge: the small black hole above his head grows to its full size,
+// costs matter, and the leap is a full one (the take off of D5), higher and not straight.
+{
+  "schema_version": 1,
+  "name": "charged_jump",
+  "scene": "sandbox",
+  "ticks": 120,
+  "inputs": [
+    { "tick": 5, "action": "jump", "value": 1 },
+    { "tick": 90, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    { "at": 60, "check": "jump_hole.transform2d.Scale.factor > 10" },
+    { "at": 89, "check": "jump_hole.transform2d.Scale.factor == 24" },
+    { "at": 89, "check": "hero.jump.Jumper.charge == 1" },
+    { "at": 89, "check": "matter.reserve.Reserve.amount < 97" },
+    { "at": 92, "check": "hero.jump.Jumper.full_jumps == 1" },
+    { "at": 92, "check": "jump_hole.transform2d.Scale.factor == 0" },
+    // 560 × 1.8 = 1008 up: about 280 units high.
+    { "at": 120, "check": "hero.transform2d.Position.y < 330" },
+  ],
+}
