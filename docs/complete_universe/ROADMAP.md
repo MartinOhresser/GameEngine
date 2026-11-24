@@ -155,6 +155,6 @@ Les plus gros risques techniques sont au début, et c'est voulu :
 - le terrain destructible (collision et dessin rapides) ;
 - la caméra qui tourne ;
 - le flou sans shader ;
-- le personnage en 3/4, fait d'images générées.
+- un personnage aux animations fluides façon Ori, fait d'images générées.
 
 Le tutoriel les rencontre tous sauf la caméra qui tourne.

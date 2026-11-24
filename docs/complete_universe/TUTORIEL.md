@@ -9,7 +9,7 @@ Phases 1 et 2 de la [roadmap globale](ROADMAP.md), jusqu'au jalon **J1 « Tutori
 Une seule planète, enfermée dans l'immense barrière du début :
 
 - **Vue de l'espace** (cinématiques), elle est ronde, sous un dôme qui brille faiblement.
-- **En jouant**, son sol est plat (D1, P6). Il fait environ quatre écrans de large, et on le voit en 3/4 : un bandeau pour la face du dessus du sol, des plans de décor en profondeur, et le dôme en arc dans le ciel.
+- **En jouant**, son sol est plat (D1, P6). Il fait environ quatre écrans de large, et on le voit de côté, comme dans Ori : un peu du dessus du sol, des plans de décor en profondeur, et le dôme en arc dans le ciel.
 - **En noir, blanc et gris.** La seule lumière est celle des étoiles, à travers le dôme.
 
 De gauche à droite :
@@ -160,8 +160,8 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 **U13 — Beauté et son.**
 
 - Les images définitives, générées par `make_assets.py` :
-  - le personnage d'ovales, de 3/4, coupé en deux (D2), avec les motifs de ses bras : spirale pour le Noir, hexagones pour le Blanc ;
-  - le sol en bandeau, les plans de décor, le dôme, les étoiles ;
+  - le personnage d'ovales, de profil, le torse un peu tourné vers nous et coupé en deux (D2). Ses animations sont fluides comme dans Ori. Ses bras portent des motifs : une spirale pour le Noir, des hexagones pour le Blanc ;
+  - le sol, dont on voit un peu le dessus, les plans de décor, le dôme, les étoiles ;
   - les trous noirs et les bulles.
 - Lumière et particules dans l'esprit Limbo : gris, contre-jours, poussière.
 - Le module `sound` : un son par pouvoir (grave qui aspire, cristallin) et une musique d'ambiance.
@@ -179,4 +179,4 @@ Le protocole complet de la [roadmap](ROADMAP.md) :
 ## 3. Ce qui pourrait changer le plan
 
 - **Terrain** (U2) : si la collision contre le masque est trop lente, on passe à des cellules plus grosses, avec un contour lissé seulement au dessin.
-- **Personnage de 3/4** (U13) : s'il est trop difficile à rendre beau avec numpy et Pillow, on le décompose en ovales articulés (`transform2d.Attach`), animés par le moteur plutôt qu'image par image.
+- **Animations du personnage** (U13) : si des animations fluides image par image sont trop difficiles à rendre belles avec numpy et Pillow, on décompose le corps en ovales articulés (`transform2d.Attach`), animés par le moteur.

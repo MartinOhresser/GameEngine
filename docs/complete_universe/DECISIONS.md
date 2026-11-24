@@ -13,7 +13,7 @@ Une décision prise plus tard s'ajoute ici avec sa date. Ce fichier prime sur le
 | # | Sujet | Décision |
 | --- | --- | --- |
 | D1 | Forme des astres | **Les deux.** Les petits astres (astéroïdes, lunes) sont ronds : gravité vers leur centre, on en fait le tour, la caméra tourne avec le personnage. Les grandes planètes ont un sol plat qui défile : on ne voit jamais leur courbure en jouant. Vues de l'espace (cinématiques, voyage), elles sont rondes. |
-| D2 | Vue du personnage | **De profil, mais pas complètement.** Un léger angle laisse voir un peu son torse, un autre un peu le sol : vue de côté légèrement plongeante, façon 3/4. Il se retourne selon sa marche. |
+| D2 | Vue du personnage et du sol | **Vue de côté, comme Ori, pas de 3/4** (précisé le 24 novembre 2026). L'ambiance reste le mélange Limbo et Ori. Le personnage est de profil et se retourne selon sa marche, mais ses animations, fluides comme dans Ori, le tournent un peu vers nous : on voit un peu son torse. On voit aussi un peu le dessus du sol, comme dans Ori (bord, herbe, tranche éclairée). |
 | D3 | Guider vers une couleur pas encore obtenue | **Les couleurs grises se tiennent.** La roue montre les couleurs du palier en cours, en gris. On peut en tenir une : elle n'a aucun pouvoir et sert seulement de cible au Bleu. |
 | D4 | Tutoriel, étapes 2 à 5 | **Immobile.** Le personnage ne sait pas encore marcher : marcher, c'est déjà utiliser le Noir. Tout ce qu'il faut est à portée du point d'atterrissage. L'ordre du GDD est gardé. |
 | D5 | Saut et envol | **Espace, maintenu pour charger.** Le trou noir au-dessus de la tête grossit : plus haut, mais moins précis. Relâché à pleine charge (quelques secondes), le saut fait s'envoler. Les grottes et les plafonds empêchent les envols accidentels. |
@@ -23,8 +23,8 @@ Une décision prise plus tard s'ajoute ici avec sa date. Ce fichier prime sur le
 
 Conséquences de D2 :
 
-- Le GDD place le noir à droite du corps et le blanc à gauche. En marchant vers la droite, on voit donc surtout sa moitié gauche, la blanche ; vers la gauche, la noire. L'angle 3/4 laisse voir la ligne de séparation sur le torse.
-- Le clic gauche commande toujours **sa** main gauche, quel que soit le côté où il regarde. Grâce à l'angle, on voit ses deux bras.
+- Le GDD place le noir à droite du corps et le blanc à gauche. En marchant vers la droite, on voit donc surtout sa moitié gauche, la blanche ; vers la gauche, la noire. Le torse, un peu tourné vers nous, laisse voir la ligne de séparation.
+- Le clic gauche commande toujours **sa** main gauche, quel que soit le côté où il regarde. Ses animations montrent ses deux bras.
 
 Conséquences de D6 :
 
@@ -71,7 +71,7 @@ Ces propositions s'appliquent tant que Martin ne dit rien.
 
 | # | Sujet | Choix |
 | --- | --- | --- |
-| T1 | Vue 3/4 | Le jeu reste en 2D (x, y). La profondeur est seulement dessinée : la face du dessus du sol en bandeau, des plans de décor, et des personnages dessinés de trois quarts. Ce n'est pas de l'isométrie vraie, qui ferait un jeu vu de dessus et casserait les sauts. |
+| T1 | Vue de côté façon Ori | Le jeu est en 2D (x, y), vu de côté, sans profondeur de jeu. Le dessus du sol est dessiné comme une tranche vue légèrement d'en haut (bord, herbe, lumière). Le torse visible vient du dessin et de l'animation : beaucoup d'images par mouvement, générées par `make_assets.py`, ou un corps d'ovales articulés animé par le moteur. Le choix se fait à U13, selon le rendu. |
 | T2 | Décor destructible | Un module de terrain : un masque de cellules (quelques pixels chacune) qu'on creuse, avec lequel les corps entrent en collision dans toutes les directions, ce qui marche aussi pour un astéroïde rond. Il est dessiné par des polygones (marching squares), grâce à une nouvelle primitive du renderer. |
 | T3 | Couleurs non débloquées | Pas de shader : chaque image colorée a sa variante grise, générée par `make_assets.py`. Un module choisit la variante selon les couleurs débloquées. |
 | T4 | Flou de la pause (D6) | Le monde est dessiné en basse résolution puis agrandi avec lissage. Pas de shader. |
