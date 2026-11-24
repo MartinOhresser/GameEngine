@@ -115,10 +115,12 @@
             "rock"
           ],
           "mask": [
-            "ground"
+            "ground",
+            "barrier"
           ]
         },
         "collision2d.Body": {},
+        "collision2d.Blocked": {},
         "gravity2d.Gravity": {
           "y": 1800,
           "terminal_speed": 1100
@@ -153,10 +155,52 @@
             "rock"
           ],
           "mask": [
-            "ground"
+            "ground",
+            "barrier"
           ]
         },
         "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "falling_rock",
+      "components": {
+        "transform2d.Position": {
+          "x": 480,
+          "y": 200
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
         "gravity2d.Gravity": {
           "y": 1800,
           "terminal_speed": 1100
@@ -195,7 +239,8 @@
             "hero"
           ],
           "mask": [
-            "ground"
+            "ground",
+            "barrier"
           ]
         },
         "collision2d.Body": {},
@@ -336,6 +381,138 @@
           "offset_y": -6,
           "stiffness": 1,
           "turn": true
+        }
+      }
+    },
+    {
+      "name": "white_caster",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "white_caster"
+        },
+        "transform2d.Disabled": {},
+        "loadout.Ability": {
+          "power": "white"
+        },
+        "aim2d.Aim": {
+          "from": "hero",
+          "range": 260,
+          "lock": true
+        },
+        "barrier2d.Caster": {
+          "pool": 0,
+          "start_radius": 18,
+          "grow": 70,
+          "max_radius": 140,
+          "wall_drag": 50,
+          "thickness": 12,
+          "kind": "carbon",
+          "per_unit": 0.06,
+          "atlas": "barrier",
+          "preview": 2,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "white_reaches_x",
+      "components": {
+        "bind.Bind": {
+          "source": "aim2d.Aim.reach_x",
+          "from": "white_caster",
+          "target": "barrier2d.Caster.end_x",
+          "onto": "white_caster",
+          "low": -100000,
+          "high": 100000,
+          "out_low": -100000,
+          "out_high": 100000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "white_reaches_y",
+      "components": {
+        "bind.Bind": {
+          "source": "aim2d.Aim.reach_y",
+          "from": "white_caster",
+          "target": "barrier2d.Caster.end_y",
+          "onto": "white_caster",
+          "low": -100000,
+          "high": 100000,
+          "out_low": -100000,
+          "out_high": 100000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "barrier_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "barrier2d.Barrier": {
+          "pool": 0,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14
+        }
+      }
+    },
+    {
+      "name": "barrier_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "barrier2d.Barrier": {
+          "pool": 0,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14
+        }
+      }
+    },
+    {
+      "name": "barrier_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "barrier2d.Barrier": {
+          "pool": 0,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14
         }
       }
     },

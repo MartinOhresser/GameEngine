@@ -148,6 +148,43 @@ def black_hole():
     return Image.fromarray(rgba, "RGBA")
 
 
+BARRIER = 256  # a cell of the barrier atlas
+
+
+def barriers():
+    """The pictures of the white (GDD, Blanc): a bubble (a crystal rim with faint hexagons, GDD:
+    "hexagones sur le bras"), a wall (a band, stretched along its length), and what a hand is
+    about to raise (a fainter rim)."""
+    size = BARRIER
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    r = np.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2)
+    # Hexagons: the distance to the nearest centre of a hexagonal grid.
+    scale = 18.0
+    q = (x * math.sqrt(3) / 3 - y / 3) / scale
+    rr = y * 2 / 3 / scale
+    hex_edge = np.abs(((q + rr / 2) % 1) - 0.5) + np.abs(((rr) % 1) - 0.5)
+    lines = np.clip(1 - np.abs(hex_edge - 0.5) * 8, 0, 1) * 0.25
+    rim = np.exp(-((r - 0.96) / 0.035) ** 2)
+    inner = np.clip(r, 0, 1) ** 4 * 0.35
+    inside = r <= 1.0
+
+    def bubble_cell(strength):
+        alpha = np.where(inside, np.clip((rim + inner + lines * r) * strength, 0, 1), 0)
+        cell = np.zeros((size, size, 4), np.uint8)
+        cell[..., 0:3] = 240
+        cell[..., 3] = (alpha * 255).astype(np.uint8)
+        return cell
+
+    band = np.abs(y - size / 2 + 0.5) / (size / 2)
+    wall_alpha = np.clip(np.exp(-(band / 0.75) ** 6) * 0.75 + np.exp(-((band - 0.85) / 0.1) ** 2)
+                         * 0.5 + lines * 0.6, 0, 1)
+    wall = np.zeros((size, size, 4), np.uint8)
+    wall[..., 0:3] = 236
+    wall[..., 3] = (wall_alpha * 255).astype(np.uint8)
+    sheet = np.concatenate([bubble_cell(1.0), wall, bubble_cell(0.45)], axis=1)
+    return Image.fromarray(sheet, "RGBA")
+
+
 ROCK = 40
 
 
@@ -196,7 +233,7 @@ def hero_entity(x, y):
         "tag.Tag": {"tag": "hero"},
         "transform2d.Velocity": {},
         "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
-                                 "mask": ["ground"]},
+                                 "mask": ["ground", "barrier"]},
         "collision2d.Body": {},
         "collision2d.Blocked": {},
         "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
@@ -258,7 +295,29 @@ def powers():
                             "layer": LAYERS["hero"] + 5, "unlit": True},
         "transform2d.Scale": {"factor": 0},
     })
+    # The white (GDD, Blanc): pressed, a bubble grows where the pointer was; dragged further than
+    # wall_drag, it becomes a wall to the pointer. Let go, the barrier is raised and paid in carbon
+    # for its size; three at most (the oldest gives way).
+    white = entity("white_caster", 0, 0, {
+        "tag.Tag": {"tag": "white_caster"},
+        "transform2d.Disabled": {},
+        "loadout.Ability": {"power": "white"},
+        "aim2d.Aim": {"from": "hero", "range": 260, "lock": True},
+        "barrier2d.Caster": {"pool": 0, "start_radius": 18, "grow": 70, "max_radius": 140,
+                             "wall_drag": 50, "thickness": 12, "kind": "carbon",
+                             "per_unit": 0.06, "atlas": "barrier", "preview": 2,
+                             "layer": LAYERS["hero"] + 4},
+    })
+    walls = [entity(f"barrier_{index}", 0, 0, {"barrier2d.Barrier": {
+        "pool": 0, "layer": ["barrier"], "freezes": ["rock"], "atlas": "barrier", "bubble": 0,
+        "wall": 1, "draw_layer": LAYERS["hero"] + 4}}) for index in (1, 2, 3)]
     return [
+        white,
+        bind("white_reaches_x", "white_caster", "aim2d.Aim.reach_x", "barrier2d.Caster.end_x",
+             -100000, 100000, -100000, 100000, 1, onto="white_caster"),
+        bind("white_reaches_y", "white_caster", "aim2d.Aim.reach_y", "barrier2d.Caster.end_y",
+             -100000, 100000, -100000, 100000, 1, onto="white_caster"),
+    ] + walls + [
         hole,
         bind("black_hole_digs", "black_hole", "attractor2d.Attractor.heart",
              "terrain2d.Digger.radius", 0, 1000, 0, 1000, 1, onto="black_hole"),
@@ -274,8 +333,9 @@ def rock_entity(name, x, y, kind="matter", amount=12, atlas="rock"):
                             "layer": LAYERS["hero"] - 2},
         "transform2d.Velocity": {},
         "collision2d.Collider": {"width": 26, "height": 22, "layer": ["rock"],
-                                 "mask": ["ground"]},
+                                 "mask": ["ground", "barrier"]},
         "collision2d.Body": {},
+        "collision2d.Blocked": {},
         "gravity2d.Gravity": {"y": 1800, "terminal_speed": 1100},
         "attractor2d.Absorbable": {"mass": 10},
         "reserve.Yield": {"kind": kind, "amount": amount},
@@ -337,6 +397,8 @@ def sandbox():
             shape("step", 800, GROUND_Y - 4, 200, 8, True),
             shape("wall", 1250, GROUND_Y - 60, 32, 120, True),
             rock_entity("rock_1", 560, GROUND_Y - 11), rock_entity("rock_2", 640, GROUND_Y - 11),
+            # A rock high up, that falls as the scene starts.
+            rock_entity("falling_rock", 480, 200),
             hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + powers() \
         + reserves()
 
@@ -394,6 +456,7 @@ def main():
     save(arms(), "arm", cell=(ARM, ARM))
     save(black_hole(), "black_hole")
     save(rock(5), "rock")
+    save(barriers(), "barrier", cell=(BARRIER, BARRIER))
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
 

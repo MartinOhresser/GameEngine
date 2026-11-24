@@ -32,6 +32,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.x = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "y") {
             component.y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "reach_x") {
+            component.reach_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "reach_y") {
+            component.reach_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "distance") {
             component.distance = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "dir_x") {
@@ -69,6 +73,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "y") {
         return ::ge::app::Scalar{static_cast<double>(component->y)};
+    }
+    if (field == "reach_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->reach_x)};
+    }
+    if (field == "reach_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->reach_y)};
     }
     if (field == "distance") {
         return ::ge::app::Scalar{static_cast<double>(component->distance)};
@@ -117,6 +127,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->y = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "reach_x") {
+        component->reach_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "reach_y") {
+        component->reach_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     if (field == "distance") {
         component->distance = ::ge::app::scalar_as<float>(value);
         return true;
@@ -132,7 +150,7 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 10> component_0_fields{{{"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"from", "u32", "tag", false}, {"range", "f32", "", false}, {"lock", "bool", "", false}, {"x", "f32", "", false}, {"y", "f32", "", false}, {"distance", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 12> component_0_fields{{{"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"from", "u32", "tag", false}, {"range", "f32", "", false}, {"lock", "bool", "", false}, {"x", "f32", "", false}, {"y", "f32", "", false}, {"reach_x", "f32", "", false}, {"reach_y", "f32", "", false}, {"distance", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Aim", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

@@ -27,9 +27,12 @@ void pull(ecs::World& world) {
     const float step = world.resource<app::Time>()->fixed_delta *
                        world.resource<transform2d::Params>()->speed_scale;
     world.each<const Gravity, transform2d::Velocity>(
-        [step](ecs::Entity, const Gravity& gravity, transform2d::Velocity& velocity) {
-            velocity.x = pulled(velocity.x, gravity.x, step, gravity.terminal_speed);
-            velocity.y = pulled(velocity.y, gravity.y, step, gravity.terminal_speed);
+        [&world, step](ecs::Entity entity, const Gravity& gravity, transform2d::Velocity& velocity) {
+            // An entity slowed on its own (transform2d.SpeedScale) falls as slowly as it moves.
+            const auto* own = world.get<transform2d::SpeedScale>(entity);
+            const float scaled = own == nullptr ? step : step * own->factor;
+            velocity.x = pulled(velocity.x, gravity.x, scaled, gravity.terminal_speed);
+            velocity.y = pulled(velocity.y, gravity.y, scaled, gravity.terminal_speed);
         });
 }
 

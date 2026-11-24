@@ -93,6 +93,8 @@ void aim(ecs::World& world) {
                 target_y = from->y + aimed.dir_y * aimed.range;
             }
         }
+        aimed.reach_x = target_x;
+        aimed.reach_y = target_y;
         if (!aimed.lock || world.has<transform2d::Disabled>(entity)) {
             position.x = target_x;
             position.y = target_y;
