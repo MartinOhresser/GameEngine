@@ -10,7 +10,7 @@
   "description": "A dusk forest of silhouettes and mist. A small hero walks and jumps through it, and the planes slide past at their own speeds.",
   "modules": [
     "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control", "jump",
-    "light2d",
+    "light2d", "particles2d",
   ],
   "lists": {
     "layer": ["hero", "ground"],
@@ -22,6 +22,7 @@
     "art/sky.json", "art/glow.json", "art/ray.json", "art/ridge.json", "art/far_trees.json",
     "art/mid_trees.json", "art/near_trees.json", "art/mist_far.json", "art/mist_mid.json",
     "art/mist_near.json", "art/ground.json", "art/foreground.json", "art/hero.json",
+    "art/leaves.json",
   ],
   "scenes": ["scenes/forest.json"],
   "scenarios": [

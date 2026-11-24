@@ -653,6 +653,246 @@
       }
     },
     {
+      "name": "fireflies_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 768,
+          "y": 450
+        },
+        "particles2d.Emitter": {
+          "rate": 2.5,
+          "lifetime": 6,
+          "lifetime_spread": 2,
+          "speed": 6,
+          "speed_spread": 4,
+          "wander": 22,
+          "area_width": 1536,
+          "area_height": 200,
+          "size": 15,
+          "end_size": 11,
+          "red": 214,
+          "green": 255,
+          "blue": 150,
+          "alpha": 230,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "max": 40
+        }
+      }
+    },
+    {
+      "name": "leaves_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 768,
+          "y": -40
+        },
+        "particles2d.Emitter": {
+          "rate": 1.2,
+          "lifetime": 11,
+          "lifetime_spread": 3,
+          "speed": 30,
+          "speed_spread": 10,
+          "angle": 100,
+          "spread": 40,
+          "gravity_y": 4,
+          "drag": 0.05,
+          "wander": 45,
+          "area_width": 1536,
+          "size": 24,
+          "end_size": 22,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "additive": false,
+          "atlas": "leaves",
+          "layer": 12,
+          "max": 30
+        }
+      }
+    },
+    {
+      "name": "fireflies_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2304,
+          "y": 450
+        },
+        "particles2d.Emitter": {
+          "rate": 2.5,
+          "lifetime": 6,
+          "lifetime_spread": 2,
+          "speed": 6,
+          "speed_spread": 4,
+          "wander": 22,
+          "area_width": 1536,
+          "area_height": 200,
+          "size": 15,
+          "end_size": 11,
+          "red": 214,
+          "green": 255,
+          "blue": 150,
+          "alpha": 230,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "max": 40
+        }
+      }
+    },
+    {
+      "name": "leaves_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2304,
+          "y": -40
+        },
+        "particles2d.Emitter": {
+          "rate": 1.2,
+          "lifetime": 11,
+          "lifetime_spread": 3,
+          "speed": 30,
+          "speed_spread": 10,
+          "angle": 100,
+          "spread": 40,
+          "gravity_y": 4,
+          "drag": 0.05,
+          "wander": 45,
+          "area_width": 1536,
+          "size": 24,
+          "end_size": 22,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "additive": false,
+          "atlas": "leaves",
+          "layer": 12,
+          "max": 30
+        }
+      }
+    },
+    {
+      "name": "fireflies_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 3840,
+          "y": 450
+        },
+        "particles2d.Emitter": {
+          "rate": 2.5,
+          "lifetime": 6,
+          "lifetime_spread": 2,
+          "speed": 6,
+          "speed_spread": 4,
+          "wander": 22,
+          "area_width": 1536,
+          "area_height": 200,
+          "size": 15,
+          "end_size": 11,
+          "red": 214,
+          "green": 255,
+          "blue": 150,
+          "alpha": 230,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "max": 40
+        }
+      }
+    },
+    {
+      "name": "leaves_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 3840,
+          "y": -40
+        },
+        "particles2d.Emitter": {
+          "rate": 1.2,
+          "lifetime": 11,
+          "lifetime_spread": 3,
+          "speed": 30,
+          "speed_spread": 10,
+          "angle": 100,
+          "spread": 40,
+          "gravity_y": 4,
+          "drag": 0.05,
+          "wander": 45,
+          "area_width": 1536,
+          "size": 24,
+          "end_size": 22,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "additive": false,
+          "atlas": "leaves",
+          "layer": 12,
+          "max": 30
+        }
+      }
+    },
+    {
+      "name": "fireflies_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 5376,
+          "y": 450
+        },
+        "particles2d.Emitter": {
+          "rate": 2.5,
+          "lifetime": 6,
+          "lifetime_spread": 2,
+          "speed": 6,
+          "speed_spread": 4,
+          "wander": 22,
+          "area_width": 1536,
+          "area_height": 200,
+          "size": 15,
+          "end_size": 11,
+          "red": 214,
+          "green": 255,
+          "blue": 150,
+          "alpha": 230,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "max": 40
+        }
+      }
+    },
+    {
+      "name": "leaves_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 5376,
+          "y": -40
+        },
+        "particles2d.Emitter": {
+          "rate": 1.2,
+          "lifetime": 11,
+          "lifetime_spread": 3,
+          "speed": 30,
+          "speed_spread": 10,
+          "angle": 100,
+          "spread": 40,
+          "gravity_y": 4,
+          "drag": 0.05,
+          "wander": 45,
+          "area_width": 1536,
+          "size": 24,
+          "end_size": 22,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "additive": false,
+          "atlas": "leaves",
+          "layer": 12,
+          "max": 30
+        }
+      }
+    },
+    {
       "name": "camera",
       "components": {
         "transform2d.Position": {

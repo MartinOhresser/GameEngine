@@ -230,6 +230,21 @@
                 },
                 "additionalProperties": false
               },
+              "camera2d.CameraShake": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "number"
+                  },
+                  "decay": {
+                    "type": "number"
+                  },
+                  "speed": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "camera2d.CameraFit": {
                 "type": "object",
                 "properties": {
@@ -1650,6 +1665,117 @@
                   },
                   "offset_y": {
                     "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "particles2d.Emitter": {
+                "type": "object",
+                "properties": {
+                  "rate": {
+                    "type": "number"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "burst": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "lifetime": {
+                    "type": "number"
+                  },
+                  "lifetime_spread": {
+                    "type": "number"
+                  },
+                  "speed": {
+                    "type": "number"
+                  },
+                  "speed_spread": {
+                    "type": "number"
+                  },
+                  "angle": {
+                    "type": "number"
+                  },
+                  "spread": {
+                    "type": "number"
+                  },
+                  "gravity_x": {
+                    "type": "number"
+                  },
+                  "gravity_y": {
+                    "type": "number"
+                  },
+                  "drag": {
+                    "type": "number"
+                  },
+                  "wander": {
+                    "type": "number"
+                  },
+                  "area_width": {
+                    "type": "number"
+                  },
+                  "area_height": {
+                    "type": "number"
+                  },
+                  "size": {
+                    "type": "number"
+                  },
+                  "end_size": {
+                    "type": "number"
+                  },
+                  "red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "alpha": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "fade": {
+                    "type": "boolean"
+                  },
+                  "additive": {
+                    "type": "boolean"
+                  },
+                  "unlit": {
+                    "type": "boolean"
+                  },
+                  "light": {
+                    "type": "boolean"
+                  },
+                  "layer": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "atlas": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "frame": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "max": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false

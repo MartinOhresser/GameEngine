@@ -1,4 +1,5 @@
 #include "ge/app/render.hpp"
+#include "ge/app/time.hpp"
 #include "ge/app/viewport.hpp"
 #include "ge/mod/camera2d/camera2d.gen.hpp"
 #include "ge/mod/transform2d/drawn.hpp"
@@ -6,6 +7,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 #include <optional>
 
 namespace ge::mod::camera2d {
@@ -64,6 +66,14 @@ float bounded(float centre, float half, float low, float high) {
     return std::clamp(centre, low + half, high - half);
 }
 
+/// How far a shaken camera is moved along one axis at `seconds`, as a share of its strength (in
+/// [-1, 1]): waves at unrelated rates, so the shake never looks regular. `phase` tells the axes
+/// apart.
+float shaken(float seconds, float speed, float phase) {
+    const float a = seconds * speed * 2.0F * std::numbers::pi_v<float>;
+    return (0.6F * std::sin(a + phase)) + (0.4F * std::sin((2.37F * a) + (1.9F * phase)));
+}
+
 /// Speeds below this (units per second) are standing still for the look-ahead.
 constexpr float still_speed = 1.0F;
 
@@ -106,6 +116,13 @@ void follow(ecs::World& world) {
         });
 }
 
+void settle(ecs::World& world) {
+    const float step = world.resource<app::Time>()->fixed_delta;
+    world.each<CameraShake>([step](ecs::Entity, CameraShake& shake) {
+        shake.strength = std::max(shake.strength - (shake.decay * step), 0.0F);
+    });
+}
+
 void fit(ecs::World& world) {
     const auto* viewport = world.resource<app::Viewport>();
     if (viewport == nullptr) {
@@ -143,8 +160,15 @@ void apply(ecs::World& world) {
         [&](ecs::Entity entity, const Camera& camera, const transform2d::Position& now) {
             if (!found) {
                 found = true;
-                const transform2d::Position position =
-                    transform2d::drawn_position(world, entity, now);
+                transform2d::Position position = transform2d::drawn_position(world, entity, now);
+                if (const auto* shake = world.get<CameraShake>(entity);
+                    shake != nullptr && shake->strength > 0.0F) {
+                    const auto* time = world.resource<app::Time>();
+                    const float seconds =
+                        time != nullptr ? static_cast<float>(time->tick) * time->fixed_delta : 0.0F;
+                    position.x += shake->strength * shaken(seconds, shake->speed, 0.0F);
+                    position.y += shake->strength * shaken(seconds, shake->speed, 2.1F);
+                }
                 backend->renderer().set_camera({position.x, position.y, camera.zoom});
             }
         });

@@ -1,0 +1,61 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "particles2d",
+  "version": "0.1.0",
+  "description": "Particles: many small short-lived drawings let out by an emitter, for dust, sparks, embers, smoke, rain, snow, falling leaves, fireflies or a burst when something breaks. Particles are not entities and are not part of the simulation (nothing in the game can read them), but they move with the ticks and draw their chances from their own seed, so a run looks the same every time.",
+  "depends": ["transform2d", "sprite2d"],
+  "components": [
+    {
+      "name": "Emitter",
+      "description": "Lets out rate particles a second while active (and burst of them at once when it appears: an explosion is an entity with a burst, a rate of 0 and a short life, module lifetime), from a random point of the area_width by area_height box centred on the entity. Each lives lifetime seconds (give or take lifetime_spread) and leaves at speed units a second (give or take speed_spread) in the direction angle (degrees, 0 to the right, 90 down, -90 up) give or take half of spread (360: every way). gravity_x and gravity_y pull it (units a second, per second), drag slows it (the share of its speed it loses each second, 0 to 1), and wander makes it sway from side to side like a firefly or a leaf (how hard, units a second per second). It grows from size to end_size (width in world units). red, green, blue and alpha (0 to 255) are its colour; with fade it fades in quickly and fades out as it ends. atlas names a picture for it (frame is the cell) or, when it is none, it is a soft round glow. additive adds its light to what is under it (sparks, embers, fireflies); unlit keeps it out of the dark of light2d, and light makes each particle a light instead of a drawing. layer is the drawing layer, as for a Sprite. max is the most particles alive at once; the oldest are not replaced, new ones wait. Particles let out stay where they are when the emitter goes away, and live out their lives.",
+      "replicable": false,
+      "fields": [
+        { "name": "rate", "type": "f32", "default": 20 },
+        { "name": "active", "type": "bool", "default": true },
+        { "name": "burst", "type": "u32", "default": 0 },
+        { "name": "lifetime", "type": "f32", "default": 2 },
+        { "name": "lifetime_spread", "type": "f32", "default": 0.5 },
+        { "name": "speed", "type": "f32", "default": 20 },
+        { "name": "speed_spread", "type": "f32", "default": 10 },
+        { "name": "angle", "type": "f32", "default": -90 },
+        { "name": "spread", "type": "f32", "default": 360 },
+        { "name": "gravity_x", "type": "f32", "default": 0 },
+        { "name": "gravity_y", "type": "f32", "default": 0 },
+        { "name": "drag", "type": "f32", "default": 0 },
+        { "name": "wander", "type": "f32", "default": 0 },
+        { "name": "area_width", "type": "f32", "default": 0 },
+        { "name": "area_height", "type": "f32", "default": 0 },
+        { "name": "size", "type": "f32", "default": 6 },
+        { "name": "end_size", "type": "f32", "default": 6 },
+        { "name": "red", "type": "u32", "default": 255 },
+        { "name": "green", "type": "u32", "default": 255 },
+        { "name": "blue", "type": "u32", "default": 255 },
+        { "name": "alpha", "type": "u32", "default": 255 },
+        { "name": "fade", "type": "bool", "default": true },
+        { "name": "additive", "type": "bool", "default": true },
+        { "name": "unlit", "type": "bool", "default": false },
+        { "name": "light", "type": "bool", "default": false },
+        { "name": "layer", "type": "i32", "default": 0 },
+        { "name": "atlas", "type": "u32", "default": 4294967295, "ref": "atlas" },
+        { "name": "frame", "type": "u32", "default": 0 },
+        { "name": "max", "type": "u32", "default": 256 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "advance",
+      "description": "Lets out the particles of every Emitter and moves every particle by one tick; particles at the end of their lives are removed.",
+      "stage": "FixedUpdate",
+      "reads": ["Emitter", "transform2d.Position"],
+      "after": ["transform2d.integrate"]
+    },
+    {
+      "name": "draw",
+      "description": "Puts every particle among the sprites, on its emitter's layer (sprite2d draws them). Presentation only.",
+      "stage": "Update",
+      "reads": ["Emitter"]
+    }
+  ]
+}

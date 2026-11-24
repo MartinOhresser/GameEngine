@@ -71,6 +71,21 @@ Le module `light2d` plonge la scène dans la pénombre et l'éclaire par endroit
 
 Comment c'est dessiné : la carte de lumière est remplie de la couleur ambiante, puis chaque lumière y est ajoutée. Les dessins éclairés sont multipliés par elle ; les autres sont dessinés tels quels, dans l'ordre des couches. Tout se fait avec les modes de mélange de base de SDL et des textures cibles : cela marche avec tous les pilotes, rendu logiciel compris (celui des captures sans tête et de la CI). La lumière ne touche pas la simulation.
 
+## Les particules
+
+Le module `particles2d` fait de la poussière, des étincelles, des braises, de la fumée, de la pluie, de la neige, des feuilles qui tombent, des lucioles ou un éclat quand quelque chose se brise. Un `particles2d.Emitter` sur une entité laisse sortir `rate` particules par seconde (et `burst` d'un coup quand il apparaît : une explosion est une entité avec un `burst`, un `rate` de 0 et une courte vie, module `lifetime`), depuis une zone (`area_width` × `area_height`) autour de l'entité.
+- Chacune vit `lifetime` secondes et part à `speed` dans la direction `angle` (en degrés : 0 vers la droite, 90 vers le bas, -90 vers le haut), plus ou moins la moitié de `spread`. `gravity_x`/`gravity_y` l'attirent, `drag` la freine, `wander` la fait onduler comme une luciole ou une feuille.
+- Elle passe de `size` à `end_size`, a une couleur (`red`, `green`, `blue`, `alpha`) et, avec `fade`, apparaît et disparaît en douceur. Sans `atlas`, c'est un disque doux ; avec, une image de l'atlas (`frame`).
+- `additive` ajoute sa lumière, `unlit` la garde hors de la pénombre de `light2d`, `light` en fait une petite lumière. `layer` la place parmi les sprites, comme un `Sprite`.
+
+Les particules ne sont pas des entités : rien dans le jeu ne peut les lire, et elles ne comptent pas dans l'empreinte de la simulation. Elles avancent pourtant au rythme des ticks et tirent leur hasard d'une graine à elles : deux parties identiques montrent les mêmes particules.
+
+Un module qui veut dessiner parmi les sprites, sur une couche, ajoute ses dessins à `sprite2d::layered_draws(world)` (`ge/mod/sprite2d/layered.hpp`) avant `sprite2d.draw` : c'est ce que fait `particles2d`.
+
+## Faire trembler la caméra
+
+`camera2d.CameraShake` sur la caméra : tant que `strength` est au-dessus de 0, l'image bouge d'au plus `strength` unités dans tous les sens, `speed` fois par seconde, et `strength` baisse de `decay` par seconde. Un jeu fait trembler la caméra en mettant `strength` (une chute, un coup, une explosion) ; la `Position` de la caméra ne bouge pas, seul le dessin tremble.
+
 ## Les tuiles
 
 Il n'y a pas de type « carte de tuiles » : une tuile est une entité avec `Position` et `Sprite`, et un mur y ajoute un `Collider`. Pour un grand niveau, écrire la scène à la main est pénible ; on la génère depuis une carte en texte, comme `games/treasure_run/tools/make_assets.py` (le script produit aussi les images). Le fichier généré est versionné et validé comme les autres.
@@ -110,8 +125,8 @@ Rien de cela ne touche la simulation. Les tests et les scénarios voient exactem
 
 ## Pas encore
 
-L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore les particules et les effets d'écran.
+L'[ADR 0015](adr/0015-rendu-atmospherique.md) prévoit encore les effets d'écran.
 
 - **Polices TrueType** : le texte se dessine avec des polices en atlas PNG ; lire un `.ttf` directement viendra plus tard.
 - **Cartes de tuiles en tableau** : une tuile reste une entité.
-- Ordre de dessin par la position verticale, particules ; ombres portées par les lumières.
+- Ordre de dessin par la position verticale ; ombres portées par les lumières.

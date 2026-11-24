@@ -1,6 +1,7 @@
 #include "ge/app/app.hpp"
 #include "ge/app/fields.hpp"
 #include "ge/app/render.hpp"
+#include "ge/mod/sprite2d/layered.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 
@@ -346,4 +347,24 @@ TEST_CASE("sprite2d: a Parallax makes a plane that follows the camera partly") {
     CHECK(renderer->commands()[1].parallax_x == 0.25F);
     CHECK(renderer->commands()[1].parallax_y == 0.5F);
     CHECK(renderer->commands()[1].repeat_x);
+}
+
+TEST_CASE("sprite2d: drawings other modules put on a layer are drawn among the sprites") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite low;
+    low.layer = 1;
+    sprite2d::Sprite high;
+    high.layer = 3;
+    spawn(app, 0.0F, 0.0F, high);
+    spawn(app, 0.0F, 0.0F, low);
+    sprite2d::layered_draws(app.world()).add(2, ge::app::DrawCommand{"glow", 5.0F, 6.0F, 7.0F});
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 3U);
+    CHECK(renderer->commands()[1].what == "glow");
+    CHECK(renderer->commands()[1].x == 5.0F);
+    CHECK(sprite2d::layered_draws(app.world()).items.empty()); // drawn once
+    renderer->clear();
+    app.run_frames(1);
+    CHECK(renderer->commands().size() == 2U);
 }

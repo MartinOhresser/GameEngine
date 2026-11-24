@@ -1,5 +1,6 @@
 #include "ge/app/fields.hpp"
 #include "ge/app/render.hpp"
+#include "ge/mod/sprite2d/layered.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -9,6 +10,7 @@
 #include <cmath>
 #include <cstdint>
 #include <numbers>
+#include <utility>
 #include <vector>
 
 namespace ge::mod::sprite2d {
@@ -137,6 +139,13 @@ void draw(ecs::World& world) {
                                                                   world, entity, position))});
             }
         });
+    // What other modules asked to draw among the sprites, after the sprites of its layer.
+    if (auto* layered = world.resource<LayeredDraws>(); layered != nullptr) {
+        for (LayeredDraws::Item& item : layered->items) {
+            queue.push_back({item.layer, std::move(item.command)});
+        }
+        layered->items.clear();
+    }
     // Stable: sprites of one layer keep the order the world visits them in.
     std::ranges::stable_sort(queue,
                              [](const Queued& a, const Queued& b) { return a.layer < b.layer; });

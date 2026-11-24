@@ -6,6 +6,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B5 (2/2) : **les particules et le tremblement de caméra**.
+  - Nouveau module **`particles2d`** (`Emitter`) : débit et éclat, zone, durée de vie, vitesse et direction, gravité, freinage, ondulation, taille, couleur et fondu, disque doux ou image d'atlas, mélange additif, éclairage, couche. Les particules ne sont pas des entités, n'entrent pas dans l'empreinte de la simulation, et sont pourtant les mêmes d'une partie à l'autre.
+  - `sprite2d` : `LayeredDraws` (`ge/mod/sprite2d/layered.hpp`) laisse d'autres modules dessiner parmi les sprites, sur une couche.
+  - `camera2d.CameraShake` : la caméra tremble tant que `strength` est au-dessus de 0, sans que sa position change.
+  - `lueur` : des lucioles au-dessus de l'herbe et des feuilles qui tombent des arbres du premier plan.
 - ADR 0015, B5 (1/2) : **la lumière**.
   - Nouveau module **`light2d`** : `Ambient` (la couleur de l'obscurité, qui allume l'éclairage) et `Light` (lumière ronde et douce : rayon, couleur, intensité, décalage, vacillement).
   - `sprite2d.Sprite` gagne `unlit` (garde ses couleurs : ciel, plans lointains) et `light` (l'image devient une lumière qui éclaire ce qui l'entoure).
