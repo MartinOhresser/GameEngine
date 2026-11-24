@@ -1585,6 +1585,66 @@
           },
           "additionalProperties": false
         },
+        "light2d.Ambient": {
+          "type": "object",
+          "properties": {
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "light2d.Light": {
+          "type": "object",
+          "properties": {
+            "radius": {
+              "type": "number"
+            },
+            "red": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "green": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "blue": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "intensity": {
+              "type": "number"
+            },
+            "flicker": {
+              "type": "number"
+            },
+            "flicker_speed": {
+              "type": "number"
+            },
+            "offset_x": {
+              "type": "number"
+            },
+            "offset_y": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
         "path2d.Waypoint": {
           "type": "object",
           "properties": {
@@ -2238,6 +2298,12 @@
               "type": "boolean"
             },
             "multiply": {
+              "type": "boolean"
+            },
+            "unlit": {
+              "type": "boolean"
+            },
+            "light": {
               "type": "boolean"
             }
           },

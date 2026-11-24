@@ -49,6 +49,7 @@
           "inventory",
           "jump",
           "lifetime",
+          "light2d",
           "path2d",
           "patrol2d",
           "phase",
@@ -213,6 +214,11 @@
           "additionalProperties": false
         },
         "lifetime": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "light2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

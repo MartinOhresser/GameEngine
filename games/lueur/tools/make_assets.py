@@ -466,10 +466,18 @@ def entity(name, x, y, sprite, parallax=None, extra=None):
     return {"name": name, "components": components}
 
 
+# What keeps its own colours when the forest is in the dark: the sky and everything far enough to
+# be painted with the light of the low sun. The rest (near trees, near mist, ground, hero,
+# foreground) is lit by the lights around it.
+UNLIT = {"sky", "sun", "haze", "ridge", "far_trees", "mist_far", "mist_mid", "rays"}
+
+
 def plane(name, atlas, depth, y, width, height, color=None, additive=False):
     """A band of the forest at `depth` (the share of the camera's movement it follows), centred
     on the view at the start (the camera starts at x = VIEW_W / 2)."""
     sprite = {"atlas": atlas, "width": width, "height": height, "layer": LAYERS[name]}
+    if name in UNLIT:
+        sprite["unlit"] = True
     if color:
         sprite.update({"red": color[0], "green": color[1], "blue": color[2], "alpha": color[3]})
     if additive:
@@ -481,17 +489,24 @@ def plane(name, atlas, depth, y, width, height, color=None, additive=False):
 def scene():
     entities = [
         entity("sky", 0, 0, {"atlas": "sky", "width": VIEW_W, "height": VIEW_H,
-                             "layer": LAYERS["sky"]}, {"x": 0, "y": 0}),
+                             "layer": LAYERS["sky"], "unlit": True}, {"x": 0, "y": 0}),
         entity("sun", *at_screen(420, 470, 0.05), {
             "atlas": "glow", "width": 900, "height": 700, "red": 255, "green": 196, "blue": 128,
-            "alpha": 200, "additive": True, "layer": LAYERS["sun"]}, {"x": 0.05, "y": 0.05}),
+            "alpha": 200, "additive": True, "layer": LAYERS["sun"], "unlit": True},
+            {"x": 0.05, "y": 0.05}),
+        # The low sun as a light: it lights the near planes on its side of the view.
+        entity("sunlight", *at_screen(380, 470, 0.3), {
+            "atlas": "glow", "width": 1500, "height": 1100, "red": 255, "green": 186,
+            "blue": 120, "alpha": 210, "light": True, "layer": LAYERS["haze"]},
+            {"x": 0.3, "y": 0.3}),
         plane("mist_far", "mist_far", 0.2, 440, 2048, 220, (230, 214, 186, 120)),
         plane("mist_mid", "mist_mid", 0.42, 490, 2048, 240, (196, 206, 198, 110)),
         plane("mist_near", "mist_near", 0.9, 560, 2048, 200, (150, 164, 162, 80)),
         # The low sun again, in front of the far planes: its light bleeds through the trees.
         entity("haze", *at_screen(420, 450, 0.3), {
             "atlas": "glow", "width": 1400, "height": 900, "red": 255, "green": 180,
-            "blue": 110, "alpha": 90, "additive": True, "layer": LAYERS["haze"]},
+            "blue": 110, "alpha": 90, "additive": True, "layer": LAYERS["haze"],
+            "unlit": True},
             {"x": 0.3, "y": 0.3}),
         plane("foreground", "foreground", 1.35, VIEW_H / 2, 2048, VIEW_H),
     ]
@@ -503,6 +518,7 @@ def scene():
         entities.append(entity(f"ray_{index}", *at_screen(x, -60, 0.6), {
             "atlas": "ray", "width": 180, "height": 900, "pivot_y": 0.0, "red": 255,
             "green": 214, "blue": 150, "alpha": alpha, "additive": True, "layer": LAYERS["rays"],
+            "unlit": True,
         }, {"x": 0.6, "y": 0.6}, {"transform2d.Rotation": {"angle": angle}}))
     # The ground: blocks side by side, on the plane of the action. What stops the hero is one
     # long solid box under them, and a wall at each end of the level.
@@ -536,6 +552,10 @@ def scene():
                                       "braking": 2600},
         "jump.Jumper": {"speed": 720, "coyote_time": 0.1, "buffer_time": 0.12, "cut": 0.45},
         "camera2d.CameraTarget": {},
+        # The glimmer the game is named after: a warm, wavering light around the hero.
+        "light2d.Light": {"radius": 330, "red": 255, "green": 212, "blue": 160,
+                          "intensity": 0.9, "flicker": 0.15, "flicker_speed": 1.5,
+                          "offset_y": -20},
     }))
     # The camera follows the hero loosely: small steps and hops leave the view still, it looks
     # ahead of where he runs, and it never shows past the ends of the level or below the ground.
@@ -543,6 +563,8 @@ def scene():
     entities.append({"name": "camera", "components": {
         "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
         "camera2d.Camera": {"zoom": 1},
+        # The dusk under the trees: what the near planes look like where no light reaches.
+        "light2d.Ambient": {"red": 92, "green": 100, "blue": 132},
         "camera2d.CameraFollow": {
             "stiffness": 0.08, "offset_y": VIEW_H / 2 - resting_y, "dead_x": 40, "dead_y": 110,
             "look_ahead": 140, "bounded": True, "bound_left": 0, "bound_right": LEVEL_W,

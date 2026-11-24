@@ -11,7 +11,7 @@
 
 namespace ge::mod::sprite2d {
 
-/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position.
+/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position. When the game has lighting (module light2d), a sprite is darkened by the dark and brightened by the lights around it; unlit keeps its own colours (a sky, a far plane painted with its own light, a glow), and light makes the picture a light instead of a drawing: it is added to the light map and brightens what is around it (a shaft of sunlight, a lit window), without being drawn itself. Without lighting, unlit changes nothing and a light sprite is not drawn.
 struct Sprite {
     std::uint32_t atlas = 0U;
     std::uint32_t frame = 0U;
@@ -28,6 +28,8 @@ struct Sprite {
     std::uint32_t alpha = 255U;
     bool additive = false;
     bool multiply = false;
+    bool unlit = false;
+    bool light = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(atlas);
@@ -45,6 +47,8 @@ struct Sprite {
         hasher.add(alpha);
         hasher.add(additive);
         hasher.add(multiply);
+        hasher.add(unlit);
+        hasher.add(light);
     }
 
     [[nodiscard]] friend bool operator==(const Sprite&, const Sprite&) = default;

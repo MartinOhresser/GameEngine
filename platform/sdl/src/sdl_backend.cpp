@@ -7,6 +7,7 @@
 #include <array>
 #include <cctype>
 #include <cmath>
+#include <initializer_list>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -93,6 +94,11 @@ public:
                 SDL_DestroyTexture(atlas.texture);
             }
         }
+        for (SDL_Texture* texture : {glow_, light_map_, world_, mask_}) {
+            if (texture != nullptr) {
+                SDL_DestroyTexture(texture);
+            }
+        }
     }
     SdlRenderer(const SdlRenderer&) = delete;
     SdlRenderer& operator=(const SdlRenderer&) = delete;
@@ -105,10 +111,109 @@ public:
         half_height_ = static_cast<float>(view_height) / 2.0F;
     }
 
-    void draw(const app::DrawCommand& command) override {
-        open_frame();
+    /// Commands are kept until the end of the frame: the light map has to be made from every
+    /// light of the frame before the drawings it darkens.
+    void draw(const app::DrawCommand& command) override { pending_.push_back(command); }
+
+    bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
+        return load_atlas_now(index, atlas, error);
+    }
+
+    void set_camera(const app::CameraView& camera) override { camera_ = camera; }
+    void set_lighting(const app::Lighting& lighting) override { lighting_ = lighting; }
+
+    void end_frame() override {
+        open_frame(); // a frame with nothing in it is still a frame: the screen is cleared
+        compose();
+        if (capture_) {
+            capture_frame();
+        }
+        SDL_RenderPresent(renderer_);
+        open_ = false;
+        camera_.reset();
+        lighting_ = {};
+        pending_.clear();
+        ++presented_;
+    }
+
+    [[nodiscard]] const Frame& last_frame() const noexcept { return frame_; }
+    [[nodiscard]] std::uint64_t presented() const noexcept { return presented_; }
+
+private:
+    /// Draws the frame's commands in their order. With lighting, the light drawings make the
+    /// light map first; then each run of lit drawings is drawn darkened by it, between the unlit
+    /// ones.
+    void compose() {
+        const bool lighting = lighting_.on && make_targets();
+        if (lighting) {
+            draw_light_map();
+        }
+        const auto lit = [lighting](const app::DrawCommand& command) {
+            return lighting && command.lit && !command.screen;
+        };
+        std::size_t index = 0;
+        while (index < pending_.size()) {
+            const app::DrawCommand& command = pending_[index];
+            if (command.light) {
+                ++index; // in the light map, or nowhere without lighting
+            } else if (!lit(command)) {
+                draw_now(command);
+                ++index;
+            } else {
+                std::size_t end = index;
+                while (end < pending_.size() && (pending_[end].light || lit(pending_[end]))) {
+                    ++end;
+                }
+                draw_lit(index, end);
+                index = end;
+            }
+        }
+    }
+
+    /// The lit drawings from `first` to `last` (light drawings among them are skipped), each
+    /// drawn twice on opaque pictures: their colours over black, darkened by the light map, and
+    /// how much they cover what is behind them (white where they are not, black where they are
+    /// opaque). On the screen, what is there is multiplied by the second and the first is added.
+    /// That is the same as drawing them darkened over it, without asking the renderer to keep
+    /// transparency in a picture it draws into (SDL's software renderer does not always).
+    void draw_lit(std::size_t first, std::size_t last) {
+        SDL_SetRenderTarget(renderer_, world_);
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+        SDL_RenderClear(renderer_);
+        for (std::size_t index = first; index < last; ++index) {
+            if (!pending_[index].light) {
+                draw_now(pending_[index]);
+            }
+        }
+        SDL_RenderTexture(renderer_, light_map_, nullptr, nullptr);
+
+        SDL_SetRenderTarget(renderer_, mask_);
+        SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+        SDL_RenderClear(renderer_);
+        for (std::size_t index = first; index < last; ++index) {
+            const app::DrawCommand& command = pending_[index];
+            if (command.light || command.blend == app::Blend::Add) {
+                continue; // added light hides nothing behind it
+            }
+            if (command.blend == app::Blend::Multiply) {
+                draw_now(command); // it darkens what is behind it as much as the rest
+                continue;
+            }
+            app::DrawCommand shadow = command;
+            shadow.color &= 0xFFU; // black, as opaque as the drawing
+            draw_now(shadow);
+        }
+
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_RenderTexture(renderer_, mask_, nullptr, nullptr);
+        SDL_RenderTexture(renderer_, world_, nullptr, nullptr);
+    }
+
+    void draw_now(const app::DrawCommand& command) {
         if (command.atlas >= 0) {
             draw_sprite(command);
+        } else if (command.what == "glow") {
+            draw_glow(command);
         } else if (command.what == "rect") {
             draw_rect(command);
         } else if (command.what == "circle") {
@@ -120,7 +225,7 @@ public:
         }
     }
 
-    bool load_atlas(int index, const app::AtlasInfo& atlas, std::string& error) override {
+    bool load_atlas_now(int index, const app::AtlasInfo& atlas, std::string& error) {
         const std::optional<std::string> bytes = read_file(atlas.image);
         if (!bytes.has_value()) {
             error = "cannot read the image \"" + atlas.image + "\"";
@@ -162,24 +267,9 @@ public:
         return true;
     }
 
-    void set_camera(const app::CameraView& camera) override { camera_ = camera; }
-
-    void end_frame() override {
-        open_frame(); // a frame with nothing in it is still a frame: the screen is cleared
-        if (capture_) {
-            capture_frame();
-        }
-        SDL_RenderPresent(renderer_);
-        open_ = false;
-        camera_.reset();
-        ++presented_;
-    }
-
-    [[nodiscard]] const Frame& last_frame() const noexcept { return frame_; }
-    [[nodiscard]] std::uint64_t presented() const noexcept { return presented_; }
-
-private:
     static constexpr float default_size = 16.0F;
+    /// Side of the picture of a glow, in pixels: smoothed when drawn bigger.
+    static constexpr int glow_size = 128;
 
     struct Atlas {
         SDL_Texture* texture = nullptr;
@@ -359,7 +449,7 @@ private:
         SDL_SetTextureAlphaMod(atlas.texture, static_cast<std::uint8_t>(c & 0xFFU));
         SDL_SetTextureBlendMode(atlas.texture, blend_mode(command.blend));
         const SDL_FlipMode flip = command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-        const double angle = static_cast<double>(command.angle);
+        const auto angle = static_cast<double>(command.angle);
         if (!command.repeat_x || width < 1.0F) {
             SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
                                      flip);
@@ -375,6 +465,106 @@ private:
             SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
                                      flip);
         }
+    }
+
+    /// A soft disc, from the glow picture made on first use.
+    void draw_glow(const app::DrawCommand& command) {
+        if (glow_ == nullptr) {
+            glow_ = make_glow();
+            if (glow_ == nullptr) {
+                return;
+            }
+        }
+        const float radius = command.size * zoom(command) * command.scale;
+        if (radius <= 0.0F) {
+            return;
+        }
+        float x = 0.0F;
+        float y = 0.0F;
+        to_screen(command, x, y);
+        const std::uint32_t c = command.color;
+        SDL_SetTextureColorMod(glow_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 8U) & 0xFFU));
+        SDL_SetTextureAlphaMod(glow_, static_cast<std::uint8_t>(c & 0xFFU));
+        SDL_SetTextureBlendMode(glow_, blend_mode(command.blend));
+        const SDL_FRect target{x - radius, y - radius, radius * 2.0F, radius * 2.0F};
+        SDL_RenderTexture(renderer_, glow_, nullptr, &target);
+    }
+
+    /// White, opaque in the middle and fading smoothly to nothing at the edge of the disc.
+    SDL_Texture* make_glow() {
+        SDL_Surface* surface = SDL_CreateSurface(glow_size, glow_size, SDL_PIXELFORMAT_RGBA32);
+        if (surface == nullptr) {
+            return nullptr;
+        }
+        auto* bytes = static_cast<std::uint8_t*>(surface->pixels);
+        const float half = static_cast<float>(glow_size) / 2.0F;
+        for (int y = 0; y < glow_size; ++y) {
+            std::uint8_t* row = bytes + static_cast<std::ptrdiff_t>(y) * surface->pitch;
+            for (int x = 0; x < glow_size; ++x) {
+                const float dx = (static_cast<float>(x) + 0.5F - half) / half;
+                const float dy = (static_cast<float>(y) + 0.5F - half) / half;
+                const float fade = std::max(1.0F - (dx * dx + dy * dy), 0.0F);
+                std::uint8_t* pixel = row + static_cast<std::ptrdiff_t>(x) * 4;
+                pixel[0] = 255U;
+                pixel[1] = 255U;
+                pixel[2] = 255U;
+                pixel[3] = static_cast<std::uint8_t>(std::lround(fade * fade * 255.0F));
+            }
+        }
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+        SDL_DestroySurface(surface);
+        if (texture != nullptr) {
+            SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+        }
+        return texture;
+    }
+
+    /// The light map, the world picture and its mask, the size of the view. False if they
+    /// cannot be made (a renderer without render targets): the frame is then drawn without
+    /// lighting.
+    bool make_targets() {
+        const int width = static_cast<int>(std::lround(half_width_ * 2.0F));
+        const int height = static_cast<int>(std::lround(half_height_ * 2.0F));
+        if (light_map_ != nullptr && world_ != nullptr && mask_ != nullptr &&
+            width == target_width_ && height == target_height_) {
+            return true;
+        }
+        for (SDL_Texture** texture : {&light_map_, &world_, &mask_}) {
+            if (*texture != nullptr) {
+                SDL_DestroyTexture(*texture);
+            }
+            *texture = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32,
+                                         SDL_TEXTUREACCESS_TARGET, width, height);
+        }
+        if (light_map_ == nullptr || world_ == nullptr || mask_ == nullptr) {
+            return false;
+        }
+        SDL_SetTextureBlendMode(light_map_, SDL_BLENDMODE_MOD);
+        SDL_SetTextureBlendMode(mask_, SDL_BLENDMODE_MOD);
+        SDL_SetTextureBlendMode(world_, SDL_BLENDMODE_ADD);
+        target_width_ = width;
+        target_height_ = height;
+        return true;
+    }
+
+    /// The ambient colour everywhere, then every light added on top.
+    void draw_light_map() {
+        SDL_SetRenderTarget(renderer_, light_map_);
+        const std::uint32_t c = lighting_.ambient;
+        SDL_SetRenderDrawColor(renderer_, static_cast<std::uint8_t>((c >> 24U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
+                               static_cast<std::uint8_t>((c >> 8U) & 0xFFU), 255U);
+        SDL_RenderClear(renderer_);
+        for (const app::DrawCommand& command : pending_) {
+            if (command.light) {
+                app::DrawCommand light = command;
+                light.blend = app::Blend::Add;
+                draw_now(light);
+            }
+        }
+        SDL_SetRenderTarget(renderer_, nullptr);
     }
 
     void open_frame() {
@@ -421,6 +611,14 @@ private:
     bool open_ = false;
     std::vector<Atlas> atlases_;
     std::optional<app::CameraView> camera_;
+    app::Lighting lighting_;
+    std::vector<app::DrawCommand> pending_;
+    SDL_Texture* glow_ = nullptr;
+    SDL_Texture* light_map_ = nullptr;
+    SDL_Texture* world_ = nullptr;
+    SDL_Texture* mask_ = nullptr;
+    int target_width_ = 0;
+    int target_height_ = 0;
     float half_width_;
     float half_height_;
     std::uint64_t presented_ = 0;

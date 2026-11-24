@@ -25,9 +25,11 @@ enum class Blend : std::uint8_t {
 /// is. Positions and sizes are in world units, seen through the camera.
 struct DrawCommand {
     /// What is drawn: "square" (a flat square), "rect" (a flat rectangle, `width` by `height`),
-    /// "circle" (`size` is its radius), "line" (from x, y to `x2`, `y2`) or "sprite" (a cell of
-    /// an atlas). Flat shapes are filled when `thickness` is 0 and drawn as an outline of that
-    /// thickness otherwise (a line is always `thickness` thick, at least one pixel).
+    /// "circle" (`size` is its radius), "line" (from x, y to `x2`, `y2`), "glow" (a soft disc of
+    /// radius `size`, bright in the middle and fading to nothing at its edge: a halo, a light) or
+    /// "sprite" (a cell of an atlas). Flat shapes are filled when `thickness` is 0 and drawn as an
+    /// outline of that thickness otherwise (a line is always `thickness` thick, at least one
+    /// pixel).
     std::string what;
     float x = 0.0F; ///< Centre, in world units.
     float y = 0.0F;
@@ -63,8 +65,25 @@ struct DrawCommand {
     /// Sprites: drawn again side by side, every `width`, across the whole width of the view, so
     /// one picture makes an endless band (a sky, a row of hills, a ground).
     bool repeat_x = false;
+    /// With lighting on (`Renderer::set_lighting`): darkened by the light map, so that it shows
+    /// only as much as the lights around it allow. Off, it keeps its own colours (a sky, a far
+    /// plane painted with its own light, a glow). `screen` drawings are never lit.
+    bool lit = true;
+    /// Not drawn in the world but added to the light map: it lights the `lit` drawings under it
+    /// (a lamp, a shaft of sunlight). Ignored without lighting.
+    bool light = false;
 
     friend bool operator==(const DrawCommand&, const DrawCommand&) = default;
+};
+
+/// The light of a frame. Off (the default), every drawing keeps its own colours. On, the frame
+/// has a light map: the `ambient` colour everywhere (what the dark looks like), plus every
+/// `light` drawing added on top; the `lit` drawings are multiplied by it.
+struct Lighting {
+    bool on = false;
+    std::uint32_t ambient = 0xFFFFFFFFU; ///< 0xRRGGBBAA; the alpha is not used.
+
+    friend bool operator==(const Lighting&, const Lighting&) = default;
 };
 
 /// A picture cut into equal cells, as a renderer was told about it.
@@ -115,6 +134,9 @@ public:
     /// Sets the camera for the commands of this frame. A frame with no call has
     /// no camera.
     virtual void set_camera(const CameraView& /*camera*/) {}
+
+    /// Sets the light of this frame. A frame with no call has no lighting.
+    virtual void set_lighting(const Lighting& /*lighting*/) {}
 };
 
 /// Draws nothing. The default: a game with no window still runs.
@@ -138,12 +160,15 @@ public:
         return true;
     }
     void set_camera(const CameraView& camera) override { camera_ = camera; }
+    void set_lighting(const Lighting& lighting) override { lighting_ = lighting; }
 
     [[nodiscard]] const std::vector<DrawCommand>& commands() const noexcept { return commands_; }
     [[nodiscard]] std::size_t frames() const noexcept { return frames_; }
     [[nodiscard]] const std::vector<AtlasInfo>& atlases() const noexcept { return atlases_; }
     /// The last camera set, or nothing if none was.
     [[nodiscard]] const std::optional<CameraView>& camera() const noexcept { return camera_; }
+    /// The last lighting set, or nothing if none was.
+    [[nodiscard]] const std::optional<Lighting>& lighting() const noexcept { return lighting_; }
     void clear() { commands_.clear(); }
 
 private:
@@ -151,6 +176,7 @@ private:
     std::size_t frames_ = 0;
     std::vector<AtlasInfo> atlases_;
     std::optional<CameraView> camera_;
+    std::optional<Lighting> lighting_;
 };
 
 /// The renderer of an app, stored in the world as a resource. `App` installs a

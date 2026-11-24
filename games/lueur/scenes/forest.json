@@ -14,7 +14,8 @@
           "atlas": "sky",
           "width": 1280,
           "height": 720,
-          "layer": -100
+          "layer": -100,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0,
@@ -38,11 +39,36 @@
           "blue": 128,
           "alpha": 200,
           "additive": true,
-          "layer": -95
+          "layer": -95,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.05,
           "y": 0.05
+        }
+      }
+    },
+    {
+      "name": "sunlight",
+      "components": {
+        "transform2d.Position": {
+          "x": -68.0,
+          "y": 218.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 1500,
+          "height": 1100,
+          "red": 255,
+          "green": 186,
+          "blue": 120,
+          "alpha": 210,
+          "light": true,
+          "layer": -78
+        },
+        "sprite2d.Parallax": {
+          "x": 0.3,
+          "y": 0.3
         }
       }
     },
@@ -58,6 +84,7 @@
           "width": 2048,
           "height": 220,
           "layer": -85,
+          "unlit": true,
           "red": 230,
           "green": 214,
           "blue": 186,
@@ -82,6 +109,7 @@
           "width": 2048,
           "height": 240,
           "layer": -75,
+          "unlit": true,
           "red": 196,
           "green": 206,
           "blue": 198,
@@ -134,7 +162,8 @@
           "blue": 110,
           "alpha": 90,
           "additive": true,
-          "layer": -78
+          "layer": -78,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.3,
@@ -173,7 +202,8 @@
           "atlas": "ridge",
           "width": 2048,
           "height": 1000,
-          "layer": -90
+          "layer": -90,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.12,
@@ -193,7 +223,8 @@
           "atlas": "far_trees",
           "width": 2048,
           "height": 1000,
-          "layer": -80
+          "layer": -80,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.3,
@@ -259,7 +290,8 @@
           "blue": 150,
           "alpha": 70,
           "additive": true,
-          "layer": -65
+          "layer": -65,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.6,
@@ -287,7 +319,8 @@
           "blue": 150,
           "alpha": 50,
           "additive": true,
-          "layer": -65
+          "layer": -65,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.6,
@@ -315,7 +348,8 @@
           "blue": 150,
           "alpha": 40,
           "additive": true,
-          "layer": -65
+          "layer": -65,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0.6,
@@ -605,7 +639,17 @@
           "buffer_time": 0.12,
           "cut": 0.45
         },
-        "camera2d.CameraTarget": {}
+        "camera2d.CameraTarget": {},
+        "light2d.Light": {
+          "radius": 330,
+          "red": 255,
+          "green": 212,
+          "blue": 160,
+          "intensity": 0.9,
+          "flicker": 0.15,
+          "flicker_speed": 1.5,
+          "offset_y": -20
+        }
       }
     },
     {
@@ -617,6 +661,11 @@
         },
         "camera2d.Camera": {
           "zoom": 1
+        },
+        "light2d.Ambient": {
+          "red": 92,
+          "green": 100,
+          "blue": 132
         },
         "camera2d.CameraFollow": {
           "stiffness": 0.08,

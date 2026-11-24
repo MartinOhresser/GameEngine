@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -553,6 +553,149 @@ TEST_CASE("sdl: a parallax plane follows the camera partly, and a repeated one f
     CHECK(frame.at(5, 400) == 0x00FF00FFU);   // ...and copies to the left edge...
     CHECK(frame.at(797, 400) == 0x00FF00FFU); // ...and to the right one
     CHECK(frame.at(400, 410) == 0x121420FFU); // but not above or below it
+}
+
+namespace {
+/// A flat square of side `size`, white unless told otherwise.
+ge::app::DrawCommand flat(float x, float y, float size, std::uint32_t color = 0xFFFFFFFFU) {
+    return ge::app::DrawCommand{"square", x, y, size, color};
+}
+} // namespace
+
+TEST_CASE("sdl: with lighting, lit drawings are darkened by the ambient, unlit ones are not") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->set_lighting({true, 0x404040FFU});
+    renderer->draw(flat(100.0F, 100.0F, 20.0F)); // lit (the default): grey
+    ge::app::DrawCommand unlit = flat(200.0F, 100.0F, 20.0F);
+    unlit.lit = false;
+    renderer->draw(unlit); // keeps its white
+    ge::app::DrawCommand interface = flat(300.0F, 100.0F, 20.0F);
+    interface.screen = true;
+    renderer->draw(interface); // the interface is never lit
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(red_of(frame.at(100, 100)) >= 0x3FU);
+    CHECK(red_of(frame.at(100, 100)) <= 0x41U);
+    CHECK(frame.at(200, 100) == 0xFFFFFFFFU);
+    CHECK(frame.at(300, 100) == 0xFFFFFFFFU);
+}
+
+TEST_CASE("sdl: under a white ambient, a see-through lit drawing looks as it does unlit") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(0, {test_atlas(), 8, 8}, error));
+    renderer->set_lighting({true, 0xFFFFFFFFU});
+    renderer->draw(flat(100.0F, 100.0F, 20.0F, 0xFF804080U)); // lit, half transparent
+    ge::app::DrawCommand unlit = flat(200.0F, 100.0F, 20.0F, 0xFF804080U);
+    unlit.lit = false;
+    renderer->draw(unlit);
+    ge::app::DrawCommand sprite = cell(300.0F, 100.0F, 1); // green, half transparent
+    sprite.color = 0xFFFFFF80U;
+    sprite.width = 20.0F;
+    sprite.height = 20.0F;
+    renderer->draw(sprite);
+    sprite.x = 400.0F;
+    sprite.lit = false;
+    renderer->draw(sprite);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    for (const int x : {100, 300}) {
+        const std::uint32_t lit = frame.at(x, 100);
+        const std::uint32_t plain = frame.at(x + 100, 100);
+        for (const std::uint32_t shift : {24U, 16U, 8U}) {
+            const auto one = static_cast<int>((lit >> shift) & 0xFFU);
+            const auto other = static_cast<int>((plain >> shift) & 0xFFU);
+            CHECK(one - other <= 2);
+            CHECK(other - one <= 2);
+        }
+    }
+}
+
+TEST_CASE("sdl: a light brightens the lit drawings around it, and is not drawn itself") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->set_lighting({true, 0x000000FFU}); // black where no light reaches
+    ge::app::DrawCommand lamp{"glow", 100.0F, 100.0F, 60.0F, 0xFFFFFFFFU};
+    lamp.light = true;
+    renderer->draw(lamp);
+    renderer->draw(flat(100.0F, 100.0F, 20.0F)); // under the lamp
+    renderer->draw(flat(220.0F, 100.0F, 20.0F)); // out of its reach
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(red_of(frame.at(100, 100)) > 0xF0U);
+    CHECK(frame.at(220, 100) == 0x000000FFU);
+    CHECK(red_of(frame.at(100, 140)) < 0x40U); // the background: the lamp is light, not paint
+}
+
+TEST_CASE("sdl: with lighting, drawings keep their order, lit and unlit") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    renderer->set_lighting({true, 0x808080FFU});
+    renderer->draw(flat(100.0F, 100.0F, 40.0F)); // lit, grey
+    ge::app::DrawCommand over = flat(100.0F, 100.0F, 10.0F, 0xFF0000FFU);
+    over.lit = false;
+    renderer->draw(over);                                    // unlit, on top of it
+    renderer->draw(flat(100.0F, 100.0F, 4.0F, 0x0000FFFFU)); // lit again, on top of both
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(red_of(frame.at(115, 100)) >= 0x7FU);
+    CHECK(red_of(frame.at(115, 100)) <= 0x81U);
+    CHECK(frame.at(97, 100) == 0xFF0000FFU);
+    CHECK(red_of(frame.at(100, 100)) == 0U);
+    CHECK(((frame.at(100, 100) >> 8U) & 0xFFU) >= 0x7FU); // its blue, darkened
+}
+
+TEST_CASE("sdl: without lighting, lights draw nothing and nothing is darkened") {
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    ge::app::DrawCommand lamp{"glow", 100.0F, 100.0F, 60.0F, 0xFF0000FFU};
+    lamp.light = true;
+    renderer->draw(lamp);
+    renderer->draw(flat(200.0F, 100.0F, 20.0F));
+    const ge::app::DrawCommand halo{"glow", 300.0F, 100.0F, 40.0F, 0xFF0000FFU};
+    renderer->draw(halo); // a glow that is not a light is drawn like any shape
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    CHECK(frame.at(100, 100) == frame.at(5, 5)); // the background
+    CHECK(frame.at(200, 100) == 0xFFFFFFFFU);
+    CHECK(red_of(frame.at(300, 100)) > 0xF0U);
+}
+
+TEST_CASE("sdl: under a white ambient, a soft-edged picture looks as it does unlit") {
+    // At its own size, the picture is copied pixel by pixel: the edges of the world texture
+    // must stay see-through, or they come out as a dark rim.
+    auto backend = open(true);
+    REQUIRE(backend != nullptr);
+    auto renderer = backend->renderer();
+    std::string error;
+    REQUIRE(renderer->load_atlas(
+        0, {std::string(GE_SOURCE_DIR) + "/tests/platform/sdl/data/soft.png", 32, 32}, error));
+    renderer->set_lighting({true, 0xFFFFFFFFU});
+    ge::app::DrawCommand soft = cell(100.0F, 100.0F, 0);
+    renderer->draw(soft);
+    soft.x = 200.0F;
+    soft.lit = false;
+    renderer->draw(soft);
+    renderer->end_frame();
+    const sdl::Frame& frame = backend->last_frame();
+    int worst = 0;
+    for (int y = 84; y < 116; ++y) {
+        for (int x = 84; x < 116; ++x) {
+            for (const std::uint32_t shift : {24U, 16U, 8U}) {
+                const int difference = static_cast<int>((frame.at(x, y) >> shift) & 0xFFU) -
+                                       static_cast<int>((frame.at(x + 100, y) >> shift) & 0xFFU);
+                worst = std::max(worst, std::abs(difference));
+            }
+        }
+    }
+    CHECK(worst <= 2);
 }
 
 TEST_CASE("sdl: a smooth atlas blends its pixels when enlarged, a sharp one does not") {

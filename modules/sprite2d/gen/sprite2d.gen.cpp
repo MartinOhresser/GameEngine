@@ -48,6 +48,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.additive = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "multiply") {
             component.multiply = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "unlit") {
+            component.unlit = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "light") {
+            component.light = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -103,6 +107,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "multiply") {
         return ::ge::app::Scalar{static_cast<bool>(component->multiply)};
+    }
+    if (field == "unlit") {
+        return ::ge::app::Scalar{static_cast<bool>(component->unlit)};
+    }
+    if (field == "light") {
+        return ::ge::app::Scalar{static_cast<bool>(component->light)};
     }
     return std::nullopt;
 }
@@ -174,10 +184,18 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->multiply = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "unlit") {
+        component->unlit = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "light") {
+        component->light = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 15> component_0_fields{{{"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "i32", "", false}, {"pivot_x", "f32", "", false}, {"pivot_y", "f32", "", false}, {"flip_x", "bool", "", false}, {"screen", "bool", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"additive", "bool", "", false}, {"multiply", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 17> component_0_fields{{{"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"width", "f32", "", false}, {"height", "f32", "", false}, {"layer", "i32", "", false}, {"pivot_x", "f32", "", false}, {"pivot_y", "f32", "", false}, {"flip_x", "bool", "", false}, {"screen", "bool", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"additive", "bool", "", false}, {"multiply", "bool", "", false}, {"unlit", "bool", "", false}, {"light", "bool", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

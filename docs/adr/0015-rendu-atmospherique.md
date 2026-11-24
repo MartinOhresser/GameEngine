@@ -1,6 +1,6 @@
 # ADR 0015 : un rendu 2D atmosphérique, et un plateformer pour le prouver
 
-Statut : accepté (cadrage validé par Martin le 23 novembre 2026). B1 fait (SDL 3.4.20, mesure : voir « Mesure »), B2 fait (rotation, mélanges, lissage, parallaxe, mouvement fluide), B3 fait (la forêt de `games/lueur`), B4 fait (module `jump`, `collision2d.Blocked`, accélération, caméra à zone morte, anticipation et limites ; le tremblement de caméra est reporté à B5, avec les particules) ; B5 à B9 à réaliser.
+Statut : accepté (cadrage validé par Martin le 23 novembre 2026). B1 fait (SDL 3.4.20, mesure : voir « Mesure »), B2 fait (rotation, mélanges, lissage, parallaxe, mouvement fluide), B3 fait (la forêt de `games/lueur`), B4 fait (module `jump`, `collision2d.Blocked`, accélération, caméra à zone morte, anticipation et limites ; le tremblement de caméra est reporté à B5, avec les particules) , B5 en cours (la lumière : module `light2d`, `sprite2d.Sprite.unlit` et `light`) ; B6 à B9 à réaliser.
 
 ## Contexte
 

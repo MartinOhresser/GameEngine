@@ -314,6 +314,24 @@ TEST_CASE("sprite2d: additive and multiply choose how the sprite mixes") {
     CHECK(renderer->commands()[2].blend == ge::app::Blend::Multiply);
 }
 
+TEST_CASE("sprite2d: a sprite is lit unless unlit, and a light sprite goes to the light map") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    spawn(app, 0.0F, 0.0F, sprite);
+    sprite.unlit = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    sprite.unlit = false;
+    sprite.light = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 3U);
+    CHECK(renderer->commands()[0].lit);
+    CHECK(!renderer->commands()[0].light);
+    CHECK(!renderer->commands()[1].lit);
+    CHECK(renderer->commands()[2].light);
+}
+
 TEST_CASE("sprite2d: a Parallax makes a plane that follows the camera partly") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);
