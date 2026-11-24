@@ -46,15 +46,17 @@ void steer(ecs::World& world) {
     const float step = world.resource<app::Time>()->fixed_delta *
                        world.resource<transform2d::Params>()->speed_scale;
     world.each<const Controlled, transform2d::Velocity>(
-        [&](ecs::Entity, const Controlled& controlled, transform2d::Velocity& velocity) {
+        [&](ecs::Entity entity, const Controlled& controlled, transform2d::Velocity& velocity) {
+            // A Disabled entity is steered as if nothing were pressed: it slows to a stop.
+            const float on = world.has<transform2d::Disabled>(entity) ? 0.0F : 1.0F;
             if (controlled.horizontal) {
-                const float wanted =
-                    value_of(*actions, names, controlled.action_x, "move_x") * controlled.speed;
+                const float wanted = on * value_of(*actions, names, controlled.action_x, "move_x") *
+                                     controlled.speed;
                 velocity.x = steered(controlled, velocity.x, wanted, step);
             }
             if (controlled.vertical) {
-                const float wanted =
-                    value_of(*actions, names, controlled.action_y, "move_y") * controlled.speed;
+                const float wanted = on * value_of(*actions, names, controlled.action_y, "move_y") *
+                                     controlled.speed;
                 velocity.y = steered(controlled, velocity.y, wanted, step);
             }
         });

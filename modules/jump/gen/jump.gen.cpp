@@ -145,7 +145,7 @@ constexpr std::array<::ge::app::FieldInfo, 11> component_0_fields{{{"speed", "f3
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Jumper", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
-constexpr std::array<std::string_view, 1> system_0_reads{"collision2d.Blocked"};
+constexpr std::array<std::string_view, 2> system_0_reads{"collision2d.Blocked", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 2> system_0_writes{"jump.Jumper", "transform2d.Velocity"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"jump.launch", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 

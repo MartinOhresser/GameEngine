@@ -94,3 +94,21 @@ TEST_CASE("action_control: with an acceleration the speed builds up, and braking
     app.run_frames(1);
     CHECK(velocity_of(app, entity).x == 0.0F);
 }
+
+TEST_CASE("action_control: a Disabled entity is steered as if nothing were pressed") {
+    ge::app::App app;
+    transform2d::install(app);
+    action_control::install(app);
+    app.set_tick_rate(10); // a tick lasts 0.1 s
+    action_control::Controlled walker{60.0F};
+    walker.acceleration = 200.0F; // 20 per tick
+    const auto entity = spawn_controlled(app, walker);
+    app.world().resource<ge::app::Actions>()->set("move_x", 1.0F);
+    app.run_frames(3);
+    CHECK(velocity_of(app, entity).x == 60.0F);
+    CHECK(app.world().insert(entity, transform2d::Disabled{}));
+    app.run_frames(1);
+    CHECK(velocity_of(app, entity).x == 40.0F); // slowing down, the key still held
+    app.run_frames(2);
+    CHECK(velocity_of(app, entity).x == 0.0F);
+}

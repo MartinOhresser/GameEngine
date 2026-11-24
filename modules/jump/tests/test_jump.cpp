@@ -190,3 +190,18 @@ TEST_CASE("jump: air jumps are spent in the air and come back on the ground") {
     level.run(1);
     CHECK(level.jumps() == 4U);
 }
+
+TEST_CASE("jump: a Disabled jumper does not jump, and jumps again once enabled") {
+    Level level;
+    level.run(3);
+    CHECK(level.app.world().insert(level.hero, transform2d::Disabled{}));
+    level.hold(5);
+    level.run(5);
+    CHECK(level.jumps() == 0U);
+    CHECK(level.on_floor());
+    CHECK(level.app.world().remove<transform2d::Disabled>(level.hero));
+    level.run(1); // the earlier press is let go
+    level.hold(1);
+    level.run(1);
+    CHECK(level.jumps() == 1U);
+}
