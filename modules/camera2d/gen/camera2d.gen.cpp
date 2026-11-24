@@ -265,6 +265,63 @@ constexpr std::array<::ge::app::FieldInfo, 17> component_2_fields{{{"stiffness",
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    CameraShake component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "strength") {
+            component.strength = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "decay") {
+            component.decay = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "speed") {
+            component.speed = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const CameraShake* component = world.get<CameraShake>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "strength") {
+        return ::ge::app::Scalar{static_cast<double>(component->strength)};
+    }
+    if (field == "decay") {
+        return ::ge::app::Scalar{static_cast<double>(component->decay)};
+    }
+    if (field == "speed") {
+        return ::ge::app::Scalar{static_cast<double>(component->speed)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    CameraShake* component = world.get<CameraShake>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "strength") {
+        component->strength = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "decay") {
+        component->decay = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "speed") {
+        component->speed = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 3> component_3_fields{{{"strength", "f32", "", false}, {"decay", "f32", "", false}, {"speed", "f32", "", false}}};
+
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     CameraFit component;
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "width") {
@@ -290,7 +347,7 @@ void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const CameraFit* component = world.get<CameraFit>(entity);
     if (component == nullptr) {
@@ -326,7 +383,7 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     CameraFit* component = world.get<CameraFit>(entity);
@@ -372,17 +429,19 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_3_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"center_x", "f32", "", false}, {"center_y", "f32", "", false}, {"margin_left", "f32", "", false}, {"margin_right", "f32", "", false}, {"margin_top", "f32", "", false}, {"margin_bottom", "f32", "", false}, {"max_zoom", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 9> component_4_fields{{{"width", "f32", "", false}, {"height", "f32", "", false}, {"center_x", "f32", "", false}, {"center_y", "f32", "", false}, {"margin_left", "f32", "", false}, {"margin_right", "f32", "", false}, {"margin_top", "f32", "", false}, {"margin_bottom", "f32", "", false}, {"max_zoom", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"CameraFit", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
+constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Camera", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"CameraTarget", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"CameraFollow", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"CameraShake", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"CameraFit", false, component_4_fields, insert_component_4, read_component_4, write_component_4}}};
 
 constexpr std::array<std::string_view, 4> system_0_reads{"camera2d.CameraFollow", "camera2d.CameraTarget", "camera2d.Camera", "transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
-constexpr std::array<std::string_view, 2> system_1_reads{"camera2d.Camera", "transform2d.Position"};
+constexpr std::array<std::string_view, 3> system_1_reads{"camera2d.Camera", "camera2d.CameraShake", "transform2d.Position"};
 constexpr std::array<std::string_view, 0> system_1_writes{};
-constexpr std::array<std::string_view, 1> system_2_reads{"camera2d.CameraFit"};
-constexpr std::array<std::string_view, 2> system_2_writes{"camera2d.Camera", "transform2d.Position"};
-constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"camera2d.follow", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"camera2d.apply", ::ge::app::Stage::Update, system_1_reads, system_1_writes}, {"camera2d.fit", ::ge::app::Stage::Update, system_2_reads, system_2_writes}}};
+constexpr std::array<std::string_view, 0> system_2_reads{};
+constexpr std::array<std::string_view, 1> system_2_writes{"camera2d.CameraShake"};
+constexpr std::array<std::string_view, 1> system_3_reads{"camera2d.CameraFit"};
+constexpr std::array<std::string_view, 2> system_3_writes{"camera2d.Camera", "transform2d.Position"};
+constexpr std::array<::ge::app::SystemInfo, 4> systems{{{"camera2d.follow", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"camera2d.apply", ::ge::app::Stage::Update, system_1_reads, system_1_writes}, {"camera2d.settle", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"camera2d.fit", ::ge::app::Stage::Update, system_3_reads, system_3_writes}}};
 
 constexpr std::array<std::string_view, 1> depends{"transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -398,6 +457,7 @@ void install(::ge::app::App& app) {
     app.add_module(info());
     app.add_system(::ge::app::Stage::FixedUpdate, &follow, "camera2d.follow", ::ge::app::Order::between({"transform2d.integrate"}, {}));
     app.add_system(::ge::app::Stage::Update, &apply, "camera2d.apply");
+    app.add_system(::ge::app::Stage::FixedUpdate, &settle, "camera2d.settle");
     app.add_system(::ge::app::Stage::Update, &fit, "camera2d.fit", ::ge::app::Order::between({}, {"camera2d.apply"}));
 }
 

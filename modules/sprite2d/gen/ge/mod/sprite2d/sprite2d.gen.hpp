@@ -109,7 +109,7 @@ struct FrameBind {
 /// Runs in FixedUpdate.
 void animate(::ge::ecs::World& world);
 
-/// Asks the renderer to draw every Sprite, lowest layer first. Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
+/// Asks the renderer to draw every Sprite, lowest layer first, with the drawings other modules put on a layer (LayeredDraws, ge/mod/sprite2d/layered.hpp). Presentation only: it never changes the simulation. The frame is ended by whoever runs the loop.
 /// Runs in PostUpdate.
 void draw(::ge::ecs::World& world);
 

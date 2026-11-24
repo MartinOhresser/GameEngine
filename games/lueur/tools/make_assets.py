@@ -415,6 +415,36 @@ def hero_pose(legs, arms, bob, lean):
     return Image.alpha_composite(body, light)
 
 
+# A few falling leaves: small silhouettes, each turned another way (particles pick one).
+LEAF = 32
+
+
+def leaves():
+    frames = []
+    for index, angle in enumerate([0.3, 1.4, 2.4, 3.6]):
+        s = SUPER * 4
+        size = LEAF * s
+        mask = Image.new("L", (size, size), 0)
+        draw = ImageDraw.Draw(mask)
+        c = size / 2
+        length = size * (0.42 - 0.03 * index)
+        width = length * 0.42
+        # A pointed oval along `angle`, with a short stalk.
+        points = []
+        for step in range(33):
+            t = step / 32 * 2 * math.pi
+            along = math.cos(t) * length / 2
+            across = math.sin(t) * width / 2 * (1 - 0.35 * math.cos(t))
+            points.append((c + along * math.cos(angle) - across * math.sin(angle),
+                           c + along * math.sin(angle) + across * math.cos(angle)))
+        draw.polygon(points, fill=255)
+        tip = (c - length / 2 * math.cos(angle), c - length / 2 * math.sin(angle))
+        draw.line([tip, (tip[0] - length * 0.18 * math.cos(angle),
+                         tip[1] - length * 0.18 * math.sin(angle))], fill=255, width=s)
+        frames.append(tinted(reduce(mask, (LEAF, LEAF)), INK))
+    save_sheet(frames, "leaves")
+
+
 # The hero's box: its feet are at the bottom of the picture, a little above the bottom of the cell.
 HERO_W, HERO_H = 34, 92
 HERO_FEET = 6  # empty pixels of the cell under the feet (the drawing's margin)
@@ -557,6 +587,27 @@ def scene():
                           "intensity": 0.9, "flicker": 0.15, "flicker_speed": 1.5,
                           "offset_y": -20},
     }))
+    # Fireflies drifting over the grass, and leaves falling from the trees in front. Particles
+    # are not entities: a few emitters spread along the level let them out.
+    for index in range(LEVEL_W // 1536):
+        x = index * 1536 + 768
+        entities.append({"name": f"fireflies_{index}", "components": {
+            "transform2d.Position": {"x": x, "y": GROUND_Y - 110},
+            "particles2d.Emitter": {
+                "rate": 2.5, "lifetime": 6, "lifetime_spread": 2, "speed": 6, "speed_spread": 4,
+                "wander": 22, "area_width": 1536, "area_height": 200, "size": 15, "end_size": 11,
+                "red": 214, "green": 255, "blue": 150, "alpha": 230, "additive": True,
+                "unlit": True, "layer": LAYERS["hero"] + 1, "max": 40},
+        }})
+        entities.append({"name": f"leaves_{index}", "components": {
+            "transform2d.Position": {"x": x, "y": -40},
+            "particles2d.Emitter": {
+                "rate": 1.2, "lifetime": 11, "lifetime_spread": 3, "speed": 30, "speed_spread": 10,
+                "angle": 100, "spread": 40, "gravity_y": 4, "drag": 0.05, "wander": 45,
+                "area_width": 1536, "size": 24, "end_size": 22, "red": 255, "green": 255,
+                "blue": 255, "additive": False, "atlas": "leaves", "layer": LAYERS["hero"] + 2,
+                "max": 30},
+        }})
     # The camera follows the hero loosely: small steps and hops leave the view still, it looks
     # ahead of where he runs, and it never shows past the ends of the level or below the ground.
     resting_y = GROUND_Y - HERO_H / 2
@@ -588,6 +639,7 @@ def main():
     ground()
     foreground()
     hero()
+    leaves()
     scene()
     print("lueur: pictures, atlases and scene written in", GAME)
 

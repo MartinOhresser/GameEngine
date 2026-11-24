@@ -50,6 +50,7 @@
           "jump",
           "lifetime",
           "light2d",
+          "particles2d",
           "path2d",
           "patrol2d",
           "phase",
@@ -219,6 +220,11 @@
           "additionalProperties": false
         },
         "light2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "particles2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

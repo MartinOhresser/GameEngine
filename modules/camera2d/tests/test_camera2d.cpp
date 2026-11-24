@@ -354,3 +354,38 @@ TEST_CASE("camera2d: a bounded camera never shows past the edges of the area") {
     app.run_frames(1);
     CHECK(position_of(app, camera).x == 0.0F);
 }
+
+namespace {
+
+/// A camera at (100, 50) shaken by `strength`, settling by 40 a second, at 10 ticks a second.
+ge::ecs::Entity spawn_shaken(ge::app::App& app, float strength) {
+    app.set_tick_rate(10); // a tick lasts 0.1 s
+    const auto camera = spawn_camera(app, 100.0F, 50.0F, 1.0F);
+    CHECK(app.world().insert(camera, camera2d::CameraShake{strength, 40.0F, 7.0F}));
+    return camera;
+}
+
+} // namespace
+
+TEST_CASE("camera2d: a shaken camera moves the picture by up to its strength") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto camera = spawn_shaken(app, 8.0F);
+    app.run_frames(1); // strength 4 after this tick
+    const ge::app::CameraView view = view_of(*renderer);
+    CHECK(std::abs(view.x - 100.0F) <= 4.0F);
+    CHECK(std::abs(view.y - 50.0F) <= 4.0F);
+    CHECK(view.x != 100.0F);
+    CHECK(position_of(app, camera).x == 100.0F); // only the picture moves
+}
+
+TEST_CASE("camera2d: a shaken camera settles, then shows still") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const auto camera = spawn_shaken(app, 8.0F);
+    app.run_frames(2);
+    CHECK(std::abs(app.world().get<camera2d::CameraShake>(camera)->strength) < 0.001F);
+    app.run_frames(1);
+    CHECK(view_of(*renderer).x == 100.0F);
+    CHECK(view_of(*renderer).y == 50.0F);
+}

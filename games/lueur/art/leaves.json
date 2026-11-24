@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "leaves",
+  "image": "leaves.png",
+  "cell_width": 32,
+  "cell_height": 32,
+  "filter": "linear"
+}

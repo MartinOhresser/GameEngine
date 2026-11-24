@@ -72,6 +72,21 @@ struct CameraFollow {
     [[nodiscard]] friend bool operator==(const CameraFollow&, const CameraFollow&) = default;
 };
 
+/// Shakes the view of the Camera's entity: while strength is more than 0, the picture is moved by up to strength world units in every direction, speed times a second, and strength goes down by decay units a second until it is 0 again. A game shakes the camera by setting strength (a fall, a blow, an explosion); the camera's Position is left alone, only the drawing moves.
+struct CameraShake {
+    float strength = 0.0F;
+    float decay = 30.0F;
+    float speed = 18.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(strength);
+        hasher.add(decay);
+        hasher.add(speed);
+    }
+
+    [[nodiscard]] friend bool operator==(const CameraShake&, const CameraShake&) = default;
+};
+
 /// Makes the Camera's entity show a whole area of the world, whatever the shape of the screen: each tick (before drawing) its zoom and Position are set so that the area width by height, centred on (center_x, center_y), is as big as it can be in the window while still fitting entirely. The margins (pixels of the window) keep room at the edges for an interface (a score at the top, buttons at the bottom): the area is centred in what is left. max_zoom, when it is more than 0, stops the area from being enlarged past that zoom (a small board is not blown up on a huge screen). A board, a level seen at once, a map.
 struct CameraFit {
     float width = 100.0F;
@@ -103,9 +118,13 @@ struct CameraFit {
 /// Runs in FixedUpdate.
 void follow(::ge::ecs::World& world);
 
-/// Tells the renderer where the camera is and how far it is zoomed, before the frame's drawing systems run. Presentation only: it never changes the simulation.
+/// Tells the renderer where the camera is (shaken by its CameraShake) and how far it is zoomed, before the frame's drawing systems run. Presentation only: it never changes the simulation.
 /// Runs in Update.
 void apply(::ge::ecs::World& world);
+
+/// Lowers the strength of every CameraShake by its decay, down to 0.
+/// Runs in FixedUpdate.
+void settle(::ge::ecs::World& world);
 
 /// Sets the zoom and the Position of every Camera that has a CameraFit so that its area fits the window (the Viewport) inside its margins.
 /// Runs in Update.
