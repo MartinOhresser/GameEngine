@@ -10,12 +10,16 @@
 #include <cmath>
 #include <cstdint>
 #include <numbers>
+#include <optional>
 #include <utility>
 #include <vector>
 
 namespace ge::mod::sprite2d {
 
 namespace {
+
+/// A field reference that names no field.
+constexpr std::uint32_t no_field = 0xFFFFFFFFU;
 
 std::uint32_t channel(std::uint32_t value) {
     return std::min<std::uint32_t>(value, 255U);
@@ -82,7 +86,101 @@ app::DrawCommand sprite_command(const ecs::World& world, ecs::Entity entity, con
     return command;
 }
 
+/// The number `field` (an index into the game's field table) of `entity`, when the game knows the
+/// field and the entity has its component.
+std::optional<double> number_of(const ecs::World& world, const app::FieldTable* table,
+                                ecs::Entity entity, std::uint32_t field) {
+    if (table == nullptr || field >= table->entries.size()) {
+        return std::nullopt;
+    }
+    const app::FieldEntry& entry = table->entries[field];
+    if (entry.component == nullptr || entry.component->read == nullptr) {
+        return std::nullopt;
+    }
+    const auto value = entry.component->read(world, entity, entry.field);
+    return value ? std::optional<double>(app::scalar_as<double>(*value)) : std::nullopt;
+}
+
+bool holds(const ecs::World& world, const app::FieldTable* table, ecs::Entity entity,
+           const AnimationClip& clip) {
+    if (clip.field == no_field) {
+        return true;
+    }
+    const std::optional<double> number = number_of(world, table, entity, clip.field);
+    if (!number) {
+        return false;
+    }
+    const double value = clip.absolute ? std::abs(*number) : *number;
+    return value >= static_cast<double>(clip.min) && value <= static_cast<double>(clip.max);
+}
+
+/// The clip of `set` that `entity` should play: the highest priority among those that hold, the
+/// oldest at equal priority (`clips` are in creation order).
+const AnimationClip* chosen(const ecs::World& world, const app::FieldTable* table,
+                            ecs::Entity entity, std::uint32_t set,
+                            const std::vector<AnimationClip>& clips) {
+    const AnimationClip* best = nullptr;
+    for (const AnimationClip& clip : clips) {
+        if (clip.set == set && (best == nullptr || clip.priority > best->priority) &&
+            holds(world, table, entity, clip)) {
+            best = &clip;
+        }
+    }
+    return best;
+}
+
+bool same_animation(const SpriteAnimation& animation, const AnimationClip& clip) {
+    return animation.first_frame == clip.first_frame && animation.frame_count == clip.frame_count &&
+           animation.ticks_per_frame == clip.ticks_per_frame && animation.looping == clip.looping;
+}
+
 } // namespace
+
+void choose_clip(ecs::World& world) {
+    std::vector<AnimationClip> clips;
+    world.each<const AnimationClip>(
+        [&clips](ecs::Entity, const AnimationClip& clip) { clips.push_back(clip); });
+    if (clips.empty()) {
+        return;
+    }
+    const auto* table = world.resource<app::FieldTable>();
+    std::vector<std::pair<ecs::Entity, SpriteAnimation>> changes;
+    world.each<const Animator>([&](ecs::Entity entity, const Animator& animator) {
+        const AnimationClip* clip = chosen(world, table, entity, animator.set, clips);
+        if (clip == nullptr) {
+            return;
+        }
+        const auto* playing = world.get<SpriteAnimation>(entity);
+        if (playing == nullptr || !same_animation(*playing, *clip)) {
+            changes.emplace_back(entity, SpriteAnimation{clip->first_frame, clip->frame_count,
+                                                         clip->ticks_per_frame, clip->looping, 0U});
+        }
+    });
+    // Outside the walk over the world: a new SpriteAnimation changes the entity's components.
+    for (const auto& [entity, animation] : changes) {
+        static_cast<void>(world.insert(entity, animation));
+    }
+}
+
+void face(ecs::World& world) {
+    const auto* table = world.resource<app::FieldTable>();
+    world.each<const Facing, Sprite>([&](ecs::Entity entity, const Facing& facing, Sprite& sprite) {
+        std::optional<double> number;
+        if (facing.field == no_field) {
+            const auto* velocity = world.get<transform2d::Velocity>(entity);
+            number = velocity == nullptr ? std::nullopt
+                                         : std::optional<double>(static_cast<double>(velocity->x));
+        } else {
+            number = number_of(world, table, entity, facing.field);
+        }
+        const auto threshold = static_cast<double>(facing.threshold);
+        if (number && *number > threshold) {
+            sprite.flip_x = facing.drawn_left;
+        } else if (number && *number < -threshold) {
+            sprite.flip_x = !facing.drawn_left;
+        }
+    });
+}
 
 void animate(ecs::World& world) {
     world.each<Sprite, SpriteAnimation>([](ecs::Entity, Sprite& sprite, SpriteAnimation& anim) {

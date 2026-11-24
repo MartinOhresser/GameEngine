@@ -1,0 +1,23 @@
+// The spirit floats after the hero, above him and behind him: on his left while he runs right
+// (the hero is near x 1110 at tick 200), on his right once he runs back (near x 470 at tick 360).
+{
+  "schema_version": 1,
+  "name": "spirit_follows",
+  "scene": "forest",
+  "ticks": 360,
+  "inputs": [
+    { "tick": 60, "action": "move_x", "value": 1 },
+    { "tick": 200, "action": "move_x", "value": -1 },
+  ],
+  "expect": [
+    { "at": 60, "check": "spirit.transform2d.Position.x < 500" },
+    { "at": 60, "check": "spirit.transform2d.Position.y < 450" },
+    { "at": 200, "check": "hero.transform2d.Position.x > 1100" },
+    { "at": 200, "check": "spirit.transform2d.Position.x < 1060" },
+    { "at": 200, "check": "spirit.transform2d.Position.x > 900" },
+    { "at": 360, "check": "hero.transform2d.Position.x < 480" },
+    { "at": 360, "check": "spirit.transform2d.Position.x > 520" },
+    { "at": 360, "check": "spirit.transform2d.Position.x < 700" },
+    { "at": 360, "check": "spirit.transform2d.Position.y < 450" },
+  ],
+}

@@ -41,6 +41,28 @@ Une cellule lissée emprunte un peu des pixels de ses voisines, à son bord. Lai
 
 `sprite2d.SpriteAnimation` fait défiler `frame_count` cellules à partir de `first_frame`, `ticks_per_frame` ticks chacune, en boucle ou non. Elle avance avec la **simulation** (pas avec l'horloge de l'écran) : une animation est identique à chaque exécution et testable dans un scénario.
 
+### Animer selon l'état
+
+Un personnage court, saute, retombe : son animation dépend de ce qu'il fait. `sprite2d.Animator` (`set` : un nom de la liste `animation_set` du jeu) choisit, à chaque tick, parmi les `sprite2d.AnimationClip` de son ensemble. Un clip est une entité à part, qui ne dessine rien :
+- ses cellules : `first_frame`, `frame_count`, `ticks_per_frame`, `looping`, comme une `SpriteAnimation` ;
+- sa condition : un nombre de l'entité animée (`field`, par exemple `"transform2d.Velocity.y"` ou `"collision2d.Blocked.below"`, un booléen valant 0 ou 1) entre `min` et `max` ; avec `absolute`, la taille du nombre, quel que soit son signe (une vitesse dans un sens ou dans l'autre). Un clip sans `field` vaut toujours : c'est celui qui joue quand rien d'autre ne vaut ;
+- `priority` : parmi les clips qui valent, le plus prioritaire gagne (puis le plus ancien).
+
+Changer de clip le reprend à sa première cellule ; rester sur le même le laisse continuer. Plusieurs entités partagent un ensemble : tous les ennemis d'une sorte, toutes les copies d'un préfab. Le héros de `lueur` :
+
+| clip | priorité | condition | cellules |
+| --- | --- | --- | --- |
+| monte | 3 | `transform2d.Velocity.y` au plus -60 | 20 |
+| tombe | 2 | `collision2d.Blocked.below` au plus 0.5 (pas de sol) | 21 |
+| court | 1 | `transform2d.Velocity.x`, en taille, au moins 30 | 8 à 19 |
+| debout | 0 | aucune | 0 à 7 |
+
+`sprite2d.Facing` tourne l'image vers où va l'entité (sa vitesse en x, ou un autre nombre avec `field`) : à droite au-dessus de `threshold`, à gauche en dessous de `-threshold`, et entre les deux elle garde son côté. `drawn_left` dit que l'image elle-même regarde à gauche.
+
+### Suivre quelqu'un
+
+Le module `follow2d` fait glisser une entité vers une place près d'une autre : `follow2d.Follow` (`target`, une étiquette `tag.Tag`, ou `owner` pour son `transform2d.Owner`), décalée de `offset_x`, `offset_y`, en couvrant à chaque tick la part `stiffness` de la distance. Avec `turn`, le décalage en x suit le sens de la cible : un compagnon reste derrière elle, ou devant, de quelque côté qu'elle aille. `wave_x`, `wave_y` et `wave_period` le font flotter autour de cette place (un huit lent). L'esprit de `lueur` en est fait, avec une `light2d.Light` et une traînée d'étincelles (`particles2d`).
+
 ## La caméra
 
 Une entité avec `camera2d.Camera` et une `Position` : ce point du monde est au centre de l'écran, et `zoom` agrandit. Sans caméra, une unité du monde vaut un pixel. Pour suivre le héros : `camera2d.CameraTarget` sur lui, `camera2d.CameraFollow` sur la caméra (`stiffness` 1 colle au héros, 0.1 le suit en douceur). S'il y a plusieurs caméras, la plus ancienne est utilisée.

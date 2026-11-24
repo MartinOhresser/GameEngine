@@ -6,6 +6,10 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B7 : **l'animation par états**, le héros et l'esprit.
+  - `sprite2d` : `Animator` et `AnimationClip` (l'animation choisie par l'état de l'entité : une condition sur un de ses nombres, une priorité ; des ensembles partagés entre entités), `Facing` (l'image tournée vers où va l'entité).
+  - Nouveau module **`follow2d`** (`Follow`) : une entité glisse après une autre, derrière ou devant elle, et peut flotter autour de sa place (compagnons, marqueurs, une file qui suit un meneur).
+  - `lueur` : le héros reste debout, court, monte, retombe et se retourne ; un petit esprit de lumière le suit en flottant, avec sa lumière et une traînée d'étincelles.
 - ADR 0015, B6 : **les effets d'écran**, sans shader.
   - Nouveau module **`postfx`** (`Effects`) : halo autour de ce qui est clair (`bloom`), vignettage, grain de pellicule, étalonnage simple (teinte multipliée, ombres relevées vers une couleur), bandes noires de cinéma (`letterbox`).
   - Renderer : `ScreenEffects` et `Renderer::set_effects`. Avec des effets, le monde est dessiné dans une image à part, les effets la posent sur l'écran, puis l'interface est dessinée par-dessus. Uniquement des modes de mélange de base : marche avec tous les pilotes.

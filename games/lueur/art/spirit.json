@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "spirit",
+  "image": "spirit.png",
+  "cell_width": 64,
+  "cell_height": 64,
+  "filter": "linear"
+}

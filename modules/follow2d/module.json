@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "follow2d",
+  "version": "0.1.0",
+  "description": "Following: an entity glides after another one, at a distance, behind it or ahead of it, and may float around that place. Companions, pets, a crowd that trails a leader, a marker that hovers over what it points at.",
+  "depends": ["transform2d", "tag"],
+  "components": [
+    {
+      "name": "Follow",
+      "description": "Moves the entity's Position towards a place near its target: the entity that answers to target (a tag.Tag; the oldest when several do), or with owner the entity of its transform2d.Owner. The place is the target's Position moved by (offset_x, offset_y). stiffness is the share of the distance covered each tick: 1 sticks to the place, 0.1 glides after it, 0 does not move. With turn, offset_x is the one for a target going right (a negative one is behind it, a positive one ahead of it) and is turned round when the target goes left (its transform2d.Velocity x below -1), so that the follower stays behind it, or ahead of it, whichever way it goes; side keeps the way it last went (1 right, -1 left). wave_x and wave_y make the place float around: it moves back and forth by up to that many units, along x and along y, once every wave_period seconds (the y wave goes twice as fast as the x one, so together they draw a slow figure of eight). side and time (the seconds into the wave) are the module's own state. Nothing happens while the target is missing.",
+      "replicable": true,
+      "fields": [
+        { "name": "target", "type": "u32", "default": 0, "ref": "tag" },
+        { "name": "owner", "type": "bool", "default": false },
+        { "name": "offset_x", "type": "f32", "default": 0 },
+        { "name": "offset_y", "type": "f32", "default": 0 },
+        { "name": "stiffness", "type": "f32", "default": 0.1 },
+        { "name": "turn", "type": "bool", "default": false },
+        { "name": "wave_x", "type": "f32", "default": 0 },
+        { "name": "wave_y", "type": "f32", "default": 0 },
+        { "name": "wave_period", "type": "f32", "default": 4 },
+        { "name": "side", "type": "i32", "default": 1 },
+        { "name": "time", "type": "f32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "follow",
+      "description": "Moves every Follow entity towards the place near its target, after the targets have moved this tick.",
+      "stage": "FixedUpdate",
+      "reads": ["tag.Tag", "transform2d.Owner", "transform2d.Velocity"],
+      "writes": ["Follow", "transform2d.Position"],
+      "after": ["transform2d.integrate"]
+    }
+  ]
+}
