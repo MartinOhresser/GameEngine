@@ -197,3 +197,66 @@ TEST_CASE("collision2d: contacts drop back to zero when the boxes separate") {
     app.run_frames(1);
     CHECK(count_of(app, a) == 1U);
 }
+
+namespace {
+
+/// A 20 by 20 crate centred on (x, 0).
+ge::ecs::Entity crate(ge::app::App& app, float x, float speed) {
+    const ge::ecs::Entity entity = wall(app, x, 0.0F, 20.0F, 20.0F);
+    CHECK(app.world().insert(entity, collision2d::Pushable{speed}));
+    return entity;
+}
+
+float speed_of(ge::app::App& app, ge::ecs::Entity entity) {
+    return app.world().get<transform2d::Velocity>(entity)->x;
+}
+
+} // namespace
+
+TEST_CASE("collision2d: a body that walks into a pushable moves it along") {
+    ge::app::App app = game();
+    app.set_tick_rate(1);
+    const ge::ecs::Entity pushed = crate(app, 50.0F, 0.0F); // x 40..60
+    const ge::ecs::Entity body = mover(app, 25.0F, 0.0F, 20.0F, 0.0F);
+    app.run_frames(1); // the body comes 10 into the crate: the crate goes 10 further
+    CHECK(position_of(app, pushed).x == 60.0F);
+    CHECK(position_of(app, body).x == 45.0F);
+    CHECK(speed_of(app, body) == 20.0F);
+    app.world().get<transform2d::Velocity>(body)->x = -20.0F; // walking away leaves it
+    app.run_frames(1);
+    CHECK(position_of(app, pushed).x == 60.0F);
+}
+
+TEST_CASE("collision2d: a pushable stops at a wall, and the body that pushes it with it") {
+    ge::app::App app = game();
+    app.set_tick_rate(1);
+    const ge::ecs::Entity pushed = crate(app, 50.0F, 0.0F); // x 40..60
+    wall(app, 66.0F, 0.0F, 10.0F, 40.0F);                   // x 61..71: room for 1
+    const ge::ecs::Entity body = mover(app, 25.0F, 0.0F, 15.0F, 0.0F);
+    CHECK(app.world().insert(body, collision2d::Blocked{}));
+    app.run_frames(1);
+    CHECK(position_of(app, pushed).x == 51.0F);
+    CHECK(position_of(app, body).x == 36.0F);
+    CHECK(speed_of(app, body) == 1.0F); // it went along at the crate's pace
+    app.run_frames(1);
+    CHECK(position_of(app, pushed).x == 51.0F);
+    CHECK(position_of(app, body).x == 36.0F);
+    CHECK(speed_of(app, body) == 0.0F);
+    CHECK(app.world().get<collision2d::Blocked>(body)->right);
+}
+
+TEST_CASE("collision2d: a heavy pushable is pushed at its own speed, and stood on from above") {
+    ge::app::App app = game();
+    app.set_tick_rate(1);
+    const ge::ecs::Entity pushed = crate(app, 50.0F, 5.0F);
+    const ge::ecs::Entity body = mover(app, 25.0F, 0.0F, 20.0F, 0.0F);
+    app.run_frames(1);
+    CHECK(position_of(app, pushed).x == 55.0F);
+    CHECK(position_of(app, body).x == 40.0F);
+    CHECK(speed_of(app, body) == 5.0F);
+    app.world().get<transform2d::Velocity>(body)->x = 0.0F;
+    const ge::ecs::Entity rider = mover(app, 55.0F, -16.0F, 0.0F, 4.0F); // lands on its top
+    app.run_frames(1);
+    CHECK(position_of(app, rider).y == -15.0F);
+    CHECK(position_of(app, pushed).x == 55.0F);
+}

@@ -342,6 +342,15 @@
                 },
                 "additionalProperties": false
               },
+              "collision2d.Pushable": {
+                "type": "object",
+                "properties": {
+                  "speed": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "combat2d.ContactDamage": {
                 "type": "object",
                 "properties": {

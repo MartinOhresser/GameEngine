@@ -67,7 +67,18 @@ struct Blocked {
     [[nodiscard]] friend bool operator==(const Blocked&, const Blocked&) = default;
 };
 
-/// Pushes every Body out of the solid colliders it overlaps, along the shortest way out, cancels its Velocity towards the wall, and notes in its Blocked (when it has one) the sides that stopped it. Entities are handled in creation order, so the result is the same on every run.
+/// Makes a solid collider something a Body can push: a Body that walks into its side moves it along instead of being stopped, as far as the way is free (another solid in the pushable's mask stops it, and the Body with it). speed, when it is more than 0, is the fastest it can be pushed, in units per second: the Body that pushes goes along at that speed (a heavy crate is pushed slowly). From above or below it is an ordinary solid: a Body stands on it. Give it a Body, a Blocked and a gravity2d.Gravity as well, and it falls when pushed over an edge (a crate pushed into a pit makes a step).
+struct Pushable {
+    float speed = 0.0F;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(speed);
+    }
+
+    [[nodiscard]] friend bool operator==(const Pushable&, const Pushable&) = default;
+};
+
+/// Pushes every Body out of the solid colliders it overlaps, along the shortest way out, cancels its Velocity towards the wall, and notes in its Blocked (when it has one) the sides that stopped it; a Pushable it walks into is moved along instead, as far as it can go. Entities are handled from left to right (then in creation order), so the result is the same on every run.
 /// Runs in FixedUpdate.
 void block(::ge::ecs::World& world);
 
