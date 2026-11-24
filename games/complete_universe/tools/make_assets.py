@@ -139,9 +139,18 @@ def hero_entity(x, y):
     })
 
 
+# What the lens adds at rest: a dark vignette, as in Limbo, a little glow and grain.
+BASE_VIGNETTE = 0.45
+BASE_VIGNETTE_SIZE = 0.45
+
+
 def camera(bound_right):
     return entity("camera", VIEW_W / 2, VIEW_H / 2, {
+        "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": 1},
+        "postfx.Effects": {"vignette": BASE_VIGNETTE, "vignette_size": BASE_VIGNETTE_SIZE,
+                           "edge_glow": 0, "edge_glow_size": 0.5, "bloom": 0.25,
+                           "grain": 0.08},
         "camera2d.CameraFollow": {"stiffness": 0.1, "dead_x": 40, "dead_y": 120,
                                   "bounded": True, "bound_left": 0, "bound_right": bound_right,
                                   "bound_top": -2000, "bound_bottom": GROUND_Y + 120},
@@ -189,7 +198,45 @@ def sandbox():
             shape("pit", 232, GROUND_Y + 80, 64, 160, False),
             shape("step", 800, GROUND_Y - 4, 200, 8, True),
             shape("wall", 1250, GROUND_Y - 60, 32, 120, True),
-            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)]
+            hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + reserves()
+
+
+def sandbox_low():
+    """The test ground with little black and white left: the edges of the screen show it."""
+    return sandbox()[:-6] + reserves(matter=20, carbon=8)
+
+
+# Life (GDD §8): black (matter) and white (carbon) wear away to keep the body whole; full, they
+# last about five minutes (P8). With less than half of either, the edges of the screen turn: white
+# when the matter runs out, black when the carbon does, until the whole screen is gone.
+LIFE_DRAIN = 100 / 300
+
+
+def reserves(matter=100, carbon=100):
+    return [
+        entity("matter", 0, 0, {"tag.Tag": {"tag": "matter"}, "reserve.Reserve": {
+            "kind": "matter", "amount": matter, "max": 100, "drain": LIFE_DRAIN,
+            "empty_action": "out_of_matter"}}),
+        entity("carbon", 0, 0, {"tag.Tag": {"tag": "carbon"}, "reserve.Reserve": {
+            "kind": "carbon", "amount": carbon, "max": 100, "drain": LIFE_DRAIN,
+            "empty_action": "out_of_carbon"}}),
+        bind("carbon_darkens", "carbon", "reserve.Reserve.fill", "postfx.Effects.vignette",
+             0.5, 0, BASE_VIGNETTE, 1, 1.5),
+        bind("carbon_closes", "carbon", "reserve.Reserve.fill", "postfx.Effects.vignette_size",
+             0.5, 0, BASE_VIGNETTE_SIZE, -3, 4),
+        bind("matter_whitens", "matter", "reserve.Reserve.fill", "postfx.Effects.edge_glow",
+             0.5, 0, 0, 1, 1.5),
+        bind("matter_closes", "matter", "reserve.Reserve.fill", "postfx.Effects.edge_glow_size",
+             0.5, 0, 0.5, -3, 4),
+    ]
+
+
+def bind(name, source_tag, source, target, low, high, out_low, out_high, power):
+    """A number of the camera that follows a number of a reserve (module bind)."""
+    return {"name": name, "components": {
+        "bind.Bind": {"source": source, "from": source_tag, "target": target, "onto": "camera",
+                      "low": low, "high": high, "out_low": out_low, "out_high": out_high,
+                      "power": power}}}
 
 
 def write_scene(name, entities):
@@ -204,6 +251,7 @@ def main():
     save(hero(), "hero")
     save(sky(), "sky")
     write_scene("sandbox", sandbox())
+    write_scene("sandbox_low", sandbox_low())
 
 
 if __name__ == "__main__":

@@ -24,6 +24,22 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.vignette = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "vignette_size") {
             component.vignette_size = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "vignette_red") {
+            component.vignette_red = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "vignette_green") {
+            component.vignette_green = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "vignette_blue") {
+            component.vignette_blue = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "edge_glow") {
+            component.edge_glow = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "edge_glow_size") {
+            component.edge_glow_size = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "edge_glow_red") {
+            component.edge_glow_red = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "edge_glow_green") {
+            component.edge_glow_green = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "edge_glow_blue") {
+            component.edge_glow_blue = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "grain") {
             component.grain = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "tint_red") {
@@ -59,6 +75,30 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "vignette_size") {
         return ::ge::app::Scalar{static_cast<double>(component->vignette_size)};
+    }
+    if (field == "vignette_red") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->vignette_red)};
+    }
+    if (field == "vignette_green") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->vignette_green)};
+    }
+    if (field == "vignette_blue") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->vignette_blue)};
+    }
+    if (field == "edge_glow") {
+        return ::ge::app::Scalar{static_cast<double>(component->edge_glow)};
+    }
+    if (field == "edge_glow_size") {
+        return ::ge::app::Scalar{static_cast<double>(component->edge_glow_size)};
+    }
+    if (field == "edge_glow_red") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->edge_glow_red)};
+    }
+    if (field == "edge_glow_green") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->edge_glow_green)};
+    }
+    if (field == "edge_glow_blue") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->edge_glow_blue)};
     }
     if (field == "grain") {
         return ::ge::app::Scalar{static_cast<double>(component->grain)};
@@ -106,6 +146,38 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->vignette_size = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "vignette_red") {
+        component->vignette_red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "vignette_green") {
+        component->vignette_green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "vignette_blue") {
+        component->vignette_blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "edge_glow") {
+        component->edge_glow = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "edge_glow_size") {
+        component->edge_glow_size = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "edge_glow_red") {
+        component->edge_glow_red = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "edge_glow_green") {
+        component->edge_glow_green = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "edge_glow_blue") {
+        component->edge_glow_blue = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     if (field == "grain") {
         component->grain = ::ge::app::scalar_as<float>(value);
         return true;
@@ -141,7 +213,7 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 11> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 19> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"vignette_red", "u32", "", false}, {"vignette_green", "u32", "", false}, {"vignette_blue", "u32", "", false}, {"edge_glow", "f32", "", false}, {"edge_glow_size", "f32", "", false}, {"edge_glow_red", "u32", "", false}, {"edge_glow_green", "u32", "", false}, {"edge_glow_blue", "u32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Effects", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

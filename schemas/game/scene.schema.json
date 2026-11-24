@@ -98,6 +98,47 @@
                 },
                 "additionalProperties": false
               },
+              "bind.Bind": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "target": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "onto": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "low": {
+                    "type": "number"
+                  },
+                  "high": {
+                    "type": "number"
+                  },
+                  "out_low": {
+                    "type": "number"
+                  },
+                  "out_high": {
+                    "type": "number"
+                  },
+                  "power": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "bounce2d.Bouncer": {
                 "type": "object",
                 "properties": {
@@ -2006,6 +2047,42 @@
                   "vignette_size": {
                     "type": "number"
                   },
+                  "vignette_red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "vignette_green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "vignette_blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "edge_glow": {
+                    "type": "number"
+                  },
+                  "edge_glow_size": {
+                    "type": "number"
+                  },
+                  "edge_glow_red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "edge_glow_green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "edge_glow_blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
                   "grain": {
                     "type": "number"
                   },
@@ -2104,6 +2181,92 @@
                   },
                   "loaded": {
                     "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "reserve.Reserve": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "drain": {
+                    "type": "number"
+                  },
+                  "floor": {
+                    "type": "number"
+                  },
+                  "empty_action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "fill": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "reserve.Drain": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "per_second": {
+                    "type": "number"
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "per_unit": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "reserve.Gain": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "field": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "per_unit": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "reserve.Yield": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "amount": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false
@@ -2808,6 +2971,61 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "terrain2d.Look": {
+                "type": "object",
+                "properties": {
+                  "layer": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  },
+                  "pixels": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "top_red": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "top_green": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "top_blue": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "lip": {
+                    "type": "number"
+                  },
+                  "grain": {
+                    "type": "number"
+                  },
+                  "unlit": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false

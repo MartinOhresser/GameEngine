@@ -1,0 +1,19 @@
+// Little black and white left: the edges whiten (matter at 20 of 100) and darken (carbon at 8).
+// The carbon runs out after 24 seconds: its action is pressed and the screen is black.
+{
+  "schema_version": 1,
+  "name": "edges_turn",
+  "scene": "sandbox_low",
+  "ticks": 1500,
+  "expect": [
+    // Matter 0.2 full: (0.5 - 0.2) / 0.5 = 0.6 of the way, 0.6^1.5 = 0.465 of the white glow.
+    { "at": 1, "check": "camera.postfx.Effects.edge_glow > 0.46" },
+    { "at": 1, "check": "camera.postfx.Effects.edge_glow < 0.47" },
+    // Carbon 0.08 full: 0.84 of the way, so 0.45 + 0.55 × 0.84^1.5 = 0.873 of the dark vignette.
+    { "at": 1, "check": "camera.postfx.Effects.vignette > 0.86" },
+    { "at": 1, "check": "camera.postfx.Effects.vignette < 0.88" },
+    { "at": 1500, "check": "carbon.reserve.Reserve.amount == 0" },
+    "camera.postfx.Effects.vignette == 1",
+    "camera.postfx.Effects.vignette_size == -3",
+  ],
+}

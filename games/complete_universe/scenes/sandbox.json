@@ -150,8 +150,19 @@
           "x": 640.0,
           "y": 360.0
         },
+        "tag.Tag": {
+          "tag": "camera"
+        },
         "camera2d.Camera": {
           "zoom": 1
+        },
+        "postfx.Effects": {
+          "vignette": 0.45,
+          "vignette_size": 0.45,
+          "edge_glow": 0,
+          "edge_glow_size": 0.5,
+          "bloom": 0.25,
+          "grain": 0.08
         },
         "camera2d.CameraFollow": {
           "stiffness": 0.1,
@@ -162,6 +173,108 @@
           "bound_right": 4096,
           "bound_top": -2000,
           "bound_bottom": 720
+        }
+      }
+    },
+    {
+      "name": "matter",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "matter"
+        },
+        "reserve.Reserve": {
+          "kind": "matter",
+          "amount": 100,
+          "max": 100,
+          "drain": 0.3333333333333333,
+          "empty_action": "out_of_matter"
+        }
+      }
+    },
+    {
+      "name": "carbon",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "carbon"
+        },
+        "reserve.Reserve": {
+          "kind": "carbon",
+          "amount": 100,
+          "max": 100,
+          "drain": 0.3333333333333333,
+          "empty_action": "out_of_carbon"
+        }
+      }
+    },
+    {
+      "name": "carbon_darkens",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "carbon",
+          "target": "postfx.Effects.vignette",
+          "onto": "camera",
+          "low": 0.5,
+          "high": 0,
+          "out_low": 0.45,
+          "out_high": 1,
+          "power": 1.5
+        }
+      }
+    },
+    {
+      "name": "carbon_closes",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "carbon",
+          "target": "postfx.Effects.vignette_size",
+          "onto": "camera",
+          "low": 0.5,
+          "high": 0,
+          "out_low": 0.45,
+          "out_high": -3,
+          "power": 4
+        }
+      }
+    },
+    {
+      "name": "matter_whitens",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "matter",
+          "target": "postfx.Effects.edge_glow",
+          "onto": "camera",
+          "low": 0.5,
+          "high": 0,
+          "out_low": 0,
+          "out_high": 1,
+          "power": 1.5
+        }
+      }
+    },
+    {
+      "name": "matter_closes",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "matter",
+          "target": "postfx.Effects.edge_glow_size",
+          "onto": "camera",
+          "low": 0.5,
+          "high": 0,
+          "out_low": 0.5,
+          "out_high": -3,
+          "power": 4
         }
       }
     }

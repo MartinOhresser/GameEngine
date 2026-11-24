@@ -95,7 +95,15 @@ struct ScreenEffects {
     /// The edges and corners of the picture darken (0: none, 1: black corners).
     float vignette = 0.0F;
     /// How far from the middle the darkening starts, as a share of the half diagonal.
+    /// Below 0 it reaches the middle too (-4 covers almost the whole picture).
     float vignette_size = 0.6F;
+    /// The colour of the vignette (0xRRGGBBAA): black darkens the edges, white whitens them.
+    std::uint32_t vignette_color = 0x000000FFU;
+    /// A second vignette laid over the first, the same way (0: none, 1: strong): edges that
+    /// light up while the first darkens them, or the other way round.
+    float edge_glow = 0.0F;
+    float edge_glow_size = 0.6F;
+    std::uint32_t edge_glow_color = 0xFFFFFFFFU;
     /// A fine moving grain, as on film (0: none, 1: strong).
     float grain = 0.0F;
     /// Every colour is multiplied by this one (0xRRGGBBAA; white changes nothing): a cold night,
@@ -110,7 +118,7 @@ struct ScreenEffects {
 
     /// Whether any effect is asked for.
     [[nodiscard]] bool any() const noexcept {
-        return bloom > 0.0F || vignette > 0.0F || grain > 0.0F || (tint | 0xFFU) != 0xFFFFFFFFU ||
+        return bloom > 0.0F || vignette > 0.0F || edge_glow > 0.0F || grain > 0.0F || (tint | 0xFFU) != 0xFFFFFFFFU ||
                (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F;
     }
 

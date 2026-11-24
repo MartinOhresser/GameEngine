@@ -11,11 +11,19 @@
 
 namespace ge::mod::postfx {
 
-/// The effects of the picture (only the oldest Effects is used; put it on the camera, for example). bloom (0 to 1) makes bright parts glow over what is around them. vignette (0 to 1) darkens the corners, from vignette_size (the share of the way from the middle to a corner where it starts). grain (0 to 1) lays a fine moving grain, as on film. tint_red, tint_green and tint_blue (0 to 255) multiply every colour (255, 255, 255 changes nothing: a cold night is blue, a warm evening orange); lift_red, lift_green and lift_blue are added everywhere (0 changes nothing: dark parts take that colour). letterbox (0 to 1) is the share of the height covered by black bars at the top and bottom; a tween can slide it in and out for a cut scene.
+/// The effects of the picture (only the oldest Effects is used; put it on the camera, for example). bloom (0 to 1) makes bright parts glow over what is around them. vignette (0 to 1) darkens the corners, from vignette_size (the share of the way from the middle to a corner where it starts; below 0 it reaches the middle too, and at -4 it covers almost the whole picture), in vignette_red, vignette_green and vignette_blue (0 to 255; black by default). edge_glow (0 to 1), edge_glow_size and edge_glow_red, edge_glow_green and edge_glow_blue do the same with a second colour laid over it (white by default: the edges of the picture whiten, as when the light becomes too much). grain (0 to 1) lays a fine moving grain, as on film. tint_red, tint_green and tint_blue (0 to 255) multiply every colour (255, 255, 255 changes nothing: a cold night is blue, a warm evening orange); lift_red, lift_green and lift_blue are added everywhere (0 changes nothing: dark parts take that colour). letterbox (0 to 1) is the share of the height covered by black bars at the top and bottom; a tween can slide it in and out for a cut scene.
 struct Effects {
     float bloom = 0.0F;
     float vignette = 0.0F;
     float vignette_size = 0.6F;
+    std::uint32_t vignette_red = 0U;
+    std::uint32_t vignette_green = 0U;
+    std::uint32_t vignette_blue = 0U;
+    float edge_glow = 0.0F;
+    float edge_glow_size = 0.6F;
+    std::uint32_t edge_glow_red = 255U;
+    std::uint32_t edge_glow_green = 255U;
+    std::uint32_t edge_glow_blue = 255U;
     float grain = 0.0F;
     std::uint32_t tint_red = 255U;
     std::uint32_t tint_green = 255U;
@@ -29,6 +37,14 @@ struct Effects {
         hasher.add(bloom);
         hasher.add(vignette);
         hasher.add(vignette_size);
+        hasher.add(vignette_red);
+        hasher.add(vignette_green);
+        hasher.add(vignette_blue);
+        hasher.add(edge_glow);
+        hasher.add(edge_glow_size);
+        hasher.add(edge_glow_red);
+        hasher.add(edge_glow_green);
+        hasher.add(edge_glow_blue);
         hasher.add(grain);
         hasher.add(tint_red);
         hasher.add(tint_green);

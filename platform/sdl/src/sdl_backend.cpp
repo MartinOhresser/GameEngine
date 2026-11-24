@@ -97,7 +97,7 @@ public:
         for (const auto& [index, image] : images_) {
             SDL_DestroyTexture(image.texture);
         }
-        for (SDL_Texture* texture : {glow_, light_map_, world_, mask_, vignette_, grain_}) {
+        for (SDL_Texture* texture : {glow_, light_map_, world_, mask_, vignette_, edge_glow_, grain_}) {
             if (texture != nullptr) {
                 SDL_DestroyTexture(texture);
             }
@@ -697,6 +697,10 @@ private:
         if (effects_.vignette > 0.0F) {
             apply_vignette();
         }
+        if (effects_.edge_glow > 0.0F) {
+            apply_edges(edge_glow_, edge_glow_made_for_, effects_.edge_glow,
+                        effects_.edge_glow_size, effects_.edge_glow_color);
+        }
         if (effects_.grain > 0.0F) {
             apply_grain();
         }
@@ -783,20 +787,31 @@ private:
     }
 
     /// Black, more opaque towards the corners, over the whole screen.
-    void apply_vignette() {
-        if (vignette_ == nullptr || vignette_made_for_ != effects_.vignette_size) {
-            if (vignette_ != nullptr) {
-                SDL_DestroyTexture(vignette_);
+    /// Lays a vignette over the picture: the edges take `color`, `strength` (0 to 1) of it, from
+    /// `size` of the way out. `texture` and `made_for` cache its picture.
+    void apply_edges(SDL_Texture*& texture, float& made_for, float strength, float size,
+                     std::uint32_t color) {
+        if (texture == nullptr || made_for != size) {
+            if (texture != nullptr) {
+                SDL_DestroyTexture(texture);
             }
-            vignette_ = make_vignette(effects_.vignette_size);
-            vignette_made_for_ = effects_.vignette_size;
+            texture = make_vignette(size);
+            made_for = size;
         }
-        if (vignette_ == nullptr) {
+        if (texture == nullptr) {
             return;
         }
-        SDL_SetTextureAlphaMod(vignette_, static_cast<std::uint8_t>(std::lround(
-                                              std::min(effects_.vignette, 1.0F) * 255.0F)));
-        SDL_RenderTexture(renderer_, vignette_, nullptr, nullptr);
+        SDL_SetTextureColorMod(texture, static_cast<std::uint8_t>((color >> 24U) & 0xFFU),
+                               static_cast<std::uint8_t>((color >> 16U) & 0xFFU),
+                               static_cast<std::uint8_t>((color >> 8U) & 0xFFU));
+        SDL_SetTextureAlphaMod(texture, static_cast<std::uint8_t>(
+                                            std::lround(std::min(strength, 1.0F) * 255.0F)));
+        SDL_RenderTexture(renderer_, texture, nullptr, nullptr);
+    }
+
+    void apply_vignette() {
+        apply_edges(vignette_, vignette_made_for_, effects_.vignette, effects_.vignette_size,
+                    effects_.vignette_color);
     }
 
     SDL_Texture* make_vignette(float size) {
@@ -806,7 +821,7 @@ private:
             return nullptr;
         }
         auto* bytes = static_cast<std::uint8_t*>(surface->pixels);
-        const float start = std::clamp(size, 0.0F, 0.99F);
+        const float start = std::clamp(size, -4.0F, 0.99F);
         for (int y = 0; y < side; ++y) {
             std::uint8_t* row = bytes + static_cast<std::ptrdiff_t>(y) * surface->pitch;
             for (int x = 0; x < side; ++x) {
@@ -818,9 +833,9 @@ private:
                 const float distance = std::sqrt((dx * dx + dy * dy) / 2.0F);
                 const float t = std::clamp((distance - start) / (1.0F - start), 0.0F, 1.0F);
                 std::uint8_t* pixel = row + static_cast<std::ptrdiff_t>(x) * 4;
-                pixel[0] = 0U;
-                pixel[1] = 0U;
-                pixel[2] = 0U;
+                pixel[0] = 255U; // white: the colour comes from the colour mod
+                pixel[1] = 255U;
+                pixel[2] = 255U;
                 pixel[3] =
                     static_cast<std::uint8_t>(std::lround(t * t * (3.0F - 2.0F * t) * 255.0F));
             }
@@ -941,8 +956,10 @@ private:
     SDL_Texture* blur_ = nullptr;
     SDL_Texture* bright_ = nullptr;
     SDL_Texture* vignette_ = nullptr;
+    SDL_Texture* edge_glow_ = nullptr;
     SDL_Texture* grain_ = nullptr;
     float vignette_made_for_ = -1.0F;
+    float edge_glow_made_for_ = -1.0F;
     int effect_width_ = 0;
     int effect_height_ = 0;
     int target_width_ = 0;
