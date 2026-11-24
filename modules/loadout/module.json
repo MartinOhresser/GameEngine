@@ -53,6 +53,19 @@
       ]
     },
     {
+      "name": "Shortcut",
+      "description": "While the action is held, the two first hands hold first and second and are used together (the Combo they make, at once, with no trigger), whatever they held before; when it is let go, they get back what they held, and wait for their triggers to be let go. A key that gathers with two powers that must otherwise be chosen by hand. The module keeps engaged and what the hands held before (held_first, held_second).",
+      "replicable": true,
+      "fields": [
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "first", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "second", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "engaged", "type": "bool", "default": false },
+        { "name": "held_first", "type": "u32", "default": 4294967295, "ref": "power" },
+        { "name": "held_second", "type": "u32", "default": 4294967295, "ref": "power" }
+      ]
+    },
+    {
       "name": "Ability",
       "description": "The entity is the effect of power: it works (it has no transform2d.Disabled) while an unlocked hand uses that power alone, or while two hands make it together, and as long as its costs are paid: per_use of the reserve kind (none: free) when it starts, per_second of it while it works. A use that cannot be paid does not start (refused counts them); one that runs out stops; either way it does not try again until its hand is let go (stopped says so). The module keeps active, uses (the uses started) and time (seconds since the current use started: an effect that grows while it is held).",
       "replicable": true,
@@ -74,8 +87,8 @@
       "name": "select",
       "description": "Reads the triggers and the change action: changes the powers of the hands, opens and closes the wheel, joins the hands, then switches every Ability on or off and pays for it.",
       "stage": "FixedUpdate",
-      "reads": ["Kit", "Combo", "reserve.Reserve"],
-      "writes": ["Kit", "Hand", "Ability", "transform2d.Disabled", "reserve.Reserve"],
+      "reads": ["Kit", "Combo", "reserve.Reserve", "Shortcut"],
+      "writes": ["Kit", "Hand", "Ability", "transform2d.Disabled", "reserve.Reserve", "Shortcut"],
       "before": ["transform2d.integrate"]
     }
   ]

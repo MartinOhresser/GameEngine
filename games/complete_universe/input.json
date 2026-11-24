@@ -11,5 +11,7 @@
     { "action": "change", "sources": { "key:left_shift": 1, "key:right_shift": 1 } },
     { "action": "pointer_x", "sources": { "mouse:x": 1 } },
     { "action": "pointer_y", "sources": { "mouse:y": 1 } },
+    { "action": "harvest", "sources": { "key:f": 1 } },
+    { "action": "inventory", "sources": { "key:tab": 1 } },
   ],
 }

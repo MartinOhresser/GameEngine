@@ -185,6 +185,28 @@ def barriers():
     return Image.fromarray(sheet, "RGBA")
 
 
+def harvest():
+    """The harvest (black and white together): a small black heart in a bubble of white rim, that
+    swallows everything inside it and sorts it (GDD §7)."""
+    hole = np.asarray(black_hole(), dtype=np.float64) / 255.0
+    rim = np.asarray(barriers().crop((0, 0, BARRIER, BARRIER)).resize((HOLE, HOLE)),
+                     dtype=np.float64) / 255.0
+    y, x = np.mgrid[0:HOLE, 0:HOLE].astype(np.float64)
+    r = np.hypot(x - HOLE / 2 + 0.5, y - HOLE / 2 + 0.5) / (HOLE / 2)
+    # The black hole shrunk to a third, in the middle of the bubble.
+    small = np.asarray(black_hole().resize((HOLE // 3, HOLE // 3), Image.LANCZOS),
+                       dtype=np.float64) / 255.0
+    core = np.zeros_like(hole)
+    o = HOLE // 2 - HOLE // 6
+    core[o:o + small.shape[0], o:o + small.shape[1]] = small
+    alpha = np.clip(rim[..., 3] + core[..., 3], 0, 1)
+    rgb = (rim[..., :3] * rim[..., 3:4] * (1 - core[..., 3:4]) + core[..., :3] * core[..., 3:4])
+    rgb = rgb / np.maximum(alpha[..., None], 1e-6)
+    out = np.dstack([np.clip(rgb, 0, 1), alpha[..., None]])
+    del hole, r
+    return Image.fromarray((out * 255).astype(np.uint8), "RGBA")
+
+
 ROCK = 40
 
 
@@ -202,6 +224,40 @@ def rock(seed, colour=(70, 70, 74), light=(150, 150, 154)):
     draw.ellipse([(ROCK / 2 - 9) * SUPER, (ROCK / 2 - 6) * SUPER, (ROCK / 2 + 5) * SUPER,
                   (ROCK / 2 - 1) * SUPER], fill=light + (255,))
     return reduce(picture.filter(ImageFilter.GaussianBlur(SUPER * 0.6)), ROCK, ROCK)
+
+
+def fossil():
+    """A fossil (carbon): a pale stone with the spiral of a shell."""
+    picture = rock(9, colour=(118, 116, 108), light=(190, 188, 178))
+    draw = ImageDraw.Draw(picture)
+    cx, cy = ROCK / 2, ROCK / 2 + 3
+    points = []
+    for i in range(60):
+        t = i / 59 * 3.2 * math.pi
+        radius = 1.5 + t * 1.0
+        points.append((cx + radius * math.cos(t), cy + radius * 0.8 * math.sin(t)))
+    draw.line(points, fill=(70, 68, 62, 255), width=1)
+    return picture
+
+
+INVENTORY = 64
+
+
+def inventory_bubbles():
+    """What the body keeps (GDD §7, inventory): a bubble for each resource, drawn full; its size
+    shows how much there is. Matter is black, carbon white, each in a thin white rim."""
+    frames = []
+    for fill in ((14, 14, 16), (236, 236, 232)):
+        picture, draw = canvas(INVENTORY, INVENTORY)
+        c = INVENTORY / 2
+        oval(draw, c, c, 30, 30, (236, 236, 232, 200))
+        oval(draw, c, c, 28, 28, fill + (255,))
+        oval(draw, c - 9, c - 10, 7, 5, (255, 255, 255, 90))
+        frames.append(reduce(picture, INVENTORY, INVENTORY))
+    sheet = Image.new("RGBA", (INVENTORY * len(frames), INVENTORY), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        sheet.paste(frame, (index * INVENTORY, 0))
+    return sheet
 
 
 def sky():
@@ -308,6 +364,27 @@ def powers():
                              "per_unit": 0.06, "atlas": "barrier", "preview": 2,
                              "layer": LAYERS["hero"] + 4},
     })
+    # The harvest (GDD §7): black and white together, or the harvest key alone. A bubble grows
+    # where the pointer is; everything inside it is swallowed and sorted, and comes into the
+    # reserves when the harvest ends. It costs matter and carbon while it lasts.
+    gather = entity("harvest_bubble", 0, 0, {
+        "tag.Tag": {"tag": "harvest_bubble"},
+        "transform2d.Disabled": {},
+        "loadout.Ability": {"power": "harvest", "kind": "carbon", "per_second": 0.6},
+        "aim2d.Aim": {"from": "hero", "range": 240},
+        "attractor2d.Attractor": {"start_radius": 14, "grow": 36, "max_radius": 80,
+                                  "shrink": 300, "pull": 300, "pulls": ["rock"], "inner": 1,
+                                  "deferred": True},
+        "reserve.Drain": {"kind": "matter", "per_second": 0.3,
+                          "field": "attractor2d.Attractor.radius", "per_unit": 0.01},
+        "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
+        "reserve.Gain": {"kind": "matter", "field": "terrain2d.Digger.last", "per_unit": 0.08},
+        "sprite2d.Sprite": {"atlas": "harvest", "width": 2, "height": 2,
+                            "layer": LAYERS["hero"] + 5, "unlit": True},
+        "transform2d.Scale": {"factor": 0},
+    })
+    shortcut = {"name": "harvest_key", "components": {"loadout.Shortcut": {
+        "action": "harvest", "first": "black", "second": "white"}}}
     walls = [entity(f"barrier_{index}", 0, 0, {"barrier2d.Barrier": {
         "pool": 0, "layer": ["barrier"], "freezes": ["rock"], "atlas": "barrier", "bubble": 0,
         "wall": 1, "draw_layer": LAYERS["hero"] + 4}}) for index in (1, 2, 3)]
@@ -318,6 +395,11 @@ def powers():
         bind("white_reaches_y", "white_caster", "aim2d.Aim.reach_y", "barrier2d.Caster.end_y",
              -100000, 100000, -100000, 100000, 1, onto="white_caster"),
     ] + walls + [
+        gather, shortcut,
+        bind("harvest_digs", "harvest_bubble", "attractor2d.Attractor.heart",
+             "terrain2d.Digger.radius", 0, 1000, 0, 1000, 1, onto="harvest_bubble"),
+        bind("harvest_shows", "harvest_bubble", "attractor2d.Attractor.radius",
+             "transform2d.Scale.factor", 0, 1000, 0, 1000, 1, onto="harvest_bubble"),
         hole,
         bind("black_hole_digs", "black_hole", "attractor2d.Attractor.heart",
              "terrain2d.Digger.radius", 0, 1000, 0, 1000, 1, onto="black_hole"),
@@ -340,6 +422,29 @@ def rock_entity(name, x, y, kind="matter", amount=12, atlas="rock"):
         "attractor2d.Absorbable": {"mass": 10},
         "reserve.Yield": {"kind": kind, "amount": amount},
     })
+
+
+def inventory():
+    """The inventory (GDD §7): the inventory key shows, around the body, a bubble for the matter
+    and one for the carbon, as big as there is of it."""
+    made = [entity("inventory", 0, 0, {"tag.Tag": {"tag": "inventory"},
+                                       "toggle.Toggle": {"action": "inventory"}})]
+    for index, (kind, side) in enumerate((("matter", -1), ("carbon", 1))):
+        name = f"{kind}_bubble"
+        made.append(entity(name, 0, 0, {
+            "tag.Tag": {"tag": name},
+            "transform2d.Hidden": {},
+            "toggle.ShownBy": {"toggle": "inventory"},
+            "sprite2d.Sprite": {"atlas": "inventory", "frame": index, "width": INVENTORY,
+                                "height": INVENTORY, "layer": LAYERS["hero"] + 6,
+                                "unlit": True},
+            "transform2d.Scale": {"factor": 1},
+            "follow2d.Follow": {"target": "hero", "offset_x": side * 34, "offset_y": -62,
+                                "stiffness": 0.3},
+        }))
+        made.append(bind(f"{kind}_fills", kind, "reserve.Reserve.fill",
+                         "transform2d.Scale.factor", 0, 1, 0.15, 1, 0.5, onto=name))
+    return made
 
 
 def camera(bound_right):
@@ -399,8 +504,10 @@ def sandbox():
             rock_entity("rock_1", 560, GROUND_Y - 11), rock_entity("rock_2", 640, GROUND_Y - 11),
             # A rock high up, that falls as the scene starts.
             rock_entity("falling_rock", 480, 200),
+            rock_entity("fossil_1", 330, GROUND_Y - 11, kind="carbon", amount=15,
+                        atlas="fossil"),
             hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + powers() \
-        + reserves()
+        + inventory() + reserves()
 
 
 def sandbox_low():
@@ -457,6 +564,9 @@ def main():
     save(black_hole(), "black_hole")
     save(rock(5), "rock")
     save(barriers(), "barrier", cell=(BARRIER, BARRIER))
+    save(harvest(), "harvest")
+    save(fossil(), "fossil")
+    save(inventory_bubbles(), "inventory", cell=(INVENTORY, INVENTORY))
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
 

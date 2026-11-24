@@ -2122,6 +2122,40 @@
                 },
                 "additionalProperties": false
               },
+              "loadout.Shortcut": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "first": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "second": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "engaged": {
+                    "type": "boolean"
+                  },
+                  "held_first": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "held_second": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
               "loadout.Ability": {
                 "type": "object",
                 "properties": {
@@ -3500,6 +3534,42 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "toggle.Toggle": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "hold": {
+                    "type": "boolean"
+                  },
+                  "on": {
+                    "type": "boolean"
+                  },
+                  "times": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "toggle.ShownBy": {
+                "type": "object",
+                "properties": {
+                  "toggle": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "inverse": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false

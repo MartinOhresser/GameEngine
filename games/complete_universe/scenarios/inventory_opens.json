@@ -1,0 +1,23 @@
+// Tab shows the bubbles of the inventory, as big as their reserves (matter at 20 of 100: smaller
+// than the full size), and hides them again.
+{
+  "schema_version": 1,
+  "name": "inventory_opens",
+  "scene": "sandbox_low",
+  "ticks": 40,
+  "inputs": [
+    { "tick": 5, "action": "inventory", "value": 1 },
+    { "tick": 6, "action": "inventory", "value": 0 },
+    { "tick": 30, "action": "inventory", "value": 1 },
+    { "tick": 31, "action": "inventory", "value": 0 },
+  ],
+  "expect": [
+    { "at": 4, "check": "inventory.toggle.Toggle.on == false" },
+    { "at": 10, "check": "inventory.toggle.Toggle.on == true" },
+    // 0.15 + 0.85 × √0.2 = 0.53.
+    { "at": 10, "check": "matter_bubble.transform2d.Scale.factor > 0.52" },
+    { "at": 10, "check": "matter_bubble.transform2d.Scale.factor < 0.54" },
+    "inventory.toggle.Toggle.on == false",
+    "inventory.toggle.Toggle.times == 1",
+  ],
+}

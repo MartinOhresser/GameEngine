@@ -253,6 +253,47 @@ void run_abilities(ecs::World& world, const Kit& kit,
     });
 }
 
+/// A held Shortcut puts its powers in the two first hands and uses them together; let go, the
+/// hands get back what they held. Returns whether a Shortcut is engaged, and the power it makes.
+bool shortcut(ecs::World& world, const Kit& kit,
+              std::vector<std::pair<ecs::Entity, Hand*>>& hands, const Input& input,
+              std::uint32_t& joined) {
+    if (hands.size() < 2U) {
+        return false;
+    }
+    Hand& first = *hands[0].second;
+    Hand& second = *hands[1].second;
+    bool engaged = false;
+    world.each<Shortcut>([&](ecs::Entity, Shortcut& cut) {
+        const bool held = input.down(cut.action);
+        if (held && !cut.engaged && !engaged) {
+            cut.held_first = first.item;
+            cut.held_second = second.item;
+            first.item = cut.first;
+            second.item = cut.second;
+            cut.engaged = true;
+        } else if (!held && cut.engaged) {
+            first.item = cut.held_first;
+            second.item = cut.held_second;
+            cut.engaged = false;
+            for (Hand* hand : {&first, &second}) {
+                hand->waiting = input.down(hand->trigger);
+                hand->joined = false;
+                hand->acting = false;
+            }
+        }
+        if (cut.engaged) {
+            engaged = true;
+            joined = combined(world, kit, cut.first, cut.second);
+            for (Hand* hand : {&first, &second}) {
+                hand->acting = true;
+                hand->joined = true;
+            }
+        }
+    });
+    return engaged;
+}
+
 } // namespace
 
 void select(ecs::World& world) {
@@ -273,9 +314,12 @@ void select(ecs::World& world) {
     // Input timings count real game time, not the slowed one of the wheel.
     const float real_tick = world.resource<app::Time>()->fixed_delta;
     std::vector<std::pair<ecs::Entity, Hand*>> hands = hands_of(world);
-    const bool changed = change_powers(*kit, hands, input);
-    update_wheel(world, *kit, input, real_tick, changed);
-    const std::uint32_t joined = use_hands(world, *kit, hands, input, real_tick);
+    std::uint32_t joined = none;
+    if (!shortcut(world, *kit, hands, input, joined)) {
+        const bool changed = change_powers(*kit, hands, input);
+        update_wheel(world, *kit, input, real_tick, changed);
+        joined = use_hands(world, *kit, hands, input, real_tick);
+    }
     const float tick = real_tick * world.resource<transform2d::Params>()->speed_scale;
     run_abilities(world, *kit, hands, joined, tick);
 }

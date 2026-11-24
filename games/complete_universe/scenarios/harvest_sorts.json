@@ -1,0 +1,28 @@
+// The harvest key held on the fossil: the hands take the black and the white, a bubble swallows
+// the fossil, and its carbon comes in only when the key is let go; the hands get back what they
+// held (nothing).
+{
+  "schema_version": 1,
+  "name": "harvest_sorts",
+  "scene": "sandbox_low",
+  "ticks": 100,
+  "inputs": [
+    { "tick": 0, "action": "pointer_x", "value": 330 },
+    { "tick": 0, "action": "pointer_y", "value": 589 },
+    { "tick": 5, "action": "harvest", "value": 1 },
+    { "tick": 60, "action": "harvest", "value": 0 },
+  ],
+  "expect": [
+    { "at": 10, "check": "hand_left.loadout.Hand.item == 0" },
+    { "at": 10, "check": "hand_right.loadout.Hand.item == 1" },
+    { "at": 10, "check": "harvest_bubble.loadout.Ability.active == true" },
+    { "at": 50, "check": "fossil_1 gone" },
+    { "at": 50, "check": "harvest_bubble.attractor2d.Attractor.pending == 15" },
+    // Still 8 less what the harvest and the life drain took: the fossil's carbon is not in yet.
+    { "at": 50, "check": "carbon.reserve.Reserve.amount < 8" },
+    { "at": 70, "check": "carbon.reserve.Reserve.amount > 21" },
+    "hand_left.loadout.Hand.item == 4294967295",
+    "hand_right.loadout.Hand.item == 4294967295",
+    "harvest_bubble.loadout.Ability.active == false",
+  ],
+}

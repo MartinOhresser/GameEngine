@@ -203,3 +203,26 @@ TEST_CASE("loadout: both triggers together make the combined power, not the two 
     table.run(10); // alone: it acts once the tenth of a second has passed
     CHECK(table.working(frost));
 }
+
+TEST_CASE("loadout: a held shortcut uses two powers together, then gives the hands back") {
+    Table table;
+    const ge::ecs::Entity mix = table.app.world().spawn();
+    CHECK(table.app.world().insert(mix, loadout::Combo{fire, ice, steam}));
+    table.app.world().insert_resource(ge::app::ActionNames{{"left", "right", "change", "gather"}});
+    const ge::ecs::Entity key = table.app.world().spawn();
+    CHECK(table.app.world().insert(key, loadout::Shortcut{3U, fire, ice}));
+    table.hand_of(table.left).item = wind;
+    const ge::ecs::Entity cloud = table.ability(steam);
+    const ge::ecs::Entity gust = table.ability(wind);
+    table.set("gather", 1.0F);
+    table.run(2);
+    CHECK(table.working(cloud));
+    CHECK(!table.working(gust));
+    CHECK(table.hand_of(table.left).item == fire);
+    CHECK(table.hand_of(table.right).item == ice);
+    table.set("gather", 0.0F);
+    table.run(2);
+    CHECK(!table.working(cloud));
+    CHECK(table.hand_of(table.left).item == wind);
+    CHECK(table.hand_of(table.right).item == none);
+}
