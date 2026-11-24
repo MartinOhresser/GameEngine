@@ -94,6 +94,9 @@ public:
                 SDL_DestroyTexture(atlas.texture);
             }
         }
+        for (const auto& [index, image] : images_) {
+            SDL_DestroyTexture(image.texture);
+        }
         for (SDL_Texture* texture : {glow_, light_map_, world_, mask_, vignette_, grain_}) {
             if (texture != nullptr) {
                 SDL_DestroyTexture(texture);
@@ -123,6 +126,43 @@ public:
     void set_camera(const app::CameraView& camera) override { camera_ = camera; }
     void set_lighting(const app::Lighting& lighting) override { lighting_ = lighting; }
     void set_effects(const app::ScreenEffects& effects) override { effects_ = effects; }
+
+    [[nodiscard]] bool makes_images() const noexcept override { return true; }
+
+    bool set_image(int index, int width, int height, const std::vector<std::uint32_t>& pixels,
+                   bool smooth) override {
+        if (width <= 0 || height <= 0 ||
+            pixels.size() < static_cast<std::size_t>(width) * static_cast<std::size_t>(height)) {
+            return false;
+        }
+        Atlas& slot = images_[index];
+        if (slot.texture == nullptr || slot.width != width || slot.height != height) {
+            if (slot.texture != nullptr) {
+                SDL_DestroyTexture(slot.texture);
+            }
+            // 0xRRGGBBAA as a 32-bit number is SDL's RGBA8888, whatever the byte order.
+            slot.texture = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888,
+                                             SDL_TEXTUREACCESS_STATIC, width, height);
+            if (slot.texture == nullptr) {
+                images_.erase(index);
+                return false;
+            }
+            SDL_SetTextureBlendMode(slot.texture, SDL_BLENDMODE_BLEND);
+            slot.width = width;
+            slot.height = height;
+            slot.cell_width = width;
+            slot.cell_height = height;
+        }
+        SDL_SetTextureScaleMode(slot.texture, smooth ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
+        return SDL_UpdateTexture(slot.texture, nullptr, pixels.data(), width * 4);
+    }
+
+    void drop_image(int index) override {
+        if (const auto made = images_.find(index); made != images_.end()) {
+            SDL_DestroyTexture(made->second.texture);
+            images_.erase(made);
+        }
+    }
 
     void end_frame() override {
         open_frame(); // a frame with nothing in it is still a frame: the screen is cleared
@@ -440,12 +480,25 @@ private:
                            order.data(), static_cast<int>(order.size()));
     }
 
-    void draw_sprite(const app::DrawCommand& command) {
-        const auto index = static_cast<std::size_t>(command.atlas);
-        if (index >= atlases_.size() || atlases_[index].texture == nullptr) {
-            return; // an atlas that failed to load draws nothing
+    /// The atlas of a sprite: one of the game's, or a picture made while it runs; null for none.
+    [[nodiscard]] const Atlas* atlas_at(int number) const {
+        if (number >= app::Renderer::first_made_image) {
+            const auto made = images_.find(number);
+            return made == images_.end() ? nullptr : &made->second;
         }
-        const Atlas& atlas = atlases_[index];
+        const auto index = static_cast<std::size_t>(number);
+        if (number < 0 || index >= atlases_.size() || atlases_[index].texture == nullptr) {
+            return nullptr; // an atlas that failed to load draws nothing
+        }
+        return &atlases_[index];
+    }
+
+    void draw_sprite(const app::DrawCommand& command) {
+        const Atlas* found = atlas_at(command.atlas);
+        if (found == nullptr) {
+            return;
+        }
+        const Atlas& atlas = *found;
         const int columns = std::max(1, atlas.width / std::max(1, atlas.cell_width));
         const int rows = std::max(1, atlas.height / std::max(1, atlas.cell_height));
         const int frame = static_cast<int>(command.frame) % (columns * rows);
@@ -872,6 +925,7 @@ private:
     bool capture_;
     bool open_ = false;
     std::vector<Atlas> atlases_;
+    std::map<int, Atlas> images_; ///< The pictures made while the game runs (set_image).
     std::optional<app::CameraView> camera_;
     app::Lighting lighting_;
     std::vector<app::DrawCommand> pending_;

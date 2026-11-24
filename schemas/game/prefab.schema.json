@@ -2693,6 +2693,116 @@
           },
           "additionalProperties": false
         },
+        "terrain2d.Terrain": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "cell": {
+              "type": "number"
+            },
+            "layer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "surface": {
+              "type": "number"
+            },
+            "amplitude": {
+              "type": "number"
+            },
+            "wavelength": {
+              "type": "number"
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "round": {
+              "type": "boolean"
+            },
+            "filled": {
+              "type": "boolean"
+            },
+            "climb": {
+              "type": "number"
+            },
+            "generated": {
+              "type": "boolean"
+            },
+            "solid_cells": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "terrain2d.Shape": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "radius": {
+              "type": "number"
+            },
+            "fill": {
+              "type": "boolean"
+            },
+            "layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "applied": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "terrain2d.Digger": {
+          "type": "object",
+          "properties": {
+            "radius": {
+              "type": "number"
+            },
+            "layers": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "removed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "last": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
         "text2d.Text": {
           "type": "object",
           "properties": {

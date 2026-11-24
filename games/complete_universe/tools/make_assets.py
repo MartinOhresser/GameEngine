@@ -99,13 +99,6 @@ def hero():
     return reduce(picture, CELL, CELL)
 
 
-def ground():
-    """A plain grey ground with a lighter top edge: the test ground, until the real terrain."""
-    picture = Image.new("RGBA", (64, 64), (40, 40, 44, 255))
-    ImageDraw.Draw(picture).rectangle([0, 0, 63, 5], fill=(150, 150, 150, 255))
-    return picture
-
-
 def sky():
     """Black, with a few grey stars."""
     rng = np.random.default_rng(3)
@@ -163,19 +156,39 @@ def sky_entity():
     })
 
 
-def ground_entity(name, left, right, top, depth=400):
-    width = right - left
-    return entity(name, left + width / 2, top + depth / 2, {
-        "sprite2d.Sprite": {"atlas": "ground", "width": width, "height": depth,
-                            "layer": LAYERS["ground"]},
-        "collision2d.Collider": {"width": width, "height": depth, "layer": ["ground"],
-                                 "solid": True},
-    })
+TERRAIN_CELL = 8  # side of a cell of the ground, in world units
+
+
+def terrain_entity(name, left, top, width, height, surface_y, extra=None):
+    """A ground that can be dug (terrain2d): its grid covers width by height from (left, top),
+    solid under surface_y."""
+    components = {
+        "terrain2d.Terrain": {"columns": int(width // TERRAIN_CELL),
+                              "rows": int(height // TERRAIN_CELL), "cell": TERRAIN_CELL,
+                              "layer": ["ground"],
+                              "surface": (surface_y - top) / TERRAIN_CELL},
+        "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 4, "red": 16, "green": 16,
+                           "blue": 18, "top_red": 150, "top_green": 150, "top_blue": 156,
+                           "lip": 12, "grain": 0.06},
+    }
+    if extra:
+        components["terrain2d.Terrain"].update(extra)
+    return entity(name, left, top, components)
+
+
+def shape(name, x, y, width, height, fill):
+    return entity(name, x, y, {"terrain2d.Shape": {"width": width, "height": height,
+                                                   "fill": fill}})
 
 
 def sandbox():
     """The test ground of the modules: flat, wide, nothing on it."""
-    return [sky_entity(), ground_entity("ground", 0, SANDBOX_W, GROUND_Y),
+    return [sky_entity(), terrain_entity("ground", 0, 0, SANDBOX_W, GROUND_Y + 200, GROUND_Y),
+            # A pit on the left of the hero, a low step and a wall on his right: what the modules
+            # are tried on.
+            shape("pit", 232, GROUND_Y + 80, 64, 160, False),
+            shape("step", 800, GROUND_Y - 4, 200, 8, True),
+            shape("wall", 1250, GROUND_Y - 60, 32, 120, True),
             hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)]
 
 
@@ -189,7 +202,6 @@ def write_scene(name, entities):
 
 def main():
     save(hero(), "hero")
-    save(ground(), "ground")
     save(sky(), "sky")
     write_scene("sandbox", sandbox())
 

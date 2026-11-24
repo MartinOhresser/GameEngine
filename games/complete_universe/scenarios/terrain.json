@@ -1,0 +1,24 @@
+// The ground is a terrain2d grid: the hero climbs a low step (8 units, under the 12 he can
+// climb), walks down it and is stopped by a wall; on the left he falls into a pit.
+{
+  "schema_version": 1,
+  "name": "terrain",
+  "scene": "sandbox",
+  "ticks": 600,
+  "inputs": [
+    { "tick": 0, "action": "move_x", "value": 1 },
+    { "tick": 250, "action": "move_x", "value": 0 },
+    { "tick": 260, "action": "move_x", "value": -1 },
+  ],
+  "expect": [
+    // On the step (x 700 to 900, its top at 592): 592 - 42.
+    { "at": 90, "check": "hero.transform2d.Position.y == 550" },
+    // Against the wall: its cells (8 units wide) start at x 1232, minus half the hero (17).
+    { "at": 250, "check": "hero.transform2d.Position.x == 1215" },
+    { "at": 250, "check": "hero.collision2d.Blocked.right == true" },
+    { "at": 250, "check": "hero.transform2d.Position.y == 558" },
+    // Back left, past the start, into the pit (x 200 to 264, its floor at 760): 760 - 42.
+    "hero.transform2d.Position.y == 718",
+    "hero.transform2d.Position.x < 264",
+  ],
+}

@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -161,6 +162,25 @@ public:
         return true;
     }
 
+    /// The atlas index of the first picture made while the game runs (`set_image`): far above
+    /// the game's own atlases, which are numbered from 0.
+    static constexpr int first_made_image = 1 << 24;
+
+    /// Whether this renderer shows pictures made while the game runs. A module that makes them
+    /// (a terrain that is dug, a map that is explored) skips the work when it does not.
+    [[nodiscard]] virtual bool makes_images() const noexcept { return false; }
+
+    /// Makes, or replaces, the picture of atlas number `index` (from `first_made_image`) out of
+    /// `pixels`: width by height colours 0xRRGGBBAA, row after row from the top left. One cell
+    /// covers the whole picture; `smooth` as for an atlas. Returns false if it cannot.
+    virtual bool set_image(int /*index*/, int /*width*/, int /*height*/,
+                           const std::vector<std::uint32_t>& /*pixels*/, bool /*smooth*/) {
+        return true;
+    }
+
+    /// Forgets a picture made by `set_image`.
+    virtual void drop_image(int /*index*/) {}
+
     /// Sets the camera for the commands of this frame. A frame with no call has
     /// no camera.
     virtual void set_camera(const CameraView& /*camera*/) {}
@@ -195,6 +215,24 @@ public:
     void set_camera(const CameraView& camera) override { camera_ = camera; }
     void set_lighting(const Lighting& lighting) override { lighting_ = lighting; }
     void set_effects(const ScreenEffects& effects) override { effects_ = effects; }
+    [[nodiscard]] bool makes_images() const noexcept override { return true; }
+    bool set_image(int index, int width, int height, const std::vector<std::uint32_t>& pixels,
+                   bool /*smooth*/) override {
+        images_[index] = MadeImage{width, height, pixels};
+        image_updates_ += 1U;
+        return true;
+    }
+    void drop_image(int index) override { images_.erase(index); }
+
+    /// A picture made by `set_image`.
+    struct MadeImage {
+        int width = 0;
+        int height = 0;
+        std::vector<std::uint32_t> pixels;
+    };
+    /// The pictures made while the game runs, by index, and how many times one was set.
+    [[nodiscard]] const std::map<int, MadeImage>& images() const noexcept { return images_; }
+    [[nodiscard]] std::size_t image_updates() const noexcept { return image_updates_; }
 
     [[nodiscard]] const std::vector<DrawCommand>& commands() const noexcept { return commands_; }
     [[nodiscard]] std::size_t frames() const noexcept { return frames_; }
@@ -211,6 +249,8 @@ private:
     std::vector<DrawCommand> commands_;
     std::size_t frames_ = 0;
     std::vector<AtlasInfo> atlases_;
+    std::map<int, MadeImage> images_;
+    std::size_t image_updates_ = 0;
     std::optional<CameraView> camera_;
     std::optional<Lighting> lighting_;
     std::optional<ScreenEffects> effects_;
