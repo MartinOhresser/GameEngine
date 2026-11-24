@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "foreground",
+  "image": "foreground.png",
+  "cell_width": 2048,
+  "cell_height": 720,
+  "filter": "linear"
+}

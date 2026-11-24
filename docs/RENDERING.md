@@ -47,6 +47,10 @@ Une entité avec `camera2d.Camera` et une `Position` : ce point du monde est au 
 
 ## La parallaxe
 
+![lueur](img/lueur.png)
+
+*`games/lueur` : un ciel, une crête, trois plans de forêt de plus en plus pâles et flous, trois nappes de brume, le soleil et ses rayons en lumière ajoutée (`additive`), le sol et le héros, et un premier plan qui défile plus vite que le monde. Toutes les images sont générées par `games/lueur/tools/make_assets.py` (numpy, Pillow) et lissées (`"filter": "linear"`).*
+
 `sprite2d.Parallax` fait d'un sprite un plan lointain : `x` et `y` disent quelle part du mouvement de la caméra il suit.
 - 1 bouge avec le monde (sans `Parallax`, c'est le cas) ;
 - 0,5 bouge deux fois moins, comme des collines au loin ;

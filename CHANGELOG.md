@@ -6,6 +6,13 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versi
 
 ### Added
 
+- ADR 0015, B3 : **`games/lueur`, la forêt**. Premier décor du plateformer aux silhouettes de Limbo et à la lumière d'Ori :
+  - un ciel de crépuscule et un soleil bas, avec sa lumière ajoutée devant les plans lointains ;
+  - une crête et trois plans de forêt de plus en plus pâles et flous avec la distance ;
+  - trois nappes de brume, des rayons de lumière tournés ;
+  - un sol herbeux, le héros (silhouette aux yeux pâles, poses de repos, de course et de saut) et un premier plan de branches et d'herbes hautes.
+
+  La caméra dérive et chaque plan glisse à sa vitesse. Toutes les images sont générées par `tools/make_assets.py` (numpy et Pillow, graine fixe), raccordées pour se répéter sans couture, et lissées. Un scénario (`camera_drifts`).
 - ADR 0015, B2 : **un mouvement fluide sur tous les écrans**. En temps réel (`geplay`, le lanceur, un jeu exporté), chaque entité et la caméra sont dessinées entre leurs positions des deux derniers ticks, au prorata de `Time::alpha`. Un saut de plus de `snap_distance` (nouveau réglage de `transform2d`, 256 par défaut) est dessiné d'un coup. `Time::interpolate` (mis par `run_loop`) l'active ; les tests et les scénarios voient toujours exactement le dernier tick. Nouveau système `transform2d.remember` ; `ge/mod/transform2d/drawn.hpp` donne `drawn_position` aux modules de dessin (`sprite2d`, `debug_draw`, `text2d`, `camera2d`).
 - ADR 0015, B2 : **le renderer tourne, mélange, lisse et fait de la parallaxe**. Côté jeu :
   - `transform2d.Rotation` (`angle` en degrés) tourne un sprite autour de sa `Position` ;

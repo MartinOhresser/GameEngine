@@ -1,0 +1,5 @@
+// No controls yet: the hero moves in a later step (ADR 0015, B4).
+{
+  "schema_version": 1,
+  "bindings": [],
+}

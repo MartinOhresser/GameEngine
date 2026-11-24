@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "sky",
+  "image": "sky.png",
+  "cell_width": 64,
+  "cell_height": 720,
+  "filter": "linear"
+}
