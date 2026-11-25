@@ -23,7 +23,7 @@ constexpr const char* usage_text =
     "geplay - play a game described by JSON files, in a window\n"
     "\n"
     "Usage: geplay GAME.json [--frames N] [--size WxH] [--window WxH] [--headless]\n"
-    "                        [--screenshot FILE.bmp] [--save FILE]\n"
+    "                        [--screenshot FILE.bmp] [--save FILE] [--stats] [--no-vsync]\n"
     "\n"
     "Keys and buttons act on the game through the game's input file. The\n"
     "game's sounds are the .wav files of its sounds/ directory. The window\n"
@@ -35,6 +35,8 @@ constexpr const char* usage_text =
     "What the game keeps between two runs (high scores) is read from and written\n"
     "to FILE; by default a file in your application-data folder, except with\n"
     "--headless, which keeps nothing unless --save is given.\n"
+    "--stats writes, every two seconds, how long the simulation and the drawing of a\n"
+    "frame take; --no-vsync draws without waiting for the screen (to measure).\n"
     "Exit codes: 0 success, 1 invalid game or cannot start, 2 usage.\n";
 
 struct Arguments {
@@ -45,6 +47,8 @@ struct Arguments {
     int window_width = 0; ///< 0: the window has the size of the game's area.
     int window_height = 0;
     bool headless = false;
+    bool stats = false;
+    bool vsync = true;
     std::string screenshot;
     std::string save; ///< Empty: the application-data folder (a window) or nothing (headless).
 };
@@ -119,6 +123,10 @@ std::string parse(const std::vector<std::string>& args, Arguments& out) {
         }
         if (arg == "--headless") {
             out.headless = true;
+        } else if (arg == "--stats") {
+            out.stats = true;
+        } else if (arg == "--no-vsync") {
+            out.vsync = false;
         } else if (arg.starts_with("--")) {
             error = "unknown option " + arg;
         } else if (out.game_path.empty()) {
@@ -169,6 +177,7 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
     play.window_width = arguments.window_width;
     play.window_height = arguments.window_height;
     play.save_path = save_path_of(arguments, loaded.game.manifest.name);
+    play.stats = arguments.stats ? &out : nullptr;
     const auto [width, height] = window_size_of(loaded, play);
 
     WindowOptions window;
@@ -176,6 +185,7 @@ int run_geplay(const std::vector<std::string>& args, std::span<const game::Modul
     window.width = width;
     window.height = height;
     window.headless = arguments.headless;
+    window.vsync = arguments.vsync;
     window.capture = !arguments.screenshot.empty();
     std::string error;
     const std::unique_ptr<SdlBackend> backend = SdlBackend::create(window, error);

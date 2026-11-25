@@ -476,6 +476,12 @@ void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.ticks_per_frame = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "looping") {
             component.looping = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "and_field") {
+            component.and_field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "and_min") {
+            component.and_min = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "and_max") {
+            component.and_max = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "id") {
             component.id = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "from_id") {
@@ -522,6 +528,15 @@ std::optional<::ge::app::Scalar> read_component_5(const ::ge::ecs::World& world,
     }
     if (field == "looping") {
         return ::ge::app::Scalar{static_cast<bool>(component->looping)};
+    }
+    if (field == "and_field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->and_field)};
+    }
+    if (field == "and_min") {
+        return ::ge::app::Scalar{static_cast<double>(component->and_min)};
+    }
+    if (field == "and_max") {
+        return ::ge::app::Scalar{static_cast<double>(component->and_max)};
     }
     if (field == "id") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->id)};
@@ -582,6 +597,18 @@ bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->looping = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "and_field") {
+        component->and_field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "and_min") {
+        component->and_min = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "and_max") {
+        component->and_max = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     if (field == "id") {
         component->id = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
@@ -597,7 +624,7 @@ bool write_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 13> component_5_fields{{{"set", "u32", "animation_set", false}, {"priority", "i32", "", false}, {"field", "u32", "field", false}, {"min", "f32", "", false}, {"max", "f32", "", false}, {"absolute", "bool", "", false}, {"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"id", "u32", "", false}, {"from_id", "u32", "", false}, {"to_id", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 16> component_5_fields{{{"set", "u32", "animation_set", false}, {"priority", "i32", "", false}, {"field", "u32", "field", false}, {"min", "f32", "", false}, {"max", "f32", "", false}, {"absolute", "bool", "", false}, {"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"and_field", "u32", "field", false}, {"and_min", "f32", "", false}, {"and_max", "f32", "", false}, {"id", "u32", "", false}, {"from_id", "u32", "", false}, {"to_id", "u32", "", false}}};
 
 void insert_component_6(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

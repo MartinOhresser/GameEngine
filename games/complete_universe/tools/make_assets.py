@@ -32,7 +32,7 @@ SUPER = 3  # shapes are drawn this many times bigger, then reduced: smooth edges
 
 HERO_W, HERO_H = 34, 84  # the hero's box: his Position is its middle
 CELL = 128  # one picture of the hero, in world units
-CELL_PX = 256  # ... and in pixels
+CELL_PX = 160  # ... and in pixels (about its size on the screen)
 
 SANDBOX_W = 4096  # the test ground runs from x 0 to here
 GROUND_Y = 600  # top of the ground
@@ -407,13 +407,14 @@ def follow_through(poses, looping=True):
         after = poses[(index + 1) % count if looping else min(index + 1, count - 1)]
         for part in pose.bend:
             speed = (getattr(after, part) - getattr(before, part)) / 2  # degrees a frame
-            pose.bend[part] = -max(-0.9, min(0.9, speed * 0.09))
-            pose.stretch[part] = 1 + min(0.12, abs(speed) * 0.012)
+            # Speeds in degrees a frame, at sixty frames a second.
+            pose.bend[part] = -max(-0.9, min(0.9, speed * 0.18))
+            pose.stretch[part] = 1 + min(0.12, abs(speed) * 0.024)
         pose.head_squash = 1 - (1 - pose.squash) * 0.9
     return poses
 
 
-def idle_poses(count=80):
+def idle_poses(count=160):
     """At rest, looking at us: he breathes, sways his head, his arms follow a little late, and
     he blinks once. Every motion is a whole number of waves over the loop: no jump."""
     poses = []
@@ -431,7 +432,7 @@ def idle_poses(count=80):
     return poses
 
 
-def walk_poses(facing, count=24):
+def walk_poses(facing, count=48):
     """Two steps, the face and chest turned towards where he goes. Before each foot lands, a
     small black hole opens where it will land and pulls it in (D15)."""
     poses = []
@@ -462,7 +463,7 @@ def walk_poses(facing, count=24):
     return poses
 
 
-def charge_poses(count=16):
+def charge_poses(count=32):
     """Space held: he crouches and lifts his arms towards the black hole over his head."""
     poses = []
     for index in range(count):
@@ -474,7 +475,7 @@ def charge_poses(count=16):
     return poses
 
 
-def rise_poses(count=8):
+def rise_poses(count=24):
     poses = []
     for index in range(count):
         sway = math.sin(2 * math.pi * index / count)
@@ -484,7 +485,7 @@ def rise_poses(count=8):
     return poses
 
 
-def fall_poses(count=8):
+def fall_poses(count=24):
     poses = []
     for index in range(count):
         sway = math.sin(2 * math.pi * index / count)
@@ -521,71 +522,126 @@ def bump(k):
 
 def start_poses(facing):
     """From rest to walking: he turns his face and chest, leans in, and the first leg goes."""
-    return between(idle_poses()[0], walk_poses(facing)[0], 8,
+    return between(idle_poses()[0], walk_poses(facing)[0], 16,
                    lambda k: {"squash": -0.05 * bump(k), "lean": 3 * facing * bump(k)})
 
 
 def stop_poses(facing):
     """From walking to rest: he leans back a little to stop, then turns to face us."""
-    return between(walk_poses(facing)[0], idle_poses()[0], 8,
+    return between(walk_poses(facing)[0], idle_poses()[0], 16,
                    lambda k: {"lean": -5 * facing * bump(k), "squash": 0.04 * bump(k),
                               "arm_w": 12 * facing * bump(k), "arm_b": 12 * facing * bump(k)})
 
 
 def turn_poses(facing):
     """Walking one way, then the other: a little hop as he turns through facing us."""
-    return between(walk_poses(-facing)[0], walk_poses(facing)[0], 8,
+    return between(walk_poses(-facing)[0], walk_poses(facing)[0], 16,
                    lambda k: {"bob": -2.5 * bump(k), "squash": 0.05 * bump(k),
                               "arm_w": -10 * bump(k), "arm_b": 10 * bump(k)})
 
 
-def land_poses(count=10):
+def land_poses():
     """Landing: the body gives (legs bent, body squashed, arms out), comes up a little too far,
     then settles."""
     crouch = Pose(squash=0.8, bob=3, leg_w=-24, leg_b=24, leg_len_w=LEG_L * 0.78,
                   leg_len_b=LEG_L * 0.78, arm_w=-62, arm_b=62, look_y=1.5, tilt=0)
     rebound = Pose(squash=1.05, arm_w=-20, arm_b=20)
-    return (between(fall_poses()[0], crouch, 3) + between(crouch, rebound, 4)[1:] +
-            between(rebound, idle_poses()[0], 4)[1:])
+    return (between(fall_poses()[0], crouch, 6) + between(crouch, rebound, 8)[1:] +
+            between(rebound, idle_poses()[0], 8)[1:])
 
 
 def apex_poses():
     """At the top of a jump: the arms come down, the legs part, he looks down."""
-    return between(rise_poses()[0], fall_poses()[0], 6)
+    return between(rise_poses()[0], fall_poses()[0], 12)
 
 
 def leap_poses():
     """Letting the charge go: he stretches up out of his crouch."""
-    return between(charge_poses()[-1], rise_poses()[0], 4, lambda k: {"squash": 0.12 * bump(k)})
+    return between(charge_poses()[-1], rise_poses()[0], 8, lambda k: {"squash": 0.12 * bump(k)})
 
 
-# The animations of the hero: (name, frames, ticks per frame), in the order of the atlas. Two ticks
-# a frame: thirty pictures a second.
-HERO_CLIPS = [("idle", follow_through(idle_poses()), 2),
-              ("walk_right", follow_through(walk_poses(1)), 2),
-              ("walk_left", follow_through(walk_poses(-1)), 2),
-              ("charge", follow_through(charge_poses(), looping=False), 2),
-              ("rise", follow_through(rise_poses()), 3), ("fall", follow_through(fall_poses()), 3)]
+def side_legs(facing, front, back, front_len=1.0, back_len=1.0):
+    """The leg angles and lengths of a leap to one side: front is the angle of the leg ahead
+    (towards where he goes), back of the one behind. The leg ahead is the one on that side."""
+    ahead, behind = facing * front, facing * back
+    if facing > 0:  # the black leg is on the right
+        return {"leg_b": ahead, "leg_w": behind, "leg_len_b": LEG_L * front_len,
+                "leg_len_w": LEG_L * back_len}
+    return {"leg_w": ahead, "leg_b": behind, "leg_len_w": LEG_L * front_len,
+            "leg_len_b": LEG_L * back_len}
+
+
+def side_rise_poses(facing, count=24):
+    """A leap to one side: the face and chest turned that way, the leg ahead drawn up, the one
+    behind stretched back, the arm ahead reaching up and forward."""
+    poses = []
+    for index in range(count):
+        sway = math.sin(2 * math.pi * index / count)
+        legs = side_legs(facing, 40 + 4 * sway, -24 + 3 * sway, 0.78, 1.0)
+        ahead_arm = facing * (125 + 8 * sway)
+        behind_arm = -facing * (55 + 6 * sway)
+        arms = ({"arm_b": ahead_arm, "arm_w": behind_arm} if facing > 0 else
+                {"arm_w": ahead_arm, "arm_b": behind_arm})
+        poses.append(Pose(ground=False, squash=1.06, turn=0.72 * facing, lean=9 * facing,
+                          look_x=1.4 * facing, look_y=-1.0, tilt=3 * facing, **legs, **arms))
+    return poses
+
+
+def side_fall_poses(facing, count=24):
+    """Coming down to one side: the legs reach ahead for the ground, the arms open."""
+    poses = []
+    for index in range(count):
+        sway = math.sin(2 * math.pi * index / count)
+        legs = side_legs(facing, 24 + 3 * sway, 8 - 3 * sway)
+        poses.append(Pose(ground=False, squash=0.98, turn=0.72 * facing, lean=-3 * facing,
+                          arm_w=-(100 + 10 * sway), arm_b=100 - 10 * sway, look_x=1.2 * facing,
+                          look_y=1.6, tilt=-2 * facing, **legs))
+    return poses
+
+
+def side_apex_poses(facing):
+    return between(side_rise_poses(facing)[0], side_fall_poses(facing)[0], 12)
+
+
+# The animations of the hero: (name, frames, ticks per frame), in the order of the atlas. One frame
+# a tick: sixty pictures a second, a new one at every step of the game.
+HERO_CLIPS = [("idle", follow_through(idle_poses()), 1),
+              ("walk_right", follow_through(walk_poses(1)), 1),
+              ("walk_left", follow_through(walk_poses(-1)), 1),
+              ("charge", follow_through(charge_poses(), looping=False), 1),
+              ("rise", follow_through(rise_poses()), 1), ("fall", follow_through(fall_poses()), 1),
+              ("rise_right", follow_through(side_rise_poses(1)), 1),
+              ("rise_left", follow_through(side_rise_poses(-1)), 1),
+              ("fall_right", follow_through(side_fall_poses(1)), 1),
+              ("fall_left", follow_through(side_fall_poses(-1)), 1)]
 # The transitions between them (sprite2d): (name, frames, ticks per frame, from, to), to None
-# meaning any clip. They follow the clips in the atlas.
+# meaning any clip. They follow the clips in the atlas. Frames given as a name use the frames of
+# that transition again (a landing from a side jump is a landing).
 HERO_TRANSITIONS = [
-    ("start_right", follow_through(start_poses(1), False), 2, "idle", "walk_right"),
-    ("start_left", follow_through(start_poses(-1), False), 2, "idle", "walk_left"),
-    ("stop_right", follow_through(stop_poses(1), False), 2, "walk_right", "idle"),
-    ("stop_left", follow_through(stop_poses(-1), False), 2, "walk_left", "idle"),
-    ("turn_left", follow_through(turn_poses(-1), False), 2, "walk_right", "walk_left"),
-    ("turn_right", follow_through(turn_poses(1), False), 2, "walk_left", "walk_right"),
-    ("land", follow_through(land_poses(), False), 2, "fall", None),
-    ("apex", follow_through(apex_poses(), False), 2, "rise", "fall"),
-    ("leap", follow_through(leap_poses(), False), 2, "charge", None),
+    ("start_right", follow_through(start_poses(1), False), 1, "idle", "walk_right"),
+    ("start_left", follow_through(start_poses(-1), False), 1, "idle", "walk_left"),
+    ("stop_right", follow_through(stop_poses(1), False), 1, "walk_right", "idle"),
+    ("stop_left", follow_through(stop_poses(-1), False), 1, "walk_left", "idle"),
+    ("turn_left", follow_through(turn_poses(-1), False), 1, "walk_right", "walk_left"),
+    ("turn_right", follow_through(turn_poses(1), False), 1, "walk_left", "walk_right"),
+    ("land", follow_through(land_poses(), False), 1, "fall", None),
+    ("land_from_right", "land", 1, "fall_right", None),
+    ("land_from_left", "land", 1, "fall_left", None),
+    ("apex", follow_through(apex_poses(), False), 1, "rise", "fall"),
+    ("apex_right", follow_through(side_apex_poses(1), False), 1, "rise_right", "fall_right"),
+    ("apex_left", follow_through(side_apex_poses(-1), False), 1, "rise_left", "fall_left"),
+    ("leap", follow_through(leap_poses(), False), 1, "charge", None),
 ]
-HERO_COLUMNS = 16
+
+
+HERO_COLUMNS = 25  # 4000 pixels wide
 
 
 def hero_sheet():
     frames = []
     for clip in HERO_CLIPS + HERO_TRANSITIONS:
-        frames += [hero_frame(pose) for pose in clip[1]]
+        if not isinstance(clip[1], str):
+            frames += [hero_frame(pose) for pose in clip[1]]
     return sheet_of(frames, HERO_COLUMNS, CELL_PX, CELL_PX)
 
 
@@ -860,6 +916,42 @@ def save_font():
         letter.putalpha(alpha)
         sheet.paste(letter, (index * FONT_W, 0))
     save(sheet, "font", cell=(FONT_W, FONT_H), extra={"glyphs": FONT_GLYPHS})
+
+
+CRYSTAL = 128  # pixels of a carbon crystal
+
+
+def crystal(seed=3):
+    """A cluster of carbon crystals coming out of the ground: white hexagonal prisms, each with a
+    lit face, a grey one and a dark edge, glowing a little (the white's food)."""
+    rng = np.random.default_rng(seed)
+    big = CRYSTAL * SUPER
+    picture = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(picture)
+    base_y = big * 0.92
+    for index in range(5):
+        x = big * (0.5 + rng.uniform(-0.26, 0.26))
+        height = big * rng.uniform(0.35, 0.78) * (1.0 if index < 3 else 0.6)
+        width = big * rng.uniform(0.09, 0.14)
+        lean = math.radians(rng.uniform(-24, 24))
+        dx, dy = math.sin(lean), -math.cos(lean)
+        nx, ny = -dy, dx  # across
+        top = (x + dx * height, base_y + dy * height)
+        tip = (top[0] + dx * width * 1.3, top[1] + dy * width * 1.3)
+        left = [(x - nx * width, base_y - ny * width), (top[0] - nx * width, top[1] - ny * width),
+                tip, (x, base_y)]
+        right = [(x, base_y), tip, (top[0] + nx * width, top[1] + ny * width),
+                 (x + nx * width, base_y + ny * width)]
+        draw.polygon(left, fill=(246, 248, 252, 255))
+        draw.polygon(right, fill=(176, 182, 196, 255))
+        draw.line(left[:3], fill=(255, 255, 255, 255), width=SUPER * 2)
+    alpha = np.asarray(picture, dtype=np.float64)[..., 3] / 255.0
+    rgb = np.asarray(picture, dtype=np.float64)[..., :3]
+    halo = blur(alpha, 10 * SUPER) * 0.7
+    out_alpha = alpha + halo * (1 - alpha)
+    out_rgb = (rgb * alpha[..., None] + 240 * (halo * (1 - alpha))[..., None]) / np.maximum(
+        out_alpha[..., None], 1e-4)
+    return shrink(out_rgb, out_alpha, CRYSTAL, CRYSTAL)
 
 
 def glow():
@@ -1341,7 +1433,14 @@ def hero_clips():
         "charge": (50, "jump.Jumper.charge", 0.02, None),
         "rise": (40, "transform2d.Velocity.y", None, -140),
         "fall": (39, "transform2d.Velocity.y", 180, None),
+        "rise_right": (42, "transform2d.Velocity.y", None, -140),
+        "rise_left": (42, "transform2d.Velocity.y", None, -140),
+        "fall_right": (41, "transform2d.Velocity.y", 180, None),
+        "fall_left": (41, "transform2d.Velocity.y", 180, None),
     }
+    # A jump to one side: going that way too (a second condition).
+    sideways = {"rise_right": (60, None), "fall_right": (60, None),
+                "rise_left": (None, -60), "fall_left": (None, -60)}
     ids = {name: index + 1 for index, (name, _, _) in enumerate(HERO_CLIPS)}
     made = []
     first = 0
@@ -1356,17 +1455,30 @@ def hero_clips():
             clip["min"] = low
         if high is not None:
             clip["max"] = high
+        if name in sideways:
+            clip["and_field"] = "transform2d.Velocity.x"
+            low, high = sideways[name]
+            if low is not None:
+                clip["and_min"] = low
+            if high is not None:
+                clip["and_max"] = high
         clip["id"] = ids[name]
         made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
         first += len(poses)
     # The passages from one to the other (sprite2d transitions): played once, between.
+    frames_of = {}
     for name, poses, ticks, source, target in HERO_TRANSITIONS:
-        clip = {"set": "hero", "first_frame": first, "frame_count": len(poses),
+        if isinstance(poses, str):
+            start, count = frames_of[poses]
+        else:
+            start, count = first, len(poses)
+            frames_of[name] = (start, count)
+            first += count
+        clip = {"set": "hero", "first_frame": start, "frame_count": count,
                 "ticks_per_frame": ticks, "looping": False, "from_id": ids[source]}
         if target is not None:
             clip["to_id"] = ids[target]
         made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
-        first += len(poses)
     return made
 
 
@@ -1602,7 +1714,7 @@ def digging_dust(holder):
                 "speed_spread": 110, "angle": -90, "spread": 150, "gravity_y": 700,
                 "drag": 0.6, "size": 5, "end_size": 2.5, "red": 150, "green": 152,
                 "blue": 160, "alpha": 255, "fade": True, "additive": False, "unlit": False,
-                "layer": LAYERS["hero"] + 3, "area_width": 50, "area_height": 30,
+                "layer": LAYERS["hero"] - 1, "area_width": 50, "area_height": 30,
                 "max": 220}}),
         bind(f"{name}_fly", holder, "terrain2d.Digger.last", "particles2d.Emitter.rate", 0,
              40, 0, 600, 1, onto=name),
@@ -1631,6 +1743,30 @@ def fossil_entity(name, x, y, amount=30):
     made["components"]["light2d.Light"] = {"radius": 70, "red": 220, "green": 232,
                                            "blue": 236, "intensity": 0.45, "flicker": 0.25,
                                            "flicker_speed": 1.5}
+    return made
+
+
+def deposit(name, x, ground_y, count=3, amount=12):
+    """A deposit of carbon for the white: crystals half in the ground, that do not move; the
+    harvest (or a black hole) swallows them one by one, each worth amount of carbon. The first
+    one glows into the dark, to be seen from afar."""
+    made = []
+    for index in range(count):
+        offset = (index - (count - 1) / 2) * 22
+        size = 34 if index != count // 2 else 44
+        crystal_entity = entity(f"{name}_{index}", x + offset, ground_y - size * 0.32, {
+            "sprite2d.Sprite": {"atlas": "crystal", "width": size, "height": size,
+                                "layer": LAYERS["hero"] - 3, "unlit": True},
+            "collision2d.Collider": {"width": 20, "height": 20, "layer": ["rock"],
+                                     "mask": []},
+            "attractor2d.Absorbable": {"mass": 10},
+            "reserve.Yield": {"kind": "carbon", "amount": amount},
+        })
+        if index == count // 2:
+            crystal_entity["components"]["light2d.Light"] = {
+                "radius": 120, "red": 226, "green": 234, "blue": 246, "intensity": 0.6,
+                "flicker": 0.15, "flicker_speed": 1.2}
+        made.append(crystal_entity)
     return made
 
 
@@ -2008,9 +2144,10 @@ TEXTS = {
     "after_death": ("Sans carbone, ce serait le noir",
                     "Garde toujours les deux : tu reprends au début de l'étape."),
     "departure": ("Le départ",
-                  "Clic droit maintenu vers le ciel : le plus grand trou noir possible."),
+                  "Maintiens Espace cinq secondes : le plus grand saut possible."),
 }
 PRACTICE_TEXT = "Bien. Essaie encore un peu…"
+DEPARTURE_HOLD = 5.0  # seconds of the jump held for the departure
 PRACTICE_SECONDS = {"black": 6, "white": 6, "harvest": 5, "inventory": 3, "jump": 2}
 
 
@@ -2055,6 +2192,57 @@ def watch(name, step, source, field, action, low=None, high=None, inside=False):
 def on(name, action, source, field, value):
     return {"name": name, "components": {"rules.OnAction": {
         "action": action, "source": source, "field": field, "value": value}}}
+
+
+AWAKENINGS = [
+    # (name, step, watched tag, field, from, part followed, offset y, particles colour, additive)
+    ("black", "black", "black_hole", "attractor2d.Attractor.radius", 6, "hand_right", 0,
+     (150, 160, 190), False),
+    ("white", "white", "white_caster", "barrier2d.Caster.radius", 6, "hand_left", 0,
+     (240, 244, 255), True),
+    ("walk", "walk", "hero", "transform2d.Velocity.x", 60, "hero", 40, (210, 220, 240), True),
+    ("jump", "jump", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240), True),
+]
+
+
+def awakenings():
+    """The first time he uses a power, walks or jumps, the camera comes close: light gathers,
+    turning, into the part of his body that does it (the black hand, the white hand, the feet,
+    the body), which glows, and the camera goes back (D16)."""
+    made = []
+    for name, step, source, field, low, part, offset_y, colour, additive in AWAKENINGS:
+        action = f"awakens_{name}"
+        made.append({"name": f"{name}_awakens", "components": {
+            "rules.Watch": {"source": source, "own": False, "field": field, "min": low,
+                            "action": action, "once": True},
+            "phase.ActiveIn": {"phases": [step] + ([f"{step}_practice"] if step in
+                                                   PRACTICE_SECONDS else [])},
+            "transform2d.Disabled": {}}})
+        made.append(track(f"{name}_comes_close", "camera", "camera2d.Camera.zoom",
+                          [(0, ZOOM), (40, ZOOM * 1.7), (150, ZOOM * 1.7), (210, ZOOM)],
+                          start=action))
+        gather = f"{name}_gathers"
+        made.append(entity(gather, 0, 0, {
+            "tag.Tag": {"tag": gather},
+            "follow2d.Follow": {"target": part, "offset_y": offset_y, "stiffness": 1},
+            "particles2d.Emitter": {
+                "rate": 0, "lifetime": 0.9, "speed": 10, "spread": 360, "pull": 900,
+                "swirl": 380, "drag": 1.2, "size": 3.5, "end_size": 1.2, "red": colour[0],
+                "green": colour[1], "blue": colour[2], "alpha": 235, "fade": True,
+                "additive": additive, "unlit": True, "layer": LAYERS["hero"] + 4,
+                "area_width": 150, "area_height": 150, "max": 260}}))
+        made.append(track(f"{name}_gathers_light", gather, "particles2d.Emitter.rate",
+                          [(0, 0), (20, 240), (120, 240), (150, 0)], start=action))
+        shine = f"{name}_shines"
+        made.append(entity(shine, 0, 0, {
+            "tag.Tag": {"tag": shine},
+            "follow2d.Follow": {"target": part, "offset_y": offset_y, "stiffness": 1},
+            "sprite2d.Sprite": {"atlas": "glow", "width": 70, "height": 70, "alpha": 0,
+                                "additive": True, "unlit": True,
+                                "layer": LAYERS["hero"] + 4}}))
+        made.append(track(f"{name}_shines_out", shine, "sprite2d.Sprite.alpha",
+                          [(0, 0), (90, 0), (120, 230), (160, 120), (210, 0)], start=action))
+    return made
 
 
 def story():
@@ -2133,9 +2321,11 @@ def story():
         on("carbon_back", "refill", "carbon", "reserve.Reserve.amount", 75),
         watch("after_death_watch", "after_death", "clock", "transform2d.Position.x",
               "after_death_done", 6, inside=True),
-        # A black hole as big as it gets, towards the sky: the departure.
-        watch("departure_watch", "departure", "black_hole", "attractor2d.Attractor.radius",
-              "departure_done", 85),
+        # The departure: the jump held five seconds, its black hole as big as it gets over his
+        # head; full, it slips out of his hands (no need to let go).
+        on("long_jump", "after_death_done", "hero", "jump.Jumper.charge_time", DEPARTURE_HOLD),
+        watch("departure_watch", "departure", "hero", "jump.Jumper.charge", "departure_done",
+              0.995),
     ]
     return made + step_texts()
 
@@ -2177,13 +2367,18 @@ def tutorial():
         things.append(fossil_entity(f"fossil_{index + 1}", x, basin_floor - 11))
     for index, x in enumerate((3500, 3650, 3800, 3950)):
         things.append(rock_entity(f"rock_{index + 1}", x, basin_floor - 11))
+    # Deposits of carbon all along: the white never lacks food for long.
+    for index, (x, y) in enumerate(((1100, GROUND_Y), (1500, GROUND_Y),
+                                    (2350, GROUND_Y - LEDGE[2]), (3250, basin_floor),
+                                    (4400, GROUND_Y), (5100, GROUND_Y))):
+        things += deposit(f"deposit_{index + 1}", x, y)
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
     return (sky_entity() + scenery(GROUND_Y) + [ground] + shapes + things +
             [hero_entity(LANDING_X, 220, locked=True), camera(TUTORIAL_W, bottom)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
-            landing() + departure() + pause_menu())
+            landing() + departure() + awakenings() + pause_menu())
 
 
 def landing():
@@ -2364,27 +2559,29 @@ def drift():
 
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
-           "locked", "skip", "exploded", "refill", "pause", "resume", "to_title", "menu_up",
+           "locked", "skip", "exploded", "refill", "awakens_black", "awakens_white",
+           "awakens_walk", "awakens_jump", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
         if _action not in ACTIONS and not _step.endswith("_practice"):
             ACTIONS.append(_action)
-TAGS = ["hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
+TAGS = ["black_gathers", "white_gathers", "walk_gathers", "jump_gathers", "black_shines",
+        "white_shines", "walk_shines", "jump_shines", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
         "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
-           "inventory", "plain", "font", "glow", "planet", "button"]
+           "inventory", "plain", "font", "glow", "planet", "button", "crystal"]
 SCENE_NAMES = ["title", "opening", "tutorial", "drift", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
              "inventory_opens", "walking_costs", "charged_jump", "dies_and_restarts",
              "tutorial_through", "cannot_walk_early", "powers_in_order",
              "opening", "opening_skips", "pause_stops_everything", "pause_resumes",
-             "title_starts"]
+             "title_starts", "jumps_sideways"]
 
 
 def write_manifest():
@@ -2501,6 +2698,7 @@ def write_pictures():
     save(inventory_bubbles(), "inventory", cell=(INVENTORY, INVENTORY))
     save(Image.new("RGBA", (4, 4), (255, 255, 255, 255)), "plain")
     save(glow(), "glow")
+    save(crystal(), "crystal")
     save(planet(), "planet")
     save_font()
 

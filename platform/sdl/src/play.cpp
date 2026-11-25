@@ -139,6 +139,7 @@ PlayResult play_loaded(Backend& backend, const game::LoadedGame& loaded,
     LoopOptions loop;
     loop.max_frames = options.max_frames;
     loop.back_sources = options.back_sources;
+    loop.stats = options.stats;
     keep_save_data(app, options.save_path, loop, err);
     result.started = true;
     result.loop = run_loop(app, backend, loaded.game.input, loop);

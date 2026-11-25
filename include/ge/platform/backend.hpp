@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <string>
@@ -167,8 +168,15 @@ struct LoopOptions {
     std::function<void(app::App&)> after_frame;
     /// Raw sources (for example "key:escape") that belong to the host, not to
     /// the game: pressing one ends the loop with `back_requested`, whatever the
-    /// game does with its menus. The way back to a launcher. None by default.
+    /// game does with its menus. The way back to a launcher. None by default. A source that the
+    /// game's input map binds to one of its actions is left to the game (a game whose Escape opens
+    /// its pause menu): leave such a game by its own menus.
     std::vector<std::string> back_sources;
+    /// Every `stats_every` frames, writes to `stats` how long a frame took on average: the
+    /// simulation, then the drawing (which waits for the screen when vsync is on). Nothing when
+    /// it is null: what a developer looks at to see what a game costs.
+    std::ostream* stats = nullptr;
+    std::uint32_t stats_every = 120;
 };
 
 struct LoopResult {

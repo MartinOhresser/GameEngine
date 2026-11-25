@@ -57,6 +57,10 @@
       "skip",
       "exploded",
       "refill",
+      "awakens_black",
+      "awakens_white",
+      "awakens_walk",
+      "awakens_jump",
       "pause",
       "resume",
       "to_title",
@@ -98,6 +102,14 @@
       "barrier"
     ],
     "tag": [
+      "black_gathers",
+      "white_gathers",
+      "walk_gathers",
+      "jump_gathers",
+      "black_shines",
+      "white_shines",
+      "walk_shines",
+      "jump_shines",
       "hero",
       "hero_dust",
       "white_sparks",
@@ -221,7 +233,8 @@
     "art/font.json",
     "art/glow.json",
     "art/planet.json",
-    "art/button.json"
+    "art/button.json",
+    "art/crystal.json"
   ],
   "prefabs": [
     "prefabs/fade_white.json",
@@ -259,7 +272,8 @@
     "scenarios/opening_skips.json",
     "scenarios/pause_stops_everything.json",
     "scenarios/pause_resumes.json",
-    "scenarios/title_starts.json"
+    "scenarios/title_starts.json",
+    "scenarios/jumps_sideways.json"
   ],
   "start_scene": "title"
 }

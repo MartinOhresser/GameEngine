@@ -1,0 +1,19 @@
+// Jumping while walking: the side jump (sprite2d's second condition), then the landing.
+{
+  "schema_version": 1,
+  "name": "jumps_sideways",
+  "scene": "sandbox",
+  "ticks": 140,
+  "inputs": [
+    { "tick": 20, "action": "move_x", "value": 1 },
+    { "tick": 50, "action": "jump", "value": 1 },
+    { "tick": 56, "action": "jump", "value": 0 },
+  ],
+  "expect": [
+    // Going up and to the right: rise_right (the seventh clip).
+    { "at": 62, "check": "hero.sprite2d.Animator.clip == 7" },
+    { "at": 62, "check": "hero.transform2d.Velocity.x > 60" },
+    // Back on the ground, walking on.
+    "hero.sprite2d.Animator.clip == 2",
+  ],
+}

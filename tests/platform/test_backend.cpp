@@ -168,6 +168,19 @@ TEST_CASE("backend: a back source ends the loop before the game sees it") {
     CHECK(result.frames == 3U);
 }
 
+TEST_CASE("backend: a back source the game binds to an action is the game's") {
+    ge::app::App app;
+    ScriptedBackend backend(60, 10);
+    backend.at(3, "key:escape", 1.0F);
+    InputMap map;
+    map.bind("pause", "key:escape", 1.0F);
+    ge::platform::LoopOptions options;
+    options.back_sources = {"key:escape", "key:ac_back"};
+    const auto result = ge::platform::run_loop(app, backend, map, options);
+    CHECK(!result.back_requested);
+    CHECK(result.backend_stopped);
+}
+
 TEST_CASE("backend: without back sources the escape key is just a key") {
     ge::app::App app;
     ScriptedBackend backend(60, 10);

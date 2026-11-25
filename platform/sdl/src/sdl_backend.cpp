@@ -644,12 +644,16 @@ private:
             if (*texture != nullptr) {
                 SDL_DestroyTexture(*texture);
             }
+            // The light map is soft: half the size is enough, and a quarter of the pixels to fill.
+            const int divide = texture == &light_map_ ? light_map_divide : 1;
             *texture = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32,
-                                         SDL_TEXTUREACCESS_TARGET, width, height);
+                                         SDL_TEXTUREACCESS_TARGET, std::max(width / divide, 1),
+                                         std::max(height / divide, 1));
         }
         if (light_map_ == nullptr || world_ == nullptr || mask_ == nullptr) {
             return false;
         }
+        SDL_SetTextureScaleMode(light_map_, SDL_SCALEMODE_LINEAR);
         SDL_SetTextureBlendMode(light_map_, SDL_BLENDMODE_MOD);
         SDL_SetTextureBlendMode(mask_, SDL_BLENDMODE_MOD);
         SDL_SetTextureBlendMode(world_, SDL_BLENDMODE_ADD);
@@ -666,6 +670,8 @@ private:
                                static_cast<std::uint8_t>((c >> 16U) & 0xFFU),
                                static_cast<std::uint8_t>((c >> 8U) & 0xFFU), 255U);
         SDL_RenderClear(renderer_);
+        constexpr float shrink = 1.0F / static_cast<float>(light_map_divide);
+        SDL_SetRenderScale(renderer_, shrink, shrink);
         for (const app::DrawCommand& command : pending_) {
             if (command.light) {
                 app::DrawCommand light = command;
@@ -673,6 +679,7 @@ private:
                 draw_now(light);
             }
         }
+        SDL_SetRenderScale(renderer_, 1.0F, 1.0F);
         SDL_SetRenderTarget(renderer_, base_);
     }
 
@@ -814,11 +821,17 @@ private:
     /// Shafts of light: the bright parts added again and again, each copy bigger around the rays'
     /// point and fainter, so that light streams away from it.
     void apply_rays(float strength) {
+        // Drawn on the quarter-sized picture (it is soft anyway), then laid once on the screen:
+        // a sixteenth of the pixels to fill for each copy.
         constexpr int copies = 14;
-        const float width = half_width_ * 2.0F;
-        const float height = half_height_ * 2.0F;
+        float width = 0.0F;
+        float height = 0.0F;
+        SDL_GetTextureSize(quarter_, &width, &height);
         const float cx = effects_.rays_x * width;
         const float cy = effects_.rays_y * height;
+        SDL_SetRenderTarget(renderer_, quarter_);
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+        SDL_RenderClear(renderer_);
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
         for (int copy = 1; copy <= copies; copy += 1) {
             const float share = static_cast<float>(copy) / static_cast<float>(copies);
@@ -832,6 +845,10 @@ private:
         }
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
         SDL_SetTextureAlphaMod(bright_, 255U);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_SetTextureBlendMode(quarter_, SDL_BLENDMODE_ADD);
+        SDL_RenderTexture(renderer_, quarter_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(quarter_, SDL_BLENDMODE_NONE);
     }
 
     /// `target` becomes `source` blurred: the average of five copies, one in place and four
@@ -1039,6 +1056,8 @@ private:
     std::vector<app::DrawCommand> pending_;
     SDL_Texture* glow_ = nullptr;
     SDL_Texture* light_map_ = nullptr;
+    /// The light map is this many times smaller than the view on each side.
+    static constexpr int light_map_divide = 2;
     SDL_Texture* world_ = nullptr;
     SDL_Texture* mask_ = nullptr;
     app::ScreenEffects effects_;

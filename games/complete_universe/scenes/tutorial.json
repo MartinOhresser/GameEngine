@@ -1055,6 +1055,618 @@
       }
     },
     {
+      "name": "deposit_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1078.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 1100.0,
+          "y": 585.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_1_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 1122.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_2_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1478.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_2_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 1500.0,
+          "y": 585.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_2_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 1522.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 2328.0,
+          "y": 479.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2350.0,
+          "y": 475.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_3_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 2372.0,
+          "y": 479.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_4_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 3228.0,
+          "y": 669.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_4_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 3250.0,
+          "y": 665.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_4_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 3272.0,
+          "y": 669.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_5_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 4378.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4400.0,
+          "y": 585.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_5_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 4422.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_6_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 5078.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "name": "deposit_6_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 5100.0,
+          "y": 585.92
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "deposit_6_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 5122.0,
+          "y": 589.12
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 12
+        }
+      }
+    },
+    {
       "name": "hero",
       "components": {
         "transform2d.Position": {
@@ -1192,8 +1804,8 @@
           "set": "hero",
           "priority": 0,
           "first_frame": 0,
-          "frame_count": 80,
-          "ticks_per_frame": 2,
+          "frame_count": 160,
+          "ticks_per_frame": 1,
           "looping": true,
           "id": 1
         }
@@ -1205,9 +1817,9 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 20,
-          "first_frame": 80,
-          "frame_count": 24,
-          "ticks_per_frame": 2,
+          "first_frame": 160,
+          "frame_count": 48,
+          "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.x",
           "min": 20,
@@ -1221,9 +1833,9 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 20,
-          "first_frame": 104,
-          "frame_count": 24,
-          "ticks_per_frame": 2,
+          "first_frame": 208,
+          "frame_count": 48,
+          "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.x",
           "max": -20,
@@ -1237,9 +1849,9 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 50,
-          "first_frame": 128,
-          "frame_count": 16,
-          "ticks_per_frame": 2,
+          "first_frame": 256,
+          "frame_count": 32,
+          "ticks_per_frame": 1,
           "looping": false,
           "field": "jump.Jumper.charge",
           "min": 0.02,
@@ -1253,9 +1865,9 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 40,
-          "first_frame": 144,
-          "frame_count": 8,
-          "ticks_per_frame": 3,
+          "first_frame": 288,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
           "max": -140,
@@ -1269,9 +1881,9 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 39,
-          "first_frame": 152,
-          "frame_count": 8,
-          "ticks_per_frame": 3,
+          "first_frame": 312,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
           "min": 180,
@@ -1280,13 +1892,85 @@
       }
     },
     {
+      "name": "clip_rise_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 42,
+          "first_frame": 336,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "max": -140,
+          "and_field": "transform2d.Velocity.x",
+          "and_min": 60,
+          "id": 7
+        }
+      }
+    },
+    {
+      "name": "clip_rise_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 42,
+          "first_frame": 360,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "max": -140,
+          "and_field": "transform2d.Velocity.x",
+          "and_max": -60,
+          "id": 8
+        }
+      }
+    },
+    {
+      "name": "clip_fall_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 41,
+          "first_frame": 384,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "min": 180,
+          "and_field": "transform2d.Velocity.x",
+          "and_min": 60,
+          "id": 9
+        }
+      }
+    },
+    {
+      "name": "clip_fall_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 41,
+          "first_frame": 408,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "min": 180,
+          "and_field": "transform2d.Velocity.x",
+          "and_max": -60,
+          "id": 10
+        }
+      }
+    },
+    {
       "name": "clip_start_right",
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 160,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 432,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 1,
           "to_id": 2
@@ -1298,9 +1982,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 168,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 448,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 1,
           "to_id": 3
@@ -1312,9 +1996,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 176,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 464,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 2,
           "to_id": 1
@@ -1326,9 +2010,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 184,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 480,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 3,
           "to_id": 1
@@ -1340,9 +2024,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 192,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 496,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 2,
           "to_id": 3
@@ -1354,9 +2038,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 200,
-          "frame_count": 8,
-          "ticks_per_frame": 2,
+          "first_frame": 512,
+          "frame_count": 16,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 3,
           "to_id": 2
@@ -1368,11 +2052,37 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 208,
-          "frame_count": 9,
-          "ticks_per_frame": 2,
+          "first_frame": 528,
+          "frame_count": 20,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 6
+        }
+      }
+    },
+    {
+      "name": "clip_land_from_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 528,
+          "frame_count": 20,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 9
+        }
+      }
+    },
+    {
+      "name": "clip_land_from_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 528,
+          "frame_count": 20,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 10
         }
       }
     },
@@ -1381,12 +2091,40 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 217,
-          "frame_count": 6,
-          "ticks_per_frame": 2,
+          "first_frame": 548,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 5,
           "to_id": 6
+        }
+      }
+    },
+    {
+      "name": "clip_apex_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 560,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 7,
+          "to_id": 9
+        }
+      }
+    },
+    {
+      "name": "clip_apex_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 572,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 8,
+          "to_id": 10
         }
       }
     },
@@ -1395,9 +2133,9 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 223,
-          "frame_count": 4,
-          "ticks_per_frame": 2,
+          "first_frame": 584,
+          "frame_count": 8,
+          "ticks_per_frame": 1,
           "looping": false,
           "from_id": 4
         }
@@ -2256,7 +2994,7 @@
           "fade": true,
           "additive": false,
           "unlit": false,
-          "layer": 13,
+          "layer": 9,
           "area_width": 50,
           "area_height": 30,
           "max": 220
@@ -2312,7 +3050,7 @@
           "fade": true,
           "additive": false,
           "unlit": false,
-          "layer": 13,
+          "layer": 9,
           "area_width": 50,
           "area_height": 30,
           "max": 220
@@ -3667,14 +4405,25 @@
       }
     },
     {
+      "name": "long_jump",
+      "components": {
+        "rules.OnAction": {
+          "action": "after_death_done",
+          "source": "hero",
+          "field": "jump.Jumper.charge_time",
+          "value": 5.0
+        }
+      }
+    },
+    {
       "name": "departure_watch",
       "components": {
         "rules.Watch": {
-          "source": "black_hole",
+          "source": "hero",
           "own": false,
-          "field": "attractor2d.Attractor.radius",
+          "field": "jump.Jumper.charge",
           "action": "departure_done",
-          "min": 85
+          "min": 0.995
         },
         "phase.ActiveIn": {
           "phases": [
@@ -4490,6 +5239,593 @@
           "scene": "drift",
           "use_action": true,
           "action": "exploded"
+        }
+      }
+    },
+    {
+      "name": "black_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "black_hole",
+          "own": false,
+          "field": "attractor2d.Attractor.radius",
+          "min": 6,
+          "action": "awakens_black",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black",
+            "black_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "black_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 40,
+          "v1": 2.55,
+          "t2": 150,
+          "v2": 2.55,
+          "t3": 210,
+          "v3": 1.5,
+          "start": "awakens_black"
+        }
+      }
+    },
+    {
+      "name": "black_gathers",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "black_gathers"
+        },
+        "follow2d.Follow": {
+          "target": "hand_right",
+          "offset_y": 0,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "speed": 10,
+          "spread": 360,
+          "pull": 900,
+          "swirl": 380,
+          "drag": 1.2,
+          "size": 3.5,
+          "end_size": 1.2,
+          "red": 150,
+          "green": 160,
+          "blue": 190,
+          "alpha": 235,
+          "fade": true,
+          "additive": false,
+          "unlit": true,
+          "layer": 14,
+          "area_width": 150,
+          "area_height": 150,
+          "max": 260
+        }
+      }
+    },
+    {
+      "name": "black_gathers_light",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "black_gathers",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 20,
+          "v1": 240,
+          "t2": 120,
+          "v2": 240,
+          "t3": 150,
+          "v3": 0,
+          "start": "awakens_black"
+        }
+      }
+    },
+    {
+      "name": "black_shines",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "black_shines"
+        },
+        "follow2d.Follow": {
+          "target": "hand_right",
+          "offset_y": 0,
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 70,
+          "height": 70,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "black_shines_out",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "black_shines",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 0,
+          "t2": 120,
+          "v2": 230,
+          "t3": 160,
+          "v3": 120,
+          "t4": 210,
+          "v4": 0,
+          "start": "awakens_black"
+        }
+      }
+    },
+    {
+      "name": "white_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "white_caster",
+          "own": false,
+          "field": "barrier2d.Caster.radius",
+          "min": 6,
+          "action": "awakens_white",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white",
+            "white_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "white_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 40,
+          "v1": 2.55,
+          "t2": 150,
+          "v2": 2.55,
+          "t3": 210,
+          "v3": 1.5,
+          "start": "awakens_white"
+        }
+      }
+    },
+    {
+      "name": "white_gathers",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "white_gathers"
+        },
+        "follow2d.Follow": {
+          "target": "hand_left",
+          "offset_y": 0,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "speed": 10,
+          "spread": 360,
+          "pull": 900,
+          "swirl": 380,
+          "drag": 1.2,
+          "size": 3.5,
+          "end_size": 1.2,
+          "red": 240,
+          "green": 244,
+          "blue": 255,
+          "alpha": 235,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "area_width": 150,
+          "area_height": 150,
+          "max": 260
+        }
+      }
+    },
+    {
+      "name": "white_gathers_light",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "white_gathers",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 20,
+          "v1": 240,
+          "t2": 120,
+          "v2": 240,
+          "t3": 150,
+          "v3": 0,
+          "start": "awakens_white"
+        }
+      }
+    },
+    {
+      "name": "white_shines",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "white_shines"
+        },
+        "follow2d.Follow": {
+          "target": "hand_left",
+          "offset_y": 0,
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 70,
+          "height": 70,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "white_shines_out",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "white_shines",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 0,
+          "t2": 120,
+          "v2": 230,
+          "t3": 160,
+          "v3": 120,
+          "t4": 210,
+          "v4": 0,
+          "start": "awakens_white"
+        }
+      }
+    },
+    {
+      "name": "walk_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "transform2d.Velocity.x",
+          "min": 60,
+          "action": "awakens_walk",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "walk"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "walk_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 40,
+          "v1": 2.55,
+          "t2": 150,
+          "v2": 2.55,
+          "t3": 210,
+          "v3": 1.5,
+          "start": "awakens_walk"
+        }
+      }
+    },
+    {
+      "name": "walk_gathers",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "walk_gathers"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": 40,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "speed": 10,
+          "spread": 360,
+          "pull": 900,
+          "swirl": 380,
+          "drag": 1.2,
+          "size": 3.5,
+          "end_size": 1.2,
+          "red": 210,
+          "green": 220,
+          "blue": 240,
+          "alpha": 235,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "area_width": 150,
+          "area_height": 150,
+          "max": 260
+        }
+      }
+    },
+    {
+      "name": "walk_gathers_light",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "walk_gathers",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 20,
+          "v1": 240,
+          "t2": 120,
+          "v2": 240,
+          "t3": 150,
+          "v3": 0,
+          "start": "awakens_walk"
+        }
+      }
+    },
+    {
+      "name": "walk_shines",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "walk_shines"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": 40,
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 70,
+          "height": 70,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "walk_shines_out",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "walk_shines",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 0,
+          "t2": 120,
+          "v2": 230,
+          "t3": 160,
+          "v3": 120,
+          "t4": 210,
+          "v4": 0,
+          "start": "awakens_walk"
+        }
+      }
+    },
+    {
+      "name": "jump_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "jump.Jumper.jumps",
+          "min": 1,
+          "action": "awakens_jump",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "jump",
+            "jump_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "jump_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 40,
+          "v1": 2.55,
+          "t2": 150,
+          "v2": 2.55,
+          "t3": 210,
+          "v3": 1.5,
+          "start": "awakens_jump"
+        }
+      }
+    },
+    {
+      "name": "jump_gathers",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "jump_gathers"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -6,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "speed": 10,
+          "spread": 360,
+          "pull": 900,
+          "swirl": 380,
+          "drag": 1.2,
+          "size": 3.5,
+          "end_size": 1.2,
+          "red": 210,
+          "green": 220,
+          "blue": 240,
+          "alpha": 235,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "area_width": 150,
+          "area_height": 150,
+          "max": 260
+        }
+      }
+    },
+    {
+      "name": "jump_gathers_light",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "jump_gathers",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 20,
+          "v1": 240,
+          "t2": 120,
+          "v2": 240,
+          "t3": 150,
+          "v3": 0,
+          "start": "awakens_jump"
+        }
+      }
+    },
+    {
+      "name": "jump_shines",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "jump_shines"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -6,
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 70,
+          "height": 70,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "jump_shines_out",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "jump_shines",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 0,
+          "t2": 120,
+          "v2": 230,
+          "t3": 160,
+          "v3": 120,
+          "t4": 210,
+          "v4": 0,
+          "start": "awakens_jump"
         }
       }
     },

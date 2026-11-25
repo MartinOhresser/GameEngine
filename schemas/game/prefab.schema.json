@@ -3380,6 +3380,17 @@
             "looping": {
               "type": "boolean"
             },
+            "and_field": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "and_min": {
+              "type": "number"
+            },
+            "and_max": {
+              "type": "number"
+            },
             "id": {
               "type": "integer",
               "minimum": 0,
