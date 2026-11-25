@@ -198,3 +198,43 @@ TEST_CASE("particles2d: with an atlas a particle is a picture of its size") {
     CHECK(commands[0].width == 12.0F);
     CHECK(commands[0].blend == ge::app::Blend::Alpha);
 }
+
+TEST_CASE("particles2d: pulled particles go to the emitter and end there; swirled ones turn") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    particles2d::Emitter drain;
+    drain.rate = 0.0F;
+    drain.burst = 1;
+    drain.speed = 0.0F;
+    drain.speed_spread = 0.0F;
+    drain.lifetime = 100.0F;
+    drain.lifetime_spread = 0.0F;
+    drain.area_width = 0.0F;
+    drain.pull = 400.0F;
+    drain.size = 2.0F;
+    const ge::ecs::Entity hole = spawn_emitter(app, 0.0F, 0.0F, drain);
+    app.run_frames(1); // let out at the emitter
+    // Moved away, the emitter draws its particle after it, until the particle reaches it.
+    app.world().get<transform2d::Position>(hole)->x = 100.0F;
+    app.run_frames(3);
+    std::vector<ge::app::DrawCommand> now = drawn(app, renderer);
+    REQUIRE(now.size() == 1U);
+    CHECK(now[0].x > 5.0F);
+    for (int tick = 0; tick < 40; tick += 1) {
+        app.run_frames(1);
+    }
+    CHECK(drawn(app, renderer).empty());
+
+    auto other = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App spin = game(other);
+    particles2d::Emitter vortex = drain;
+    vortex.pull = 0.0F;
+    vortex.swirl = 200.0F;
+    const ge::ecs::Entity middle = spawn_emitter(spin, 0.0F, 0.0F, vortex);
+    spin.run_frames(1);
+    spin.world().get<transform2d::Position>(middle)->x = 100.0F; // the particle is to its left
+    spin.run_frames(3);
+    now = drawn(spin, other);
+    REQUIRE(now.size() == 1U);
+    CHECK(now[0].y > 1.0F); // turned across, not towards the middle
+}

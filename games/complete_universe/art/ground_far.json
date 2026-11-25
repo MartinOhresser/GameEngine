@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "ground_far",
+  "image": "ground_far.png",
+  "cell_width": 2048,
+  "cell_height": 160,
+  "filter": "linear"
+}

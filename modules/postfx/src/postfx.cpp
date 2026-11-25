@@ -39,6 +39,10 @@ void apply(ecs::World& world) {
         screen.tint = rgba(effects.tint_red, effects.tint_green, effects.tint_blue);
         screen.lift = rgba(effects.lift_red, effects.lift_green, effects.lift_blue);
         screen.letterbox = std::clamp(effects.letterbox, 0.0F, 1.0F);
+        screen.rays = std::clamp(effects.rays, 0.0F, 1.0F);
+        screen.rays_x = effects.rays_x;
+        screen.rays_y = effects.rays_y;
+        screen.rays_length = std::clamp(effects.rays_length, 0.0F, 1.0F);
         backend->renderer().set_effects(screen);
     });
 }

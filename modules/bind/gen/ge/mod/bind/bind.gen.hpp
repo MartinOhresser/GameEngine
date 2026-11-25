@@ -11,7 +11,7 @@
 
 namespace ge::mod::bind {
 
-/// Every tick, writes into the number target ("postfx.Effects.vignette") of the entity that answers to onto (a tag.Tag; this entity when onto is none) a value that follows the number source of the entity that answers to from (this entity when none). The source is taken between low and high and becomes a share t from 0 to 1 (low may be above high: then the share grows as the source falls), raised to power (1 keeps it straight, 2 makes it grow late and fast); the target becomes out_low + (out_high - out_low) × t. Nothing is written while either entity or field is missing.
+/// Every tick, writes into the number target ("postfx.Effects.vignette") of the entity that answers to onto (a tag.Tag; this entity when onto is none) a value that follows the number source of the entity that answers to from (this entity when none). The source is taken between low and high and becomes a share t from 0 to 1 (low may be above high: then the share grows as the source falls), raised to power (1 keeps it straight, 2 makes it grow late and fast); the target becomes out_low + (out_high - out_low) × t. Nothing is written while either entity or field is missing. With absolute the source is taken without its sign: a speed either way.
 struct Bind {
     std::uint32_t source = 4294967295U;
     std::uint32_t from = 4294967295U;
@@ -22,6 +22,7 @@ struct Bind {
     float out_low = 0.0F;
     float out_high = 1.0F;
     float power = 1.0F;
+    bool absolute = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(source);
@@ -33,6 +34,7 @@ struct Bind {
         hasher.add(out_low);
         hasher.add(out_high);
         hasher.add(power);
+        hasher.add(absolute);
     }
 
     [[nodiscard]] friend bool operator==(const Bind&, const Bind&) = default;

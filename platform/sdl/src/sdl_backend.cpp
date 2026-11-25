@@ -723,8 +723,14 @@ private:
     /// the plain blend modes, so it works with every renderer, software included.
     void apply_effects() {
         SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        if (effects_.bloom > 0.0F || effects_.rays > 0.0F) {
+            make_bright();
+        }
         if (effects_.bloom > 0.0F) {
-            apply_bloom(std::min(effects_.bloom, 1.0F));
+            add_bright(std::min(effects_.bloom, 1.0F));
+        }
+        if (effects_.rays > 0.0F) {
+            apply_rays(std::min(effects_.rays, 1.0F));
         }
         apply_grade();
         if (effects_.vignette > 0.0F) {
@@ -750,10 +756,9 @@ private:
         }
     }
 
-    /// The picture shrunk twice, its bright parts kept by multiplying it by itself (a dark grey
-    /// cubed is nearly black, white stays white), spread out, then enlarged and added over the
-    /// screen: a soft glow around what is bright.
-    void apply_bloom(float strength) {
+    /// `bright_` becomes the picture shrunk twice, its bright parts kept by multiplying it by
+    /// itself (a dark grey cubed is nearly black, white stays white), spread out.
+    void make_bright() {
         SDL_SetRenderTarget(renderer_, quarter_);
         SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
         SDL_SetRenderTarget(renderer_, blur_);
@@ -767,9 +772,36 @@ private:
         spread(bright_, blur_);
         spread(blur_, bright_);
         SDL_SetRenderTarget(renderer_, nullptr);
+    }
+
+    /// The bright parts enlarged and added over the screen: a soft glow around what is bright.
+    void add_bright(float strength) {
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
         SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(std::lround(strength * 255.0F)));
         SDL_RenderTexture(renderer_, bright_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
+        SDL_SetTextureAlphaMod(bright_, 255U);
+    }
+
+    /// Shafts of light: the bright parts added again and again, each copy bigger around the rays'
+    /// point and fainter, so that light streams away from it.
+    void apply_rays(float strength) {
+        constexpr int copies = 14;
+        const float width = half_width_ * 2.0F;
+        const float height = half_height_ * 2.0F;
+        const float cx = effects_.rays_x * width;
+        const float cy = effects_.rays_y * height;
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
+        for (int copy = 1; copy <= copies; copy += 1) {
+            const float share = static_cast<float>(copy) / static_cast<float>(copies);
+            const float grow = 1.0F + (effects_.rays_length * share);
+            const float fade = (1.0F - share) * strength * 2.4F / static_cast<float>(copies);
+            SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(
+                                                std::lround(std::min(fade, 1.0F) * 255.0F)));
+            const SDL_FRect grown{cx - (cx * grow), cy - (cy * grow), width * grow,
+                                  height * grow};
+            SDL_RenderTexture(renderer_, bright_, nullptr, &grown);
+        }
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
         SDL_SetTextureAlphaMod(bright_, 255U);
     }

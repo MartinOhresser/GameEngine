@@ -369,6 +369,9 @@
             },
             "power": {
               "type": "number"
+            },
+            "absolute": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -2312,6 +2315,12 @@
             "wander": {
               "type": "number"
             },
+            "pull": {
+              "type": "number"
+            },
+            "swirl": {
+              "type": "number"
+            },
             "area_width": {
               "type": "number"
             },
@@ -2623,6 +2632,18 @@
               "maximum": 4294967295
             },
             "letterbox": {
+              "type": "number"
+            },
+            "rays": {
+              "type": "number"
+            },
+            "rays_x": {
+              "type": "number"
+            },
+            "rays_y": {
+              "type": "number"
+            },
+            "rays_length": {
               "type": "number"
             }
           },

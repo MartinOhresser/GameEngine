@@ -11,7 +11,7 @@
 
 namespace ge::mod::postfx {
 
-/// The effects of the picture (only the oldest Effects is used; put it on the camera, for example). bloom (0 to 1) makes bright parts glow over what is around them. vignette (0 to 1) darkens the corners, from vignette_size (the share of the way from the middle to a corner where it starts; below 0 it reaches the middle too, and at -4 it covers almost the whole picture), in vignette_red, vignette_green and vignette_blue (0 to 255; black by default). edge_glow (0 to 1), edge_glow_size and edge_glow_red, edge_glow_green and edge_glow_blue do the same with a second colour laid over it (white by default: the edges of the picture whiten, as when the light becomes too much). grain (0 to 1) lays a fine moving grain, as on film. tint_red, tint_green and tint_blue (0 to 255) multiply every colour (255, 255, 255 changes nothing: a cold night is blue, a warm evening orange); lift_red, lift_green and lift_blue are added everywhere (0 changes nothing: dark parts take that colour). letterbox (0 to 1) is the share of the height covered by black bars at the top and bottom; a tween can slide it in and out for a cut scene.
+/// The effects of the picture (only the oldest Effects is used; put it on the camera, for example). bloom (0 to 1) makes bright parts glow over what is around them. vignette (0 to 1) darkens the corners, from vignette_size (the share of the way from the middle to a corner where it starts; below 0 it reaches the middle too, and at -4 it covers almost the whole picture), in vignette_red, vignette_green and vignette_blue (0 to 255; black by default). edge_glow (0 to 1), edge_glow_size and edge_glow_red, edge_glow_green and edge_glow_blue do the same with a second colour laid over it (white by default: the edges of the picture whiten, as when the light becomes too much). grain (0 to 1) lays a fine moving grain, as on film. tint_red, tint_green and tint_blue (0 to 255) multiply every colour (255, 255, 255 changes nothing: a cold night is blue, a warm evening orange); lift_red, lift_green and lift_blue are added everywhere (0 changes nothing: dark parts take that colour). letterbox (0 to 1) is the share of the height covered by black bars at the top and bottom; a tween can slide it in and out for a cut scene. rays (0 to 1) draws shafts of light out of the bright parts, away from the point rays_x, rays_y of the screen (shares of its width and height, 0.5 and 0.5 its middle), rays_length (a share of the screen, 0 to 1) long: light through mist, a sun behind trees.
 struct Effects {
     float bloom = 0.0F;
     float vignette = 0.0F;
@@ -32,6 +32,10 @@ struct Effects {
     std::uint32_t lift_green = 0U;
     std::uint32_t lift_blue = 0U;
     float letterbox = 0.0F;
+    float rays = 0.0F;
+    float rays_x = 0.5F;
+    float rays_y = 0.35F;
+    float rays_length = 0.3F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(bloom);
@@ -53,6 +57,10 @@ struct Effects {
         hasher.add(lift_green);
         hasher.add(lift_blue);
         hasher.add(letterbox);
+        hasher.add(rays);
+        hasher.add(rays_x);
+        hasher.add(rays_y);
+        hasher.add(rays_length);
     }
 
     [[nodiscard]] friend bool operator==(const Effects&, const Effects&) = default;

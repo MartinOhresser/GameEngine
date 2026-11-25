@@ -56,6 +56,14 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.lift_blue = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "letterbox") {
             component.letterbox = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "rays") {
+            component.rays = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "rays_x") {
+            component.rays_x = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "rays_y") {
+            component.rays_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "rays_length") {
+            component.rays_length = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -123,6 +131,18 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "letterbox") {
         return ::ge::app::Scalar{static_cast<double>(component->letterbox)};
+    }
+    if (field == "rays") {
+        return ::ge::app::Scalar{static_cast<double>(component->rays)};
+    }
+    if (field == "rays_x") {
+        return ::ge::app::Scalar{static_cast<double>(component->rays_x)};
+    }
+    if (field == "rays_y") {
+        return ::ge::app::Scalar{static_cast<double>(component->rays_y)};
+    }
+    if (field == "rays_length") {
+        return ::ge::app::Scalar{static_cast<double>(component->rays_length)};
     }
     return std::nullopt;
 }
@@ -210,10 +230,26 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->letterbox = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "rays") {
+        component->rays = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "rays_x") {
+        component->rays_x = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "rays_y") {
+        component->rays_y = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "rays_length") {
+        component->rays_length = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 19> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"vignette_red", "u32", "", false}, {"vignette_green", "u32", "", false}, {"vignette_blue", "u32", "", false}, {"edge_glow", "f32", "", false}, {"edge_glow_size", "f32", "", false}, {"edge_glow_red", "u32", "", false}, {"edge_glow_green", "u32", "", false}, {"edge_glow_blue", "u32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 23> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"vignette_red", "u32", "", false}, {"vignette_green", "u32", "", false}, {"vignette_blue", "u32", "", false}, {"edge_glow", "f32", "", false}, {"edge_glow_size", "f32", "", false}, {"edge_glow_red", "u32", "", false}, {"edge_glow_green", "u32", "", false}, {"edge_glow_blue", "u32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}, {"rays", "f32", "", false}, {"rays_x", "f32", "", false}, {"rays_y", "f32", "", false}, {"rays_length", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Effects", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

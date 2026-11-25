@@ -8,7 +8,7 @@
   "components": [
     {
       "name": "Bind",
-      "description": "Every tick, writes into the number target (\"postfx.Effects.vignette\") of the entity that answers to onto (a tag.Tag; this entity when onto is none) a value that follows the number source of the entity that answers to from (this entity when none). The source is taken between low and high and becomes a share t from 0 to 1 (low may be above high: then the share grows as the source falls), raised to power (1 keeps it straight, 2 makes it grow late and fast); the target becomes out_low + (out_high - out_low) × t. Nothing is written while either entity or field is missing.",
+      "description": "Every tick, writes into the number target (\"postfx.Effects.vignette\") of the entity that answers to onto (a tag.Tag; this entity when onto is none) a value that follows the number source of the entity that answers to from (this entity when none). The source is taken between low and high and becomes a share t from 0 to 1 (low may be above high: then the share grows as the source falls), raised to power (1 keeps it straight, 2 makes it grow late and fast); the target becomes out_low + (out_high - out_low) × t. Nothing is written while either entity or field is missing. With absolute the source is taken without its sign: a speed either way.",
       "replicable": true,
       "fields": [
         { "name": "source", "type": "u32", "default": 4294967295, "ref": "field" },
@@ -19,7 +19,8 @@
         { "name": "high", "type": "f32", "default": 1 },
         { "name": "out_low", "type": "f32", "default": 0 },
         { "name": "out_high", "type": "f32", "default": 1 },
-        { "name": "power", "type": "f32", "default": 1 }
+        { "name": "power", "type": "f32", "default": 1 },
+        { "name": "absolute", "type": "bool", "default": false }
       ]
     }
   ],

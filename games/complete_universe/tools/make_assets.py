@@ -774,6 +774,109 @@ def hills(seed, height, tone, trees, fog):
     return to_image(np.dstack([value, value, value * 1.05]), alpha)
 
 
+MOUNTAINS_W, MOUNTAINS_H = 2048, 240  # world units of the far mountains (one pixel each)
+
+
+def mountains():
+    """Far mountains, sharp and pale, half lost in the haze: the first plane of depth."""
+    rng = np.random.default_rng(41)
+    w, h = MOUNTAINS_W, MOUNTAINS_H
+    xs = np.arange(w)
+    top = np.zeros(w)
+    for k in (1, 2, 3, 5, 7, 11, 17, 29):
+        top += (1.0 / k ** 0.9) * np.abs(np.sin(math.pi * k * xs / w + rng.uniform(0, math.pi)))
+    top = top / top.max()
+    top = h - 40 - (h - 80) * top ** 1.6
+    ys = np.arange(h)[:, None]
+    alpha = np.clip(ys - top[None, :], 0, 1)
+    depth = np.clip((ys - top.min()) / (h - top.min()), 0, 1)
+    # The sides lit from the left: a lighter tone on slopes that rise to the right.
+    slope = np.convolve(np.gradient(top), np.ones(25) / 25, mode="same")[None, :]
+    lit = np.clip(-slope * 0.6, 0, 1) * np.clip(1 - (ys - top[None, :]) / 120, 0, 1)
+    value = 20 + 16 * lit + 12 * depth ** 1.4
+    picture = to_image(np.dstack([value, value, value * 1.07]), alpha)
+    return picture.filter(ImageFilter.GaussianBlur(1.0))
+
+
+MIST_W, MIST_H = 2048, 240
+
+
+def mist(seed):
+    """A band of mist lying between two planes, thicker in the middle, in slow wisps."""
+    w, h = MIST_W // 2, MIST_H // 2
+    field = noise(w, h, seed, ((128, 1.0), (64, 0.6), (32, 0.3), (16, 0.15)))
+    fade = np.linspace(0, 1, w)[None, :]
+    field = field * (1 - fade) + field[:, ::-1] * fade  # its ends meet, side by side
+    y = np.linspace(-1, 1, h)[:, None]
+    band = np.exp(-(y / 0.45) ** 2)
+    alpha = np.clip(band * (0.25 + 0.75 * field) - 0.1, 0, 1) * 0.7
+    picture = to_image(np.full((h, w, 3), 120.0), alpha)
+    return picture.resize((MIST_W, MIST_H), Image.BICUBIC)
+
+
+GROUND_FAR_W, GROUND_FAR_H = 2048, 160
+
+
+def ground_far():
+    """The top of the ground going away from us, as in Ori: a band a little behind the ground
+    we walk on, its lit edge broken by pebbles and tufts, darker as it comes closer."""
+    rng = np.random.default_rng(23)
+    w, h = GROUND_FAR_W, GROUND_FAR_H
+    xs = np.arange(w)
+    edge = 30 + 6 * np.sin(2 * math.pi * 3 * xs / w) + 3 * np.sin(2 * math.pi * 11 * xs / w + 1)
+    mask_picture = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(mask_picture)
+    draw.polygon([(0, h)] + [(x, edge[x]) for x in range(0, w, 4)] + [(w, edge[-1]), (w, h)],
+                 fill=255)
+    for _ in range(160):
+        x = rng.uniform(0, w)
+        base = edge[int(x) % w] + 2
+        if rng.uniform() < 0.6:
+            for _ in range(rng.integers(3, 7)):
+                lean = rng.uniform(-6, 6)
+                tall = rng.uniform(6, 18)
+                draw.line([(x, base), (x + lean, base - tall)], fill=255, width=2)
+                x += rng.uniform(1, 4)
+        else:
+            r = rng.uniform(3, 8)
+            draw.ellipse([x - r, base - r * 1.2, x + r, base + r * 0.4], fill=255)
+    alpha = np.asarray(mask_picture.filter(ImageFilter.GaussianBlur(0.6)), dtype=np.float64) / 255
+    ys = np.arange(h)[:, None]
+    below = ys - edge[None, :]
+    rim = np.exp(-np.clip(below, 0, None) / 4.0) * (below > -20)
+    value = 12 + 46 * rim + 10 * np.clip(1 - below / 80, 0, 1)
+    return to_image(np.dstack([value, value, value * 1.05]), alpha)
+
+
+FRONT_W, FRONT_H = 2048, 300
+
+
+def foreground():
+    """Black shapes close to the camera, blurred as out of focus: tall grass, a rock, a broken
+    branch. They pass in front of the hero, faster than the ground (Limbo's depth)."""
+    rng = np.random.default_rng(29)
+    w, h = FRONT_W, FRONT_H
+    picture = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(picture)
+    for cluster in range(5):
+        cx = (cluster + rng.uniform(0.1, 0.6)) * w / 5
+        if cluster % 2 == 0:
+            for _ in range(rng.integers(14, 26)):
+                x = cx + rng.uniform(-60, 60)
+                tall = rng.uniform(90, 230)
+                bend = rng.uniform(-40, 40)
+                points = [(x + bend * (t / 8) ** 2, h - tall * t / 8) for t in range(9)]
+                for (x1, y1), (x2, y2) in zip(points, points[1:]):
+                    draw.line([(x1, y1), (x2, y2)], fill=255, width=7)
+        else:
+            r = rng.uniform(50, 80)
+            draw.ellipse([cx - r * 1.4, h - r * 1.3, cx + r * 1.4, h + r], fill=255)
+            draw.line([(cx - 20, h - r), (cx + 90, h - r - 140)], fill=255, width=9)
+            draw.line([(cx + 50, h - r - 80), (cx + 110, h - r - 100)], fill=255, width=6)
+    alpha = np.asarray(picture.filter(ImageFilter.GaussianBlur(3.5)), dtype=np.float64) / 255
+    return to_image(np.full((h, w, 3), 5.0), alpha)
+
+
 CAVE_W, CAVE_H = 1024, 1536  # world units of the inside of the ground, behind what is dug
 
 
@@ -840,8 +943,12 @@ def spin(name, onto, ticks):
 def hero_entity(x, y, locked=False):
     hero = entity("hero", x, y, {
         "sprite2d.Sprite": {"atlas": "hero", "width": CELL, "height": CELL,
-                            "layer": LAYERS["hero"]},
+                            "layer": LAYERS["hero"], "unlit": True},
         "sprite2d.Animator": {"set": "hero"},
+        # His white half lights what is around him (Ori's glow in Limbo's dark).
+        "light2d.Light": {"radius": 340, "red": 232, "green": 236, "blue": 246,
+                          "intensity": 0.95, "offset_y": -24, "flicker": 0.05,
+                          "flicker_speed": 2},
         "tag.Tag": {"tag": "hero"},
         "transform2d.Velocity": {},
         "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
@@ -868,6 +975,34 @@ def hero_entity(x, y, locked=False):
         hero["components"]["action_control.Controlled"]["action_x"] = "locked"
         hero["components"]["jump.Jumper"]["action"] = "locked"
     return hero
+
+
+def hero_trail():
+    """Dust lifted at his feet as he walks (as much as he goes fast, either way), and small
+    motes of light rising from his white half."""
+    dust = bind("hero_dust_flies", "hero", "transform2d.Velocity.x", "particles2d.Emitter.rate",
+                20, 240, 0, 16, 1, onto="hero_dust")
+    dust["components"]["bind.Bind"]["absolute"] = True
+    return [
+        entity("hero_dust", 0, 0, {
+            "tag.Tag": {"tag": "hero_dust"},
+            "follow2d.Follow": {"target": "hero", "offset_y": HERO_H / 2 - 2, "stiffness": 1},
+            "particles2d.Emitter": {
+                "rate": 0, "lifetime": 0.9, "lifetime_spread": 0.3, "speed": 22,
+                "speed_spread": 14, "angle": -90, "spread": 120, "gravity_y": -10, "drag": 1.5,
+                "size": 3, "end_size": 9, "red": 150, "green": 150, "blue": 156, "alpha": 70,
+                "fade": True, "additive": False, "layer": LAYERS["hero"] - 1, "area_width": 24,
+                "max": 60}}),
+        dust,
+        entity("hero_motes", 0, 0, {
+            "follow2d.Follow": {"target": "hero", "offset_x": -8, "stiffness": 1},
+            "particles2d.Emitter": {
+                "rate": 5, "lifetime": 1.8, "lifetime_spread": 0.6, "speed": 18,
+                "speed_spread": 8, "angle": -90, "spread": 40, "wander": 12, "size": 4,
+                "end_size": 1, "red": 245, "green": 248, "blue": 255, "alpha": 200,
+                "fade": True, "additive": True, "unlit": True, "layer": LAYERS["hero"] + 1,
+                "area_width": 22, "area_height": 50, "max": 30}}),
+    ]
 
 
 def hero_clips():
@@ -911,7 +1046,18 @@ def jump_hole():
             "follow2d.Follow": {"target": "hero", "offset_y": -78, "stiffness": 1},
             "reserve.Drain": {"kind": "matter", "field": "transform2d.Scale.factor",
                               "per_unit": 0.05},
+            "light2d.Light": {"radius": 0, "red": 190, "green": 210, "blue": 255,
+                              "intensity": 0.7},
+            "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1200, swirl=400, size=3.5, max=120),
         }),
+        bind("jump_hole_lights", "jump_hole", "transform2d.Scale.factor", "light2d.Light.radius",
+             0, 24, 0, 150, 1, onto="jump_hole"),
+        bind("jump_hole_draws", "jump_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.rate", 0, 24, 0, 60, 1, onto="jump_hole"),
+        bind("jump_hole_draws_wide", "jump_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.area_width", 0, 24, 0, 110, 1, onto="jump_hole"),
+        bind("jump_hole_draws_high", "jump_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.area_height", 0, 24, 0, 110, 1, onto="jump_hole"),
         bind("jump_hole_grows", "hero", "jump.Jumper.charge", "transform2d.Scale.factor",
              0, 1, 0, 24, 1, onto="jump_hole"),
         spin("jump_hole_turns", "jump_hole", 150),
@@ -985,6 +1131,9 @@ def powers(harvest_locked=False):
                             "layer": LAYERS["hero"] + 5, "unlit": True},
         "transform2d.Scale": {"factor": 0},
         "transform2d.Rotation": {},
+        # Its ring lights the ground; dust spirals into it.
+        "light2d.Light": {"radius": 0, "red": 190, "green": 210, "blue": 255, "intensity": 0},
+        "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1800, swirl=520),
     })
     # The white (GDD, Blanc): pressed, a bubble grows where the pointer was; dragged further than
     # wall_drag, it becomes a wall to the pointer. Let go, the barrier is raised and paid in carbon
@@ -1019,6 +1168,9 @@ def powers(harvest_locked=False):
         "sprite2d.Sprite": {"atlas": "harvest", "width": 2, "height": 2,
                             "layer": LAYERS["hero"] + 5, "unlit": True},
         "transform2d.Scale": {"factor": 0},
+        "light2d.Light": {"radius": 0, "red": 200, "green": 245, "blue": 240, "intensity": 0},
+        "particles2d.Emitter": dict(VORTEX_EMITTER, pull=700, swirl=260, red=215, green=250,
+                                    blue=245),
     })
     # The carbon of the dug ground: a second gain that follows the harvest's digging.
     carbon_of_ground = entity("ground_carbon", 0, 0, {
@@ -1056,6 +1208,67 @@ def powers(harvest_locked=False):
         bind("black_hole_shows", "black_hole", "attractor2d.Attractor.radius",
              "transform2d.Scale.factor", 0, 1000, 0, 1000, 1, onto="black_hole"),
         spin("black_hole_turns", "black_hole", 180),
+    ] + power_glow("black_hole", "black_hole", "attractor2d.Attractor.radius", 90, 260, 110,
+                   320) + power_glow("harvest", "harvest_bubble", "attractor2d.Attractor.radius",
+                                     80, 220, 70, 220) + digging_dust("black_hole") + digging_dust("harvest_bubble") + [
+        # The white: sparks of glass where a barrier is being raised.
+        entity("white_sparks", 0, 0, {
+            "tag.Tag": {"tag": "white_sparks"},
+            "follow2d.Follow": {"target": "white_caster", "stiffness": 1},
+            "particles2d.Emitter": {
+                "rate": 0, "lifetime": 0.9, "lifetime_spread": 0.3, "speed": 40,
+                "speed_spread": 30, "wander": 30, "size": 4, "end_size": 1, "red": 210,
+                "green": 250, "blue": 245, "alpha": 230, "fade": True, "additive": True,
+                "unlit": True, "light": False, "layer": LAYERS["hero"] + 4, "area_width": 60,
+                "area_height": 60, "max": 120}}),
+        bind("white_sparkles", "white_caster", "barrier2d.Caster.radius",
+             "particles2d.Emitter.rate", 0, 140, 0, 90, 1, onto="white_sparks"),
+        bind("white_sparkles_wide", "white_caster", "barrier2d.Caster.radius",
+             "particles2d.Emitter.area_width", 0, 140, 0, 260, 1, onto="white_sparks"),
+        bind("white_sparkles_high", "white_caster", "barrier2d.Caster.radius",
+             "particles2d.Emitter.area_height", 0, 140, 0, 260, 1, onto="white_sparks"),
+    ]
+
+
+def power_glow(name, holder, size_field, size_high, radius, rate, area):
+    """A power that lights around it and draws dust in, as much as it is big."""
+    return [
+        bind(f"{name}_lights", holder, size_field, "light2d.Light.intensity", 0, size_high,
+             0, 0.8, 1, onto=holder),
+        bind(f"{name}_lights_far", holder, size_field, "light2d.Light.radius", 0, size_high,
+             0, radius, 1, onto=holder),
+        bind(f"{name}_draws", holder, size_field, "particles2d.Emitter.rate", 0, size_high,
+             0, rate, 1, onto=holder),
+        bind(f"{name}_draws_wide", holder, size_field, "particles2d.Emitter.area_width", 0,
+             size_high, 0, area, 1, onto=holder),
+        bind(f"{name}_draws_high", holder, size_field, "particles2d.Emitter.area_height", 0,
+             size_high, 0, area, 1, onto=holder),
+    ]
+
+
+VORTEX_EMITTER = {"rate": 0, "lifetime": 1.6, "lifetime_spread": 0.4, "speed": 0,
+                  "speed_spread": 20, "drag": 1.6, "size": 5, "end_size": 1.5, "red": 205, "green": 220,
+                  "blue": 255, "alpha": 230, "fade": True, "additive": True, "unlit": True,
+                  "layer": LAYERS["hero"] + 4, "max": 260}
+
+
+def digging_dust(holder):
+    """Chips of ground thrown up where a power digs: dark ones and a few bright grains of
+    carbon, as many as the cells dug."""
+    name = f"{holder}_chips"
+    return [
+        entity(name, 0, 0, {
+            "tag.Tag": {"tag": name},
+            "follow2d.Follow": {"target": holder, "stiffness": 1},
+            "particles2d.Emitter": {
+                "rate": 0, "lifetime": 1.1, "lifetime_spread": 0.4, "speed": 160,
+                "speed_spread": 110, "angle": -90, "spread": 150, "gravity_y": 700,
+                "drag": 0.6, "size": 5, "end_size": 2.5, "red": 150, "green": 152,
+                "blue": 160, "alpha": 255, "fade": True, "additive": False, "unlit": False,
+                "layer": LAYERS["hero"] + 3, "area_width": 50, "area_height": 30,
+                "max": 220}}),
+        bind(f"{name}_fly", holder, "terrain2d.Digger.last", "particles2d.Emitter.rate", 0,
+             40, 0, 600, 1, onto=name),
     ]
 
 
@@ -1076,7 +1289,12 @@ def rock_entity(name, x, y, kind="matter", amount=25, atlas="rock"):
 
 
 def fossil_entity(name, x, y, amount=30):
-    return rock_entity(name, x, y, kind="carbon", amount=amount, atlas="fossil")
+    """A fossil (carbon): a pale stone that glows a little in the dark, to be found."""
+    made = rock_entity(name, x, y, kind="carbon", amount=amount, atlas="fossil")
+    made["components"]["light2d.Light"] = {"radius": 70, "red": 220, "green": 232,
+                                           "blue": 236, "intensity": 0.45, "flicker": 0.25,
+                                           "flicker_speed": 1.5}
+    return made
 
 
 def inventory():
@@ -1109,8 +1327,11 @@ def camera(bound_right, bound_bottom):
         # Brought back to life, the picture comes back from black.
         "spawner2d.Shooter": {"prefab": "fade_back", "action": "revive"},
         "postfx.Effects": {"vignette": BASE_VIGNETTE, "vignette_size": BASE_VIGNETTE_SIZE,
-                           "edge_glow": 0, "edge_glow_size": 0.5, "bloom": 0.4,
-                           "grain": 0.05},
+                           "edge_glow": 0, "edge_glow_size": 0.5, "bloom": 0.45,
+                           "grain": 0.05, "rays": 0.22, "rays_x": 0.5, "rays_y": 0.08,
+                           "rays_length": 0.22},
+        # The dark between the lights: what the hero's glow does not reach stays dim.
+        "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
         # Ori's camera: soft, a little ahead, the hero a little below the middle.
         "camera2d.CameraFollow": {"stiffness": 0.06, "dead_x": 30, "dead_y": 60,
                                   "offset_y": -40, "look_ahead": 0.25,
@@ -1133,20 +1354,40 @@ def sky_entity(coloured=False):
     ]
 
 
+def layer_entity(name, atlas, size, foot_y, parallax, layer, camera_y, alpha=255, lit=False):
+    """A band of scenery repeated along x, its bottom at foot_y as seen from a camera at
+    camera_y: farther planes (parallax below 1) move less, nearer ones (above 1) more."""
+    width, height = size
+    y = foot_y - height / 2 - camera_y * (1 - parallax)
+    sprite = {"atlas": atlas, "width": width, "height": height, "layer": layer, "alpha": alpha}
+    if not lit:
+        sprite["unlit"] = True
+    return entity(name, 0, y, {"sprite2d.Sprite": sprite,
+                               "sprite2d.Parallax": {"x": parallax, "y": parallax,
+                                                     "repeat_x": True}})
+
+
 def scenery(ground_y):
-    """Two bands of hills in silhouette behind the ground, and dust floating in the light."""
-    made = []
-    camera_y = ground_y - 100  # where the camera usually is: the hills' feet at the ground there
+    """Planes of depth, from the far mountains to black grass in front of the camera, with mist
+    between them; dust and ash floating in the light."""
+    camera_y = ground_y - 100  # where the camera usually is: the planes' feet at the ground there
+    made = [
+        layer_entity("mountains", "mountains", (MOUNTAINS_W, MOUNTAINS_H), ground_y + 30, 0.12,
+                     LAYERS["far"] - 20, camera_y),
+        layer_entity("mist_far", "mist", (MIST_W, MIST_H), ground_y + 110, 0.18,
+                     LAYERS["far"] - 10, camera_y, alpha=70),
+        layer_entity("mist_near", "mist", (MIST_W, MIST_H), ground_y + 120, 0.45,
+                     LAYERS["near"] - 5, camera_y, alpha=60),
+        layer_entity("ground_far", "ground_far", (GROUND_FAR_W, GROUND_FAR_H), ground_y + 110,
+                     0.88, LAYERS["ground"] - 8, camera_y),
+        layer_entity("front", "front", (FRONT_W, FRONT_H), ground_y + 230, 1.35, 60, camera_y),
+    ]
     for name, atlas, parallax, layer, alpha in (("hills_far", "hills_far", 0.25, LAYERS["far"],
                                                  255),
                                                 ("hills_near", "hills_near", 0.55,
                                                  LAYERS["near"], 255)):
-        foot = ground_y + 40
-        y = foot - HILLS_H / 2 - camera_y * (1 - parallax)
-        made.append(entity(name, 0, y, {
-            "sprite2d.Sprite": {"atlas": atlas, "width": HILLS_W, "height": HILLS_H,
-                                "layer": layer, "unlit": True, "alpha": alpha},
-            "sprite2d.Parallax": {"x": parallax, "y": parallax, "repeat_x": True}}))
+        made.append(layer_entity(name, atlas, (HILLS_W, HILLS_H), ground_y + 40, parallax,
+                                 layer, camera_y, alpha=alpha))
     # The inside of the planet, behind the ground: what is seen in what is dug.
     made.append(entity("inside", 0, ground_y + 24 + CAVE_H / 2, {
         "sprite2d.Sprite": {"atlas": "cave", "width": CAVE_W, "height": CAVE_H,
@@ -1156,10 +1397,19 @@ def scenery(ground_y):
         "follow2d.Follow": {"target": "camera", "stiffness": 1},
         "particles2d.Emitter": {
             "rate": 7, "lifetime": 9, "lifetime_spread": 3, "speed": 8, "speed_spread": 6,
-            "spread": 360, "wander": 10, "size": 2.4, "end_size": 1.2, "red": 220,
-            "green": 225, "blue": 235, "alpha": 150, "fade": True, "additive": True,
+            "spread": 360, "wander": 10, "size": 4, "end_size": 2, "red": 220,
+            "green": 225, "blue": 235, "alpha": 170, "fade": True, "additive": True,
             "unlit": True, "layer": LAYERS["dust"], "area_width": 1500, "area_height": 900,
             "max": 90}}))
+    # Ash falling slowly through the light, some near the camera (big and soft).
+    made.append(entity("ash", 0, -500, {
+        "follow2d.Follow": {"target": "camera", "offset_y": -500, "stiffness": 1},
+        "particles2d.Emitter": {
+            "rate": 16, "lifetime": 14, "lifetime_spread": 4, "speed": 10, "speed_spread": 8,
+            "angle": 100, "spread": 40, "gravity_y": 6, "wander": 14, "size": 3,
+            "end_size": 5, "red": 200, "green": 200, "blue": 208, "alpha": 110,
+            "fade": True, "unlit": True, "layer": 55, "area_width": 1700, "area_height": 200,
+            "max": 260}}))
     return made
 
 
@@ -1277,7 +1527,8 @@ def sandbox():
              rock_entity("falling_rock", 480, 200, amount=12),
              fossil_entity("fossil_1", 330, GROUND_Y - 11, amount=15),
              hero_entity(400, GROUND_Y - HERO_H / 2),
-             camera(SANDBOX_W, GROUND_Y + 120)] + hero_clips() + hands(fixed=False) + powers()
+             camera(SANDBOX_W, GROUND_Y + 120)] + hero_clips() + hero_trail() +
+            hands(fixed=False) + powers()
             + inventory() + jump_hole() + death())
 
 
@@ -1499,7 +1750,8 @@ def tutorial():
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
     return (sky_entity() + scenery(GROUND_Y) + [ground] + shapes + things +
             [hero_entity(LANDING_X, 220, locked=True), camera(TUTORIAL_W, bottom)] +
-            hero_clips() + hands() + powers(harvest_locked=True) + inventory() + jump_hole() +
+            hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
+            inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
             landing() + departure())
 
@@ -1687,12 +1939,12 @@ for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
         if _action not in ACTIONS and not _step.endswith("_practice"):
             ACTIONS.append(_action)
-TAGS = ["hero", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
+TAGS = ["hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
         "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow"]
-ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "hero",
+ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet"]
 SCENE_NAMES = ["opening", "tutorial", "drift", "sandbox", "sandbox_low"]
@@ -1712,7 +1964,8 @@ def write_manifest():
                        "of power: a black hole and a barrier. Harvest, survive, and give the "
                        "universe its colours back.",
         "modules": [
-            "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control",
+            "transform2d", "sprite2d", "light2d", "camera2d", "collision2d", "gravity2d",
+            "action_control",
             "jump", "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout",
             "follow2d", "attractor2d", "barrier2d", "toggle", "rules", "checkpoint",
             "spawner2d", "bounds2d", "tween2d", "phase", "text2d", "particles2d",
@@ -1797,6 +2050,10 @@ def write_pictures():
     save(hills(13, 120, 13, 14, 8), "hills_near")
     save(orbs(), "orb", cell=(ORB, ORB))
     save(cave(), "cave")
+    save(mountains(), "mountains")
+    save(mist(51), "mist")
+    save(ground_far(), "ground_far")
+    save(foreground(), "front")
     save(black_hole(), "black_hole")
     save(rock(5), "rock")
     save(rock(9, colour=(120, 118, 110), light=(226, 224, 214), spiral=True), "fossil")
