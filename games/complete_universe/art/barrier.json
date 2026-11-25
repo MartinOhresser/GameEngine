@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "barrier",
+  "image": "barrier.png",
+  "cell_width": 256,
+  "cell_height": 256,
+  "filter": "linear"
+}

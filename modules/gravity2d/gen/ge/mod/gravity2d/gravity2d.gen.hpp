@@ -26,7 +26,7 @@ struct Gravity {
     [[nodiscard]] friend bool operator==(const Gravity&, const Gravity&) = default;
 };
 
-/// Speeds up the Velocity of every Gravity entity by its gravity times the tick duration (and the transform2d speed_scale), then applies the terminal speed. Runs before transform2d.integrate, so a body that was thrown moves the very tick it is thrown.
+/// Speeds up the Velocity of every Gravity entity by its gravity times the tick duration (and the transform2d speed_scale, and the entity's own transform2d.SpeedScale), then applies the terminal speed. Runs before transform2d.integrate, so a body that was thrown moves the very tick it is thrown.
 /// Runs in FixedUpdate.
 void pull(::ge::ecs::World& world);
 

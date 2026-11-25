@@ -77,6 +77,12 @@
             "y": {
               "type": "number"
             },
+            "reach_x": {
+              "type": "number"
+            },
+            "reach_y": {
+              "type": "number"
+            },
             "distance": {
               "type": "number"
             },
@@ -184,6 +190,141 @@
               "maximum": 4294967295
             },
             "action": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "barrier2d.Caster": {
+          "type": "object",
+          "properties": {
+            "pool": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "start_radius": {
+              "type": "number"
+            },
+            "grow": {
+              "type": "number"
+            },
+            "max_radius": {
+              "type": "number"
+            },
+            "wall_drag": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            },
+            "kind": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "per_unit": {
+              "type": "number"
+            },
+            "end_x": {
+              "type": "number"
+            },
+            "end_y": {
+              "type": "number"
+            },
+            "atlas": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "preview": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "layer": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "radius": {
+              "type": "number"
+            },
+            "working": {
+              "type": "boolean"
+            },
+            "raised": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "refused": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          },
+          "additionalProperties": false
+        },
+        "barrier2d.Barrier": {
+          "type": "object",
+          "properties": {
+            "pool": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "up": {
+              "type": "boolean"
+            },
+            "round": {
+              "type": "boolean"
+            },
+            "radius": {
+              "type": "number"
+            },
+            "end_x": {
+              "type": "number"
+            },
+            "end_y": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            },
+            "layer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "freezes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "atlas": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "bubble": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "wall": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "draw_layer": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "order": {
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295

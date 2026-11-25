@@ -1,0 +1,78 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "barrier2d",
+  "version": "0.1.0",
+  "description": "Barriers raised while the game runs: a bubble that grows while a button is held, or a wall drawn from one point to another, a few at a time (the oldest gives way to a new one). From outside they are solid: bodies stand on them and are stopped by them. What is inside a bubble is frozen in time. Force fields, ice walls, magic shields, a bridge of light.",
+  "depends": ["transform2d", "collision2d", "reserve", "sprite2d"],
+  "components": [
+    {
+      "name": "Caster",
+      "description": "Raises the barriers of pool (an entity is a Barrier of the pool when its pool is the same number; give the pool count of them). While the entity is not transform2d.Disabled, it shows what it would raise at its Position: a bubble that grows from start_radius by grow units a second up to max_radius, or, once (end_x, end_y) is more than wall_drag units away, a wall from its Position to that point. When it becomes Disabled, it raises it: the Barrier of its pool that is down, or else the one raised longest ago, takes that shape, thickness units thick. It costs per_unit of the reserve kind for each unit of the bubble's radius or of the wall's length: a barrier that cannot be paid is not raised (refused counts them). end_x and end_y are written by the game (a bind.Bind from where the pointer is). Shown with cell preview of atlas, on layer. The module keeps radius, working and raised (the barriers raised).",
+      "replicable": true,
+      "fields": [
+        { "name": "pool", "type": "u32", "default": 0 },
+        { "name": "start_radius", "type": "f32", "default": 16 },
+        { "name": "grow", "type": "f32", "default": 60 },
+        { "name": "max_radius", "type": "f32", "default": 160 },
+        { "name": "wall_drag", "type": "f32", "default": 40 },
+        { "name": "thickness", "type": "f32", "default": 12 },
+        { "name": "kind", "type": "u32", "default": 4294967295, "ref": "resource" },
+        { "name": "per_unit", "type": "f32", "default": 0 },
+        { "name": "end_x", "type": "f32", "default": 0 },
+        { "name": "end_y", "type": "f32", "default": 0 },
+        { "name": "atlas", "type": "u32", "default": 4294967295, "ref": "atlas" },
+        { "name": "preview", "type": "u32", "default": 0 },
+        { "name": "layer", "type": "i32", "default": 0 },
+        { "name": "radius", "type": "f32", "default": 0 },
+        { "name": "working", "type": "bool", "default": false },
+        { "name": "raised", "type": "u32", "default": 0 },
+        { "name": "refused", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Barrier",
+      "description": "A barrier of pool, raised by a Caster (or by the game: put up, round, radius...). While up, it is a bubble of radius around its Position, or with round off a wall from its Position to (end_x, end_y), thickness units thick. It stops, from outside, every collision2d.Body whose Collider mask meets layer: pushed out, it loses the speed that went into it, and its collision2d.Blocked notes the side (a body stands on top of it). Every entity with a Velocity and a Collider whose layer meets freezes, and whose middle is inside a bubble, is frozen in time (a transform2d.SpeedScale of 0, renewed each tick). Drawn with cell bubble (a bubble) or cell wall (a wall, stretched) of atlas, on layer. order says which was raised last.",
+      "replicable": true,
+      "fields": [
+        { "name": "pool", "type": "u32", "default": 0 },
+        { "name": "up", "type": "bool", "default": false },
+        { "name": "round", "type": "bool", "default": true },
+        { "name": "radius", "type": "f32", "default": 32 },
+        { "name": "end_x", "type": "f32", "default": 0 },
+        { "name": "end_y", "type": "f32", "default": 0 },
+        { "name": "thickness", "type": "f32", "default": 12 },
+        { "name": "layer", "type": "u32", "default": 1, "ref_set": "layer" },
+        { "name": "freezes", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "atlas", "type": "u32", "default": 4294967295, "ref": "atlas" },
+        { "name": "bubble", "type": "u32", "default": 0 },
+        { "name": "wall", "type": "u32", "default": 1 },
+        { "name": "draw_layer", "type": "i32", "default": 0 },
+        { "name": "order", "type": "u32", "default": 0 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "cast",
+      "description": "Grows what every working Caster would raise, and raises it when the Caster stops.",
+      "stage": "FixedUpdate",
+      "reads": ["transform2d.Disabled", "reserve.Reserve"],
+      "writes": ["Caster", "Barrier", "transform2d.Position", "reserve.Reserve"]
+    },
+    {
+      "name": "block",
+      "description": "Pushes the bodies out of the barriers that stop them and freezes what is inside the bubbles.",
+      "stage": "FixedUpdate",
+      "reads": ["Barrier", "collision2d.Collider", "collision2d.Body"],
+      "writes": ["transform2d.Position", "transform2d.Velocity", "collision2d.Blocked", "transform2d.SpeedScale"],
+      "after": ["cast", "collision2d.block"]
+    },
+    {
+      "name": "draw",
+      "description": "Puts the barriers that are up, and what the working Casters would raise, among the sprites. Presentation only.",
+      "stage": "Update",
+      "reads": ["Caster", "Barrier", "transform2d.Hidden"]
+    }
+  ]
+}

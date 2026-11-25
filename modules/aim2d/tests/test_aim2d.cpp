@@ -76,6 +76,7 @@ TEST_CASE("aim2d: within reach of who aims, and locked once it works") {
     CHECK(near(aimed.dir_x, 1.0F));
     CHECK(near(aimed.x, 400.0F));
     CHECK(near(app.world().get<transform2d::Position>(mark)->x, 150.0F)); // 50 units of reach
+    CHECK(near(aimed.reach_x, 150.0F));
     CHECK(app.world().remove<transform2d::Disabled>(mark));
     point(app, 100.0F, 300.0F);
     app.run_frames(1);

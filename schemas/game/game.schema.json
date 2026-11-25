@@ -35,6 +35,7 @@
           "aim2d",
           "attractor2d",
           "autofire",
+          "barrier2d",
           "bind",
           "bounce2d",
           "bounds2d",
@@ -153,6 +154,11 @@
           "additionalProperties": false
         },
         "autofire": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "barrier2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
