@@ -1,19 +1,28 @@
-// A press jumps, the hero leaves the ground and lands back on it.
+// A tap of Space jumps a little (a small black hole); held half of the 1.2 seconds of a full
+// charge, the jump goes much higher. Either way the hero lands back on the ground.
 {
   "schema_version": 1,
   "name": "jumps",
   "scene": "sandbox",
-  "ticks": 150,
+  "ticks": 220,
   "inputs": [
     { "tick": 10, "action": "jump", "value": 1 },
-    { "tick": 40, "action": "jump", "value": 0 },
+    { "tick": 11, "action": "jump", "value": 0 },
+    { "tick": 80, "action": "jump", "value": 1 },
+    { "tick": 116, "action": "jump", "value": 0 },
   ],
   "expect": [
-    { "at": 11, "check": "hero.jump.Jumper.jumps == 1" },
-    { "at": 30, "check": "hero.collision2d.Blocked.below == false" },
-    // 680² / (2 × 1800) is about 128 units above the resting 558.
-    { "at": 30, "check": "hero.transform2d.Position.y < 450" },
+    { "at": 12, "check": "hero.jump.Jumper.jumps == 1" },
+    // A tap: 560 × 0.57 up, about 28 units high (v² / 2g): it stays above 520.
+    { "at": 20, "check": "hero.transform2d.Position.y < 545" },
+    { "at": 20, "check": "hero.transform2d.Position.y > 520" },
+    { "at": 70, "check": "hero.transform2d.Position.y == 558" },
+    // Held: the charge grows, he has not left the ground yet.
+    { "at": 110, "check": "hero.jump.Jumper.charge > 0.4" },
+    { "at": 110, "check": "hero.transform2d.Position.y == 558" },
+    // Let go at half the charge: 560 × 1.17 up, about 120 units high.
+    { "at": 135, "check": "hero.transform2d.Position.y < 460" },
+    "hero.jump.Jumper.jumps == 2",
     "hero.collision2d.Blocked.below == true",
-    "hero.transform2d.Position.y == 558",
   ],
 }

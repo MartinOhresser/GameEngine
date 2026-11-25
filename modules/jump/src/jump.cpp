@@ -1,6 +1,7 @@
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
 #include "ge/app/time.hpp"
+#include "ge/core/random.hpp"
 #include "ge/mod/collision2d/collision2d.gen.hpp"
 #include "ge/mod/jump/jump.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -49,6 +50,36 @@ void launch_one(Jumper& jumper, transform2d::Velocity& velocity, bool held) {
     }
 }
 
+/// A charged jump (charge_time more than 0): the action held on the ground fills the charge, and
+/// letting it go jumps, higher and less straight the fuller the charge.
+void charged(ecs::World& world, Jumper& jumper, transform2d::Velocity& velocity, bool on_ground,
+             bool held, float step, const app::ActionNames* names) {
+    if (held && on_ground) {
+        jumper.charge = std::min(jumper.charge + step / jumper.charge_time, 1.0F);
+        return;
+    }
+    if (held || jumper.charge <= 0.0F) {
+        jumper.charge = held ? jumper.charge : 0.0F;
+        return;
+    }
+    // Let go: the leap.
+    const float charge = jumper.charge;
+    jumper.charge = 0.0F;
+    velocity.y = -jumper.speed * (jumper.charge_low + (jumper.charge_high - jumper.charge_low) * charge);
+    jumper.jumps += 1U;
+    jumper.since_ground = long_ago;
+    if (auto* random = world.resource<Random>(); random != nullptr && jumper.wobble > 0.0F) {
+        velocity.x += (random->unit_float() * 2.0F - 1.0F) * jumper.wobble * charge * charge;
+    }
+    if (charge >= 1.0F) {
+        jumper.full_jumps += 1U;
+        auto* actions = world.resource<app::Actions>();
+        if (names != nullptr && actions != nullptr && jumper.full_action < names->names.size()) {
+            actions->raise(names->names[jumper.full_action]);
+        }
+    }
+}
+
 } // namespace
 
 void launch(ecs::World& world) {
@@ -71,6 +102,11 @@ void launch(ecs::World& world) {
         }
         // A Disabled jumper does not hear its action: it neither jumps nor holds a jump.
         const bool on = !world.has<transform2d::Disabled>(entity);
+        if (jumper.charge_time > 0.0F) {
+            charged(world, jumper, velocity, blocked != nullptr && blocked->below,
+                    on && actions->down(action), step, names);
+            return;
+        }
         jumper.since_press =
             on && actions->pressed(action) ? 0.0F : std::min(jumper.since_press + step, long_ago);
 
