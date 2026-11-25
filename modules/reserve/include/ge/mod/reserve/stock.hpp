@@ -62,6 +62,7 @@ inline float give(ecs::World& world, std::uint32_t kind, float amount) {
     }
     const float taken = std::clamp(stock->max - stock->amount, 0.0F, amount);
     stock->amount += taken;
+    stock->gained += amount; // all it was given, even what did not fit
     return taken;
 }
 

@@ -48,6 +48,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.change_time = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "restore") {
             component.restore = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "held") {
+            component.held = ::ge::app::scalar_as<std::uint32_t>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -103,6 +105,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "restore") {
         return ::ge::app::Scalar{static_cast<double>(component->restore)};
+    }
+    if (field == "held") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->held)};
     }
     return std::nullopt;
 }
@@ -174,10 +179,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->restore = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "held") {
+        component->held = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 15> component_0_fields{{{"unlocked", "u32", "power", true}, {"offered", "u32", "power", true}, {"change", "u32", "action", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"wheel_delay", "f32", "", false}, {"wheel_slow", "f32", "", false}, {"wheel_dead", "f32", "", false}, {"together", "f32", "", false}, {"wheel_open", "bool", "", false}, {"wheel_choice", "u32", "power", false}, {"wheel_x", "f32", "", false}, {"wheel_y", "f32", "", false}, {"change_time", "f32", "", false}, {"restore", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 16> component_0_fields{{{"unlocked", "u32", "power", true}, {"offered", "u32", "power", true}, {"change", "u32", "action", false}, {"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"wheel_delay", "f32", "", false}, {"wheel_slow", "f32", "", false}, {"wheel_dead", "f32", "", false}, {"together", "f32", "", false}, {"wheel_open", "bool", "", false}, {"wheel_choice", "u32", "power", false}, {"wheel_x", "f32", "", false}, {"wheel_y", "f32", "", false}, {"change_time", "f32", "", false}, {"restore", "f32", "", false}, {"held", "u32", "power", true}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

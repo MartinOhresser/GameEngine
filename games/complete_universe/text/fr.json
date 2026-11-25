@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "locale": "fr",
+  "entries": {
+    "tutorial.hands": "Maj + clic gauche ou droit : mettre une couleur dans une main",
+    "tutorial.black": "Main noire, clic maintenu : un trou noir là où tu vises",
+    "tutorial.white": "Main blanche : clic, une bulle. Clic glissé, une barrière",
+    "tutorial.together": "Les deux clics ensemble : récolter",
+    "tutorial.inventory": "Tab : l'inventaire",
+    "tutorial.harvest": "F maintenu : récolter là où tu vises",
+    "tutorial.walk": "Q / D ou flèches : marcher",
+    "tutorial.jump": "Espace maintenu, puis relâché : sauter",
+    "tutorial.lack_white": "F : récolter du carbone",
+    "tutorial.lack_black": "F : récolter de la matière",
+    "tutorial.departure": "Main noire vers le ciel, clic maintenu"
+  }
+}

@@ -32,6 +32,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.empty_action = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "fill") {
             component.fill = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "gained") {
+            component.gained = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -63,6 +65,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "fill") {
         return ::ge::app::Scalar{static_cast<double>(component->fill)};
+    }
+    if (field == "gained") {
+        return ::ge::app::Scalar{static_cast<double>(component->gained)};
     }
     return std::nullopt;
 }
@@ -102,10 +107,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->fill = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "gained") {
+        component->gained = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 7> component_0_fields{{{"kind", "u32", "resource", false}, {"amount", "f32", "", false}, {"max", "f32", "", false}, {"drain", "f32", "", false}, {"floor", "f32", "", false}, {"empty_action", "u32", "action", false}, {"fill", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 8> component_0_fields{{{"kind", "u32", "resource", false}, {"amount", "f32", "", false}, {"max", "f32", "", false}, {"drain", "f32", "", false}, {"floor", "f32", "", false}, {"empty_action", "u32", "action", false}, {"fill", "f32", "", false}, {"gained", "f32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

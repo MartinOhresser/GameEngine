@@ -10,20 +10,29 @@
     "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control", "jump",
     "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout", "follow2d", "attractor2d",
     "barrier2d", "toggle", "rules", "checkpoint", "spawner2d", "bounds2d", "tween2d",
+    "phase", "text2d",
   ],
   "lists": {
     "action": [
       "move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right", "change",
       "pointer_x", "pointer_y", "harvest", "inventory", "take_off",
-      "revive",
+      "revive", "locked", "landed", "hands_ready", "black_done", "white_done", "together_done",
+      "inventory_done", "harvest_done", "walk_done", "jump_done", "white_ok", "black_ok",
+      "departed",
     ],
     "layer": ["hero", "ground", "rock", "barrier"],
     "tag": [
       "hero", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
       "inventory", "matter_bubble", "carbon_bubble", "jump_hole", "dead",
+      "kit", "story",
     ],
     // One kind of resource for each power (GDD §7): matter feeds the black, carbon the white.
     "resource": ["matter", "carbon"],
+    // The steps of the tutorial (docs/complete_universe/TUTORIEL.md).
+    "phase": [
+      "landing", "hands", "black", "white", "together", "inventory", "harvest", "walk", "jump",
+      "lack_white", "lack_black", "departure", "end",
+    ],
     // The powers a hand can hold (GDD §6), then what two hands make together.
     "power": [
       "black", "white", "blue", "green", "red", "yellow", "orange", "violet", "pink", "harvest",
@@ -32,13 +41,15 @@
   "simulation": { "tick_rate": 60, "seed": 11 },
   "window": { "width": 1280, "height": 720 },
   "input": "input.json",
+  "strings": ["text/fr.json"],
+  "locale": "fr",
   "atlases": [
     "art/sky.json", "art/hero.json", "art/arm.json", "art/black_hole.json", "art/rock.json",
     "art/barrier.json", "art/harvest.json", "art/fossil.json", "art/inventory.json",
-    "art/plain.json",
+    "art/plain.json", "art/font.json",
   ],
   "prefabs": ["prefabs/fade_white.json", "prefabs/fade_black.json", "prefabs/fade_back.json"],
-  "scenes": ["scenes/sandbox.json", "scenes/sandbox_low.json"],
+  "scenes": ["scenes/tutorial.json", "scenes/sandbox.json", "scenes/sandbox_low.json"],
   "scenarios": [
     "scenarios/walks.json", "scenarios/jumps.json", "scenarios/terrain.json",
     "scenarios/life_drains.json", "scenarios/edges_turn.json", "scenarios/assigns_hands.json",
@@ -46,6 +57,7 @@
     "scenarios/barrier_catches_rock.json", "scenarios/harvest_sorts.json",
     "scenarios/inventory_opens.json", "scenarios/walking_costs.json",
     "scenarios/charged_jump.json", "scenarios/dies_and_restarts.json",
+    "scenarios/tutorial_through.json", "scenarios/cannot_walk_early.json",
   ],
-  "start_scene": "sandbox",
+  "start_scene": "tutorial",
 }

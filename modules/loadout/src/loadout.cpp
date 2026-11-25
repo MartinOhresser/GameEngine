@@ -322,6 +322,12 @@ void select(ecs::World& world) {
     }
     const float tick = real_tick * world.resource<transform2d::Params>()->speed_scale;
     run_abilities(world, *kit, hands, joined, tick);
+    kit->held = 0U;
+    for (const auto& [entity, hand] : hands) {
+        if (hand->item < 32U) {
+            kit->held |= 1U << hand->item;
+        }
+    }
 }
 
 } // namespace ge::mod::loadout
