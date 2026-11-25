@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "plain",
+  "image": "plain.png",
+  "cell_width": 4,
+  "cell_height": 4,
+  "filter": "linear"
+}

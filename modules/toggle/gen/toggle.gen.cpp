@@ -128,10 +128,58 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 2> component_1_fields{{{"toggle", "u32", "tag", false}, {"inverse", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Toggle", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"ShownBy", true, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    ActiveBy component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "toggle") {
+            component.toggle = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "inverse") {
+            component.inverse = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
 
-constexpr std::array<std::string_view, 3> system_0_reads{"toggle.ShownBy", "tag.Tag", "transform2d.Hidden"};
-constexpr std::array<std::string_view, 2> system_0_writes{"toggle.Toggle", "transform2d.Hidden"};
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const ActiveBy* component = world.get<ActiveBy>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "toggle") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->toggle)};
+    }
+    if (field == "inverse") {
+        return ::ge::app::Scalar{static_cast<bool>(component->inverse)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    ActiveBy* component = world.get<ActiveBy>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "toggle") {
+        component->toggle = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "inverse") {
+        component->inverse = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 2> component_2_fields{{{"toggle", "u32", "tag", false}, {"inverse", "bool", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Toggle", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"ShownBy", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"ActiveBy", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
+
+constexpr std::array<std::string_view, 4> system_0_reads{"toggle.ShownBy", "tag.Tag", "transform2d.Hidden", "toggle.ActiveBy"};
+constexpr std::array<std::string_view, 3> system_0_writes{"toggle.Toggle", "transform2d.Hidden", "transform2d.Disabled"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"toggle.flip", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
 constexpr std::array<std::string_view, 2> depends{"transform2d", "tag"};

@@ -41,7 +41,20 @@ struct ShownBy {
     [[nodiscard]] friend bool operator==(const ShownBy&, const ShownBy&) = default;
 };
 
-/// Flips every Toggle whose action is pressed, then shows and hides what follows them.
+/// The entity works (it has no transform2d.Disabled) only while the Toggle of the entity that answers to toggle is on, or with inverse only while it is off: a character frozen while a menu is open, or while it lies dead.
+struct ActiveBy {
+    std::uint32_t toggle = 0U;
+    bool inverse = false;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(toggle);
+        hasher.add(inverse);
+    }
+
+    [[nodiscard]] friend bool operator==(const ActiveBy&, const ActiveBy&) = default;
+};
+
+/// Flips every Toggle whose action is pressed, then shows and hides, switches on and off, what follows them.
 /// Runs in FixedUpdate.
 void flip(::ge::ecs::World& world);
 

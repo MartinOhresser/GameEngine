@@ -3,7 +3,7 @@
   "schema_version": 1,
   "name": "toggle",
   "version": "0.1.0",
-  "description": "Things switched on and off by a button: a map, an inventory, a torch, a list of quests, a second view. A Toggle is flipped by its action; the entities that follow it are shown only while it is on (or only while it is off).",
+  "description": "Things switched on and off by a button: a map, an inventory, a torch, a list of quests, a second view. A Toggle is flipped by its action; the entities that follow it are shown only while it is on (or only while it is off), or work only then.",
   "depends": ["transform2d", "tag"],
   "components": [
     {
@@ -25,15 +25,24 @@
         { "name": "toggle", "type": "u32", "default": 0, "ref": "tag" },
         { "name": "inverse", "type": "bool", "default": false }
       ]
+    },
+    {
+      "name": "ActiveBy",
+      "description": "The entity works (it has no transform2d.Disabled) only while the Toggle of the entity that answers to toggle is on, or with inverse only while it is off: a character frozen while a menu is open, or while it lies dead.",
+      "replicable": true,
+      "fields": [
+        { "name": "toggle", "type": "u32", "default": 0, "ref": "tag" },
+        { "name": "inverse", "type": "bool", "default": false }
+      ]
     }
   ],
   "systems": [
     {
       "name": "flip",
-      "description": "Flips every Toggle whose action is pressed, then shows and hides what follows them.",
+      "description": "Flips every Toggle whose action is pressed, then shows and hides, switches on and off, what follows them.",
       "stage": "FixedUpdate",
-      "reads": ["ShownBy", "tag.Tag", "transform2d.Hidden"],
-      "writes": ["Toggle", "transform2d.Hidden"]
+      "reads": ["ShownBy", "tag.Tag", "transform2d.Hidden", "ActiveBy"],
+      "writes": ["Toggle", "transform2d.Hidden", "transform2d.Disabled"]
     }
   ]
 }

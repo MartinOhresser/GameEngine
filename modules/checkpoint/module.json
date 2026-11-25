@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "checkpoint",
+  "version": "0.1.0",
+  "description": "Points to start again from: the numbers of chosen entities (where they are, what they hold, how they are set) are kept at a moment of the game and put back later. The start of a level or of a step of a tutorial, a flag passed, a save point before a fight; what was destroyed or made in between is not undone.",
+  "depends": ["tag"],
+  "components": [
+    {
+      "name": "Checkpoint",
+      "description": "Keeps every number of every component of the Saved entities when the action save is pressed, on its first tick with at_start, and each time the number watch (\"phase.Phase.current\": a new step) of the entity that answers to source (a tag.Tag) changes; puts them all back when the action load is pressed. Only the oldest Checkpoint works. The module keeps saves and loads (how many times), and seen (the watched number at the last save).",
+      "replicable": true,
+      "fields": [
+        { "name": "save", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "load", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "at_start", "type": "bool", "default": true },
+        { "name": "watch", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "source", "type": "u32", "default": 4294967295, "ref": "tag" },
+        { "name": "saves", "type": "u32", "default": 0 },
+        { "name": "loads", "type": "u32", "default": 0 },
+        { "name": "seen", "type": "f64", "default": 0 }
+      ]
+    },
+    {
+      "name": "Saved",
+      "description": "The numbers of this entity are kept and put back by the Checkpoint.",
+      "replicable": true,
+      "fields": []
+    }
+  ],
+  "systems": [
+    {
+      "name": "keep",
+      "description": "Keeps or puts back the numbers of the Saved entities, as the Checkpoint asks.",
+      "stage": "FixedUpdate",
+      "reads": ["Saved", "tag.Tag"],
+      "writes": ["Checkpoint"]
+    }
+  ]
+}

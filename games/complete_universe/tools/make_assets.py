@@ -19,6 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GAME = os.path.normpath(os.path.join(HERE, ".."))
 ART = os.path.join(GAME, "art")
 SCENES = os.path.join(GAME, "scenes")
+PREFABS = os.path.join(GAME, "prefabs")
 
 VIEW_W, VIEW_H = 1280, 720  # the window, in world units at zoom 1
 SUPER = 3  # shapes are drawn this many times bigger, then reduced: smooth edges
@@ -300,6 +301,9 @@ def hero_entity(x, y):
         # let go, he leaps, higher and less straight the bigger it was. Full, he takes off.
         "jump.Jumper": {"speed": 560, "charge_time": 1.2, "charge_low": 0.55,
                         "charge_high": 1.8, "wobble": 160, "full_action": "take_off"},
+        # Dead, he does nothing until the checkpoint puts him back (D7).
+        "toggle.ActiveBy": {"toggle": "dead", "inverse": True},
+        "checkpoint.Saved": {},
         # Walking (GDD §5): he pulls his legs by gravity where his steps fall, at a small cost.
         "reserve.Drain": {"kind": "matter", "field": "transform2d.Velocity.x",
                           "per_unit": 0.002},
@@ -476,6 +480,8 @@ def camera(bound_right):
     return entity("camera", VIEW_W / 2, VIEW_H / 2, {
         "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": 1},
+        # Brought back to life, the picture comes back from black.
+        "spawner2d.Shooter": {"prefab": "fade_back", "action": "revive"},
         "postfx.Effects": {"vignette": BASE_VIGNETTE, "vignette_size": BASE_VIGNETTE_SIZE,
                            "edge_glow": 0, "edge_glow_size": 0.5, "bloom": 0.25,
                            "grain": 0.08},
@@ -532,7 +538,7 @@ def sandbox():
             rock_entity("fossil_1", 330, GROUND_Y - 11, kind="carbon", amount=15,
                         atlas="fossil"),
             hero_entity(400, GROUND_Y - HERO_H / 2), camera(SANDBOX_W)] + hands() + powers() \
-        + inventory() + jump_hole() + reserves()
+        + inventory() + jump_hole() + death() + reserves()
 
 
 def sandbox_low():
@@ -548,12 +554,18 @@ LIFE_DRAIN = 100 / 300
 
 def reserves(matter=100, carbon=100):
     return [
-        entity("matter", 0, 0, {"tag.Tag": {"tag": "matter"}, "reserve.Reserve": {
+        # Out of matter, the screen goes white (GDD §8: he can no longer move); out of carbon,
+        # black (his own black hole takes him). Either way the step starts again (D7).
+        entity("matter", 0, 0, {"tag.Tag": {"tag": "matter"}, "checkpoint.Saved": {},
+                                "reserve.Reserve": {
             "kind": "matter", "amount": matter, "max": 100, "drain": LIFE_DRAIN,
-            "empty_action": "out_of_matter"}}),
-        entity("carbon", 0, 0, {"tag.Tag": {"tag": "carbon"}, "reserve.Reserve": {
+            "empty_action": "out_of_matter"},
+            "spawner2d.Shooter": {"prefab": "fade_white", "action": "out_of_matter"}}),
+        entity("carbon", 0, 0, {"tag.Tag": {"tag": "carbon"}, "checkpoint.Saved": {},
+                                "reserve.Reserve": {
             "kind": "carbon", "amount": carbon, "max": 100, "drain": LIFE_DRAIN,
-            "empty_action": "out_of_carbon"}}),
+            "empty_action": "out_of_carbon"},
+            "spawner2d.Shooter": {"prefab": "fade_black", "action": "out_of_carbon"}}),
         bind("carbon_darkens", "carbon", "reserve.Reserve.fill", "postfx.Effects.vignette",
              0.5, 0, BASE_VIGNETTE, 1, 1.5),
         bind("carbon_closes", "carbon", "reserve.Reserve.fill", "postfx.Effects.vignette_size",
@@ -563,6 +575,48 @@ def reserves(matter=100, carbon=100):
         bind("matter_closes", "matter", "reserve.Reserve.fill", "postfx.Effects.edge_glow_size",
              0.5, 0, 0.5, -3, 4),
     ]
+
+
+def death():
+    """Dying (GDD §8, D7): an action of a reserve that runs out sets the dead toggle (the hero
+    stops) and starts a fade; at its end, revive puts back what the checkpoint kept and the
+    picture comes back."""
+    def rule(name, action, value):
+        return {"name": name, "components": {"rules.OnAction": {
+            "action": action, "source": "dead", "field": "toggle.Toggle.on", "value": value}}}
+    return [
+        entity("dead", 0, 0, {"tag.Tag": {"tag": "dead"}, "toggle.Toggle": {}}),
+        rule("dies_white", "out_of_matter", 1),
+        rule("dies_black", "out_of_carbon", 1),
+        rule("revives", "revive", 0),
+        entity("checkpoint", 0, 0, {"checkpoint.Checkpoint": {"load": "revive"}}),
+    ]
+
+
+def fade(name, colour, ticks, start, end, action=None):
+    """A prefab that covers the screen with a colour, from start to end of its opacity."""
+    tween = {"field": "sprite2d.Sprite.alpha", "from": start, "to": end, "ticks": ticks,
+             "easing": 3, "despawn_when_done": True}
+    if action:
+        tween.update({"use_action": True, "action": action})
+    return {"schema_version": 1, "name": name, "components": {
+        "transform2d.Position": {"x": VIEW_W / 2, "y": VIEW_H / 2},
+        "sprite2d.Sprite": {"atlas": "plain", "width": 20000, "height": 20000, "screen": True,
+                            "red": colour[0], "green": colour[1], "blue": colour[2],
+                            "alpha": start, "unlit": True, "layer": 1000},
+        "tween2d.Tween": tween,
+    }}
+
+
+def write_prefabs():
+    os.makedirs(PREFABS, exist_ok=True)
+    for prefab in (fade("fade_white", (240, 240, 236), 50, 0, 255, "revive"),
+                   fade("fade_black", (0, 0, 0), 50, 0, 255, "revive"),
+                   fade("fade_back", (0, 0, 0), 40, 255, 0)):
+        with open(os.path.join(PREFABS, prefab["name"] + ".json"), "w", encoding="utf-8") as out:
+            out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")
+            json.dump(prefab, out, indent=2)
+            out.write("\n")
 
 
 def bind(name, source_tag, source, target, low, high, out_low, out_high, power,
@@ -592,6 +646,8 @@ def main():
     save(harvest(), "harvest")
     save(fossil(), "fossil")
     save(inventory_bubbles(), "inventory", cell=(INVENTORY, INVENTORY))
+    save(Image.new("RGBA", (4, 4), (255, 255, 255, 255)), "plain")
+    write_prefabs()
     write_scene("sandbox", sandbox())
     write_scene("sandbox_low", sandbox_low())
 
