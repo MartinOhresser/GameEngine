@@ -88,6 +88,27 @@ struct Combo {
     [[nodiscard]] friend bool operator==(const Combo&, const Combo&) = default;
 };
 
+/// While the action is held, the two first hands hold first and second and are used together (the Combo they make, at once, with no trigger), whatever they held before; when it is let go, they get back what they held, and wait for their triggers to be let go. A key that gathers with two powers that must otherwise be chosen by hand. The module keeps engaged and what the hands held before (held_first, held_second).
+struct Shortcut {
+    std::uint32_t action = 4294967295U;
+    std::uint32_t first = 0U;
+    std::uint32_t second = 0U;
+    bool engaged = false;
+    std::uint32_t held_first = 4294967295U;
+    std::uint32_t held_second = 4294967295U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(action);
+        hasher.add(first);
+        hasher.add(second);
+        hasher.add(engaged);
+        hasher.add(held_first);
+        hasher.add(held_second);
+    }
+
+    [[nodiscard]] friend bool operator==(const Shortcut&, const Shortcut&) = default;
+};
+
 /// The entity is the effect of power: it works (it has no transform2d.Disabled) while an unlocked hand uses that power alone, or while two hands make it together, and as long as its costs are paid: per_use of the reserve kind (none: free) when it starts, per_second of it while it works. A use that cannot be paid does not start (refused counts them); one that runs out stops; either way it does not try again until its hand is let go (stopped says so). The module keeps active, uses (the uses started) and time (seconds since the current use started: an effect that grows while it is held).
 struct Ability {
     std::uint32_t power = 0U;

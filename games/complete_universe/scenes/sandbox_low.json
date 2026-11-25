@@ -215,6 +215,46 @@
       }
     },
     {
+      "name": "fossil_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "fossil",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 15
+        }
+      }
+    },
+    {
       "name": "hero",
       "components": {
         "transform2d.Position": {
@@ -517,6 +557,109 @@
       }
     },
     {
+      "name": "harvest_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "harvest_bubble"
+        },
+        "transform2d.Disabled": {},
+        "loadout.Ability": {
+          "power": "harvest",
+          "kind": "carbon",
+          "per_second": 0.6
+        },
+        "aim2d.Aim": {
+          "from": "hero",
+          "range": 240
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 14,
+          "grow": 36,
+          "max_radius": 80,
+          "shrink": 300,
+          "pull": 300,
+          "pulls": [
+            "rock"
+          ],
+          "inner": 1,
+          "deferred": true
+        },
+        "reserve.Drain": {
+          "kind": "matter",
+          "per_second": 0.3,
+          "field": "attractor2d.Attractor.radius",
+          "per_unit": 0.01
+        },
+        "terrain2d.Digger": {
+          "radius": 0,
+          "layers": [
+            "ground"
+          ]
+        },
+        "reserve.Gain": {
+          "kind": "matter",
+          "field": "terrain2d.Digger.last",
+          "per_unit": 0.08
+        },
+        "sprite2d.Sprite": {
+          "atlas": "harvest",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        }
+      }
+    },
+    {
+      "name": "harvest_key",
+      "components": {
+        "loadout.Shortcut": {
+          "action": "harvest",
+          "first": "black",
+          "second": "white"
+        }
+      }
+    },
+    {
+      "name": "harvest_digs",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.heart",
+          "from": "harvest_bubble",
+          "target": "terrain2d.Digger.radius",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 1000,
+          "out_low": 0,
+          "out_high": 1000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "transform2d.Scale.factor",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 1000,
+          "out_low": 0,
+          "out_high": 1000,
+          "power": 1
+        }
+      }
+    },
+    {
       "name": "black_hole",
       "components": {
         "transform2d.Position": {
@@ -605,6 +748,119 @@
           "out_low": 0,
           "out_high": 1000,
           "power": 1
+        }
+      }
+    },
+    {
+      "name": "inventory",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "inventory"
+        },
+        "toggle.Toggle": {
+          "action": "inventory"
+        }
+      }
+    },
+    {
+      "name": "matter_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "matter_bubble"
+        },
+        "transform2d.Hidden": {},
+        "toggle.ShownBy": {
+          "toggle": "inventory"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "inventory",
+          "frame": 0,
+          "width": 64,
+          "height": 64,
+          "layer": 16,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": -34,
+          "offset_y": -62,
+          "stiffness": 0.3
+        }
+      }
+    },
+    {
+      "name": "matter_fills",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "matter",
+          "target": "transform2d.Scale.factor",
+          "onto": "matter_bubble",
+          "low": 0,
+          "high": 1,
+          "out_low": 0.15,
+          "out_high": 1,
+          "power": 0.5
+        }
+      }
+    },
+    {
+      "name": "carbon_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "carbon_bubble"
+        },
+        "transform2d.Hidden": {},
+        "toggle.ShownBy": {
+          "toggle": "inventory"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "inventory",
+          "frame": 1,
+          "width": 64,
+          "height": 64,
+          "layer": 16,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": 34,
+          "offset_y": -62,
+          "stiffness": 0.3
+        }
+      }
+    },
+    {
+      "name": "carbon_fills",
+      "components": {
+        "bind.Bind": {
+          "source": "reserve.Reserve.fill",
+          "from": "carbon",
+          "target": "transform2d.Scale.factor",
+          "onto": "carbon_bubble",
+          "low": 0,
+          "high": 1,
+          "out_low": 0.15,
+          "out_high": 1,
+          "power": 0.5
         }
       }
     },

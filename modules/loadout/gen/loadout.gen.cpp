@@ -331,6 +331,90 @@ constexpr std::array<::ge::app::FieldInfo, 3> component_2_fields{{{"a", "u32", "
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Shortcut component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "action") {
+            component.action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "first") {
+            component.first = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "second") {
+            component.second = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "engaged") {
+            component.engaged = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "held_first") {
+            component.held_first = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "held_second") {
+            component.held_second = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Shortcut* component = world.get<Shortcut>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "action") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->action)};
+    }
+    if (field == "first") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->first)};
+    }
+    if (field == "second") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->second)};
+    }
+    if (field == "engaged") {
+        return ::ge::app::Scalar{static_cast<bool>(component->engaged)};
+    }
+    if (field == "held_first") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->held_first)};
+    }
+    if (field == "held_second") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->held_second)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Shortcut* component = world.get<Shortcut>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "first") {
+        component->first = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "second") {
+        component->second = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "engaged") {
+        component->engaged = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "held_first") {
+        component->held_first = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "held_second") {
+        component->held_second = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 6> component_3_fields{{{"action", "u32", "action", false}, {"first", "u32", "power", false}, {"second", "u32", "power", false}, {"engaged", "bool", "", false}, {"held_first", "u32", "power", false}, {"held_second", "u32", "power", false}}};
+
+void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Ability component;
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "power") {
@@ -356,7 +440,7 @@ void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Ability* component = world.get<Ability>(entity);
     if (component == nullptr) {
@@ -392,7 +476,7 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Ability* component = world.get<Ability>(entity);
@@ -438,12 +522,12 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_3_fields{{{"power", "u32", "power", false}, {"kind", "u32", "resource", false}, {"per_use", "f32", "", false}, {"per_second", "f32", "", false}, {"active", "bool", "", false}, {"uses", "u32", "", false}, {"refused", "u32", "", false}, {"stopped", "bool", "", false}, {"time", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 9> component_4_fields{{{"power", "u32", "power", false}, {"kind", "u32", "resource", false}, {"per_use", "f32", "", false}, {"per_second", "f32", "", false}, {"active", "bool", "", false}, {"uses", "u32", "", false}, {"refused", "u32", "", false}, {"stopped", "bool", "", false}, {"time", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Kit", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Hand", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Combo", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Ability", true, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
+constexpr std::array<::ge::app::ComponentInfo, 5> components{{{"Kit", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Hand", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Combo", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Shortcut", true, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Ability", true, component_4_fields, insert_component_4, read_component_4, write_component_4}}};
 
-constexpr std::array<std::string_view, 3> system_0_reads{"loadout.Kit", "loadout.Combo", "reserve.Reserve"};
-constexpr std::array<std::string_view, 5> system_0_writes{"loadout.Kit", "loadout.Hand", "loadout.Ability", "transform2d.Disabled", "reserve.Reserve"};
+constexpr std::array<std::string_view, 4> system_0_reads{"loadout.Kit", "loadout.Combo", "reserve.Reserve", "loadout.Shortcut"};
+constexpr std::array<std::string_view, 6> system_0_writes{"loadout.Kit", "loadout.Hand", "loadout.Ability", "transform2d.Disabled", "reserve.Reserve", "loadout.Shortcut"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"loadout.select", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 
 constexpr std::array<std::string_view, 2> depends{"transform2d", "reserve"};

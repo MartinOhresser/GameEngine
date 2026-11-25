@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "toggle",
+  "version": "0.1.0",
+  "description": "Things switched on and off by a button: a map, an inventory, a torch, a list of quests, a second view. A Toggle is flipped by its action; the entities that follow it are shown only while it is on (or only while it is off).",
+  "depends": ["transform2d", "tag"],
+  "components": [
+    {
+      "name": "Toggle",
+      "description": "Flips on each time the action is pressed (and with hold, is on only while the action is held). times counts the times it was switched on, for a rule or a test.",
+      "replicable": true,
+      "fields": [
+        { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "hold", "type": "bool", "default": false },
+        { "name": "on", "type": "bool", "default": false },
+        { "name": "times", "type": "u32", "default": 0 }
+      ]
+    },
+    {
+      "name": "ShownBy",
+      "description": "The entity is shown (it has no transform2d.Hidden) only while the Toggle of the entity that answers to toggle (a tag.Tag) is on, or with inverse only while it is off.",
+      "replicable": true,
+      "fields": [
+        { "name": "toggle", "type": "u32", "default": 0, "ref": "tag" },
+        { "name": "inverse", "type": "bool", "default": false }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "flip",
+      "description": "Flips every Toggle whose action is pressed, then shows and hides what follows them.",
+      "stage": "FixedUpdate",
+      "reads": ["ShownBy", "tag.Tag", "transform2d.Hidden"],
+      "writes": ["Toggle", "transform2d.Hidden"]
+    }
+  ]
+}

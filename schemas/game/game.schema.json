@@ -74,6 +74,7 @@
           "tag",
           "terrain2d",
           "text2d",
+          "toggle",
           "touch_controls",
           "transform2d",
           "turns",
@@ -349,6 +350,11 @@
           "additionalProperties": false
         },
         "text2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "toggle": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

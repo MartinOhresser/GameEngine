@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "fossil",
+  "image": "fossil.png",
+  "cell_width": 40,
+  "cell_height": 40,
+  "filter": "linear"
+}
