@@ -110,14 +110,36 @@ void emit(Cloud& cloud, const transform2d::Position& at, float step) {
     }
 }
 
-/// One tick of every particle of a cloud; the dead are removed.
-void move(Cloud& cloud, float step) {
+/// Pulls a particle towards (x, y) and turns it around it; true once it has reached it.
+bool drawn_in(const Emitter& e, Particle& p, float x, float y, float step) {
+    const float dx = x - p.x;
+    const float dy = y - p.y;
+    const float distance = std::sqrt((dx * dx) + (dy * dy));
+    // Close enough to reach it within this tick: it is there (a fast one would fly through).
+    const float stride = std::sqrt((p.speed_x * p.speed_x) + (p.speed_y * p.speed_y)) * step;
+    if (distance < std::max({e.size, 1.0F, stride})) {
+        return e.pull > 0.0F;
+    }
+    const float ux = dx / distance;
+    const float uy = dy / distance;
+    p.speed_x += ((ux * e.pull) - (uy * e.swirl)) * step;
+    p.speed_y += ((uy * e.pull) + (ux * e.swirl)) * step;
+    return false;
+}
+
+/// One tick of every particle of a cloud, its emitter at `at` (none: it is gone); the dead are
+/// removed.
+void move(Cloud& cloud, const transform2d::Position* at, float step) {
     const Emitter& e = cloud.emitter;
     const float keep = std::clamp(1.0F - (e.drag * step), 0.0F, 1.0F);
+    const bool drawn = at != nullptr && (e.pull != 0.0F || e.swirl != 0.0F);
     for (Particle& p : cloud.particles) {
         p.age += step;
         p.before_x = p.x;
         p.before_y = p.y;
+        if (drawn && drawn_in(e, p, at->x, at->y, step)) {
+            p.age = p.life;
+        }
         p.speed_x = (p.speed_x + (e.gravity_x * step)) * keep;
         p.speed_y = (p.speed_y + (e.gravity_y * step)) * keep;
         if (e.wander != 0.0F) {
@@ -188,14 +210,14 @@ void advance(ecs::World& world) {
             }
             cloud.emitter = emitter;
             cloud.seen = true;
-            move(cloud, step);
+            move(cloud, &position, step);
             emit(cloud, position, step);
         });
     // Clouds whose emitter is gone live out their particles, then go.
     std::erase_if(all.clouds, [step](auto& entry) {
         Cloud& cloud = entry.second;
         if (!cloud.seen) {
-            move(cloud, step);
+            move(cloud, nullptr, step);
         }
         return !cloud.seen && cloud.particles.empty();
     });

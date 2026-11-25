@@ -115,11 +115,17 @@ struct ScreenEffects {
     /// Black bars at the top and bottom, as in a film: the share of the height they cover
     /// together (0 to 1).
     float letterbox = 0.0F;
+    /// Shafts of light out of the bright parts, away from a point of the screen (0: none, 1:
+    /// strong). The point is a share of the width and height; the length a share of the screen.
+    float rays = 0.0F;
+    float rays_x = 0.5F;
+    float rays_y = 0.35F;
+    float rays_length = 0.3F;
 
     /// Whether any effect is asked for.
     [[nodiscard]] bool any() const noexcept {
         return bloom > 0.0F || vignette > 0.0F || edge_glow > 0.0F || grain > 0.0F || (tint | 0xFFU) != 0xFFFFFFFFU ||
-               (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F;
+               (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F || rays > 0.0F;
     }
 
     friend bool operator==(const ScreenEffects&, const ScreenEffects&) = default;

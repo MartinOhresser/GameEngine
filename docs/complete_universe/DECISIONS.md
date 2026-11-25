@@ -21,7 +21,19 @@ Une décision prise plus tard s'ajoute ici avec sa date. Ce fichier prime sur le
 | D7 | Mourir dans le tutoriel | **On recommence l'étape en cours.** Fondu, puis le personnage reprend au début de l'étape avec les réserves qu'il avait à ce moment-là. |
 | D8 | Roue des couleurs | **Ralenti fort** (environ 20 %) tant qu'elle est ouverte. |
 
-Conséquences de D2 :
+### Retour de Martin après avoir joué (25 novembre 2026)
+
+| # | Question | Décision |
+| --- | --- | --- |
+| D9 | Mains | **Fixes** : le Blanc toujours dans la main gauche (clic gauche, à gauche de l'écran), le Noir toujours dans la droite (clic droit). Seules les couleurs, plus tard, iront dans l'une ou l'autre. Pas de changement de main dans le tutoriel. Le personnage ne se retourne donc jamais : le blanc reste à gauche de l'écran, il tourne seulement la tête et le torse vers où il va. |
+| D10 | Récolte | **La touche F seulement.** Les deux clics ensemble ne récoltent plus : chaque main agit seule. |
+| D11 | Mort | **Une étape obligatoire** : la matière baisse quoi qu'il fasse, tout devient blanc, il revient au début de l'étape ; le texte dit que sans carbone ce serait le noir. |
+| D12 | Clarté | Chaque étape a un titre et une ligne de contrôle ; chaque pouvoir ne marche qu'à partir de son étape ; une fois l'étape réussie, quelques secondes d'entraînement avant la suivante. Aucun blocage possible : roche dure sous l'atterrissage, marche et saut donnés ensemble, réserves gardées au-dessus d'un quart jusqu'aux étapes de manque, récolte gratuite. |
+| D13 | Ressources | Elles durent plus (douze minutes pleines), les pouvoirs coûtent moins, les récoltes rapportent plus. **Le sol contient de la matière et du carbone** : creuser recharge. On peut s'enfoncer dans la planète, la caméra suit. |
+| D14 | Images | D'après les images de Martin : ciel en couleurs pendant le big bang, noir et blanc ensuite ; trou noir au cœur noir cerclé de lumière ; personnage d'ovales blanc et noir aux yeux lumineux ; barrière en bulle de verre, et un vrai plan pour un mur. Jeu en 1920 × 1080. |
+| D15 | Marche | Un petit trou noir s'ouvre devant le pied et tire la jambe, comme pour le saut. |
+
+Conséquences de D2 (D9 les remplace pour les mains et le retournement) :
 
 - Le GDD place le noir à droite du corps et le blanc à gauche. En marchant vers la droite, on voit donc surtout sa moitié gauche, la blanche ; vers la gauche, la noire. Le torse, un peu tourné vers nous, laisse voir la ligne de séparation.
 - Le clic gauche commande toujours **sa** main gauche, quel que soit le côté où il regarde. Ses animations montrent ses deux bras.

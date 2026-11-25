@@ -81,3 +81,16 @@ TEST_CASE("bind: without tags it works on its own entity; a missing one writes n
     app.run_frames(1);
     CHECK(app.world().get<transform2d::Velocity>(self)->x == 3.0F);
 }
+
+TEST_CASE("bind: with absolute the source counts without its sign") {
+    ge::app::App app = game();
+    const ge::ecs::Entity walker = app.world().spawn();
+    CHECK(app.world().insert(walker, transform2d::Position{-50.0F, 0.0F}));
+    bind::Bind link{field_index(app, "transform2d.Position.x"), 0xFFFFFFFFU,
+                    field_index(app, "transform2d.Position.y"), 0xFFFFFFFFU,
+                    0.0F, 100.0F, 0.0F, 10.0F, 1.0F};
+    link.absolute = true;
+    CHECK(app.world().insert(walker, link));
+    app.run_frames(1);
+    CHECK(near(app.world().get<transform2d::Position>(walker)->y, 5.0F));
+}

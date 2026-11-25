@@ -29,13 +29,14 @@
     },
     {
       "name": "Shape",
-      "description": "A hand-made change to every Terrain it overlaps whose layer meets layers, made once, right after the terrain is built: a rectangle width by height centred on the entity's Position, or a disc of that radius when radius is more than 0. fill makes its cells solid (a ledge, a pillar, a bridge), otherwise it carves them (a gap, a cave, a tunnel). applied is set once it is done.",
+      "description": "A hand-made change to every Terrain it overlaps whose layer meets layers, made once, right after the terrain is built: a rectangle width by height centred on the entity's Position, or a disc of that radius when radius is more than 0. fill makes its cells solid (a ledge, a pillar, a bridge), otherwise it carves them (a gap, a cave, a tunnel). With hard, its solid cells cannot be dug (bedrock under a place that must stay). applied is set once it is done.",
       "replicable": true,
       "fields": [
         { "name": "width", "type": "f32", "default": 0 },
         { "name": "height", "type": "f32", "default": 0 },
         { "name": "radius", "type": "f32", "default": 0 },
         { "name": "fill", "type": "bool", "default": true },
+        { "name": "hard", "type": "bool", "default": false },
         { "name": "layers", "type": "u32", "default": 4294967295, "ref_set": "layer" },
         { "name": "applied", "type": "bool", "default": false }
       ]

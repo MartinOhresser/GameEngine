@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "name": "nebula",
-  "image": "nebula.png",
-  "cell_width": 1024,
-  "cell_height": 576,
-  "filter": "linear"
-}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "mountains",
+  "image": "mountains.png",
+  "cell_width": 2048,
+  "cell_height": 240,
+  "filter": "linear"
+}

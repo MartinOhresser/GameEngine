@@ -27,9 +27,9 @@ Les touches sont modifiables à la phase 8. Par défaut :
 
 | Action | Touche |
 | --- | --- |
-| Main gauche | Clic gauche |
-| Main droite | Clic droit |
-| Changer de couleur, roue | Maj |
+| Main gauche : le Blanc | Clic gauche |
+| Main droite : le Noir | Clic droit |
+| Changer de couleur, roue (après le tutoriel) | Maj |
 | Récolte | F |
 | Inventaire | Tab |
 | Se déplacer | Q/D ou flèches |
@@ -38,28 +38,32 @@ Les touches sont modifiables à la phase 8. Par défaut :
 
 Les textes affichés à l'écran ne décrivent que les contrôles, comme le demande le GDD, et sont écrits en français.
 
-### Les dix étapes
+### Les étapes
 
-Chaque étape suit le même schéma :
+Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9 à D15). Chaque
+étape suit le même schéma :
 
-1. Une courte cinématique : la caméra cadre la cible, le personnage fait le geste, et le texte du contrôle apparaît.
-2. Le joueur essaie. L'étape suivante commence dès que la condition est remplie.
-3. Une mort ramène au début de l'étape en cours (D7).
+1. Un titre et une ligne de contrôle en bas de l'écran.
+2. Le pouvoir de l'étape se débloque ; ceux des étapes suivantes ne marchent pas encore.
+3. Une fois l'étape réussie, quelques secondes d'entraînement (« Bien. Essaie encore un peu… »),
+   puis l'étape suivante.
+4. Une mort ramène au début de l'étape en cours (D7).
 
-| # | Cinématique | Le joueur… | Suite quand… |
+| # | Étape | Le joueur… | Suite quand… |
 | --- | --- | --- | --- |
-| 1 | **Ouverture.** Explosion, l'univers s'étend, plein de couleurs qui s'éteignent une à une jusqu'au gris. Des étoiles apparaissent. Plan large sur une immense barrière : le personnage, recroquevillé, dérive vers la planète. Zoom, fondu, il se pose. | regarde (maintenir Échap pour passer) | fin de la cinématique |
-| 2 | **Mains.** Il regarde ses mains vides, aux bras gris (P5). Le Noir et le Blanc flottent près de lui. | met le Noir dans une main et le Blanc dans l'autre (Maj + clic) | chaque main tient une couleur |
-| 3a | **Noir.** La caméra montre un rocher, la main noire se tend. | maintient le clic de la main noire sur le rocher : un trou noir l'aspire | le rocher a disparu et la matière a augmenté |
-| 3b | **Blanc.** Une pierre se détache du dôme et tombe vers le petit objet. | protège l'objet avec une bulle ou une barrière plane (clic, ou clic glissé) | l'objet est intact quand la pierre a fini de tomber |
-| 3c | **Fusion.** Les deux mains se rejoignent. | fait les deux clics ensemble sur le second rocher : bulle de récolte | la récolte est finie |
-| 4 | **Inventaire.** Les mains s'ouvrent, des bulles sortent du corps. | ouvre l'inventaire (Tab) | l'inventaire est ouvert |
-| 5 | **Récolte.** Les bras prennent d'eux-mêmes le Noir et le Blanc. | récolte le fossile (F, puis viser), puis regarde la bulle de carbone grossir | le carbone a augmenté et l'inventaire a été ouvert après |
-| 6 | **Déplacements.** Sous ses pieds, de petites ondes sombres : il attire ses jambes. | marche jusqu'au bout du chemin. La marche coûte un peu de Noir | il atteint la marche |
-| 7 | **Sauts.** Un mini trou noir grandit au-dessus de sa tête. | maintient Espace, relâche : saute le fossé, puis monte sur le rebord | il est sur le rebord |
-| 8 | **Manque de Blanc.** Le Blanc baisse vite, les bords de l'écran noircissent. | récolte du carbone dans la cuvette avant qu'il ne soit trop tard | le Blanc est au-dessus de la moitié |
-| 9 | **Manque de Noir.** Même chose : le Noir baisse, les bords blanchissent. | récolte de la matière | le Noir est au-dessus de la moitié |
-| 10 | **Départ.** Le personnage lève les deux mains vers le sommet du dôme. | maintient le clic de la main noire : le trou noir grossit, échappe à tout contrôle (secousses, le sol est aspiré). La planète explose, le dôme se dissout, il dérive dans l'espace | fin : « à suivre » jusqu'à la phase 3, puis le voyage spatial |
+| 0 | **Ouverture** | regarde l'explosion, le ciel en couleurs qui s'éteint, la barrière et la planète (Échap pour passer) | fin de la cinématique |
+| 1 | **Atterrissage** | regarde : il se pose sur une roche dure (rien ne peut s'y creuser) | trois secondes |
+| 2 | **Le noir** | maintient le clic droit sur les pierres : un trou noir les attire et les avale | deux pierres avalées, puis 6 s d'entraînement |
+| 3 | **Le blanc** | clic gauche : une bulle ; clic gauche glissé : un mur plat | deux barrières, puis 6 s |
+| 4 | **La récolte** | maintient F sur un fossile : il rejoint ses réserves, avec le sol autour | du carbone gagné, puis 5 s |
+| 5 | **Les réserves** | ouvre l'inventaire (Tab) : matière à droite, carbone à gauche | l'inventaire ouvert, puis 3 s |
+| 6 | **Marcher** | marche (Q/D, flèches) ; un petit trou noir tire chaque jambe. Le saut est déjà là | le bout du chemin |
+| 7 | **Sauter** | maintient Espace puis relâche : saute le fossé, puis monte sur le rebord | il est sur le rebord, puis 2 s |
+| 8 | **Le carbone s'épuise** | récolte les fossiles de la cuvette, ou le sol (il contient du carbone) | le carbone au-dessus de la moitié |
+| 9 | **La matière s'épuise** | récolte les pierres, ou creuse le sol ; il peut s'y enfoncer, la caméra suit | la matière au-dessus de la moitié |
+| 10 | **La mort** | la matière baisse quoi qu'il fasse, tout devient blanc | il revient |
+| 11 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil ; ses réserves lui sont rendues | six secondes |
+| 12 | **Le départ** | maintient le clic droit vers le ciel : le trou noir grossit, échappe à tout contrôle, la planète est aspirée, le dôme fond, tout devient blanc | « à suivre » |
 
 La pause (Échap, ou une barrière posée sur soi) est disponible dès l'étape 2 : le personnage s'enferme dans une bulle, tout s'arrête, le monde devient flou, et le menu (reprendre, quitter) s'affiche dans la bulle (D6). Un écran titre (Jouer, Quitter) précède l'ouverture.
 

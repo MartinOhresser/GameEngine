@@ -4,7 +4,7 @@
   "schema_version": 1,
   "name": "edges_turn",
   "scene": "sandbox_low",
-  "ticks": 1500,
+  "ticks": 3600,
   "expect": [
     // Matter 0.2 full: (0.5 - 0.2) / 0.5 = 0.6 of the way, 0.6^1.5 = 0.465 of the white glow.
     { "at": 1, "check": "camera.postfx.Effects.edge_glow > 0.46" },
@@ -13,8 +13,8 @@
     { "at": 1, "check": "camera.postfx.Effects.vignette > 0.86" },
     { "at": 1, "check": "camera.postfx.Effects.vignette < 0.88" },
     // At 0 (tick 1440) the screen is all black, until the step starts again (D7).
-    { "at": 1450, "check": "carbon.reserve.Reserve.amount == 0" },
-    { "at": 1450, "check": "camera.postfx.Effects.vignette == 1" },
-    { "at": 1450, "check": "camera.postfx.Effects.vignette_size == -3" },
+    { "at": 3500, "check": "carbon.reserve.Reserve.amount == 0" },
+    { "at": 3500, "check": "camera.postfx.Effects.vignette == 1" },
+    { "at": 3500, "check": "camera.postfx.Effects.vignette_size == -3" },
   ],
 }

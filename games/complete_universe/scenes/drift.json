@@ -4,25 +4,6 @@
   "name": "drift",
   "entities": [
     {
-      "name": "backdrop",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "sprite2d.Sprite": {
-          "atlas": "plain",
-          "width": 40000,
-          "height": 40000,
-          "red": 0,
-          "green": 0,
-          "blue": 0,
-          "layer": -120,
-          "unlit": true
-        }
-      }
-    },
-    {
       "name": "sky",
       "components": {
         "transform2d.Position": {
@@ -33,7 +14,8 @@
           "atlas": "sky",
           "width": 1280,
           "height": 720,
-          "layer": -100
+          "layer": -100,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0,
@@ -42,23 +24,23 @@
       }
     },
     {
-      "name": "nebula",
+      "name": "veil",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
         "sprite2d.Sprite": {
-          "atlas": "nebula",
-          "width": 2600,
-          "height": 1460,
-          "layer": -105,
-          "alpha": 200,
-          "unlit": true
+          "atlas": "veil",
+          "width": 2560.0,
+          "height": 1440.0,
+          "layer": -95,
+          "unlit": true,
+          "alpha": 200
         },
         "sprite2d.Parallax": {
-          "x": 0.25,
-          "y": 0.25
+          "x": 0.06,
+          "y": 0.06
         }
       }
     },
@@ -73,13 +55,13 @@
           "tag": "camera"
         },
         "camera2d.Camera": {
-          "zoom": 1.6
+          "zoom": 2.4000000000000004
         },
         "postfx.Effects": {
           "bloom": 0.5,
           "vignette": 0.55,
           "vignette_size": 0.35,
-          "grain": 0.08
+          "grain": 0.05
         }
       }
     },
@@ -95,14 +77,30 @@
         },
         "sprite2d.Sprite": {
           "atlas": "hero_curled",
-          "width": 60,
-          "height": 60,
+          "width": 72,
+          "height": 72,
           "layer": 30,
           "unlit": true
         },
         "transform2d.Velocity": {
           "x": 6,
           "y": -2
+        },
+        "transform2d.Rotation": {}
+      }
+    },
+    {
+      "name": "sleeper_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "sleeper",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1200,
+          "v1": 40
         }
       }
     },
@@ -120,11 +118,12 @@
           "speed_spread": 40,
           "angle": -160,
           "spread": 60,
-          "size": 4,
-          "end_size": 2,
-          "red": 170,
-          "green": 170,
-          "blue": 170,
+          "wander": 8,
+          "size": 3.5,
+          "end_size": 1.5,
+          "red": 190,
+          "green": 190,
+          "blue": 196,
           "alpha": 220,
           "fade": true,
           "unlit": true,
@@ -139,8 +138,8 @@
       "name": "to_follow",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 600
+          "x": 960.0,
+          "y": 930
         },
         "tag.Tag": {
           "tag": "to_follow"
@@ -148,7 +147,7 @@
         "text2d.Text": {
           "string": "tutorial.next",
           "font": "font",
-          "size": 30,
+          "size": 44,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,

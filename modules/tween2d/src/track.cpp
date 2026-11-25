@@ -91,7 +91,9 @@ void play(ecs::World& world) {
             }
         }
         const std::uint32_t last = keys_of(track)[std::clamp(track.keys, 1U, most_keys) - 1].tick;
-        if (!track.done && track.elapsed >= last) {
+        if (track.loop && track.elapsed >= last) {
+            track.elapsed = track.t0;
+        } else if (!track.done && track.elapsed >= last) {
             track.done = true;
             raise(world, track.end_action);
         }

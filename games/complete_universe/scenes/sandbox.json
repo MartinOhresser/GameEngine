@@ -14,11 +14,279 @@
           "atlas": "sky",
           "width": 1280,
           "height": 720,
-          "layer": -100
+          "layer": -100,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        }
+      }
+    },
+    {
+      "name": "veil",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "veil",
+          "width": 2560.0,
+          "height": 1440.0,
+          "layer": -95,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 0.06,
+          "y": 0.06
+        }
+      }
+    },
+    {
+      "name": "mountains",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 70.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "mountains",
+          "width": 2048,
+          "height": 240,
+          "layer": -80,
+          "alpha": 255,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.12,
+          "y": 0.12,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "mist_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 179.99999999999994
+        },
+        "sprite2d.Sprite": {
+          "atlas": "mist",
+          "width": 2048,
+          "height": 240,
+          "layer": -70,
+          "alpha": 70,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.18,
+          "y": 0.18,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "mist_near",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 325.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "mist",
+          "width": 2048,
+          "height": 240,
+          "layer": -35,
+          "alpha": 60,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.45,
+          "y": 0.45,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "ground_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 570.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ground_far",
+          "width": 2048,
+          "height": 160,
+          "layer": -8,
+          "alpha": 255,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.88,
+          "y": 0.88,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "front",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 855.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "front",
+          "width": 2048,
+          "height": 300,
+          "layer": 60,
+          "alpha": 255,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 1.35,
+          "y": 1.35,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "hills_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 65.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "hills_far",
+          "width": 2048,
+          "height": 400,
+          "layer": -60,
+          "alpha": 255,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.25,
+          "y": 0.25,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "hills_near",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 215.00000000000003
+        },
+        "sprite2d.Sprite": {
+          "atlas": "hills_near",
+          "width": 2048,
+          "height": 400,
+          "layer": -30,
+          "alpha": 255,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.55,
+          "y": 0.55,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1392.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave",
+          "width": 1024,
+          "height": 1536,
+          "layer": -5
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "dust",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "follow2d.Follow": {
+          "target": "camera",
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 7,
+          "lifetime": 9,
+          "lifetime_spread": 3,
+          "speed": 8,
+          "speed_spread": 6,
+          "spread": 360,
+          "wander": 10,
+          "size": 4,
+          "end_size": 2,
+          "red": 220,
+          "green": 225,
+          "blue": 235,
+          "alpha": 170,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 30,
+          "area_width": 1500,
+          "area_height": 900,
+          "max": 90
+        }
+      }
+    },
+    {
+      "name": "ash",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": -500
+        },
+        "follow2d.Follow": {
+          "target": "camera",
+          "offset_y": -500,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 16,
+          "lifetime": 14,
+          "lifetime_spread": 4,
+          "speed": 10,
+          "speed_spread": 8,
+          "angle": 100,
+          "spread": 40,
+          "gravity_y": 6,
+          "wander": 14,
+          "size": 3,
+          "end_size": 5,
+          "red": 200,
+          "green": 200,
+          "blue": 208,
+          "alpha": 110,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "area_width": 1700,
+          "area_height": 200,
+          "max": 260
         }
       }
     },
@@ -41,14 +309,14 @@
         "terrain2d.Look": {
           "layer": 0,
           "pixels": 4,
-          "red": 16,
-          "green": 16,
-          "blue": 18,
-          "top_red": 150,
-          "top_green": 150,
-          "top_blue": 156,
-          "lip": 12,
-          "grain": 0.06
+          "red": 12,
+          "green": 12,
+          "blue": 14,
+          "top_red": 176,
+          "top_green": 180,
+          "top_blue": 190,
+          "lip": 10,
+          "grain": 0.08
         }
       }
     },
@@ -251,6 +519,15 @@
         "reserve.Yield": {
           "kind": "carbon",
           "amount": 15
+        },
+        "light2d.Light": {
+          "radius": 70,
+          "red": 220,
+          "green": 232,
+          "blue": 236,
+          "intensity": 0.45,
+          "flicker": 0.25,
+          "flicker_speed": 1.5
         }
       }
     },
@@ -265,9 +542,22 @@
           "atlas": "hero",
           "width": 128,
           "height": 128,
-          "layer": 10
+          "layer": 10,
+          "unlit": true
         },
-        "sprite2d.Facing": {},
+        "sprite2d.Animator": {
+          "set": "hero"
+        },
+        "light2d.Light": {
+          "radius": 340,
+          "red": 232,
+          "green": 236,
+          "blue": 246,
+          "intensity": 0.95,
+          "offset_y": -24,
+          "flicker": 0.05,
+          "flicker_speed": 2
+        },
         "tag.Tag": {
           "tag": "hero"
         },
@@ -312,7 +602,7 @@
         "reserve.Drain": {
           "kind": "matter",
           "field": "transform2d.Velocity.x",
-          "per_unit": 0.002
+          "per_unit": 0.0008
         }
       }
     },
@@ -327,7 +617,7 @@
           "tag": "camera"
         },
         "camera2d.Camera": {
-          "zoom": 1
+          "zoom": 1.5
         },
         "camera2d.CameraShake": {
           "strength": 0,
@@ -339,22 +629,214 @@
           "action": "revive"
         },
         "postfx.Effects": {
-          "vignette": 0.45,
-          "vignette_size": 0.45,
+          "vignette": 0.42,
+          "vignette_size": 0.48,
           "edge_glow": 0,
           "edge_glow_size": 0.5,
-          "bloom": 0.25,
-          "grain": 0.08
+          "bloom": 0.45,
+          "grain": 0.05,
+          "rays": 0.22,
+          "rays_x": 0.5,
+          "rays_y": 0.08,
+          "rays_length": 0.22
+        },
+        "light2d.Ambient": {
+          "red": 92,
+          "green": 94,
+          "blue": 106
         },
         "camera2d.CameraFollow": {
-          "stiffness": 0.1,
-          "dead_x": 40,
-          "dead_y": 120,
+          "stiffness": 0.06,
+          "dead_x": 30,
+          "dead_y": 60,
+          "offset_y": -40,
+          "look_ahead": 0.25,
           "bounded": true,
           "bound_left": 0,
           "bound_right": 4096,
           "bound_top": -2000,
           "bound_bottom": 720
+        }
+      }
+    },
+    {
+      "name": "clip_idle",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 0,
+          "first_frame": 0,
+          "frame_count": 32,
+          "ticks_per_frame": 4,
+          "looping": true
+        }
+      }
+    },
+    {
+      "name": "clip_walk_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 20,
+          "first_frame": 32,
+          "frame_count": 16,
+          "ticks_per_frame": 3,
+          "looping": true,
+          "field": "transform2d.Velocity.x",
+          "min": 20
+        }
+      }
+    },
+    {
+      "name": "clip_walk_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 20,
+          "first_frame": 48,
+          "frame_count": 16,
+          "ticks_per_frame": 3,
+          "looping": true,
+          "field": "transform2d.Velocity.x",
+          "max": -20
+        }
+      }
+    },
+    {
+      "name": "clip_charge",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 50,
+          "first_frame": 64,
+          "frame_count": 8,
+          "ticks_per_frame": 4,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02
+        }
+      }
+    },
+    {
+      "name": "clip_rise",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 40,
+          "first_frame": 72,
+          "frame_count": 6,
+          "ticks_per_frame": 5,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "max": -140
+        }
+      }
+    },
+    {
+      "name": "clip_fall",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 39,
+          "first_frame": 78,
+          "frame_count": 6,
+          "ticks_per_frame": 5,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "min": 180
+        }
+      }
+    },
+    {
+      "name": "hero_dust",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "hero_dust"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": 40.0,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "lifetime_spread": 0.3,
+          "speed": 22,
+          "speed_spread": 14,
+          "angle": -90,
+          "spread": 120,
+          "gravity_y": -10,
+          "drag": 1.5,
+          "size": 3,
+          "end_size": 9,
+          "red": 150,
+          "green": 150,
+          "blue": 156,
+          "alpha": 70,
+          "fade": true,
+          "additive": false,
+          "layer": 9,
+          "area_width": 24,
+          "max": 60
+        }
+      }
+    },
+    {
+      "name": "hero_dust_flies",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Velocity.x",
+          "from": "hero",
+          "target": "particles2d.Emitter.rate",
+          "onto": "hero_dust",
+          "low": 20,
+          "high": 240,
+          "out_low": 0,
+          "out_high": 16,
+          "power": 1,
+          "absolute": true
+        }
+      }
+    },
+    {
+      "name": "hero_motes",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": -8,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 5,
+          "lifetime": 1.8,
+          "lifetime_spread": 0.6,
+          "speed": 18,
+          "speed_spread": 8,
+          "angle": -90,
+          "spread": 40,
+          "wander": 12,
+          "size": 4,
+          "end_size": 1,
+          "red": 245,
+          "green": 248,
+          "blue": 255,
+          "alpha": 200,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 11,
+          "area_width": 22,
+          "area_height": 50,
+          "max": 30
         }
       }
     },
@@ -373,7 +855,6 @@
             "black",
             "white"
           ],
-          "offered": [],
           "together": 0.12
         }
       }
@@ -384,7 +865,8 @@
         "loadout.Combo": {
           "a": "black",
           "b": "white",
-          "result": "harvest"
+          "result": "harvest",
+          "by_hands": false
         }
       }
     },
@@ -395,15 +877,20 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "hand_left"
+        },
         "loadout.Hand": {
           "slot": 0,
           "trigger": "hand_left"
         },
         "sprite2d.Sprite": {
-          "atlas": "arm",
-          "width": 48,
-          "height": 48,
-          "layer": 9
+          "atlas": "orb",
+          "width": 30,
+          "height": 30,
+          "layer": 12,
+          "unlit": true,
+          "alpha": 0
         },
         "sprite2d.FrameBind": {
           "field": "loadout.Hand.item",
@@ -411,10 +898,25 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": -9,
-          "offset_y": -6,
-          "stiffness": 1,
-          "turn": true
+          "offset_x": -15,
+          "offset_y": 14,
+          "stiffness": 0.6
+        }
+      }
+    },
+    {
+      "name": "hand_left_glows",
+      "components": {
+        "bind.Bind": {
+          "source": "loadout.Hand.acting",
+          "from": "hand_left",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "hand_left",
+          "low": 0,
+          "high": 1,
+          "out_low": 0,
+          "out_high": 240,
+          "power": 1
         }
       }
     },
@@ -425,15 +927,20 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "hand_right"
+        },
         "loadout.Hand": {
           "slot": 1,
           "trigger": "hand_right"
         },
         "sprite2d.Sprite": {
-          "atlas": "arm",
-          "width": 48,
-          "height": 48,
-          "layer": 11
+          "atlas": "orb",
+          "width": 30,
+          "height": 30,
+          "layer": 12,
+          "unlit": true,
+          "alpha": 0
         },
         "sprite2d.FrameBind": {
           "field": "loadout.Hand.item",
@@ -441,10 +948,25 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 9,
-          "offset_y": -6,
-          "stiffness": 1,
-          "turn": true
+          "offset_x": 15,
+          "offset_y": 14,
+          "stiffness": 0.6
+        }
+      }
+    },
+    {
+      "name": "hand_right_glows",
+      "components": {
+        "bind.Bind": {
+          "source": "loadout.Hand.acting",
+          "from": "hand_right",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "hand_right",
+          "low": 0,
+          "high": 1,
+          "out_low": 0,
+          "out_high": 240,
+          "power": 1
         }
       }
     },
@@ -473,9 +995,9 @@
           "grow": 70,
           "max_radius": 140,
           "wall_drag": 50,
-          "thickness": 12,
+          "thickness": 14,
           "kind": "carbon",
-          "per_unit": 0.06,
+          "per_unit": 0.025,
           "atlas": "barrier",
           "preview": 2,
           "layer": 14
@@ -592,9 +1114,7 @@
         },
         "transform2d.Disabled": {},
         "loadout.Ability": {
-          "power": "harvest",
-          "kind": "carbon",
-          "per_second": 0.6
+          "power": "harvest"
         },
         "aim2d.Aim": {
           "from": "hero",
@@ -602,7 +1122,7 @@
         },
         "attractor2d.Attractor": {
           "start_radius": 14,
-          "grow": 36,
+          "grow": 40,
           "max_radius": 80,
           "shrink": 300,
           "pull": 300,
@@ -614,9 +1134,9 @@
         },
         "reserve.Drain": {
           "kind": "matter",
-          "per_second": 0.3,
+          "per_second": 0.1,
           "field": "attractor2d.Attractor.radius",
-          "per_unit": 0.01
+          "per_unit": 0.004
         },
         "terrain2d.Digger": {
           "radius": 0,
@@ -627,7 +1147,7 @@
         "reserve.Gain": {
           "kind": "matter",
           "field": "terrain2d.Digger.last",
-          "per_unit": 0.08
+          "per_unit": 0.25
         },
         "sprite2d.Sprite": {
           "atlas": "harvest",
@@ -638,16 +1158,67 @@
         },
         "transform2d.Scale": {
           "factor": 0
+        },
+        "light2d.Light": {
+          "radius": 0,
+          "red": 200,
+          "green": 245,
+          "blue": 240,
+          "intensity": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 5,
+          "end_size": 1.5,
+          "red": 215,
+          "green": 250,
+          "blue": 245,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 260,
+          "pull": 700,
+          "swirl": 260
         }
       }
     },
     {
       "name": "harvest_key",
       "components": {
+        "tag.Tag": {
+          "tag": "harvest_key"
+        },
         "loadout.Shortcut": {
           "action": "harvest",
           "first": "black",
           "second": "white"
+        }
+      }
+    },
+    {
+      "name": "ground_carbon",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "ground_carbon"
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "reserve.Gain": {
+          "kind": "carbon",
+          "field": "transform2d.Scale.factor",
+          "per_unit": 0.15
         }
       }
     },
@@ -662,7 +1233,7 @@
           "low": 0,
           "high": 1000,
           "out_low": 0,
-          "out_high": 500,
+          "out_high": 700,
           "power": 1
         }
       }
@@ -684,6 +1255,22 @@
       }
     },
     {
+      "name": "ground_gives_carbon",
+      "components": {
+        "bind.Bind": {
+          "source": "terrain2d.Digger.last",
+          "from": "harvest_bubble",
+          "target": "transform2d.Scale.factor",
+          "onto": "ground_carbon",
+          "low": 0,
+          "high": 100000,
+          "out_low": 0,
+          "out_high": 100000,
+          "power": 1
+        }
+      }
+    },
+    {
       "name": "black_hole",
       "components": {
         "transform2d.Position": {
@@ -697,7 +1284,7 @@
         "loadout.Ability": {
           "power": "black",
           "kind": "matter",
-          "per_use": 1
+          "per_use": 0.5
         },
         "aim2d.Aim": {
           "from": "hero",
@@ -718,7 +1305,7 @@
         "reserve.Drain": {
           "kind": "matter",
           "field": "attractor2d.Attractor.radius",
-          "per_unit": 0.03
+          "per_unit": 0.012
         },
         "terrain2d.Digger": {
           "radius": 0,
@@ -729,7 +1316,7 @@
         "reserve.Gain": {
           "kind": "matter",
           "field": "terrain2d.Digger.last",
-          "per_unit": 0.08
+          "per_unit": 0.25
         },
         "sprite2d.Sprite": {
           "atlas": "black_hole",
@@ -740,6 +1327,35 @@
         },
         "transform2d.Scale": {
           "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "light2d.Light": {
+          "radius": 0,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 5,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 260,
+          "pull": 1800,
+          "swirl": 520
         }
       }
     },
@@ -771,6 +1387,380 @@
           "high": 1000,
           "out_low": 0,
           "out_high": 1000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "black_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 180,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "black_hole_lights",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "black_hole",
+          "target": "light2d.Light.intensity",
+          "onto": "black_hole",
+          "low": 0,
+          "high": 90,
+          "out_low": 0,
+          "out_high": 0.8,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_lights_far",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "black_hole",
+          "target": "light2d.Light.radius",
+          "onto": "black_hole",
+          "low": 0,
+          "high": 90,
+          "out_low": 0,
+          "out_high": 260,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_draws",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "black_hole",
+          "target": "particles2d.Emitter.rate",
+          "onto": "black_hole",
+          "low": 0,
+          "high": 90,
+          "out_low": 0,
+          "out_high": 110,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_draws_wide",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "black_hole",
+          "target": "particles2d.Emitter.area_width",
+          "onto": "black_hole",
+          "low": 0,
+          "high": 90,
+          "out_low": 0,
+          "out_high": 320,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_draws_high",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "black_hole",
+          "target": "particles2d.Emitter.area_height",
+          "onto": "black_hole",
+          "low": 0,
+          "high": 90,
+          "out_low": 0,
+          "out_high": 320,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_lights",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "light2d.Light.intensity",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 80,
+          "out_low": 0,
+          "out_high": 0.8,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_lights_far",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "light2d.Light.radius",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 80,
+          "out_low": 0,
+          "out_high": 220,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_draws",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "particles2d.Emitter.rate",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 80,
+          "out_low": 0,
+          "out_high": 70,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_draws_wide",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "particles2d.Emitter.area_width",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 80,
+          "out_low": 0,
+          "out_high": 220,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_draws_high",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "harvest_bubble",
+          "target": "particles2d.Emitter.area_height",
+          "onto": "harvest_bubble",
+          "low": 0,
+          "high": 80,
+          "out_low": 0,
+          "out_high": 220,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_chips",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "black_hole_chips"
+        },
+        "follow2d.Follow": {
+          "target": "black_hole",
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.1,
+          "lifetime_spread": 0.4,
+          "speed": 160,
+          "speed_spread": 110,
+          "angle": -90,
+          "spread": 150,
+          "gravity_y": 700,
+          "drag": 0.6,
+          "size": 5,
+          "end_size": 2.5,
+          "red": 150,
+          "green": 152,
+          "blue": 160,
+          "alpha": 255,
+          "fade": true,
+          "additive": false,
+          "unlit": false,
+          "layer": 13,
+          "area_width": 50,
+          "area_height": 30,
+          "max": 220
+        }
+      }
+    },
+    {
+      "name": "black_hole_chips_fly",
+      "components": {
+        "bind.Bind": {
+          "source": "terrain2d.Digger.last",
+          "from": "black_hole",
+          "target": "particles2d.Emitter.rate",
+          "onto": "black_hole_chips",
+          "low": 0,
+          "high": 40,
+          "out_low": 0,
+          "out_high": 600,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "harvest_bubble_chips",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "harvest_bubble_chips"
+        },
+        "follow2d.Follow": {
+          "target": "harvest_bubble",
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.1,
+          "lifetime_spread": 0.4,
+          "speed": 160,
+          "speed_spread": 110,
+          "angle": -90,
+          "spread": 150,
+          "gravity_y": 700,
+          "drag": 0.6,
+          "size": 5,
+          "end_size": 2.5,
+          "red": 150,
+          "green": 152,
+          "blue": 160,
+          "alpha": 255,
+          "fade": true,
+          "additive": false,
+          "unlit": false,
+          "layer": 13,
+          "area_width": 50,
+          "area_height": 30,
+          "max": 220
+        }
+      }
+    },
+    {
+      "name": "harvest_bubble_chips_fly",
+      "components": {
+        "bind.Bind": {
+          "source": "terrain2d.Digger.last",
+          "from": "harvest_bubble",
+          "target": "particles2d.Emitter.rate",
+          "onto": "harvest_bubble_chips",
+          "low": 0,
+          "high": 40,
+          "out_low": 0,
+          "out_high": 600,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "white_sparks",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "white_sparks"
+        },
+        "follow2d.Follow": {
+          "target": "white_caster",
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "lifetime_spread": 0.3,
+          "speed": 40,
+          "speed_spread": 30,
+          "wander": 30,
+          "size": 4,
+          "end_size": 1,
+          "red": 210,
+          "green": 250,
+          "blue": 245,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "light": false,
+          "layer": 14,
+          "area_width": 60,
+          "area_height": 60,
+          "max": 120
+        }
+      }
+    },
+    {
+      "name": "white_sparkles",
+      "components": {
+        "bind.Bind": {
+          "source": "barrier2d.Caster.radius",
+          "from": "white_caster",
+          "target": "particles2d.Emitter.rate",
+          "onto": "white_sparks",
+          "low": 0,
+          "high": 140,
+          "out_low": 0,
+          "out_high": 90,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "white_sparkles_wide",
+      "components": {
+        "bind.Bind": {
+          "source": "barrier2d.Caster.radius",
+          "from": "white_caster",
+          "target": "particles2d.Emitter.area_width",
+          "onto": "white_sparks",
+          "low": 0,
+          "high": 140,
+          "out_low": 0,
+          "out_high": 260,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "white_sparkles_high",
+      "components": {
+        "bind.Bind": {
+          "source": "barrier2d.Caster.radius",
+          "from": "white_caster",
+          "target": "particles2d.Emitter.area_height",
+          "onto": "white_sparks",
+          "low": 0,
+          "high": 140,
+          "out_low": 0,
+          "out_high": 260,
           "power": 1
         }
       }
@@ -817,9 +1807,11 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": -34,
-          "offset_y": -62,
-          "stiffness": 0.3
+          "offset_x": 36,
+          "offset_y": -84,
+          "stiffness": 0.25,
+          "wave_y": 3,
+          "wave_period": 2.2
         }
       }
     },
@@ -866,9 +1858,11 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 34,
-          "offset_y": -62,
-          "stiffness": 0.3
+          "offset_x": -36,
+          "offset_y": -84,
+          "stiffness": 0.25,
+          "wave_y": 3,
+          "wave_period": 2.2
         }
       }
     },
@@ -908,15 +1902,108 @@
         "transform2d.Scale": {
           "factor": 0
         },
+        "transform2d.Rotation": {},
         "follow2d.Follow": {
           "target": "hero",
-          "offset_y": -80,
+          "offset_y": -78,
           "stiffness": 1
         },
         "reserve.Drain": {
           "kind": "matter",
           "field": "transform2d.Scale.factor",
-          "per_unit": 0.15
+          "per_unit": 0.05
+        },
+        "light2d.Light": {
+          "radius": 0,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0.7
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 3.5,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 120,
+          "pull": 1200,
+          "swirl": 400
+        }
+      }
+    },
+    {
+      "name": "jump_hole_lights",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "jump_hole",
+          "target": "light2d.Light.radius",
+          "onto": "jump_hole",
+          "low": 0,
+          "high": 24,
+          "out_low": 0,
+          "out_high": 150,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_draws",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "jump_hole",
+          "target": "particles2d.Emitter.rate",
+          "onto": "jump_hole",
+          "low": 0,
+          "high": 24,
+          "out_low": 0,
+          "out_high": 60,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_draws_wide",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "jump_hole",
+          "target": "particles2d.Emitter.area_width",
+          "onto": "jump_hole",
+          "low": 0,
+          "high": 24,
+          "out_low": 0,
+          "out_high": 110,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_draws_high",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "jump_hole",
+          "target": "particles2d.Emitter.area_height",
+          "onto": "jump_hole",
+          "low": 0,
+          "high": 24,
+          "out_low": 0,
+          "out_high": 110,
+          "power": 1
         }
       }
     },
@@ -933,6 +2020,22 @@
           "out_low": 0,
           "out_high": 24,
           "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "jump_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
         }
       }
     },
@@ -1009,7 +2112,8 @@
           "kind": "matter",
           "amount": 100,
           "max": 100,
-          "drain": 0.3333333333333333,
+          "drain": 0.1388888888888889,
+          "floor": 0,
           "empty_action": "out_of_matter"
         },
         "spawner2d.Shooter": {
@@ -1033,7 +2137,8 @@
           "kind": "carbon",
           "amount": 100,
           "max": 100,
-          "drain": 0.3333333333333333,
+          "drain": 0.1388888888888889,
+          "floor": 0,
           "empty_action": "out_of_carbon"
         },
         "spawner2d.Shooter": {
@@ -1052,7 +2157,7 @@
           "onto": "camera",
           "low": 0.5,
           "high": 0,
-          "out_low": 0.45,
+          "out_low": 0.42,
           "out_high": 1,
           "power": 1.5
         }
@@ -1068,7 +2173,7 @@
           "onto": "camera",
           "low": 0.5,
           "high": 0,
-          "out_low": 0.45,
+          "out_low": 0.48,
           "out_high": -3,
           "power": 4
         }

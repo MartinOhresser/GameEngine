@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "hero_curled",
   "image": "hero_curled.png",
-  "cell_width": 128,
-  "cell_height": 128,
+  "cell_width": 256,
+  "cell_height": 256,
   "filter": "linear"
 }

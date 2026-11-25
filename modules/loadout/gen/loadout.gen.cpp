@@ -291,6 +291,8 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.b = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "result") {
             component.result = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "by_hands") {
+            component.by_hands = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -310,6 +312,9 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     }
     if (field == "result") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->result)};
+    }
+    if (field == "by_hands") {
+        return ::ge::app::Scalar{static_cast<bool>(component->by_hands)};
     }
     return std::nullopt;
 }
@@ -333,10 +338,14 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->result = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "by_hands") {
+        component->by_hands = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_2_fields{{{"a", "u32", "power", false}, {"b", "u32", "power", false}, {"result", "u32", "power", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_2_fields{{{"a", "u32", "power", false}, {"b", "u32", "power", false}, {"result", "u32", "power", false}, {"by_hands", "bool", "", false}}};
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

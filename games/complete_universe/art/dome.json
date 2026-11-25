@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "dome",
+  "image": "dome.png",
+  "cell_width": 2048,
+  "cell_height": 2048,
+  "filter": "linear"
+}

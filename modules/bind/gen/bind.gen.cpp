@@ -36,6 +36,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.out_high = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "power") {
             component.power = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "absolute") {
+            component.absolute = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -73,6 +75,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "power") {
         return ::ge::app::Scalar{static_cast<double>(component->power)};
+    }
+    if (field == "absolute") {
+        return ::ge::app::Scalar{static_cast<bool>(component->absolute)};
     }
     return std::nullopt;
 }
@@ -120,10 +125,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->power = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "absolute") {
+        component->absolute = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 9> component_0_fields{{{"source", "u32", "field", false}, {"from", "u32", "tag", false}, {"target", "u32", "field", false}, {"onto", "u32", "tag", false}, {"low", "f32", "", false}, {"high", "f32", "", false}, {"out_low", "f32", "", false}, {"out_high", "f32", "", false}, {"power", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 10> component_0_fields{{{"source", "u32", "field", false}, {"from", "u32", "tag", false}, {"target", "u32", "field", false}, {"onto", "u32", "tag", false}, {"low", "f32", "", false}, {"high", "f32", "", false}, {"out_low", "f32", "", false}, {"out_high", "f32", "", false}, {"power", "f32", "", false}, {"absolute", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Bind", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

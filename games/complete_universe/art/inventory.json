@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "inventory",
   "image": "inventory.png",
-  "cell_width": 64,
-  "cell_height": 64,
+  "cell_width": 128,
+  "cell_height": 128,
   "filter": "linear"
 }

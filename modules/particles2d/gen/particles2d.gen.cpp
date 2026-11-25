@@ -44,6 +44,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.drag = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "wander") {
             component.wander = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "pull") {
+            component.pull = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "swirl") {
+            component.swirl = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "area_width") {
             component.area_width = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "area_height") {
@@ -125,6 +129,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "wander") {
         return ::ge::app::Scalar{static_cast<double>(component->wander)};
+    }
+    if (field == "pull") {
+        return ::ge::app::Scalar{static_cast<double>(component->pull)};
+    }
+    if (field == "swirl") {
+        return ::ge::app::Scalar{static_cast<double>(component->swirl)};
     }
     if (field == "area_width") {
         return ::ge::app::Scalar{static_cast<double>(component->area_width)};
@@ -236,6 +246,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->wander = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "pull") {
+        component->pull = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "swirl") {
+        component->swirl = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     if (field == "area_width") {
         component->area_width = ::ge::app::scalar_as<float>(value);
         return true;
@@ -303,7 +321,7 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 29> component_0_fields{{{"rate", "f32", "", false}, {"active", "bool", "", false}, {"burst", "u32", "", false}, {"lifetime", "f32", "", false}, {"lifetime_spread", "f32", "", false}, {"speed", "f32", "", false}, {"speed_spread", "f32", "", false}, {"angle", "f32", "", false}, {"spread", "f32", "", false}, {"gravity_x", "f32", "", false}, {"gravity_y", "f32", "", false}, {"drag", "f32", "", false}, {"wander", "f32", "", false}, {"area_width", "f32", "", false}, {"area_height", "f32", "", false}, {"size", "f32", "", false}, {"end_size", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"fade", "bool", "", false}, {"additive", "bool", "", false}, {"unlit", "bool", "", false}, {"light", "bool", "", false}, {"layer", "i32", "", false}, {"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"max", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 31> component_0_fields{{{"rate", "f32", "", false}, {"active", "bool", "", false}, {"burst", "u32", "", false}, {"lifetime", "f32", "", false}, {"lifetime_spread", "f32", "", false}, {"speed", "f32", "", false}, {"speed_spread", "f32", "", false}, {"angle", "f32", "", false}, {"spread", "f32", "", false}, {"gravity_x", "f32", "", false}, {"gravity_y", "f32", "", false}, {"drag", "f32", "", false}, {"wander", "f32", "", false}, {"pull", "f32", "", false}, {"swirl", "f32", "", false}, {"area_width", "f32", "", false}, {"area_height", "f32", "", false}, {"size", "f32", "", false}, {"end_size", "f32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"alpha", "u32", "", false}, {"fade", "bool", "", false}, {"additive", "bool", "", false}, {"unlit", "bool", "", false}, {"light", "bool", "", false}, {"layer", "i32", "", false}, {"atlas", "u32", "atlas", false}, {"frame", "u32", "", false}, {"max", "u32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Emitter", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

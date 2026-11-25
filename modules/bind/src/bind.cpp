@@ -53,7 +53,8 @@ void follow(ecs::World& world) {
         if (!value) {
             return;
         }
-        const float t = share(bind, app::scalar_as<float>(*value));
+        const float raw = app::scalar_as<float>(*value);
+        const float t = share(bind, bind.absolute ? std::abs(raw) : raw);
         const float out = bind.out_low + (bind.out_high - bind.out_low) * t;
         static_cast<void>(target->component->write(world, onto, target->field,
                                                    app::Scalar{static_cast<double>(out)}));

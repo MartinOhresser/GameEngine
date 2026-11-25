@@ -39,7 +39,7 @@
     },
     {
       "name": "Track",
-      "description": "A number played along keys: for keys keys (2 to 6), the number field (\"camera2d.Camera.zoom\") of the entity that answers to onto (a tag.Tag; none: this entity) is v0 at tick t0, v1 at tick t1 and so on (the ticks are counted from the start and go up), and slides from one to the next, smoothly at both ends of each slide with smooth. It starts on the first tick, or with start when that action is pressed; before its first key it is not written, after its last it is left at the last value and end_action is pressed once (none: nothing). Several Tracks can play several numbers of the same entity at once: a camera that moves, zooms and fades in a cut scene. The module keeps started, elapsed (ticks since the start) and done.",
+      "description": "A number played along keys: for keys keys (2 to 6), the number field (\"camera2d.Camera.zoom\") of the entity that answers to onto (a tag.Tag; none: this entity) is v0 at tick t0, v1 at tick t1 and so on (the ticks are counted from the start and go up), and slides from one to the next, smoothly at both ends of each slide with smooth. It starts on the first tick, or with start when that action is pressed; before its first key it is not written, after its last it is left at the last value and end_action is pressed once (none: nothing); with loop it starts again from its first key instead, for ever (a spin, a sway, a pulse). Several Tracks can play several numbers of the same entity at once: a camera that moves, zooms and fades in a cut scene. The module keeps started, elapsed (ticks since the start) and done.",
       "replicable": true,
       "fields": [
         { "name": "field", "type": "u32", "default": 4294967295, "ref": "field" },
@@ -60,6 +60,7 @@
         { "name": "t5", "type": "u32", "default": 0 },
         { "name": "v5", "type": "f32", "default": 0 },
         { "name": "end_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "loop", "type": "bool", "default": false },
         { "name": "started", "type": "bool", "default": false },
         { "name": "elapsed", "type": "u32", "default": 0 },
         { "name": "done", "type": "bool", "default": false }

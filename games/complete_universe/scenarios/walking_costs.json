@@ -10,8 +10,8 @@
   ],
   "expect": [
     // Standing still, 3 seconds take 1; walking takes about 1.4 more.
-    "matter.reserve.Reserve.amount < 98.0",
-    "matter.reserve.Reserve.amount > 97.4",
-    "carbon.reserve.Reserve.amount > 98.9",
+    "matter.reserve.Reserve.amount < 99.2",
+    "matter.reserve.Reserve.amount > 98.9",
+    "carbon.reserve.Reserve.amount > 99.5",
   ],
 }

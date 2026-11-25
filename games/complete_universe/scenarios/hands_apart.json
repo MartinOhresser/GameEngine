@@ -1,0 +1,34 @@
+// Black in the left hand, white in the right: both buttons together use each hand on its own, at
+// once (the harvest is the harvest key only, docs/complete_universe/DECISIONS.md).
+{
+  "schema_version": 1,
+  "name": "hands_apart",
+  "scene": "sandbox",
+  "ticks": 60,
+  "inputs": [
+    { "tick": 0, "action": "change", "value": 1 },
+    { "tick": 1, "action": "hand_right", "value": 1 },
+    { "tick": 2, "action": "hand_right", "value": 0 },
+    { "tick": 3, "action": "hand_right", "value": 1 },
+    { "tick": 4, "action": "hand_right", "value": 0 },
+    { "tick": 5, "action": "hand_left", "value": 1 },
+    { "tick": 6, "action": "hand_left", "value": 0 },
+    { "tick": 7, "action": "change", "value": 0 },
+    { "tick": 20, "action": "hand_left", "value": 1 },
+    { "tick": 20, "action": "hand_right", "value": 1 },
+    { "tick": 40, "action": "hand_left", "value": 0 },
+    { "tick": 40, "action": "hand_right", "value": 0 },
+  ],
+  "expect": [
+    { "at": 10, "check": "hand_left.loadout.Hand.item == 0" },
+    { "at": 10, "check": "hand_right.loadout.Hand.item == 1" },
+    { "at": 22, "check": "hand_left.loadout.Hand.acting == true" },
+    { "at": 22, "check": "hand_right.loadout.Hand.acting == true" },
+    { "at": 22, "check": "hand_left.loadout.Hand.joined == false" },
+    { "at": 22, "check": "harvest_bubble.loadout.Ability.active == false" },
+    { "at": 22, "check": "black_hole.loadout.Ability.active == true" },
+    { "at": 30, "check": "hand_left.sprite2d.Sprite.alpha == 240" },
+    "hand_left.loadout.Hand.acting == false",
+    "hand_left.sprite2d.Sprite.alpha == 0",
+  ],
+}

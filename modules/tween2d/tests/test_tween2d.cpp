@@ -245,3 +245,25 @@ TEST_CASE("tween2d: a Track plays a number along its keys, from an action, then 
     CHECK(x_of(app, camera) == 50.0F);
     CHECK(app.world().get<tween2d::Track>(player)->done);
 }
+
+TEST_CASE("tween2d: a looping Track starts again from its first key, for ever") {
+    ge::app::App app = game();
+    tween2d::Track track;
+    track.field = field_index(app, "transform2d.Position.x");
+    track.smooth = false;
+    track.loop = true;
+    track.keys = 2U;
+    track.t0 = 0U;
+    track.v0 = 0.0F;
+    track.t1 = 10U;
+    track.v1 = 100.0F;
+    const ge::ecs::Entity spinner = app.world().spawn();
+    CHECK(app.world().insert(spinner, transform2d::Position{}));
+    CHECK(app.world().insert(spinner, track));
+    app.run_frames(6); // 5 ticks in
+    CHECK(std::abs(x_of(app, spinner) - 50.0F) < 0.01F);
+    app.run_frames(10); // round again: 5 ticks into the second turn
+    CHECK(std::abs(x_of(app, spinner) - 50.0F) < 0.01F);
+    app.run_frames(100);
+    CHECK(!app.world().get<tween2d::Track>(spinner)->done);
+}

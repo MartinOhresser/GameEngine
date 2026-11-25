@@ -51,7 +51,12 @@ TEST_CASE("postfx: the oldest Effects reach the renderer, kept within their rang
     look.vignette_size = 0.5F;
     look.grain = 0.1F;
     look.letterbox = 0.2F;
+    look.rays = 3.0F; // more than 1: 1
+    look.rays_x = 0.25F;
     const ge::app::ScreenEffects effects = told(look);
+    CHECK(effects.rays == 1.0F);
+    CHECK(effects.rays_x == 0.25F);
+    CHECK(effects.rays_y == 0.35F);
     CHECK(effects.bloom == 0.4F);
     CHECK(effects.vignette == 1.0F);
     CHECK(effects.vignette_size == 0.5F);

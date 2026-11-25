@@ -45,12 +45,13 @@
     },
     {
       "name": "Combo",
-      "description": "Two powers used together, a and b (in either hand), make the power result instead: fire and wind make a storm. Both must be unlocked.",
+      "description": "Two powers used together, a and b (in either hand), make the power result instead: fire and wind make a storm. Both must be unlocked. Without by_hands, only a Shortcut makes it: pressing both buttons then uses each hand on its own.",
       "replicable": true,
       "fields": [
         { "name": "a", "type": "u32", "default": 0, "ref": "power" },
         { "name": "b", "type": "u32", "default": 0, "ref": "power" },
-        { "name": "result", "type": "u32", "default": 0, "ref": "power" }
+        { "name": "result", "type": "u32", "default": 0, "ref": "power" },
+        { "name": "by_hands", "type": "bool", "default": true }
       ]
     },
     {

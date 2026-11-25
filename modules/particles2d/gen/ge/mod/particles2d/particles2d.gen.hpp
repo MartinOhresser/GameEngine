@@ -11,7 +11,7 @@
 
 namespace ge::mod::particles2d {
 
-/// Lets out rate particles a second while active (and burst of them at once when it appears: an explosion is an entity with a burst, a rate of 0 and a short life, module lifetime), from a random point of the area_width by area_height box centred on the entity. Each lives lifetime seconds (give or take lifetime_spread) and leaves at speed units a second (give or take speed_spread) in the direction angle (degrees, 0 to the right, 90 down, -90 up) give or take half of spread (360: every way). gravity_x and gravity_y pull it (units a second, per second), drag slows it (the share of its speed it loses each second, 0 to 1), and wander makes it sway from side to side like a firefly or a leaf (how hard, units a second per second). It grows from size to end_size (width in world units). red, green, blue and alpha (0 to 255) are its colour; with fade it fades in quickly and fades out as it ends. atlas names a picture for it (frame is the cell) or, when it is none, it is a soft round glow. additive adds its light to what is under it (sparks, embers, fireflies); unlit keeps it out of the dark of light2d, and light makes each particle a light instead of a drawing. layer is the drawing layer, as for a Sprite. max is the most particles alive at once; the oldest are not replaced, new ones wait. Particles let out stay where they are when the emitter goes away, and live out their lives.
+/// Lets out rate particles a second while active (and burst of them at once when it appears: an explosion is an entity with a burst, a rate of 0 and a short life, module lifetime), from a random point of the area_width by area_height box centred on the entity. Each lives lifetime seconds (give or take lifetime_spread) and leaves at speed units a second (give or take speed_spread) in the direction angle (degrees, 0 to the right, 90 down, -90 up) give or take half of spread (360: every way). gravity_x and gravity_y pull it (units a second, per second), drag slows it (the share of its speed it loses each second, 0 to 1), and wander makes it sway from side to side like a firefly or a leaf (how hard, units a second per second). It grows from size to end_size (width in world units). red, green, blue and alpha (0 to 255) are its colour; with fade it fades in quickly and fades out as it ends. atlas names a picture for it (frame is the cell) or, when it is none, it is a soft round glow. additive adds its light to what is under it (sparks, embers, fireflies); unlit keeps it out of the dark of light2d, and light makes each particle a light instead of a drawing. layer is the drawing layer, as for a Sprite. max is the most particles alive at once; the oldest are not replaced, new ones wait. Particles let out stay where they are when the emitter goes away, and live out their lives. pull draws every particle towards where the emitter is now, that many units a second each second, and a particle that reaches it ends (water into a drain, dust into a black hole); swirl turns them around it, that many units a second each second across (a whirlwind, a vortex): spread them with an area around the emitter.
 struct Emitter {
     float rate = 20.0F;
     bool active = true;
@@ -26,6 +26,8 @@ struct Emitter {
     float gravity_y = 0.0F;
     float drag = 0.0F;
     float wander = 0.0F;
+    float pull = 0.0F;
+    float swirl = 0.0F;
     float area_width = 0.0F;
     float area_height = 0.0F;
     float size = 6.0F;
@@ -57,6 +59,8 @@ struct Emitter {
         hasher.add(gravity_y);
         hasher.add(drag);
         hasher.add(wander);
+        hasher.add(pull);
+        hasher.add(swirl);
         hasher.add(area_width);
         hasher.add(area_height);
         hasher.add(size);

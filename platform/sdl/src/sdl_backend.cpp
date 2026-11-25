@@ -527,8 +527,7 @@ private:
         const SDL_FlipMode flip = command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         const auto angle = static_cast<double>(command.angle);
         if (!command.repeat_x || width < 1.0F) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
-                                     flip);
+            draw_cut(atlas.texture, source, target, angle, flip);
             return;
         }
         // An endless band: copies side by side from the left edge of the view to its right edge.
@@ -538,9 +537,43 @@ private:
             left -= width;
         }
         for (target.x = left; target.x < view_width; target.x += width) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
-                                     flip);
+            draw_cut(atlas.texture, source, target, angle, flip);
         }
+    }
+
+    /// Draws part of a texture, first cut to the view when it is not turned: renderers without
+    /// a graphics card scale the whole target, so a sprite much bigger than the view (a backdrop)
+    /// would otherwise take gigabytes and minutes.
+    void draw_cut(SDL_Texture* texture, SDL_FRect source, SDL_FRect target, double angle,
+                  SDL_FlipMode flip) {
+        const float view_width = half_width_ * 2.0F;
+        const float view_height = half_height_ * 2.0F;
+        const float right = target.x + target.w;
+        const float bottom = target.y + target.h;
+        const bool beyond = target.x < 0.0F || target.y < 0.0F || right > view_width ||
+                            bottom > view_height;
+        if (angle == 0.0 && beyond && target.w > 0.0F && target.h > 0.0F) {
+            const float left = std::max(target.x, 0.0F);
+            const float top = std::max(target.y, 0.0F);
+            const float kept_right = std::min(right, view_width);
+            const float kept_bottom = std::min(bottom, view_height);
+            if (kept_right <= left || kept_bottom <= top) {
+                return;
+            }
+            const float per_x = source.w / target.w;
+            const float per_y = source.h / target.h;
+            float cut_left = left - target.x;
+            float cut_right = right - kept_right;
+            if (flip == SDL_FLIP_HORIZONTAL) {
+                std::swap(cut_left, cut_right);
+            }
+            source.x += cut_left * per_x;
+            source.w -= (cut_left + cut_right) * per_x;
+            source.y += (top - target.y) * per_y;
+            source.h -= (top - target.y + bottom - kept_bottom) * per_y;
+            target = SDL_FRect{left, top, kept_right - left, kept_bottom - top};
+        }
+        SDL_RenderTextureRotated(renderer_, texture, &source, &target, angle, nullptr, flip);
     }
 
     /// A soft disc, from the glow picture made on first use.
@@ -690,8 +723,14 @@ private:
     /// the plain blend modes, so it works with every renderer, software included.
     void apply_effects() {
         SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        if (effects_.bloom > 0.0F || effects_.rays > 0.0F) {
+            make_bright();
+        }
         if (effects_.bloom > 0.0F) {
-            apply_bloom(std::min(effects_.bloom, 1.0F));
+            add_bright(std::min(effects_.bloom, 1.0F));
+        }
+        if (effects_.rays > 0.0F) {
+            apply_rays(std::min(effects_.rays, 1.0F));
         }
         apply_grade();
         if (effects_.vignette > 0.0F) {
@@ -717,10 +756,9 @@ private:
         }
     }
 
-    /// The picture shrunk twice, its bright parts kept by multiplying it by itself (a dark grey
-    /// cubed is nearly black, white stays white), spread out, then enlarged and added over the
-    /// screen: a soft glow around what is bright.
-    void apply_bloom(float strength) {
+    /// `bright_` becomes the picture shrunk twice, its bright parts kept by multiplying it by
+    /// itself (a dark grey cubed is nearly black, white stays white), spread out.
+    void make_bright() {
         SDL_SetRenderTarget(renderer_, quarter_);
         SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
         SDL_SetRenderTarget(renderer_, blur_);
@@ -734,9 +772,36 @@ private:
         spread(bright_, blur_);
         spread(blur_, bright_);
         SDL_SetRenderTarget(renderer_, nullptr);
+    }
+
+    /// The bright parts enlarged and added over the screen: a soft glow around what is bright.
+    void add_bright(float strength) {
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
         SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(std::lround(strength * 255.0F)));
         SDL_RenderTexture(renderer_, bright_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
+        SDL_SetTextureAlphaMod(bright_, 255U);
+    }
+
+    /// Shafts of light: the bright parts added again and again, each copy bigger around the rays'
+    /// point and fainter, so that light streams away from it.
+    void apply_rays(float strength) {
+        constexpr int copies = 14;
+        const float width = half_width_ * 2.0F;
+        const float height = half_height_ * 2.0F;
+        const float cx = effects_.rays_x * width;
+        const float cy = effects_.rays_y * height;
+        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
+        for (int copy = 1; copy <= copies; copy += 1) {
+            const float share = static_cast<float>(copy) / static_cast<float>(copies);
+            const float grow = 1.0F + (effects_.rays_length * share);
+            const float fade = (1.0F - share) * strength * 2.4F / static_cast<float>(copies);
+            SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(
+                                                std::lround(std::min(fade, 1.0F) * 255.0F)));
+            const SDL_FRect grown{cx - (cx * grow), cy - (cy * grow), width * grow,
+                                  height * grow};
+            SDL_RenderTexture(renderer_, bright_, nullptr, &grown);
+        }
         SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
         SDL_SetTextureAlphaMod(bright_, 255U);
     }

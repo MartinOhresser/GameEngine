@@ -369,6 +369,9 @@
             },
             "power": {
               "type": "number"
+            },
+            "absolute": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -2186,6 +2189,9 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "by_hands": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -2307,6 +2313,12 @@
               "type": "number"
             },
             "wander": {
+              "type": "number"
+            },
+            "pull": {
+              "type": "number"
+            },
+            "swirl": {
               "type": "number"
             },
             "area_width": {
@@ -2620,6 +2632,18 @@
               "maximum": 4294967295
             },
             "letterbox": {
+              "type": "number"
+            },
+            "rays": {
+              "type": "number"
+            },
+            "rays_x": {
+              "type": "number"
+            },
+            "rays_y": {
+              "type": "number"
+            },
+            "rays_length": {
               "type": "number"
             }
           },
@@ -3446,6 +3470,9 @@
             "fill": {
               "type": "boolean"
             },
+            "hard": {
+              "type": "boolean"
+            },
             "layers": {
               "type": "integer",
               "minimum": 0,
@@ -4064,6 +4091,9 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "loop": {
+              "type": "boolean"
             },
             "started": {
               "type": "boolean"

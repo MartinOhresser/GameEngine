@@ -12,8 +12,8 @@
     { "tick": 3, "action": "hand_right", "value": 1 },
     { "tick": 4, "action": "hand_right", "value": 0 },
     { "tick": 5, "action": "change", "value": 0 },
-    { "tick": 5, "action": "pointer_x", "value": 480 },
-    { "tick": 5, "action": "pointer_y", "value": 500 },
+    { "tick": 5, "action": "pointer_x", "value": 720 },
+    { "tick": 5, "action": "pointer_y", "value": 750 },
     { "tick": 7, "action": "hand_right", "value": 1 },
     { "tick": 10, "action": "hand_right", "value": 0 },
   ],
@@ -29,8 +29,8 @@
     "falling_rock.transform2d.Position.y > 465",
     "falling_rock.transform2d.Position.y < 471",
     "falling_rock.collision2d.Blocked.below == true",
-    // 20.3 × 0.06 of carbon, and the life drain of a second and a half.
-    "carbon.reserve.Reserve.amount < 98.3",
-    "carbon.reserve.Reserve.amount > 97.2",
+    // 20.3 × 0.025 of carbon, and the life drain of a second and a half.
+    "carbon.reserve.Reserve.amount < 99.4",
+    "carbon.reserve.Reserve.amount > 99.1",
   ],
 }

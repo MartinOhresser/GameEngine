@@ -110,7 +110,7 @@ void apply_shape(const Shape& shape, const transform2d::Position& at, Grid& grid
             const bool in = disc ? mx * mx + my * my <= shape.radius * shape.radius
                                  : std::abs(mx) <= half_w && std::abs(my) <= half_h;
             if (in) {
-                grid.solid[grid.index(column, row)] = shape.fill ? 1U : 0U;
+                grid.solid[grid.index(column, row)] = shape.fill ? (shape.hard ? hard_cell : 1U) : 0U;
             }
         }
     }

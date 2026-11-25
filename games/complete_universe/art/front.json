@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "front",
+  "image": "front.png",
+  "cell_width": 2048,
+  "cell_height": 300,
+  "filter": "linear"
+}

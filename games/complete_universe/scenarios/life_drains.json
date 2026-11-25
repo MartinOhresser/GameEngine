@@ -7,10 +7,10 @@
   "ticks": 600,
   "expect": [
     // 10 seconds at 1/3 a second.
-    "matter.reserve.Reserve.amount > 96.6",
-    "matter.reserve.Reserve.amount < 96.7",
-    "carbon.reserve.Reserve.amount > 96.6",
-    "camera.postfx.Effects.vignette == 0.45",
+    "matter.reserve.Reserve.amount > 98.5",
+    "matter.reserve.Reserve.amount < 98.7",
+    "carbon.reserve.Reserve.amount > 98.5",
+    "camera.postfx.Effects.vignette == 0.42",
     "camera.postfx.Effects.edge_glow == 0",
   ],
 }
