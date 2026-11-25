@@ -1,6 +1,7 @@
 // The controls of docs/complete_universe/TUTORIEL.md: Q/D (or A/D) and the arrows walk, Space
 // jumps, the two mouse buttons are the two hands, Shift changes a hand's colour (held: the wheel),
-// F harvests, Tab opens the inventory, Escape pauses.
+// F harvests, Tab opens the inventory, Escape pauses. In the menus the arrows (or Z/S, W/S)
+// choose, Enter or Space accepts, and the mouse points and clicks.
 {
   "schema_version": 1,
   "bindings": [
@@ -14,5 +15,10 @@
     { "action": "harvest", "sources": { "key:f": 1 } },
     { "action": "inventory", "sources": { "key:tab": 1 } },
     { "action": "skip", "sources": { "key:escape": 1 } },
+    { "action": "pause", "sources": { "key:escape": 1 } },
+    { "action": "menu_up", "sources": { "key:up": 1, "key:z": 1, "key:w": 1 } },
+    { "action": "menu_down", "sources": { "key:down": 1, "key:s": 1 } },
+    { "action": "accept", "sources": { "key:return": 1, "key:space": 1 } },
+    { "action": "menu_click", "sources": { "mouse:left": 1 } },
   ],
 }

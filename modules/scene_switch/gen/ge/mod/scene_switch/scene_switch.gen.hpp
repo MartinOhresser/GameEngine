@@ -44,7 +44,7 @@ struct Persistent {
 };
 
 /// Checks the triggers of every GoToScene each tick and asks for the scene change of the first one that fires; the app makes the change between two ticks.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void trigger(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

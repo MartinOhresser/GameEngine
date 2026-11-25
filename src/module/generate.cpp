@@ -255,7 +255,8 @@ std::string header_text(const ModuleSpec& module) {
         if (!system.description.empty()) {
             out += "/// " + comment_text(system.description) + "\n";
         }
-        out += "/// Runs in " + system.stage + ".\n";
+        out += "/// Runs in " + system.stage + (system.while_paused ? ", even while paused" : "") +
+               ".\n";
         out += "void " + system.name + "(::ge::ecs::World& world);\n\n";
     }
 
@@ -361,9 +362,12 @@ std::string install_text(const ModuleSpec& module) {
     for (const SystemSpec& system : module.systems) {
         out += "    app.add_system(" + stage_enum(system.stage) + ", &" + system.name + ", " +
                quoted(module.name + "." + system.name);
-        if (!system.after.empty() || !system.before.empty()) {
+        if (!system.after.empty() || !system.before.empty() || system.while_paused) {
             out += ", ::ge::app::Order::between(" + braced(qualify_all(module, system.after)) +
                    ", " + braced(qualify_all(module, system.before)) + ")";
+            if (system.while_paused) {
+                out += ".while_paused()";
+            }
         }
         out += ");\n";
     }

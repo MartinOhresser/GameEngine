@@ -64,6 +64,20 @@ TEST_CASE("postfx: the oldest Effects reach the renderer, kept within their rang
     CHECK(effects.letterbox == 0.2F);
 }
 
+TEST_CASE("postfx: the blur of a paused game replaces the usual one") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    postfx::Effects look;
+    look.blur = 0.1F;
+    look.paused_blur = 2.0F; // more than 1: 1
+    CHECK(app.world().insert(app.world().spawn(), look));
+    app.run_frames(1);
+    CHECK(renderer->effects().value_or(ge::app::ScreenEffects{}).blur == 0.1F);
+    app.world().resource<ge::app::Time>()->paused = true;
+    app.run_frames(1);
+    CHECK(renderer->effects().value_or(ge::app::ScreenEffects{}).blur == 1.0F);
+}
+
 TEST_CASE("postfx: the tint and the lift are colours, each channel kept to 255") {
     postfx::Effects look;
     look.tint_red = 200U;

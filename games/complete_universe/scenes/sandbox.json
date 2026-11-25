@@ -638,7 +638,8 @@
           "rays": 0.22,
           "rays_x": 0.5,
           "rays_y": 0.08,
-          "rays_length": 0.22
+          "rays_length": 0.22,
+          "paused_blur": 0.8
         },
         "light2d.Ambient": {
           "red": 92,
@@ -2095,6 +2096,250 @@
         "checkpoint.Checkpoint": {
           "load": "revive"
         }
+      }
+    },
+    {
+      "name": "pause",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "pause"
+        },
+        "toggle.Toggle": {
+          "action": "pause",
+          "off": "resume",
+          "pauses": true
+        }
+      }
+    },
+    {
+      "name": "pause_dim",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 540.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 1984,
+          "height": 1144,
+          "screen": true,
+          "red": 6,
+          "green": 7,
+          "blue": 10,
+          "alpha": 120,
+          "unlit": true,
+          "layer": 900
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 540.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "barrier",
+          "frame": 0,
+          "width": 760,
+          "height": 760,
+          "screen": true,
+          "layer": 905,
+          "unlit": true
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_sleeper",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 335.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "hero_curled",
+          "width": 128,
+          "height": 128,
+          "screen": true,
+          "layer": 910,
+          "unlit": true
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 458.0
+        },
+        "text2d.Text": {
+          "string": "menu.pause",
+          "font": "font",
+          "size": 56,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 235
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "to_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "scene_switch.GoToScene": {
+          "scene": "title",
+          "use_action": true,
+          "action": "to_title"
+        }
+      }
+    },
+    {
+      "name": "pause_menu",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "ui.Menu": {
+          "group": "pause",
+          "up": "menu_up",
+          "down": "menu_down",
+          "accept": "accept",
+          "use_pointer": true,
+          "pointer_x": "pointer_x",
+          "pointer_y": "pointer_y",
+          "click": "menu_click"
+        }
+      }
+    },
+    {
+      "name": "pause_resume",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 580.0
+        },
+        "ui.Button": {
+          "menu": "pause",
+          "order": 0,
+          "action": "resume",
+          "width": 440,
+          "height": 104,
+          "normal_frame": 0,
+          "focus_frame": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "button",
+          "width": 440,
+          "height": 110,
+          "screen": true,
+          "layer": 920,
+          "unlit": true
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_resume_label",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 582.0
+        },
+        "text2d.Text": {
+          "string": "menu.resume",
+          "font": "font",
+          "size": 38,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_to_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 698.0
+        },
+        "ui.Button": {
+          "menu": "pause",
+          "order": 1,
+          "action": "to_title",
+          "width": 440,
+          "height": 104,
+          "normal_frame": 0,
+          "focus_frame": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "button",
+          "width": 440,
+          "height": 110,
+          "screen": true,
+          "layer": 920,
+          "unlit": true
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "pause_to_title_label",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 700.0
+        },
+        "text2d.Text": {
+          "string": "menu.leave",
+          "font": "font",
+          "size": 38,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "toggle.ShownBy": {
+          "toggle": "pause"
+        },
+        "transform2d.Hidden": {}
       }
     },
     {

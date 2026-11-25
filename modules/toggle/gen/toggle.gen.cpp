@@ -22,6 +22,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.action = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "hold") {
             component.hold = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "off") {
+            component.off = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "pauses") {
+            component.pauses = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "on") {
             component.on = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "times") {
@@ -42,6 +46,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "hold") {
         return ::ge::app::Scalar{static_cast<bool>(component->hold)};
+    }
+    if (field == "off") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->off)};
+    }
+    if (field == "pauses") {
+        return ::ge::app::Scalar{static_cast<bool>(component->pauses)};
     }
     if (field == "on") {
         return ::ge::app::Scalar{static_cast<bool>(component->on)};
@@ -67,6 +77,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->hold = ::ge::app::scalar_as<bool>(value);
         return true;
     }
+    if (field == "off") {
+        component->off = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "pauses") {
+        component->pauses = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     if (field == "on") {
         component->on = ::ge::app::scalar_as<bool>(value);
         return true;
@@ -78,7 +96,7 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 4> component_0_fields{{{"action", "u32", "action", false}, {"hold", "bool", "", false}, {"on", "bool", "", false}, {"times", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 6> component_0_fields{{{"action", "u32", "action", false}, {"hold", "bool", "", false}, {"off", "u32", "action", false}, {"pauses", "bool", "", false}, {"on", "bool", "", false}, {"times", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -194,7 +212,7 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &flip, "toggle.flip");
+    app.add_system(::ge::app::Stage::FixedUpdate, &flip, "toggle.flip", ::ge::app::Order::between({}, {}).while_paused());
 }
 
 } // namespace ge::mod::toggle

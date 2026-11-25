@@ -31,6 +31,7 @@
       "name": "trigger",
       "description": "Checks the triggers of every GoToScene each tick and asks for the scene change of the first one that fires; the app makes the change between two ticks.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["GoToScene", "collision2d.Contacts"],
       "writes": ["GoToScene"],
       "after": ["collision2d.detect"]

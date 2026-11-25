@@ -60,6 +60,7 @@
       "name": "trigger",
       "description": "Each tick, a pressed action of a Quit asks the host to stop (QuitRequest), and a pressed action of a Call leaves its request in HostRequests; the host reads them between frames.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": [
         "Quit",
         "Call"

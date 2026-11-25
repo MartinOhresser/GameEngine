@@ -780,12 +780,12 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &layout, "ui.layout", ::ge::app::Order::between({"transform2d.anchor"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &bind, "ui.bind");
-    app.add_system(::ge::app::Stage::FixedUpdate, &fill, "ui.fill", ::ge::app::Order::between({"ui.bind"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &menu, "ui.menu", ::ge::app::Order::between({"ui.layout", "ui.pager"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &pager, "ui.pager", ::ge::app::Order::between({"ui.layout"}, {}));
-    app.add_system(::ge::app::Stage::FixedUpdate, &select, "ui.select", ::ge::app::Order::between({"ui.menu"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &layout, "ui.layout", ::ge::app::Order::between({"transform2d.anchor"}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &bind, "ui.bind", ::ge::app::Order::between({}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &fill, "ui.fill", ::ge::app::Order::between({"ui.bind"}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &menu, "ui.menu", ::ge::app::Order::between({"ui.layout", "ui.pager"}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &pager, "ui.pager", ::ge::app::Order::between({"ui.layout"}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &select, "ui.select", ::ge::app::Order::between({"ui.menu"}, {}).while_paused());
 }
 
 } // namespace ge::mod::ui

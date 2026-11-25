@@ -1,0 +1,26 @@
+// The pause menu: "Reprendre" (chosen at once, Enter) gives the game back, and it goes on wearing
+// away; Escape again does the same.
+{
+  "schema_version": 1,
+  "name": "pause_resumes",
+  "scene": "sandbox",
+  "ticks": 900,
+  "inputs": [
+    { "tick": 30, "action": "pause", "value": 1 },
+    { "tick": 31, "action": "pause", "value": 0 },
+    { "tick": 120, "action": "accept", "value": 1 },
+    { "tick": 121, "action": "accept", "value": 0 },
+    { "tick": 300, "action": "pause", "value": 1 },
+    { "tick": 301, "action": "pause", "value": 0 },
+    { "tick": 400, "action": "pause", "value": 1 },
+    { "tick": 401, "action": "pause", "value": 0 },
+    { "tick": 500, "action": "move_x", "value": 1 },
+    { "tick": 560, "action": "move_x", "value": 0 },
+  ],
+  "expect": [
+    "pause.toggle.Toggle.on == false",
+    "pause.toggle.Toggle.times == 2",
+    "matter.reserve.Reserve.amount < 99.6",
+    "hero.transform2d.Position.x > 420",
+  ],
+}

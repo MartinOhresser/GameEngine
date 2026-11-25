@@ -25,6 +25,12 @@
     "tutorial.departure.title": "Le départ",
     "tutorial.departure.line": "Clic droit maintenu vers le ciel : le plus grand trou noir possible.",
     "tutorial.practice": "Bien. Essaie encore un peu…",
-    "tutorial.next": "À suivre…"
+    "tutorial.next": "À suivre…",
+    "menu.title": "COMPLETE UNIVERSE",
+    "menu.play": "Jouer",
+    "menu.quit": "Quitter",
+    "menu.pause": "Pause",
+    "menu.resume": "Reprendre",
+    "menu.leave": "Retour au titre"
   }
 }

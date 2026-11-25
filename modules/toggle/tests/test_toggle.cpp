@@ -90,3 +90,40 @@ TEST_CASE("toggle: ActiveBy switches an entity off while its toggle is on") {
     screen.run(1);
     CHECK(screen.app.world().has<transform2d::Disabled>(hero));
 }
+
+TEST_CASE("toggle: a Toggle that pauses stops the game; off resumes it; others wait") {
+    ge::app::App app;
+    transform2d::install(app);
+    tag::install(app);
+    toggle::install(app);
+    app.world().insert_resource(ge::app::ActionNames{{"pause", "resume", "map"}});
+    int simulated = 0;
+    app.add_system(ge::app::Stage::FixedUpdate, [&simulated](ge::ecs::World&) { simulated += 1; },
+                   "simulation");
+    const ge::ecs::Entity pause = app.world().spawn();
+    toggle::Toggle pauses{0U};
+    pauses.off = 1U;
+    pauses.pauses = true;
+    CHECK(app.world().insert(pause, pauses));
+    const ge::ecs::Entity map = app.world().spawn();
+    CHECK(app.world().insert(map, toggle::Toggle{2U}));
+    auto* input = app.world().resource<ge::app::ScriptedInput>();
+    input->add(2, "pause", 1.0F);
+    input->add(3, "pause", 0.0F);
+    input->add(5, "map", 1.0F); // while paused: the map does not open
+    input->add(6, "map", 0.0F);
+    input->add(8, "resume", 1.0F);
+    input->add(9, "resume", 0.0F);
+    app.run_frames(2);
+    CHECK(simulated == 2);
+    app.run_frames(1);
+    CHECK(app.world().resource<ge::app::Time>()->paused);
+    app.run_frames(5);
+    CHECK(simulated == 3); // the tick of the press still ran, then it waited
+    CHECK(!app.world().get<toggle::Toggle>(map)->on);
+    app.run_frames(2);
+    CHECK(!app.world().resource<ge::app::Time>()->paused);
+    CHECK(!app.world().get<toggle::Toggle>(pause)->on);
+    app.run_frames(1);
+    CHECK(simulated > 3);
+}

@@ -167,3 +167,23 @@ TEST_CASE("order: the same constraint stated twice is harmless") {
     CHECK(names(schedule) == (std::vector<std::string>{"a", "b"}));
     CHECK(schedule.problems().empty());
 }
+
+TEST_CASE("order: while the game is paused, only the systems that run paused go on") {
+    Schedule schedule;
+    int moved = 0;
+    int menus = 0;
+    int drawn = 0;
+    schedule.add_system(Stage::FixedUpdate, [&moved](World&) { moved += 1; }, "move");
+    schedule.add_system(Stage::FixedUpdate, [&menus](World&) { menus += 1; }, "menu",
+                        Order{}.while_paused());
+    schedule.add_system(Stage::Update, [&drawn](World&) { drawn += 1; }, "draw");
+    World world;
+    world.insert_resource(ge::app::Time{});
+    schedule.run_stage(Stage::FixedUpdate, world);
+    world.resource<ge::app::Time>()->paused = true;
+    schedule.run_stage(Stage::FixedUpdate, world);
+    schedule.run_stage(Stage::Update, world);
+    CHECK(moved == 1);
+    CHECK(menus == 2);
+    CHECK(drawn == 1);
+}

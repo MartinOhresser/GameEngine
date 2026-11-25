@@ -34,7 +34,9 @@
     "phase",
     "text2d",
     "particles2d",
-    "scene_switch"
+    "scene_switch",
+    "ui",
+    "host"
   ],
   "lists": {
     "action": [
@@ -55,6 +57,15 @@
       "skip",
       "exploded",
       "refill",
+      "pause",
+      "resume",
+      "to_title",
+      "menu_up",
+      "menu_down",
+      "accept",
+      "menu_click",
+      "play",
+      "quit",
       "landing_done",
       "landing_next",
       "black_done",
@@ -124,7 +135,8 @@
       "dome",
       "runaway",
       "blast",
-      "to_follow"
+      "to_follow",
+      "pause"
     ],
     "resource": [
       "matter",
@@ -164,6 +176,10 @@
     ],
     "animation_set": [
       "hero"
+    ],
+    "menu": [
+      "title",
+      "pause"
     ]
   },
   "simulation": {
@@ -204,7 +220,8 @@
     "art/plain.json",
     "art/font.json",
     "art/glow.json",
-    "art/planet.json"
+    "art/planet.json",
+    "art/button.json"
   ],
   "prefabs": [
     "prefabs/fade_white.json",
@@ -212,6 +229,7 @@
     "prefabs/fade_back.json"
   ],
   "scenes": [
+    "scenes/title.json",
     "scenes/opening.json",
     "scenes/tutorial.json",
     "scenes/drift.json",
@@ -238,7 +256,10 @@
     "scenarios/cannot_walk_early.json",
     "scenarios/powers_in_order.json",
     "scenarios/opening.json",
-    "scenarios/opening_skips.json"
+    "scenarios/opening_skips.json",
+    "scenarios/pause_stops_everything.json",
+    "scenarios/pause_resumes.json",
+    "scenarios/title_starts.json"
   ],
-  "start_scene": "opening"
+  "start_scene": "title"
 }

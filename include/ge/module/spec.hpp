@@ -71,6 +71,8 @@ struct SystemSpec {
     /// `name` for the module's own, `module.name` for a dependency's.
     std::vector<std::string> after;
     std::vector<std::string> before;
+    /// A FixedUpdate system that still runs while the game is paused (`Time::paused`).
+    bool while_paused = false;
 };
 
 /// The content of one `module.json`.

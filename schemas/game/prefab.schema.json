@@ -2645,6 +2645,12 @@
             },
             "rays_length": {
               "type": "number"
+            },
+            "blur": {
+              "type": "number"
+            },
+            "paused_blur": {
+              "type": "number"
             }
           },
           "additionalProperties": false
@@ -3645,6 +3651,14 @@
               "maximum": 4294967295
             },
             "hold": {
+              "type": "boolean"
+            },
+            "off": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "pauses": {
               "type": "boolean"
             },
             "on": {

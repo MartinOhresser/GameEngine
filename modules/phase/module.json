@@ -47,6 +47,7 @@
       "name": "transition",
       "description": "Moves the current phase on the action of the first Transition that is pressed and allowed.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Transition"],
       "writes": ["Phase"]
     },
@@ -54,6 +55,7 @@
       "name": "apply",
       "description": "Hides and switches off the entities that do not belong to the current phase, shows and switches on the others.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Phase", "ShowIn", "ActiveIn"],
       "writes": ["transform2d.Hidden", "transform2d.Disabled"],
       "after": ["transition"]
