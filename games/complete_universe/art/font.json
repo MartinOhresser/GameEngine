@@ -2,8 +2,8 @@
   "schema_version": 1,
   "name": "font",
   "image": "font.png",
-  "cell_width": 16,
-  "cell_height": 32,
+  "cell_width": 32,
+  "cell_height": 64,
   "filter": "linear",
-  "glyphs": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~àâäçéèêëîïôöùûüÿœÀÉÈÊÇ«»…’"
+  "glyphs": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~àâäçéèêëîïôöùûüÿœÀÉÈÊÇ«»…’←→↑↓·"
 }

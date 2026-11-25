@@ -267,6 +267,8 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.v5 = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "end_action") {
             component.end_action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "loop") {
+            component.loop = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "started") {
             component.started = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "elapsed") {
@@ -337,6 +339,9 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     }
     if (field == "end_action") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->end_action)};
+    }
+    if (field == "loop") {
+        return ::ge::app::Scalar{static_cast<bool>(component->loop)};
     }
     if (field == "started") {
         return ::ge::app::Scalar{static_cast<bool>(component->started)};
@@ -429,6 +434,10 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->end_action = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "loop") {
+        component->loop = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     if (field == "started") {
         component->started = ::ge::app::scalar_as<bool>(value);
         return true;
@@ -444,7 +453,7 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 21> component_2_fields{{{"field", "u32", "field", false}, {"onto", "u32", "tag", false}, {"start", "u32", "action", false}, {"smooth", "bool", "", false}, {"keys", "u32", "", false}, {"t0", "u32", "", false}, {"v0", "f32", "", false}, {"t1", "u32", "", false}, {"v1", "f32", "", false}, {"t2", "u32", "", false}, {"v2", "f32", "", false}, {"t3", "u32", "", false}, {"v3", "f32", "", false}, {"t4", "u32", "", false}, {"v4", "f32", "", false}, {"t5", "u32", "", false}, {"v5", "f32", "", false}, {"end_action", "u32", "action", false}, {"started", "bool", "", false}, {"elapsed", "u32", "", false}, {"done", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 22> component_2_fields{{{"field", "u32", "field", false}, {"onto", "u32", "tag", false}, {"start", "u32", "action", false}, {"smooth", "bool", "", false}, {"keys", "u32", "", false}, {"t0", "u32", "", false}, {"v0", "f32", "", false}, {"t1", "u32", "", false}, {"v1", "f32", "", false}, {"t2", "u32", "", false}, {"v2", "f32", "", false}, {"t3", "u32", "", false}, {"v3", "f32", "", false}, {"t4", "u32", "", false}, {"v4", "f32", "", false}, {"t5", "u32", "", false}, {"v5", "f32", "", false}, {"end_action", "u32", "action", false}, {"loop", "bool", "", false}, {"started", "bool", "", false}, {"elapsed", "u32", "", false}, {"done", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Tween", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Settle", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Track", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 

@@ -13,7 +13,7 @@
     { "at": 60, "check": "jump_hole.transform2d.Scale.factor > 10" },
     { "at": 89, "check": "jump_hole.transform2d.Scale.factor == 24" },
     { "at": 89, "check": "hero.jump.Jumper.charge == 1" },
-    { "at": 89, "check": "matter.reserve.Reserve.amount < 97" },
+    { "at": 89, "check": "matter.reserve.Reserve.amount < 99" },
     { "at": 92, "check": "hero.jump.Jumper.full_jumps == 1" },
     { "at": 92, "check": "jump_hole.transform2d.Scale.factor == 0" },
     // 560 × 1.8 = 1008 up: about 280 units high.

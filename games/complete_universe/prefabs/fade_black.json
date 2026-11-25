@@ -4,13 +4,13 @@
   "name": "fade_black",
   "components": {
     "transform2d.Position": {
-      "x": 640.0,
-      "y": 360.0
+      "x": 960.0,
+      "y": 540.0
     },
     "sprite2d.Sprite": {
       "atlas": "plain",
-      "width": 20000,
-      "height": 20000,
+      "width": 1984,
+      "height": 1144,
       "screen": true,
       "red": 0,
       "green": 0,
@@ -23,7 +23,7 @@
       "field": "sprite2d.Sprite.alpha",
       "from": 0,
       "to": 255,
-      "ticks": 50,
+      "ticks": 60,
       "easing": 3,
       "despawn_when_done": true,
       "use_action": true,

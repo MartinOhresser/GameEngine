@@ -6,10 +6,10 @@
   "scene": "sandbox",
   "ticks": 60,
   "inputs": [
-    { "tick": 0, "action": "pointer_x", "value": 640 },
-    { "tick": 0, "action": "pointer_y", "value": 360 },
+    { "tick": 0, "action": "pointer_x", "value": 960 },
+    { "tick": 0, "action": "pointer_y", "value": 540 },
     { "tick": 0, "action": "change", "value": 1 },
-    { "tick": 30, "action": "pointer_y", "value": 460 },
+    { "tick": 30, "action": "pointer_y", "value": 690 },
     { "tick": 35, "action": "hand_right", "value": 1 },
     { "tick": 36, "action": "hand_right", "value": 0 },
     { "tick": 45, "action": "change", "value": 0 },

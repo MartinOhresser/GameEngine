@@ -14,11 +14,132 @@
           "atlas": "sky",
           "width": 1280,
           "height": 720,
-          "layer": -100
+          "layer": -100,
+          "unlit": true
         },
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        }
+      }
+    },
+    {
+      "name": "veil",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "veil",
+          "width": 2560.0,
+          "height": 1440.0,
+          "layer": -95,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 0.06,
+          "y": 0.06
+        }
+      }
+    },
+    {
+      "name": "hills_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 65.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "hills_far",
+          "width": 2048,
+          "height": 400,
+          "layer": -60,
+          "unlit": true,
+          "alpha": 255
+        },
+        "sprite2d.Parallax": {
+          "x": 0.25,
+          "y": 0.25,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "hills_near",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 215.00000000000003
+        },
+        "sprite2d.Sprite": {
+          "atlas": "hills_near",
+          "width": 2048,
+          "height": 400,
+          "layer": -30,
+          "unlit": true,
+          "alpha": 255
+        },
+        "sprite2d.Parallax": {
+          "x": 0.55,
+          "y": 0.55,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1392.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave",
+          "width": 1024,
+          "height": 1536,
+          "layer": -5
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "dust",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "follow2d.Follow": {
+          "target": "camera",
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 7,
+          "lifetime": 9,
+          "lifetime_spread": 3,
+          "speed": 8,
+          "speed_spread": 6,
+          "spread": 360,
+          "wander": 10,
+          "size": 2.4,
+          "end_size": 1.2,
+          "red": 220,
+          "green": 225,
+          "blue": 235,
+          "alpha": 150,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 30,
+          "area_width": 1500,
+          "area_height": 900,
+          "max": 90
         }
       }
     },
@@ -31,7 +152,7 @@
         },
         "terrain2d.Terrain": {
           "columns": 700,
-          "rows": 250,
+          "rows": 375,
           "cell": 8,
           "layer": [
             "ground"
@@ -45,14 +166,14 @@
         "terrain2d.Look": {
           "layer": 0,
           "pixels": 4,
-          "red": 16,
-          "green": 16,
-          "blue": 18,
-          "top_red": 150,
-          "top_green": 150,
-          "top_blue": 156,
-          "lip": 12,
-          "grain": 0.06
+          "red": 12,
+          "green": 12,
+          "blue": 14,
+          "top_red": 176,
+          "top_green": 180,
+          "top_blue": 190,
+          "lip": 10,
+          "grain": 0.08
         }
       }
     },
@@ -60,13 +181,14 @@
       "name": "wall_left",
       "components": {
         "transform2d.Position": {
-          "x": 32,
-          "y": -200.0
+          "x": 8,
+          "y": 500.0
         },
         "terrain2d.Shape": {
-          "width": 64,
-          "height": 1600,
-          "fill": true
+          "width": 16,
+          "height": 3000,
+          "fill": true,
+          "hard": true
         }
       }
     },
@@ -74,27 +196,29 @@
       "name": "wall_right",
       "components": {
         "transform2d.Position": {
-          "x": 5568,
-          "y": -200.0
+          "x": 5592,
+          "y": 500.0
         },
         "terrain2d.Shape": {
-          "width": 64,
-          "height": 1600,
-          "fill": true
+          "width": 16,
+          "height": 3000,
+          "fill": true,
+          "hard": true
         }
       }
     },
     {
-      "name": "landing_floor",
+      "name": "bedrock",
       "components": {
         "transform2d.Position": {
-          "x": 700,
-          "y": 640
+          "x": 2800.0,
+          "y": 1968
         },
         "terrain2d.Shape": {
-          "width": 800,
-          "height": 80,
-          "fill": true
+          "width": 5600,
+          "height": 64,
+          "fill": true,
+          "hard": true
         }
       }
     },
@@ -102,13 +226,28 @@
       "name": "landing_air",
       "components": {
         "transform2d.Position": {
-          "x": 700,
+          "x": 600.0,
           "y": 500
         },
         "terrain2d.Shape": {
           "width": 800,
           "height": 200,
           "fill": false
+        }
+      }
+    },
+    {
+      "name": "landing_rock",
+      "components": {
+        "transform2d.Position": {
+          "x": 600.0,
+          "y": 800
+        },
+        "terrain2d.Shape": {
+          "width": 600,
+          "height": 400,
+          "fill": true,
+          "hard": true
         }
       }
     },
@@ -155,10 +294,10 @@
       }
     },
     {
-      "name": "rock_b",
+      "name": "rock_a",
       "components": {
         "transform2d.Position": {
-          "x": 480,
+          "x": 700,
           "y": 589
         },
         "sprite2d.Sprite": {
@@ -190,12 +329,12 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 12
+          "amount": 25
         }
       }
     },
     {
-      "name": "rock_a",
+      "name": "rock_b",
       "components": {
         "transform2d.Position": {
           "x": 760,
@@ -230,15 +369,95 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 12
+          "amount": 25
         }
       }
     },
     {
-      "name": "fossil_landing",
+      "name": "rock_c",
       "components": {
         "transform2d.Position": {
-          "x": 380,
+          "x": 470,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 25
+        }
+      }
+    },
+    {
+      "name": "rock_d",
+      "components": {
+        "transform2d.Position": {
+          "x": 830,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 25
+        }
+      }
+    },
+    {
+      "name": "fossil_a",
+      "components": {
+        "transform2d.Position": {
+          "x": 420,
           "y": 589
         },
         "sprite2d.Sprite": {
@@ -270,7 +489,47 @@
         },
         "reserve.Yield": {
           "kind": "carbon",
-          "amount": 15
+          "amount": 30
+        }
+      }
+    },
+    {
+      "name": "fossil_b",
+      "components": {
+        "transform2d.Position": {
+          "x": 530,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "fossil",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 30
         }
       }
     },
@@ -310,7 +569,7 @@
         },
         "reserve.Yield": {
           "kind": "carbon",
-          "amount": 20
+          "amount": 30
         }
       }
     },
@@ -350,7 +609,7 @@
         },
         "reserve.Yield": {
           "kind": "carbon",
-          "amount": 20
+          "amount": 30
         }
       }
     },
@@ -390,7 +649,7 @@
         },
         "reserve.Yield": {
           "kind": "carbon",
-          "amount": 20
+          "amount": 30
         }
       }
     },
@@ -430,7 +689,7 @@
         },
         "reserve.Yield": {
           "kind": "carbon",
-          "amount": 20
+          "amount": 30
         }
       }
     },
@@ -470,7 +729,7 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 20
+          "amount": 25
         }
       }
     },
@@ -510,7 +769,7 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 20
+          "amount": 25
         }
       }
     },
@@ -550,7 +809,7 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 20
+          "amount": 25
         }
       }
     },
@@ -590,7 +849,7 @@
         },
         "reserve.Yield": {
           "kind": "matter",
-          "amount": 20
+          "amount": 25
         }
       }
     },
@@ -607,7 +866,9 @@
           "height": 128,
           "layer": 10
         },
-        "sprite2d.Facing": {},
+        "sprite2d.Animator": {
+          "set": "hero"
+        },
         "tag.Tag": {
           "tag": "hero"
         },
@@ -654,7 +915,7 @@
         "reserve.Drain": {
           "kind": "matter",
           "field": "transform2d.Velocity.x",
-          "per_unit": 0.002
+          "per_unit": 0.0008
         }
       }
     },
@@ -669,7 +930,7 @@
           "tag": "camera"
         },
         "camera2d.Camera": {
-          "zoom": 1
+          "zoom": 1.5
         },
         "camera2d.CameraShake": {
           "strength": 0,
@@ -681,22 +942,112 @@
           "action": "revive"
         },
         "postfx.Effects": {
-          "vignette": 0.45,
-          "vignette_size": 0.45,
+          "vignette": 0.42,
+          "vignette_size": 0.48,
           "edge_glow": 0,
           "edge_glow_size": 0.5,
-          "bloom": 0.25,
-          "grain": 0.08
+          "bloom": 0.4,
+          "grain": 0.05
         },
         "camera2d.CameraFollow": {
-          "stiffness": 0.1,
-          "dead_x": 40,
-          "dead_y": 120,
+          "stiffness": 0.06,
+          "dead_x": 30,
+          "dead_y": 60,
+          "offset_y": -40,
+          "look_ahead": 0.25,
           "bounded": true,
           "bound_left": 0,
           "bound_right": 5600,
           "bound_top": -2000,
-          "bound_bottom": 720
+          "bound_bottom": 2000
+        }
+      }
+    },
+    {
+      "name": "clip_idle",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 0,
+          "first_frame": 0,
+          "frame_count": 32,
+          "ticks_per_frame": 4,
+          "looping": true
+        }
+      }
+    },
+    {
+      "name": "clip_walk_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 20,
+          "first_frame": 32,
+          "frame_count": 16,
+          "ticks_per_frame": 3,
+          "looping": true,
+          "field": "transform2d.Velocity.x",
+          "min": 20
+        }
+      }
+    },
+    {
+      "name": "clip_walk_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 20,
+          "first_frame": 48,
+          "frame_count": 16,
+          "ticks_per_frame": 3,
+          "looping": true,
+          "field": "transform2d.Velocity.x",
+          "max": -20
+        }
+      }
+    },
+    {
+      "name": "clip_charge",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 50,
+          "first_frame": 64,
+          "frame_count": 8,
+          "ticks_per_frame": 4,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02
+        }
+      }
+    },
+    {
+      "name": "clip_rise",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 40,
+          "first_frame": 72,
+          "frame_count": 6,
+          "ticks_per_frame": 5,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "max": -140
+        }
+      }
+    },
+    {
+      "name": "clip_fall",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 39,
+          "first_frame": 78,
+          "frame_count": 6,
+          "ticks_per_frame": 5,
+          "looping": true,
+          "field": "transform2d.Velocity.y",
+          "min": 180
         }
       }
     },
@@ -711,12 +1062,9 @@
           "tag": "kit"
         },
         "loadout.Kit": {
-          "unlocked": [
-            "black",
-            "white"
-          ],
-          "offered": [],
-          "together": 0.12
+          "unlocked": [],
+          "together": 0.12,
+          "change": "locked"
         }
       }
     },
@@ -726,7 +1074,8 @@
         "loadout.Combo": {
           "a": "black",
           "b": "white",
-          "result": "harvest"
+          "result": "harvest",
+          "by_hands": false
         }
       }
     },
@@ -737,15 +1086,21 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "hand_left"
+        },
         "loadout.Hand": {
           "slot": 0,
-          "trigger": "hand_left"
+          "trigger": "hand_left",
+          "item": "white"
         },
         "sprite2d.Sprite": {
-          "atlas": "arm",
-          "width": 48,
-          "height": 48,
-          "layer": 9
+          "atlas": "orb",
+          "width": 30,
+          "height": 30,
+          "layer": 12,
+          "unlit": true,
+          "alpha": 0
         },
         "sprite2d.FrameBind": {
           "field": "loadout.Hand.item",
@@ -753,10 +1108,25 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": -9,
-          "offset_y": -6,
-          "stiffness": 1,
-          "turn": true
+          "offset_x": -15,
+          "offset_y": 14,
+          "stiffness": 0.6
+        }
+      }
+    },
+    {
+      "name": "hand_left_glows",
+      "components": {
+        "bind.Bind": {
+          "source": "loadout.Hand.acting",
+          "from": "hand_left",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "hand_left",
+          "low": 0,
+          "high": 1,
+          "out_low": 0,
+          "out_high": 240,
+          "power": 1
         }
       }
     },
@@ -767,15 +1137,21 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "hand_right"
+        },
         "loadout.Hand": {
           "slot": 1,
-          "trigger": "hand_right"
+          "trigger": "hand_right",
+          "item": "black"
         },
         "sprite2d.Sprite": {
-          "atlas": "arm",
-          "width": 48,
-          "height": 48,
-          "layer": 11
+          "atlas": "orb",
+          "width": 30,
+          "height": 30,
+          "layer": 12,
+          "unlit": true,
+          "alpha": 0
         },
         "sprite2d.FrameBind": {
           "field": "loadout.Hand.item",
@@ -783,10 +1159,25 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 9,
-          "offset_y": -6,
-          "stiffness": 1,
-          "turn": true
+          "offset_x": 15,
+          "offset_y": 14,
+          "stiffness": 0.6
+        }
+      }
+    },
+    {
+      "name": "hand_right_glows",
+      "components": {
+        "bind.Bind": {
+          "source": "loadout.Hand.acting",
+          "from": "hand_right",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "hand_right",
+          "low": 0,
+          "high": 1,
+          "out_low": 0,
+          "out_high": 240,
+          "power": 1
         }
       }
     },
@@ -815,9 +1206,9 @@
           "grow": 70,
           "max_radius": 140,
           "wall_drag": 50,
-          "thickness": 12,
+          "thickness": 14,
           "kind": "carbon",
-          "per_unit": 0.06,
+          "per_unit": 0.025,
           "atlas": "barrier",
           "preview": 2,
           "layer": 14
@@ -934,9 +1325,7 @@
         },
         "transform2d.Disabled": {},
         "loadout.Ability": {
-          "power": "harvest",
-          "kind": "carbon",
-          "per_second": 0.6
+          "power": "harvest"
         },
         "aim2d.Aim": {
           "from": "hero",
@@ -944,7 +1333,7 @@
         },
         "attractor2d.Attractor": {
           "start_radius": 14,
-          "grow": 36,
+          "grow": 40,
           "max_radius": 80,
           "shrink": 300,
           "pull": 300,
@@ -956,9 +1345,9 @@
         },
         "reserve.Drain": {
           "kind": "matter",
-          "per_second": 0.3,
+          "per_second": 0.1,
           "field": "attractor2d.Attractor.radius",
-          "per_unit": 0.01
+          "per_unit": 0.004
         },
         "terrain2d.Digger": {
           "radius": 0,
@@ -969,7 +1358,7 @@
         "reserve.Gain": {
           "kind": "matter",
           "field": "terrain2d.Digger.last",
-          "per_unit": 0.08
+          "per_unit": 0.25
         },
         "sprite2d.Sprite": {
           "atlas": "harvest",
@@ -986,10 +1375,33 @@
     {
       "name": "harvest_key",
       "components": {
+        "tag.Tag": {
+          "tag": "harvest_key"
+        },
         "loadout.Shortcut": {
-          "action": "harvest",
+          "action": "locked",
           "first": "black",
           "second": "white"
+        }
+      }
+    },
+    {
+      "name": "ground_carbon",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "ground_carbon"
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "reserve.Gain": {
+          "kind": "carbon",
+          "field": "transform2d.Scale.factor",
+          "per_unit": 0.15
         }
       }
     },
@@ -1004,7 +1416,7 @@
           "low": 0,
           "high": 1000,
           "out_low": 0,
-          "out_high": 500,
+          "out_high": 700,
           "power": 1
         }
       }
@@ -1026,6 +1438,22 @@
       }
     },
     {
+      "name": "ground_gives_carbon",
+      "components": {
+        "bind.Bind": {
+          "source": "terrain2d.Digger.last",
+          "from": "harvest_bubble",
+          "target": "transform2d.Scale.factor",
+          "onto": "ground_carbon",
+          "low": 0,
+          "high": 100000,
+          "out_low": 0,
+          "out_high": 100000,
+          "power": 1
+        }
+      }
+    },
+    {
       "name": "black_hole",
       "components": {
         "transform2d.Position": {
@@ -1039,7 +1467,7 @@
         "loadout.Ability": {
           "power": "black",
           "kind": "matter",
-          "per_use": 1
+          "per_use": 0.5
         },
         "aim2d.Aim": {
           "from": "hero",
@@ -1060,7 +1488,7 @@
         "reserve.Drain": {
           "kind": "matter",
           "field": "attractor2d.Attractor.radius",
-          "per_unit": 0.03
+          "per_unit": 0.012
         },
         "terrain2d.Digger": {
           "radius": 0,
@@ -1071,7 +1499,7 @@
         "reserve.Gain": {
           "kind": "matter",
           "field": "terrain2d.Digger.last",
-          "per_unit": 0.08
+          "per_unit": 0.25
         },
         "sprite2d.Sprite": {
           "atlas": "black_hole",
@@ -1082,7 +1510,8 @@
         },
         "transform2d.Scale": {
           "factor": 0
-        }
+        },
+        "transform2d.Rotation": {}
       }
     },
     {
@@ -1114,6 +1543,22 @@
           "out_low": 0,
           "out_high": 1000,
           "power": 1
+        }
+      }
+    },
+    {
+      "name": "black_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "black_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 180,
+          "v1": 360,
+          "loop": true
         }
       }
     },
@@ -1159,9 +1604,11 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": -34,
-          "offset_y": -62,
-          "stiffness": 0.3
+          "offset_x": 36,
+          "offset_y": -84,
+          "stiffness": 0.25,
+          "wave_y": 3,
+          "wave_period": 2.2
         }
       }
     },
@@ -1208,9 +1655,11 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 34,
-          "offset_y": -62,
-          "stiffness": 0.3
+          "offset_x": -36,
+          "offset_y": -84,
+          "stiffness": 0.25,
+          "wave_y": 3,
+          "wave_period": 2.2
         }
       }
     },
@@ -1250,15 +1699,16 @@
         "transform2d.Scale": {
           "factor": 0
         },
+        "transform2d.Rotation": {},
         "follow2d.Follow": {
           "target": "hero",
-          "offset_y": -80,
+          "offset_y": -78,
           "stiffness": 1
         },
         "reserve.Drain": {
           "kind": "matter",
           "field": "transform2d.Scale.factor",
-          "per_unit": 0.15
+          "per_unit": 0.05
         }
       }
     },
@@ -1275,6 +1725,22 @@
           "out_low": 0,
           "out_high": 24,
           "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "jump_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
         }
       }
     },
@@ -1351,9 +1817,10 @@
         "checkpoint.Saved": {},
         "reserve.Reserve": {
           "kind": "matter",
-          "amount": 70,
+          "amount": 80,
           "max": 100,
-          "drain": 0.3333333333333333,
+          "drain": 0.1388888888888889,
+          "floor": 25,
           "empty_action": "out_of_matter"
         },
         "spawner2d.Shooter": {
@@ -1375,9 +1842,10 @@
         "checkpoint.Saved": {},
         "reserve.Reserve": {
           "kind": "carbon",
-          "amount": 60,
+          "amount": 80,
           "max": 100,
-          "drain": 0.3333333333333333,
+          "drain": 0.1388888888888889,
+          "floor": 25,
           "empty_action": "out_of_carbon"
         },
         "spawner2d.Shooter": {
@@ -1396,7 +1864,7 @@
           "onto": "camera",
           "low": 0.5,
           "high": 0,
-          "out_low": 0.45,
+          "out_low": 0.42,
           "out_high": 1,
           "power": 1.5
         }
@@ -1412,7 +1880,7 @@
           "onto": "camera",
           "low": 0.5,
           "high": 0,
-          "out_low": 0.45,
+          "out_low": 0.48,
           "out_high": -3,
           "power": 4
         }
@@ -1466,25 +1934,27 @@
       }
     },
     {
-      "name": "after_landing",
+      "name": "clock",
       "components": {
-        "phase.Transition": {
-          "action": "landed",
-          "from": [
-            "landing"
-          ],
-          "from_any": false,
-          "to": "hands"
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "clock"
+        },
+        "transform2d.Velocity": {
+          "x": 1
         }
       }
     },
     {
-      "name": "after_hands",
+      "name": "after_landing",
       "components": {
         "phase.Transition": {
-          "action": "hands_ready",
+          "action": "landing_done",
           "from": [
-            "hands"
+            "landing"
           ],
           "from_any": false,
           "to": "black"
@@ -1500,6 +1970,19 @@
             "black"
           ],
           "from_any": false,
+          "to": "black_practice"
+        }
+      }
+    },
+    {
+      "name": "after_black_practice",
+      "components": {
+        "phase.Transition": {
+          "action": "black_next",
+          "from": [
+            "black_practice"
+          ],
+          "from_any": false,
           "to": "white"
         }
       }
@@ -1513,17 +1996,43 @@
             "white"
           ],
           "from_any": false,
-          "to": "together"
+          "to": "white_practice"
         }
       }
     },
     {
-      "name": "after_together",
+      "name": "after_white_practice",
       "components": {
         "phase.Transition": {
-          "action": "together_done",
+          "action": "white_next",
           "from": [
-            "together"
+            "white_practice"
+          ],
+          "from_any": false,
+          "to": "harvest"
+        }
+      }
+    },
+    {
+      "name": "after_harvest",
+      "components": {
+        "phase.Transition": {
+          "action": "harvest_done",
+          "from": [
+            "harvest"
+          ],
+          "from_any": false,
+          "to": "harvest_practice"
+        }
+      }
+    },
+    {
+      "name": "after_harvest_practice",
+      "components": {
+        "phase.Transition": {
+          "action": "harvest_next",
+          "from": [
+            "harvest_practice"
           ],
           "from_any": false,
           "to": "inventory"
@@ -1539,17 +2048,17 @@
             "inventory"
           ],
           "from_any": false,
-          "to": "harvest"
+          "to": "inventory_practice"
         }
       }
     },
     {
-      "name": "after_harvest",
+      "name": "after_inventory_practice",
       "components": {
         "phase.Transition": {
-          "action": "harvest_done",
+          "action": "inventory_next",
           "from": [
-            "harvest"
+            "inventory_practice"
           ],
           "from_any": false,
           "to": "walk"
@@ -1578,6 +2087,19 @@
             "jump"
           ],
           "from_any": false,
+          "to": "jump_practice"
+        }
+      }
+    },
+    {
+      "name": "after_jump_practice",
+      "components": {
+        "phase.Transition": {
+          "action": "jump_next",
+          "from": [
+            "jump_practice"
+          ],
+          "from_any": false,
           "to": "lack_white"
         }
       }
@@ -1586,7 +2108,7 @@
       "name": "after_lack_white",
       "components": {
         "phase.Transition": {
-          "action": "white_ok",
+          "action": "lack_white_done",
           "from": [
             "lack_white"
           ],
@@ -1599,9 +2121,35 @@
       "name": "after_lack_black",
       "components": {
         "phase.Transition": {
-          "action": "black_ok",
+          "action": "lack_black_done",
           "from": [
             "lack_black"
+          ],
+          "from_any": false,
+          "to": "death"
+        }
+      }
+    },
+    {
+      "name": "after_death",
+      "components": {
+        "phase.Transition": {
+          "action": "revive",
+          "from": [
+            "death"
+          ],
+          "from_any": false,
+          "to": "after_death"
+        }
+      }
+    },
+    {
+      "name": "after_after_death",
+      "components": {
+        "phase.Transition": {
+          "action": "after_death_done",
+          "from": [
+            "after_death"
           ],
           "from_any": false,
           "to": "departure"
@@ -1612,13 +2160,163 @@
       "name": "after_departure",
       "components": {
         "phase.Transition": {
-          "action": "departed",
+          "action": "departure_done",
           "from": [
             "departure"
           ],
           "from_any": false,
           "to": "end"
         }
+      }
+    },
+    {
+      "name": "black_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "black_practice_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "black_next",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "white_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "white_practice_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "white_next",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "harvest_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "harvest_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "harvest_practice_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "harvest_next",
+          "min": 5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "harvest_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "inventory_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "inventory_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "inventory_practice_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "inventory_next",
+          "min": 3,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "inventory_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "jump_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "jump_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "jump_practice_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "jump_next",
+          "min": 2,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "jump_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -1632,29 +2330,21 @@
           "field": "transform2d.Position.x",
           "from": 0,
           "to": 1,
-          "ticks": 90,
+          "ticks": 170,
           "use_action": true,
-          "action": "landed"
+          "action": "landing_done"
         }
       }
     },
     {
-      "name": "hands_watch",
+      "name": "gives_black",
       "components": {
-        "rules.Watch": {
+        "rules.OnAction": {
+          "action": "landing_done",
           "source": "kit",
-          "own": false,
-          "field": "loadout.Kit.held",
-          "action": "hands_ready",
-          "min": 3,
-          "max": 3
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "hands"
-          ]
-        },
-        "transform2d.Disabled": {}
+          "field": "loadout.Kit.unlocked",
+          "value": 1
+        }
       }
     },
     {
@@ -1665,7 +2355,7 @@
           "own": false,
           "field": "attractor2d.Attractor.swallowed",
           "action": "black_done",
-          "min": 1
+          "min": 2
         },
         "phase.ActiveIn": {
           "phases": [
@@ -1676,6 +2366,17 @@
       }
     },
     {
+      "name": "gives_white",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_next",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 3
+        }
+      }
+    },
+    {
       "name": "white_watch",
       "components": {
         "rules.Watch": {
@@ -1683,7 +2384,7 @@
           "own": false,
           "field": "barrier2d.Caster.raised",
           "action": "white_done",
-          "min": 1
+          "min": 2
         },
         "phase.ActiveIn": {
           "phases": [
@@ -1694,18 +2395,29 @@
       }
     },
     {
-      "name": "together_watch",
+      "name": "gives_harvest",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_next",
+          "source": "harvest_key",
+          "field": "loadout.Shortcut.action",
+          "value": 9
+        }
+      }
+    },
+    {
+      "name": "harvest_watch",
       "components": {
         "rules.Watch": {
-          "source": "harvest_bubble",
+          "source": "carbon",
           "own": false,
-          "field": "loadout.Ability.uses",
-          "action": "together_done",
-          "min": 1
+          "field": "reserve.Reserve.gained",
+          "action": "harvest_done",
+          "min": 15
         },
         "phase.ActiveIn": {
           "phases": [
-            "together"
+            "harvest"
           ]
         },
         "transform2d.Disabled": {}
@@ -1730,31 +2442,24 @@
       }
     },
     {
-      "name": "harvest_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "carbon",
-          "own": false,
-          "field": "reserve.Reserve.gained",
-          "action": "harvest_done",
-          "min": 15
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "harvest"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
       "name": "learns_walking",
       "components": {
         "rules.OnAction": {
-          "action": "harvest_done",
+          "action": "inventory_next",
           "source": "hero",
           "field": "action_control.Controlled.action_x",
           "value": 0
+        }
+      }
+    },
+    {
+      "name": "learns_jumping",
+      "components": {
+        "rules.OnAction": {
+          "action": "inventory_next",
+          "source": "hero",
+          "field": "jump.Jumper.action",
+          "value": 1
         }
       }
     },
@@ -1777,17 +2482,6 @@
       }
     },
     {
-      "name": "learns_jumping",
-      "components": {
-        "rules.OnAction": {
-          "action": "walk_done",
-          "source": "hero",
-          "field": "jump.Jumper.action",
-          "value": 1
-        }
-      }
-    },
-    {
       "name": "jump_watch",
       "components": {
         "rules.Watch": {
@@ -1806,10 +2500,32 @@
       }
     },
     {
+      "name": "matter_unguarded",
+      "components": {
+        "rules.OnAction": {
+          "action": "jump_next",
+          "source": "matter",
+          "field": "reserve.Reserve.floor",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "carbon_unguarded",
+      "components": {
+        "rules.OnAction": {
+          "action": "jump_next",
+          "source": "carbon",
+          "field": "reserve.Reserve.floor",
+          "value": 0
+        }
+      }
+    },
+    {
       "name": "white_falls",
       "components": {
         "rules.OnAction": {
-          "action": "jump_done",
+          "action": "jump_next",
           "source": "carbon",
           "field": "reserve.Reserve.amount",
           "value": 25
@@ -1820,7 +2536,7 @@
       "name": "white_drains",
       "components": {
         "rules.OnAction": {
-          "action": "jump_done",
+          "action": "jump_next",
           "source": "carbon",
           "field": "reserve.Reserve.drain",
           "value": 1.2
@@ -1834,7 +2550,7 @@
           "source": "carbon",
           "own": false,
           "field": "reserve.Reserve.amount",
-          "action": "white_ok",
+          "action": "lack_white_done",
           "min": 50,
           "inside": true
         },
@@ -1850,10 +2566,10 @@
       "name": "white_steadies",
       "components": {
         "rules.OnAction": {
-          "action": "white_ok",
+          "action": "lack_white_done",
           "source": "carbon",
           "field": "reserve.Reserve.drain",
-          "value": 0.3333333333333333
+          "value": 0.1388888888888889
         }
       }
     },
@@ -1861,7 +2577,7 @@
       "name": "black_falls",
       "components": {
         "rules.OnAction": {
-          "action": "white_ok",
+          "action": "lack_white_done",
           "source": "matter",
           "field": "reserve.Reserve.amount",
           "value": 25
@@ -1872,7 +2588,7 @@
       "name": "black_drains",
       "components": {
         "rules.OnAction": {
-          "action": "white_ok",
+          "action": "lack_white_done",
           "source": "matter",
           "field": "reserve.Reserve.drain",
           "value": 1.2
@@ -1886,7 +2602,7 @@
           "source": "matter",
           "own": false,
           "field": "reserve.Reserve.amount",
-          "action": "black_ok",
+          "action": "lack_black_done",
           "min": 50,
           "inside": true
         },
@@ -1902,11 +2618,101 @@
       "name": "black_steadies",
       "components": {
         "rules.OnAction": {
-          "action": "black_ok",
+          "action": "lack_black_done",
           "source": "matter",
           "field": "reserve.Reserve.drain",
-          "value": 0.3333333333333333
+          "value": 0.1388888888888889
         }
+      }
+    },
+    {
+      "name": "death_drain",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "reserve.Drain": {
+          "kind": "matter",
+          "per_second": 14
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "death"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "after_death_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "revive",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "refill_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "refill",
+          "min": 0.6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "after_death"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "matter_back",
+      "components": {
+        "rules.OnAction": {
+          "action": "refill",
+          "source": "matter",
+          "field": "reserve.Reserve.amount",
+          "value": 75
+        }
+      }
+    },
+    {
+      "name": "carbon_back",
+      "components": {
+        "rules.OnAction": {
+          "action": "refill",
+          "source": "carbon",
+          "field": "reserve.Reserve.amount",
+          "value": 75
+        }
+      }
+    },
+    {
+      "name": "after_death_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "after_death_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "after_death"
+          ]
+        },
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -1916,7 +2722,7 @@
           "source": "black_hole",
           "own": false,
           "field": "attractor2d.Attractor.radius",
-          "action": "departed",
+          "action": "departure_done",
           "min": 85
         },
         "phase.ActiveIn": {
@@ -1928,164 +2734,220 @@
       }
     },
     {
-      "name": "text_hands",
+      "name": "text_black_title",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 912
         },
         "text2d.Text": {
-          "string": "tutorial.hands",
+          "string": "tutorial.black.title",
           "font": "font",
-          "size": 28,
+          "size": 50,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
-            "hands"
+            "black",
+            "black_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_black",
+      "name": "text_black_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.black",
+          "string": "tutorial.black.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
-            "black"
+            "black",
+            "black_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_white",
+      "name": "text_white_title",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 912
         },
         "text2d.Text": {
-          "string": "tutorial.white",
+          "string": "tutorial.white.title",
           "font": "font",
-          "size": 28,
+          "size": 50,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
-            "white"
+            "white",
+            "white_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_together",
+      "name": "text_white_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.together",
+          "string": "tutorial.white.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
-            "together"
+            "white",
+            "white_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_inventory",
+      "name": "text_harvest_title",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 912
         },
         "text2d.Text": {
-          "string": "tutorial.inventory",
+          "string": "tutorial.harvest.title",
           "font": "font",
-          "size": 28,
+          "size": 50,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
-            "inventory"
+            "harvest",
+            "harvest_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_harvest",
+      "name": "text_harvest_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.harvest",
+          "string": "tutorial.harvest.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
-            "harvest"
+            "harvest",
+            "harvest_practice"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_walk",
+      "name": "text_inventory_title",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 912
         },
         "text2d.Text": {
-          "string": "tutorial.walk",
+          "string": "tutorial.inventory.title",
           "font": "font",
-          "size": 28,
+          "size": 50,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "inventory",
+            "inventory_practice"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_inventory_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.inventory.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "inventory",
+            "inventory_practice"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_walk_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.walk.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -2096,44 +2958,94 @@
       }
     },
     {
-      "name": "text_jump",
+      "name": "text_walk_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.jump",
+          "string": "tutorial.walk.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
-            "jump"
+            "walk"
           ]
         },
         "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_lack_white",
+      "name": "text_jump_title",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 912
         },
         "text2d.Text": {
-          "string": "tutorial.lack_white",
+          "string": "tutorial.jump.title",
           "font": "font",
-          "size": 28,
+          "size": 50,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "jump",
+            "jump_practice"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_jump_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.jump.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "jump",
+            "jump_practice"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_white_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_white.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -2144,20 +3056,44 @@
       }
     },
     {
-      "name": "text_lack_black",
+      "name": "text_lack_white_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.lack_black",
+          "string": "tutorial.lack_white.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_white"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_black_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_black.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -2168,20 +3104,140 @@
       }
     },
     {
-      "name": "text_departure",
+      "name": "text_lack_black_line",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 664
+          "x": 960.0,
+          "y": 976
         },
         "text2d.Text": {
-          "string": "tutorial.departure",
+          "string": "tutorial.lack_black.line",
           "font": "font",
-          "size": 28,
+          "size": 32,
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 225
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_black"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_death_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.death.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "death"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_death_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.death.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "death"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_after_death_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.after_death.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "after_death"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_after_death_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.after_death.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "after_death"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_departure_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.departure.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -2192,20 +3248,75 @@
       }
     },
     {
+      "name": "text_departure_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.departure.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "departure"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_practice",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 1028
+        },
+        "text2d.Text": {
+          "string": "tutorial.practice",
+          "font": "font",
+          "size": 26,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 170
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_practice",
+            "white_practice",
+            "harvest_practice",
+            "inventory_practice",
+            "jump_practice"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
       "name": "whitein",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 360.0
+          "x": 960.0,
+          "y": 540.0
         },
         "tag.Tag": {
           "tag": "whitein"
         },
         "sprite2d.Sprite": {
           "atlas": "plain",
-          "width": 20000,
-          "height": 20000,
+          "width": 1984,
+          "height": 1144,
           "screen": true,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
           "alpha": 255,
           "unlit": true,
           "layer": 1000
@@ -2222,7 +3333,7 @@
           "keys": 2,
           "t0": 0,
           "v0": 255,
-          "t1": 70,
+          "t1": 80,
           "v1": 0
         }
       }
@@ -2232,18 +3343,17 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 2400
+          "y": 2560
         },
         "tag.Tag": {
           "tag": "dome"
         },
         "sprite2d.Sprite": {
-          "atlas": "barrier",
-          "frame": 0,
-          "width": 5400,
-          "height": 5400,
+          "atlas": "dome",
+          "width": 5600,
+          "height": 5600,
           "layer": -90,
-          "alpha": 150,
+          "alpha": 230,
           "unlit": true
         },
         "sprite2d.Parallax": {
@@ -2281,7 +3391,7 @@
           "pulls": [
             "rock"
           ],
-          "inner": 0.45
+          "inner": 0.4
         },
         "terrain2d.Digger": {
           "radius": 0,
@@ -2298,7 +3408,8 @@
         },
         "transform2d.Scale": {
           "factor": 0
-        }
+        },
+        "transform2d.Rotation": {}
       }
     },
     {
@@ -2334,10 +3445,26 @@
       }
     },
     {
+      "name": "runaway_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "runaway",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 240,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
       "name": "ground_shakes",
       "components": {
         "rules.OnAction": {
-          "action": "departed",
+          "action": "departure_done",
           "source": "camera",
           "field": "camera2d.CameraShake.strength",
           "value": 14
@@ -2353,10 +3480,10 @@
           "smooth": true,
           "keys": 2,
           "t0": 60,
-          "v0": 150,
+          "v0": 230,
           "t1": 300,
           "v1": 0,
-          "start": "departed"
+          "start": "departure_done"
         }
       }
     },
@@ -2364,17 +3491,20 @@
       "name": "blast",
       "components": {
         "transform2d.Position": {
-          "x": 640.0,
-          "y": 360.0
+          "x": 960.0,
+          "y": 540.0
         },
         "tag.Tag": {
           "tag": "blast"
         },
         "sprite2d.Sprite": {
           "atlas": "plain",
-          "width": 20000,
-          "height": 20000,
+          "width": 1984,
+          "height": 1144,
           "screen": true,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
           "alpha": 0,
           "unlit": true,
           "layer": 1000
@@ -2393,7 +3523,7 @@
           "v0": 0,
           "t1": 330,
           "v1": 255,
-          "start": "departed",
+          "start": "departure_done",
           "end_action": "exploded"
         }
       }

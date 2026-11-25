@@ -227,3 +227,34 @@ TEST_CASE("loadout: a held shortcut uses two powers together, then gives the han
     CHECK(table.hand_of(table.left).item == wind);
     CHECK(table.hand_of(table.right).item == none);
 }
+
+TEST_CASE("loadout: a combo without by_hands is made by its shortcut only") {
+    Table table;
+    loadout::Combo mix{fire, ice, steam};
+    mix.by_hands = false;
+    const ge::ecs::Entity combo = table.app.world().spawn();
+    CHECK(table.app.world().insert(combo, mix));
+    table.app.world().insert_resource(ge::app::ActionNames{{"left", "right", "change", "gather"}});
+    const ge::ecs::Entity key = table.app.world().spawn();
+    CHECK(table.app.world().insert(key, loadout::Shortcut{3U, fire, ice}));
+    table.hand_of(table.left).item = fire;
+    table.hand_of(table.right).item = ice;
+    const ge::ecs::Entity flame = table.ability(fire);
+    const ge::ecs::Entity frost = table.ability(ice);
+    const ge::ecs::Entity cloud = table.ability(steam);
+    // Both buttons at once: each hand acts on its own, at once (no wait for a second hand).
+    table.set("left", 1.0F);
+    table.set("right", 1.0F);
+    table.run(2);
+    CHECK(table.working(flame));
+    CHECK(table.working(frost));
+    CHECK(!table.working(cloud));
+    table.set("left", 0.0F);
+    table.set("right", 0.0F);
+    table.run(2);
+    // The shortcut still makes it.
+    table.set("gather", 1.0F);
+    table.run(2);
+    CHECK(table.working(cloud));
+    CHECK(!table.working(flame));
+}

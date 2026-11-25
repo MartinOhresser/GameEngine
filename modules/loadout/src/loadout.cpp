@@ -149,12 +149,14 @@ bool change_powers(Kit& kit, std::vector<std::pair<ecs::Entity, Hand*>>& hands,
     return changed;
 }
 
-/// The power two items make together, or none.
-std::uint32_t combined(ecs::World& world, const Kit& kit, std::uint32_t a, std::uint32_t b) {
+/// The power two items make together, or none; with by_hands, only the combos hands make.
+std::uint32_t combined(ecs::World& world, const Kit& kit, std::uint32_t a, std::uint32_t b,
+                       bool by_hands = false) {
     std::uint32_t result = none;
     world.each<const Combo>([&](ecs::Entity, const Combo& combo) {
         const bool pair = (combo.a == a && combo.b == b) || (combo.a == b && combo.b == a);
-        if (result == none && pair && in(kit.unlocked, a) && in(kit.unlocked, b)) {
+        if (result == none && pair && (combo.by_hands || !by_hands) && in(kit.unlocked, a) &&
+            in(kit.unlocked, b)) {
             result = combo.result;
         }
     });
@@ -185,7 +187,7 @@ std::uint32_t use_hands(ecs::World& world, const Kit& kit,
     }
     Hand& first = *hands[0].second;
     Hand& second = *hands[1].second;
-    const std::uint32_t pair = combined(world, kit, first.item, second.item);
+    const std::uint32_t pair = combined(world, kit, first.item, second.item, true);
     const bool both = input.down(first.trigger) && input.down(second.trigger) && !first.waiting &&
                       !second.waiting;
     if (pair != none && both && !first.joined &&

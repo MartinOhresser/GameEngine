@@ -203,3 +203,24 @@ TEST_CASE("terrain2d: a Look terrain is drawn as pictures, remade only where it 
     app.run_frames(2);
     CHECK(renderer->images().empty());
 }
+
+TEST_CASE("terrain2d: the cells of a hard shape cannot be dug") {
+    ge::app::App app = game();
+    const ge::ecs::Entity land = ground(app);
+    terrain2d::Shape bedrock{64.0F, 64.0F, 0.0F, true};
+    bedrock.hard = true;
+    shape(app, 100.0F, 160.0F, bedrock);
+    app.run_frames(1);
+    const ge::ecs::Entity drill = app.world().spawn();
+    CHECK(app.world().insert(drill, transform2d::Position{100.0F, 140.0F}));
+    CHECK(app.world().insert(drill, terrain2d::Digger{24.0F}));
+    app.run_frames(1);
+    CHECK(app.world().get<terrain2d::Digger>(drill)->removed == 0U);
+    // Beside it, the ground is dug as before.
+    app.world().get<transform2d::Position>(drill)->x = 300.0F;
+    app.run_frames(1);
+    CHECK(app.world().get<terrain2d::Digger>(drill)->removed > 10U);
+    const terrain2d::Grid& grid = app.world().resource<terrain2d::Cells>()->grids.begin()->second;
+    CHECK(grid.at(grid.column_of(100.0F), grid.row_of(140.0F)));
+    static_cast<void>(land);
+}

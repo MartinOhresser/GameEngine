@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "hills_near",
+  "image": "hills_near.png",
+  "cell_width": 2048,
+  "cell_height": 400,
+  "filter": "linear"
+}

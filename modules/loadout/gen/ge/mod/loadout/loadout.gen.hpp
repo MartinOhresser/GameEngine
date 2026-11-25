@@ -75,16 +75,18 @@ struct Hand {
     [[nodiscard]] friend bool operator==(const Hand&, const Hand&) = default;
 };
 
-/// Two powers used together, a and b (in either hand), make the power result instead: fire and wind make a storm. Both must be unlocked.
+/// Two powers used together, a and b (in either hand), make the power result instead: fire and wind make a storm. Both must be unlocked. Without by_hands, only a Shortcut makes it: pressing both buttons then uses each hand on its own.
 struct Combo {
     std::uint32_t a = 0U;
     std::uint32_t b = 0U;
     std::uint32_t result = 0U;
+    bool by_hands = true;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(a);
         hasher.add(b);
         hasher.add(result);
+        hasher.add(by_hands);
     }
 
     [[nodiscard]] friend bool operator==(const Combo&, const Combo&) = default;

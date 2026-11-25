@@ -48,12 +48,13 @@ struct Terrain {
     [[nodiscard]] friend bool operator==(const Terrain&, const Terrain&) = default;
 };
 
-/// A hand-made change to every Terrain it overlaps whose layer meets layers, made once, right after the terrain is built: a rectangle width by height centred on the entity's Position, or a disc of that radius when radius is more than 0. fill makes its cells solid (a ledge, a pillar, a bridge), otherwise it carves them (a gap, a cave, a tunnel). applied is set once it is done.
+/// A hand-made change to every Terrain it overlaps whose layer meets layers, made once, right after the terrain is built: a rectangle width by height centred on the entity's Position, or a disc of that radius when radius is more than 0. fill makes its cells solid (a ledge, a pillar, a bridge), otherwise it carves them (a gap, a cave, a tunnel). With hard, its solid cells cannot be dug (bedrock under a place that must stay). applied is set once it is done.
 struct Shape {
     float width = 0.0F;
     float height = 0.0F;
     float radius = 0.0F;
     bool fill = true;
+    bool hard = false;
     std::uint32_t layers = 4294967295U;
     bool applied = false;
 
@@ -62,6 +63,7 @@ struct Shape {
         hasher.add(height);
         hasher.add(radius);
         hasher.add(fill);
+        hasher.add(hard);
         hasher.add(layers);
         hasher.add(applied);
     }

@@ -14,6 +14,9 @@
 
 namespace ge::mod::terrain2d {
 
+/// The value of a solid cell that cannot be dug (any other solid cell is 1).
+inline constexpr std::uint8_t hard_cell = 2U;
+
 /// The cells of one terrain: columns by rows squares of side `cell`, the top-left one at (x, y).
 struct Grid {
     std::uint32_t columns = 0;
@@ -22,7 +25,7 @@ struct Grid {
     float x = 0.0F;
     float y = 0.0F;
     std::uint32_t layer = 1U;
-    std::vector<std::uint8_t> solid; ///< 1 for a solid cell, row after row.
+    std::vector<std::uint8_t> solid; ///< 1 for a solid cell, hard_cell for one that stays.
 
     [[nodiscard]] bool inside(std::int64_t column, std::int64_t row) const noexcept {
         return column >= 0 && row >= 0 && column < static_cast<std::int64_t>(columns) &&
@@ -65,7 +68,8 @@ struct Grid {
         return false;
     }
 
-    /// Empties the cells whose middle is within radius of (cx, cy); returns how many were solid.
+    /// Empties the cells whose middle is within radius of (cx, cy), but hard ones; returns how many
+    /// it emptied.
     std::uint32_t carve(float cx, float cy, float radius) noexcept {
         if (radius <= 0.0F) {
             return 0U;
@@ -82,7 +86,7 @@ struct Grid {
                 const float mx = x + (static_cast<float>(column) + 0.5F) * cell - cx;
                 const float my = y + (static_cast<float>(row) + 0.5F) * cell - cy;
                 std::uint8_t& value = solid[index(column, row)];
-                if (value != 0U && mx * mx + my * my <= radius * radius) {
+                if (value == 1U && mx * mx + my * my <= radius * radius) {
                     value = 0U;
                     carved += 1U;
                 }

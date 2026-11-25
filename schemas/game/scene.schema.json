@@ -2195,6 +2195,9 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  },
+                  "by_hands": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -3455,6 +3458,9 @@
                   "fill": {
                     "type": "boolean"
                   },
+                  "hard": {
+                    "type": "boolean"
+                  },
                   "layers": {
                     "type": "integer",
                     "minimum": 0,
@@ -4073,6 +4079,9 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  },
+                  "loop": {
+                    "type": "boolean"
                   },
                   "started": {
                     "type": "boolean"
