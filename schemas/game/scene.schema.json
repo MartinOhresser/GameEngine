@@ -98,6 +98,66 @@
                 },
                 "additionalProperties": false
               },
+              "attractor2d.Attractor": {
+                "type": "object",
+                "properties": {
+                  "start_radius": {
+                    "type": "number"
+                  },
+                  "grow": {
+                    "type": "number"
+                  },
+                  "max_radius": {
+                    "type": "number"
+                  },
+                  "shrink": {
+                    "type": "number"
+                  },
+                  "pull": {
+                    "type": "number"
+                  },
+                  "pulls": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "inner": {
+                    "type": "number"
+                  },
+                  "convert": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "deferred": {
+                    "type": "boolean"
+                  },
+                  "radius": {
+                    "type": "number"
+                  },
+                  "heart": {
+                    "type": "number"
+                  },
+                  "swallowed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "pending": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "attractor2d.Absorbable": {
+                "type": "object",
+                "properties": {
+                  "mass": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              },
               "autofire.AutoFire": {
                 "type": "object",
                 "properties": {
