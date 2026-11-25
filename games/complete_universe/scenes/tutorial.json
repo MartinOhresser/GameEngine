@@ -599,7 +599,7 @@
       "components": {
         "transform2d.Position": {
           "x": 600,
-          "y": 558.0
+          "y": 220
         },
         "sprite2d.Sprite": {
           "atlas": "hero",
@@ -670,6 +670,11 @@
         },
         "camera2d.Camera": {
           "zoom": 1
+        },
+        "camera2d.CameraShake": {
+          "strength": 0,
+          "decay": 3,
+          "speed": 30
         },
         "spawner2d.Shooter": {
           "prefab": "fade_back",
@@ -2184,6 +2189,227 @@
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "whitein",
+      "components": {
+        "transform2d.Position": {
+          "x": 640.0,
+          "y": 360.0
+        },
+        "tag.Tag": {
+          "tag": "whitein"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 20000,
+          "height": 20000,
+          "screen": true,
+          "alpha": 255,
+          "unlit": true,
+          "layer": 1000
+        }
+      }
+    },
+    {
+      "name": "whitein_fades",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "whitein",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 255,
+          "t1": 70,
+          "v1": 0
+        }
+      }
+    },
+    {
+      "name": "dome",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 2400
+        },
+        "tag.Tag": {
+          "tag": "dome"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "barrier",
+          "frame": 0,
+          "width": 5400,
+          "height": 5400,
+          "layer": -90,
+          "alpha": 150,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0.04,
+          "y": 0.04
+        }
+      }
+    },
+    {
+      "name": "runaway",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "runaway"
+        },
+        "transform2d.Disabled": {},
+        "phase.ActiveIn": {
+          "phases": [
+            "end"
+          ]
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -200,
+          "stiffness": 0.04
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 90,
+          "grow": 150,
+          "max_radius": 1600,
+          "pull": 2600,
+          "pulls": [
+            "rock"
+          ],
+          "inner": 0.45
+        },
+        "terrain2d.Digger": {
+          "radius": 0,
+          "layers": [
+            "ground"
+          ]
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 17,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        }
+      }
+    },
+    {
+      "name": "runaway_digs",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.heart",
+          "from": "runaway",
+          "target": "terrain2d.Digger.radius",
+          "onto": "runaway",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "runaway_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "runaway",
+          "target": "transform2d.Scale.factor",
+          "onto": "runaway",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "ground_shakes",
+      "components": {
+        "rules.OnAction": {
+          "action": "departed",
+          "source": "camera",
+          "field": "camera2d.CameraShake.strength",
+          "value": 14
+        }
+      }
+    },
+    {
+      "name": "dome_melts",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "dome",
+          "smooth": true,
+          "keys": 2,
+          "t0": 60,
+          "v0": 150,
+          "t1": 300,
+          "v1": 0,
+          "start": "departed"
+        }
+      }
+    },
+    {
+      "name": "blast",
+      "components": {
+        "transform2d.Position": {
+          "x": 640.0,
+          "y": 360.0
+        },
+        "tag.Tag": {
+          "tag": "blast"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 20000,
+          "height": 20000,
+          "screen": true,
+          "alpha": 0,
+          "unlit": true,
+          "layer": 1000
+        }
+      }
+    },
+    {
+      "name": "blast_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "blast",
+          "smooth": true,
+          "keys": 2,
+          "t0": 240,
+          "v0": 0,
+          "t1": 330,
+          "v1": 255,
+          "start": "departed",
+          "end_action": "exploded"
+        }
+      }
+    },
+    {
+      "name": "to_drift",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "scene_switch.GoToScene": {
+          "scene": "drift",
+          "use_action": true,
+          "action": "exploded"
+        }
       }
     }
   ]

@@ -2,22 +2,26 @@
 #include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
+#include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/tween2d/tween2d.gen.hpp"
 
 #include "mini_test.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 
 namespace {
 
+namespace tag = ge::mod::tag;
 namespace transform2d = ge::mod::transform2d;
 namespace tween2d = ge::mod::tween2d;
 
 ge::app::App game() {
     ge::app::App app;
     transform2d::install(app);
+    tag::install(app);
     tween2d::install(app);
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().problems().empty());
@@ -206,4 +210,38 @@ TEST_CASE("tween2d: the Scale of an entity can be animated, which is how a pop i
     CHECK(app.world().get<transform2d::Scale>(tile)->factor == 1.125F);
     app.run_frames(20);
     CHECK(app.world().get<transform2d::Scale>(tile)->factor == 1.0F);
+}
+
+TEST_CASE("tween2d: a Track plays a number along its keys, from an action, then stays") {
+    ge::app::App app = game();
+    const ge::ecs::Entity camera = app.world().spawn();
+    CHECK(app.world().insert(camera, transform2d::Position{5.0F, 0.0F}));
+    CHECK(app.world().insert(camera, tag::Tag{7U}));
+    tween2d::Track track;
+    track.field = field_index(app, "transform2d.Position.x");
+    track.onto = 7U;
+    track.start = 0U; // "finished", the only action of these tests
+    track.smooth = false;
+    track.keys = 3U;
+    track.t0 = 10U;
+    track.v0 = 0.0F;
+    track.t1 = 20U;
+    track.v1 = 100.0F;
+    track.t2 = 40U;
+    track.v2 = 50.0F;
+    const ge::ecs::Entity player = app.world().spawn();
+    CHECK(app.world().insert(player, track));
+    app.run_frames(5);
+    CHECK(x_of(app, camera) == 5.0F); // not started
+    app.world().resource<ge::app::ScriptedInput>()->add(5U, "finished", 1.0F);
+    app.world().resource<ge::app::ScriptedInput>()->add(6U, "finished", 0.0F);
+    app.run_frames(6); // started on tick 5: 5 ticks in, before its first key
+    CHECK(x_of(app, camera) == 5.0F);
+    app.run_frames(10); // 15 ticks in: half way from 0 to 100
+    CHECK(std::abs(x_of(app, camera) - 50.0F) < 0.01F);
+    app.run_frames(15); // 30 ticks in: half way from 100 to 50
+    CHECK(std::abs(x_of(app, camera) - 75.0F) < 0.01F);
+    app.run_frames(30);
+    CHECK(x_of(app, camera) == 50.0F);
+    CHECK(app.world().get<tween2d::Track>(player)->done);
 }

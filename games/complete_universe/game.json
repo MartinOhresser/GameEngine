@@ -10,7 +10,7 @@
     "transform2d", "sprite2d", "camera2d", "collision2d", "gravity2d", "action_control", "jump",
     "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout", "follow2d", "attractor2d",
     "barrier2d", "toggle", "rules", "checkpoint", "spawner2d", "bounds2d", "tween2d",
-    "phase", "text2d",
+    "phase", "text2d", "particles2d", "scene_switch",
   ],
   "lists": {
     "action": [
@@ -18,13 +18,14 @@
       "pointer_x", "pointer_y", "harvest", "inventory", "take_off",
       "revive", "locked", "landed", "hands_ready", "black_done", "white_done", "together_done",
       "inventory_done", "harvest_done", "walk_done", "jump_done", "white_ok", "black_ok",
-      "departed",
+      "departed", "skip", "exploded",
     ],
     "layer": ["hero", "ground", "rock", "barrier"],
     "tag": [
       "hero", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
       "inventory", "matter_bubble", "carbon_bubble", "jump_hole", "dead",
-      "kit", "story",
+      "kit", "story", "stars", "nebula", "flash", "great_barrier", "planet", "sleeper",
+      "whiteout", "whitein", "dome", "runaway", "blast", "to_follow",
     ],
     // One kind of resource for each power (GDD §7): matter feeds the black, carbon the white.
     "resource": ["matter", "carbon"],
@@ -46,10 +47,14 @@
   "atlases": [
     "art/sky.json", "art/hero.json", "art/arm.json", "art/black_hole.json", "art/rock.json",
     "art/barrier.json", "art/harvest.json", "art/fossil.json", "art/inventory.json",
-    "art/plain.json", "art/font.json",
+    "art/plain.json", "art/font.json", "art/glow.json", "art/planet.json", "art/nebula.json",
+    "art/hero_curled.json",
   ],
   "prefabs": ["prefabs/fade_white.json", "prefabs/fade_black.json", "prefabs/fade_back.json"],
-  "scenes": ["scenes/tutorial.json", "scenes/sandbox.json", "scenes/sandbox_low.json"],
+  "scenes": [
+    "scenes/opening.json", "scenes/tutorial.json", "scenes/drift.json", "scenes/sandbox.json",
+    "scenes/sandbox_low.json",
+  ],
   "scenarios": [
     "scenarios/walks.json", "scenarios/jumps.json", "scenarios/terrain.json",
     "scenarios/life_drains.json", "scenarios/edges_turn.json", "scenarios/assigns_hands.json",
@@ -58,6 +63,7 @@
     "scenarios/inventory_opens.json", "scenarios/walking_costs.json",
     "scenarios/charged_jump.json", "scenarios/dies_and_restarts.json",
     "scenarios/tutorial_through.json", "scenarios/cannot_walk_early.json",
+    "scenarios/opening.json", "scenarios/opening_skips.json",
   ],
-  "start_scene": "tutorial",
+  "start_scene": "opening",
 }

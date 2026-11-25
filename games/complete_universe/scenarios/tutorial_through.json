@@ -5,7 +5,7 @@
   "schema_version": 1,
   "name": "tutorial_through",
   "scene": "tutorial",
-  "ticks": 1650,
+  "ticks": 2000,
   "inputs": [
     // 2. Hands: left black; right black then white (the left gives its black back); left black.
     { "tick": 100, "action": "change", "value": 1 },
@@ -92,8 +92,13 @@
     { "at": 1480, "check": "rock_3 gone" },
     { "at": 1490, "check": "story.phase.Phase.current == 11" },
     { "at": 1560, "check": "story.phase.Phase.current == 11" },
-    "story.phase.Phase.current == 12",
-    "hero alive",
-    "checkpoint.checkpoint.Checkpoint.loads == 0",
+    { "at": 1650, "check": "story.phase.Phase.current == 12" },
+    { "at": 1650, "check": "checkpoint.checkpoint.Checkpoint.loads == 0" },
+    // The departure: the black hole runs away and grows, the ground shakes, the dome melts.
+    { "at": 1700, "check": "runaway.attractor2d.Attractor.radius > 150" },
+    { "at": 1700, "check": "camera.camera2d.CameraShake.strength > 5" },
+    { "at": 1880, "check": "dome.sprite2d.Sprite.alpha < 30" },
+    // Then white, and the drift in space (another scene: its sleeper).
+    "sleeper alive",
   ],
 }

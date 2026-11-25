@@ -227,15 +227,236 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 4> component_1_fields{{{"field", "u32", "field", false}, {"toward", "f32", "", false}, {"rate", "f32", "", false}, {"on_owner", "bool", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Tween", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Settle", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Track component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "field") {
+            component.field = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "onto") {
+            component.onto = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "start") {
+            component.start = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "smooth") {
+            component.smooth = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "keys") {
+            component.keys = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "t0") {
+            component.t0 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v0") {
+            component.v0 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "t1") {
+            component.t1 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v1") {
+            component.v1 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "t2") {
+            component.t2 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v2") {
+            component.v2 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "t3") {
+            component.t3 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v3") {
+            component.v3 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "t4") {
+            component.t4 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v4") {
+            component.v4 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "t5") {
+            component.t5 = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "v5") {
+            component.v5 = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "end_action") {
+            component.end_action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "started") {
+            component.started = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "elapsed") {
+            component.elapsed = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "done") {
+            component.done = ::ge::app::scalar_as<bool>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Track* component = world.get<Track>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "field") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->field)};
+    }
+    if (field == "onto") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->onto)};
+    }
+    if (field == "start") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->start)};
+    }
+    if (field == "smooth") {
+        return ::ge::app::Scalar{static_cast<bool>(component->smooth)};
+    }
+    if (field == "keys") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->keys)};
+    }
+    if (field == "t0") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t0)};
+    }
+    if (field == "v0") {
+        return ::ge::app::Scalar{static_cast<double>(component->v0)};
+    }
+    if (field == "t1") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t1)};
+    }
+    if (field == "v1") {
+        return ::ge::app::Scalar{static_cast<double>(component->v1)};
+    }
+    if (field == "t2") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t2)};
+    }
+    if (field == "v2") {
+        return ::ge::app::Scalar{static_cast<double>(component->v2)};
+    }
+    if (field == "t3") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t3)};
+    }
+    if (field == "v3") {
+        return ::ge::app::Scalar{static_cast<double>(component->v3)};
+    }
+    if (field == "t4") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t4)};
+    }
+    if (field == "v4") {
+        return ::ge::app::Scalar{static_cast<double>(component->v4)};
+    }
+    if (field == "t5") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->t5)};
+    }
+    if (field == "v5") {
+        return ::ge::app::Scalar{static_cast<double>(component->v5)};
+    }
+    if (field == "end_action") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->end_action)};
+    }
+    if (field == "started") {
+        return ::ge::app::Scalar{static_cast<bool>(component->started)};
+    }
+    if (field == "elapsed") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->elapsed)};
+    }
+    if (field == "done") {
+        return ::ge::app::Scalar{static_cast<bool>(component->done)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Track* component = world.get<Track>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "field") {
+        component->field = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "onto") {
+        component->onto = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "start") {
+        component->start = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "smooth") {
+        component->smooth = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "keys") {
+        component->keys = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "t0") {
+        component->t0 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v0") {
+        component->v0 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "t1") {
+        component->t1 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v1") {
+        component->v1 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "t2") {
+        component->t2 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v2") {
+        component->v2 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "t3") {
+        component->t3 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v3") {
+        component->v3 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "t4") {
+        component->t4 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v4") {
+        component->v4 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "t5") {
+        component->t5 = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "v5") {
+        component->v5 = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "end_action") {
+        component->end_action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "started") {
+        component->started = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "elapsed") {
+        component->elapsed = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "done") {
+        component->done = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 21> component_2_fields{{{"field", "u32", "field", false}, {"onto", "u32", "tag", false}, {"start", "u32", "action", false}, {"smooth", "bool", "", false}, {"keys", "u32", "", false}, {"t0", "u32", "", false}, {"v0", "f32", "", false}, {"t1", "u32", "", false}, {"v1", "f32", "", false}, {"t2", "u32", "", false}, {"v2", "f32", "", false}, {"t3", "u32", "", false}, {"v3", "f32", "", false}, {"t4", "u32", "", false}, {"v4", "f32", "", false}, {"t5", "u32", "", false}, {"v5", "f32", "", false}, {"end_action", "u32", "action", false}, {"started", "bool", "", false}, {"elapsed", "u32", "", false}, {"done", "bool", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Tween", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Settle", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Track", true, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 2> system_0_reads{"tween2d.Tween", "transform2d.Owner"};
 constexpr std::array<std::string_view, 1> system_0_writes{"tween2d.Tween"};
 constexpr std::array<std::string_view, 2> system_1_reads{"tween2d.Settle", "transform2d.Owner"};
 constexpr std::array<std::string_view, 1> system_1_writes{"tween2d.Settle"};
-constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"tween2d.run", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"tween2d.settle", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
+constexpr std::array<std::string_view, 2> system_2_reads{"tween2d.Track", "tag.Tag"};
+constexpr std::array<std::string_view, 1> system_2_writes{"tween2d.Track"};
+constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"tween2d.run", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"tween2d.settle", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"tween2d.play", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
 
-constexpr std::array<std::string_view, 1> depends{"transform2d"};
+constexpr std::array<std::string_view, 2> depends{"transform2d", "tag"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
 
 } // namespace
@@ -249,6 +470,7 @@ void install(::ge::app::App& app) {
     app.add_module(info());
     app.add_system(::ge::app::Stage::FixedUpdate, &run, "tween2d.run", ::ge::app::Order::between({"transform2d.integrate"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &settle, "tween2d.settle", ::ge::app::Order::between({"transform2d.integrate"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &play, "tween2d.play", ::ge::app::Order::between({"transform2d.integrate"}, {}));
 }
 
 } // namespace ge::mod::tween2d

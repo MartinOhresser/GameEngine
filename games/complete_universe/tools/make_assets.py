@@ -294,6 +294,79 @@ def save_font():
         out.write("\n")
 
 
+def glow():
+    """A soft white glow, bright in the middle: the flash of the explosion."""
+    size = 256
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    r = np.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2)
+    alpha = np.clip(1 - r, 0, 1) ** 2.2
+    rgba = np.zeros((size, size, 4), np.uint8)
+    rgba[..., 0:3] = 255
+    rgba[..., 3] = (alpha * 255).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
+
+
+def planet():
+    """The planet of the tutorial seen from space: a grey disc lit from the upper left, with
+    craters, its night side lost in the dark."""
+    size = 512
+    rng = np.random.default_rng(21)
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    cx = cy = size / 2 - 0.5
+    r = np.hypot(x - cx, y - cy) / (size / 2 - 4)
+    inside = r <= 1
+    nz = np.sqrt(np.clip(1 - r ** 2, 0, 1))
+    nx, ny = (x - cx) / (size / 2), (y - cy) / (size / 2)
+    light = np.clip(-0.55 * nx - 0.6 * ny + 0.58 * nz, 0, 1)
+    value = 30 + 170 * light ** 0.9
+    for _ in range(28):
+        px, py = rng.uniform(-0.8, 0.8, 2)
+        pr = rng.uniform(0.03, 0.12)
+        d = np.hypot(nx - px, ny - py) / pr
+        value -= np.where(d < 1, 30 * (1 - d) * light, 0)
+        value += np.where((d > 0.85) & (d < 1.1), 18 * light, 0)
+    alpha = np.where(inside, np.clip((1 - r) * 120, 0, 1), 0)
+    rgba = np.zeros((size, size, 4), np.uint8)
+    rgba[..., 0] = np.clip(value, 0, 255)
+    rgba[..., 1] = np.clip(value, 0, 255)
+    rgba[..., 2] = np.clip(value * 1.04, 0, 255)
+    rgba[..., 3] = (alpha * 255).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
+
+
+def nebula():
+    """A grey veil of dust across the stars: the universe once its colours are gone."""
+    w, h = 1024, 576
+    rng = np.random.default_rng(8)
+    field = np.zeros((h, w))
+    for scale, weight in ((128, 1.0), (64, 0.5), (32, 0.25), (16, 0.12)):
+        small = rng.uniform(0, 1, (h // scale + 2, w // scale + 2))
+        big = np.asarray(Image.fromarray((small * 255).astype(np.uint8)).resize(
+            (w + 2 * scale, h + 2 * scale), Image.BICUBIC), dtype=np.float64)[:h, :w] / 255
+        field += big * weight
+    field /= 1.87
+    y = np.linspace(-1, 1, h)[:, None]
+    x = np.linspace(-1, 1, w)[None, :]
+    band = np.exp(-((y - 0.35 * x) / 0.45) ** 2)
+    alpha = np.clip((field - 0.45) * 2.2, 0, 1) * band
+    rgba = np.zeros((h, w, 4), np.uint8)
+    rgba[..., 0:3] = 150
+    rgba[..., 3] = (alpha * 140).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA").filter(ImageFilter.GaussianBlur(3))
+
+
+def hero_curled():
+    """The hero curled up asleep, as he drifts in his barrier: a ball of ovals, white and black."""
+    picture, draw = canvas(CELL, CELL)
+    c = CELL / 2
+    oval(draw, c - 4, c + 6, 22, 16, BLACK, angle=20)
+    oval(draw, c + 4, c + 4, 20, 15, WHITE, angle=20)
+    oval(draw, c + 14, c - 12, 10, 10, WHITE)
+    oval(draw, c + 10, c - 12, 6, 9, BLACK)
+    oval(draw, c - 10, c + 14, 12, 6, BLACK, angle=-15)
+    return reduce(picture, CELL, CELL)
+
+
 def sky():
     """Black, with a few grey stars."""
     rng = np.random.default_rng(3)
@@ -519,6 +592,7 @@ def camera(bound_right):
     return entity("camera", VIEW_W / 2, VIEW_H / 2, {
         "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": 1},
+        "camera2d.CameraShake": {"strength": 0, "decay": 3, "speed": 30},
         # Brought back to life, the picture comes back from black.
         "spawner2d.Shooter": {"prefab": "fade_back", "action": "revive"},
         "postfx.Effects": {"vignette": BASE_VIGNETTE, "vignette_size": BASE_VIGNETTE_SIZE,
@@ -827,14 +901,196 @@ def tutorial():
     for index, x in enumerate((3500, 3650, 3800, 3950)):
         things.append(rock_entity(f"rock_{index + 1}", x, basin_floor - 11, amount=20))
     return ([sky_entity(), ground] + shapes + things +
-            [hero_entity(LANDING_X, GROUND_Y - HERO_H / 2, locked=True),
+            [hero_entity(LANDING_X, 220, locked=True),
              camera(TUTORIAL_W)] + hands() + powers() + inventory() + jump_hole() +
-            death(watch_story=True) + reserves(matter=70, carbon=60) + story())
+            death(watch_story=True) + reserves(matter=70, carbon=60) + story() + landing() +
+            departure())
+
+
+def landing():
+    """The start of the tutorial: out of the white of the opening, he falls to the ground."""
+    return [
+        entity("whitein", VIEW_W / 2, VIEW_H / 2, {"tag.Tag": {"tag": "whitein"},
+                                                  "sprite2d.Sprite": {
+            "atlas": "plain", "width": 20000, "height": 20000, "screen": True, "alpha": 255,
+            "unlit": True, "layer": 1000}}),
+        track("whitein_fades", "whitein", "sprite2d.Sprite.alpha", [(0, 255), (70, 0)]),
+        # The great barrier, high above: a dome over the whole planet.
+        entity("dome", 0, 2400, {"tag.Tag": {"tag": "dome"}, "sprite2d.Sprite": {
+            "atlas": "barrier", "frame": 0, "width": 5400, "height": 5400, "layer": -90,
+            "alpha": 150, "unlit": True}, "sprite2d.Parallax": {"x": 0.04, "y": 0.04}}),
+    ]
+
+
+def departure():
+    """The end of the tutorial (GDD §12, 10): the black hole he raised slips out of his hands. It
+    grows and grows, the ground shakes and is torn up, the dome melts, and everything goes white:
+    the planet is gone."""
+    return [
+        entity("runaway", 0, 0, {
+            "tag.Tag": {"tag": "runaway"},
+            "transform2d.Disabled": {},
+            "phase.ActiveIn": {"phases": ["end"]},
+            "follow2d.Follow": {"target": "hero", "offset_y": -200, "stiffness": 0.04},
+            "attractor2d.Attractor": {"start_radius": 90, "grow": 150, "max_radius": 1600,
+                                      "pull": 2600, "pulls": ["rock"], "inner": 0.45},
+            "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
+            "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                                "layer": LAYERS["hero"] + 7, "unlit": True},
+            "transform2d.Scale": {"factor": 0},
+        }),
+        bind("runaway_digs", "runaway", "attractor2d.Attractor.heart",
+             "terrain2d.Digger.radius", 0, 5000, 0, 5000, 1, onto="runaway"),
+        bind("runaway_shows", "runaway", "attractor2d.Attractor.radius",
+             "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="runaway"),
+        on("ground_shakes", "departed", "camera", "camera2d.CameraShake.strength", 14),
+        track("dome_melts", "dome", "sprite2d.Sprite.alpha", [(60, 150), (300, 0)],
+              start="departed"),
+        entity("blast", VIEW_W / 2, VIEW_H / 2, {"tag.Tag": {"tag": "blast"},
+                                                "sprite2d.Sprite": {
+            "atlas": "plain", "width": 20000, "height": 20000, "screen": True, "alpha": 0,
+            "unlit": True, "layer": 1000}}),
+        track("blast_comes", "blast", "sprite2d.Sprite.alpha", [(240, 0), (330, 255)],
+              start="departed", end_action="exploded"),
+        entity("to_drift", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "drift", "use_action": True, "action": "exploded"}}),
+    ]
+
+
+def track(name, onto, field, keys, start=None, end_action=None, smooth=True):
+    """A number of the tagged entity played along (tick, value) keys (module tween2d)."""
+    made = {"field": field, "onto": onto, "smooth": smooth, "keys": len(keys)}
+    for index, (tick, value) in enumerate(keys):
+        made[f"t{index}"] = tick
+        made[f"v{index}"] = value
+    if start:
+        made["start"] = start
+    if end_action:
+        made["end_action"] = end_action
+    return {"name": name, "components": {"tween2d.Track": made}}
+
+
+# The colours of the seven fragments, and the order they go out after the explosion (GDD §2:
+# "plein de couleurs, puis de moins en moins").
+FRAGMENT_COLOURS = [("pink", (240, 130, 190)), ("violet", (150, 90, 210)),
+                    ("orange", (240, 140, 50)), ("red", (220, 60, 50)),
+                    ("yellow", (240, 210, 80)), ("green", (80, 190, 110)),
+                    ("blue", (70, 130, 230))]
+PLANET_AT = (700, -120)
+OPENING_TICKS = 840
+
+
+def opening():
+    """The opening (GDD §2): an explosion, the universe spreads out full of colours, fewer and
+    fewer, down to black and white and a sky like ours. The camera finds the hero curled up in an
+    immense barrier, far, then drifting down to a planet, and comes close: white, and the game."""
+    made = [
+        entity("backdrop", 0, 0, {"sprite2d.Sprite": {
+            "atlas": "plain", "width": 40000, "height": 40000, "red": 0, "green": 0, "blue": 0,
+            "layer": -120, "unlit": True}}),
+        entity("stars", 0, 0, {"tag.Tag": {"tag": "stars"}, "sprite2d.Sprite": {
+            "atlas": "sky", "width": VIEW_W, "height": VIEW_H, "layer": -110, "alpha": 0,
+            "unlit": True}, "sprite2d.Parallax": {"x": 0, "y": 0}}),
+        entity("nebula", 200, 0, {"tag.Tag": {"tag": "nebula"}, "sprite2d.Sprite": {
+            "atlas": "nebula", "width": 2600, "height": 1460, "layer": -105, "alpha": 0,
+            "unlit": True}, "sprite2d.Parallax": {"x": 0.25, "y": 0.25}}),
+        entity("flash", 0, 0, {"tag.Tag": {"tag": "flash"}, "sprite2d.Sprite": {
+            "atlas": "glow", "width": 300, "height": 300, "layer": 50, "additive": True,
+            "unlit": True}, "transform2d.Scale": {"factor": 0.2}}),
+        entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"}, "camera2d.Camera": {"zoom": 1.3},
+                                "postfx.Effects": {"bloom": 0.7, "vignette": 0.5,
+                                                   "vignette_size": 0.4, "grain": 0.08}}),
+        entity("great_barrier", *PLANET_AT, {"tag.Tag": {"tag": "great_barrier"},
+                                             "sprite2d.Sprite": {
+            "atlas": "barrier", "frame": 0, "width": 820, "height": 820, "layer": 20,
+            "alpha": 0, "unlit": True}}),
+        entity("planet", PLANET_AT[0], PLANET_AT[1] + 70, {"tag.Tag": {"tag": "planet"},
+                                                          "sprite2d.Sprite": {
+            "atlas": "planet", "width": 300, "height": 300, "layer": 10, "alpha": 0,
+            "unlit": True}}),
+        entity("sleeper", 470, -330, {"tag.Tag": {"tag": "sleeper"}, "sprite2d.Sprite": {
+            "atlas": "hero_curled", "width": 40, "height": 40, "layer": 30, "alpha": 0,
+            "unlit": True}}),
+        entity("whiteout", VIEW_W / 2, VIEW_H / 2, {"tag.Tag": {"tag": "whiteout"},
+                                                   "sprite2d.Sprite": {
+            "atlas": "plain", "width": 20000, "height": 20000, "screen": True, "alpha": 0,
+            "unlit": True, "layer": 1000}}),
+        # The end, or a press of Escape: the planet.
+        entity("to_tutorial", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "tutorial", "after_ticks": OPENING_TICKS, "use_action": True,
+            "action": "skip"}}),
+    ]
+    # The explosion: every colour flies out, and goes out in turn; the grey stays longest.
+    for index, (name, colour) in enumerate(FRAGMENT_COLOURS + [("grey", (200, 200, 200))]):
+        made.append(entity(f"burst_{name}", 0, 0, {"particles2d.Emitter": {
+            "rate": 0, "burst": 140, "lifetime": 2.0 + 0.6 * index if name != "grey" else 9,
+            "lifetime_spread": 0.4, "speed": 420, "speed_spread": 300, "spread": 360,
+            "drag": 0.45, "size": 9, "end_size": 4, "red": colour[0], "green": colour[1],
+            "blue": colour[2], "alpha": 255, "fade": True, "additive": True, "unlit": True,
+            "layer": 40, "max": 160}}))
+    made += [
+        track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 9)]),
+        track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (70, 0)]),
+        track("stars_come", "stars", "sprite2d.Sprite.alpha", [(160, 0), (420, 255)]),
+        track("dust_comes", "nebula", "sprite2d.Sprite.alpha", [(280, 0), (520, 200)]),
+        # The camera: back from the explosion, still, then over to the barrier and down to it.
+        track("camera_zoom", "camera", "camera2d.Camera.zoom",
+              [(0, 1.3), (220, 0.55), (420, 0.55), (560, 0.75), (760, 2.6)]),
+        track("camera_x", "camera", "transform2d.Position.x",
+              [(420, 0), (600, PLANET_AT[0]), (760, PLANET_AT[0] - 10)]),
+        track("camera_y", "camera", "transform2d.Position.y",
+              [(420, 0), (600, PLANET_AT[1]), (760, PLANET_AT[1] - 90)]),
+        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha", [(430, 0), (540, 210)]),
+        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(430, 0), (520, 255)]),
+        track("sleeper_shows", "sleeper", "sprite2d.Sprite.alpha", [(470, 0), (540, 255)]),
+        track("sleeper_x", "sleeper", "transform2d.Position.x",
+              [(480, 470), (780, PLANET_AT[0] - 12)]),
+        track("sleeper_y", "sleeper", "transform2d.Position.y",
+              [(480, -330), (780, PLANET_AT[1] - 82)]),
+        track("white_comes", "whiteout", "sprite2d.Sprite.alpha", [(730, 0), (820, 255)]),
+    ]
+    return made
+
+
+def drift():
+    """After the tutorial (its end, until the space of the next steps): the hero curled up again,
+    drifting among what is left of the planet; 'À suivre'."""
+    return [
+        entity("backdrop", 0, 0, {"sprite2d.Sprite": {
+            "atlas": "plain", "width": 40000, "height": 40000, "red": 0, "green": 0, "blue": 0,
+            "layer": -120, "unlit": True}}),
+        sky_entity(),
+        entity("nebula", 0, 0, {"sprite2d.Sprite": {
+            "atlas": "nebula", "width": 2600, "height": 1460, "layer": -105, "alpha": 200,
+            "unlit": True}, "sprite2d.Parallax": {"x": 0.25, "y": 0.25}}),
+        entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"}, "camera2d.Camera": {"zoom": 1.6},
+                                "postfx.Effects": {"bloom": 0.5, "vignette": 0.55,
+                                                   "vignette_size": 0.35, "grain": 0.08}}),
+        entity("sleeper", -40, 10, {"tag.Tag": {"tag": "sleeper"}, "sprite2d.Sprite": {
+            "atlas": "hero_curled", "width": 60, "height": 60, "layer": 30, "unlit": True},
+            "transform2d.Velocity": {"x": 6, "y": -2}, "transform2d.Rotation": {"degrees": 0},
+            "transform2d.Spin": {"speed": 4}} if False else {"tag.Tag": {"tag": "sleeper"},
+            "sprite2d.Sprite": {"atlas": "hero_curled", "width": 60, "height": 60,
+                                "layer": 30, "unlit": True},
+            "transform2d.Velocity": {"x": 6, "y": -2}}),
+        # What is left of the planet: grey dust flying out.
+        entity("debris", -300, 120, {"particles2d.Emitter": {
+            "rate": 40, "lifetime": 7, "speed": 60, "speed_spread": 40, "angle": -160,
+            "spread": 60, "size": 4, "end_size": 2, "red": 170, "green": 170, "blue": 170,
+            "alpha": 220, "fade": True, "unlit": True, "layer": 20, "area_width": 160,
+            "area_height": 160, "max": 300}}),
+        entity("to_follow", VIEW_W / 2, VIEW_H - 120, {"tag.Tag": {"tag": "to_follow"},
+                                                      "text2d.Text": {
+            "string": "tutorial.next", "font": "font", "size": 30, "pivot_x": 0.5,
+            "pivot_y": 0.5, "screen": True, "alpha": 0}}),
+        track("to_follow_shows", "to_follow", "text2d.Text.alpha", [(120, 0), (240, 230)]),
+    ]
 
 
 def write_strings():
     os.makedirs(TEXT, exist_ok=True)
     entries = {f"tutorial.{step}": text for step, text in TEXTS.items()}
+    entries["tutorial.next"] = "À suivre…"
     with open(os.path.join(TEXT, "fr.json"), "w", encoding="utf-8") as out:
         json.dump({"schema_version": 1, "locale": "fr", "entries": entries}, out, indent=2,
                   ensure_ascii=False)
@@ -866,6 +1122,12 @@ def main():
     save_font()
     write_strings()
     write_scene("tutorial", tutorial())
+    save(glow(), "glow")
+    save(planet(), "planet")
+    save(nebula(), "nebula")
+    save(hero_curled(), "hero_curled")
+    write_scene("opening", opening())
+    write_scene("drift", drift())
 
 
 if __name__ == "__main__":
