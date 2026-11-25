@@ -3330,6 +3330,16 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  },
+                  "clip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "transition": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false
@@ -3378,6 +3388,21 @@
                   },
                   "looping": {
                     "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "from_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "to_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   }
                 },
                 "additionalProperties": false

@@ -443,6 +443,35 @@ TEST_CASE("sprite2d: a clip that stays chosen runs on, a new one starts from its
     CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 10U);
 }
 
+TEST_CASE("sprite2d: a transition plays once between two clips, then the new clip") {
+    Walker walker;
+    auto& world = walker.app.world();
+    // The clips of the walker get ids: standing 1, running 2, going up 3.
+    int index = 0;
+    world.each<sprite2d::AnimationClip>([&index](ge::ecs::Entity, sprite2d::AnimationClip& c) {
+        index += 1;
+        c.id = static_cast<std::uint32_t>(index);
+    });
+    // Standing to running: cells 50-51; anything after going up: cell 60 (a landing).
+    sprite2d::AnimationClip start = clip(0, 50U, 2U);
+    start.from_id = 1U;
+    start.to_id = 2U;
+    start.looping = false;
+    add(walker.app, start);
+    sprite2d::AnimationClip landing = clip(0, 60U, 1U);
+    landing.from_id = 3U;
+    landing.looping = false;
+    add(walker.app, landing);
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U);
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 50U); // the start, never chosen by itself
+    CHECK(walker.frame_after(2U, 30.0F, 0.0F) == 51U);
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 51U);
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 10U); // four ticks later, the run
+    CHECK(walker.frame_after(1U, 30.0F, -100.0F) == 20U); // no transition from running up
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 60U);     // any clip after going up: landing
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 50U); // cut short: standing to running again
+}
+
 TEST_CASE("sprite2d: clips of another set, or on a missing component, are not chosen") {
     Walker walker;
     sprite2d::AnimationClip other = clip(9, 30U, 1U);

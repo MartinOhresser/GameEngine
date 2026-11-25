@@ -163,204 +163,437 @@ def sheet_of(frames, columns, cell_w, cell_h):
 HS = CELL_PX * SUPER // CELL  # pixels of the big drawing for one world unit (6)
 HN = CELL * HS  # side of the big drawing
 FEET = CELL / 2 + HERO_H / 2  # where the feet are in a cell, in world units
-LEG, ARM = 25.0, 23.0  # lengths of the limbs
+# The proportions, after Martin's picture (docs/complete_universe): the head is nearly as wide as
+# the body is tall; the arms and legs are plump drops. World units.
+HEAD_R = 17.5
+BODY_A, BODY_B = 11.2, 18.0  # half width and half height of the body
+LEG_L, LEG_W = 36.0, 6.2
+ARM_L, ARM_W = 28.0, 5.7
+HERO_LIGHT = np.array([-0.5, -0.62, 0.6]) / np.linalg.norm([-0.5, -0.62, 0.6])
 
 
 class Pose:
-    """Where the parts of the hero are in one picture."""
+    """Where the parts of the hero are in one picture. Angles in degrees."""
 
     def __init__(self, **values):
-        self.turn = 0.0  # -1 looks left, 1 right
-        self.lean = 0.0  # degrees, the top towards the right when positive
-        self.leg_a = -3.0  # the white leg, degrees from straight down, positive towards the right
-        self.leg_b = 3.0
-        self.leg_len_a = LEG
-        self.leg_len_b = LEG
-        self.arm_a = -9.0  # the white arm
-        self.arm_b = 9.0
-        self.stretch = 1.0  # of the chest, up and down
-        self.lift = 0.0  # the hips above where the legs would put them
-        self.drop = 0.0  # the whole body lower (a crouch)
+        self.turn = 0.0  # -1: the face towards the left of the screen, 1 the right
+        self.x = 0.0  # the whole body, sideways
+        self.bob = 0.0  # the body up (negative) or down, beyond what the legs give
+        self.squash = 1.0  # the body taller (above 1) or flatter
+        self.lean = 0.0  # the top towards the right when positive
+        self.tilt = 0.0  # the head
+        self.head_drop = 0.0  # the head lower on the body (curled up)
+        self.leg_w = -6.0  # the white leg, from straight down, positive towards the right
+        self.leg_b = 6.0
+        self.leg_len_w = LEG_L
+        self.leg_len_b = LEG_L
+        self.arm_w = -26.0  # the white arm
+        self.arm_b = 26.0
+        self.limbs_front = False  # the legs and arms before the body (curled up)
         self.blink = 1.0  # how open the eyes are
-        self.look_y = 0.0  # the eyes up (negative) or down
-        self.hole = None  # a small black hole pulling a foot: (x, y, size)
+        self.look_x = 0.0
+        self.look_y = 0.0
+        self.hole = None  # (x, y, size): a small black hole pulling a foot
+        self.ground = True  # the lower foot stands on the ground
+        # How the soft shapes give with the motion (set by follow_through): each limb bends, its
+        # tip lagging behind where it goes, and stretches with its speed; the head squashes.
+        self.bend = {"arm_w": 0.0, "arm_b": 0.0, "leg_w": 0.0, "leg_b": 0.0}
+        self.stretch = {"arm_w": 1.0, "arm_b": 1.0, "leg_w": 1.0, "leg_b": 1.0}
+        self.head_squash = 1.0  # below 1: wider and flatter
         self.__dict__.update(values)
 
 
-def ellipse_mask(cx, cy, rx, ry, angle=0.0):
-    mask = Image.new("L", (HN, HN), 0)
-    oval(ImageDraw.Draw(mask), cx, cy, rx, ry, 255, angle, HS)
-    return np.asarray(mask, dtype=np.float64) / 255.0
+def hero_grid():
+    ys, xs = np.mgrid[0:HN, 0:HN].astype(np.float64) / HS
+    return xs, ys
 
 
-def limb(joint_x, joint_y, angle, length, width):
-    """An oval hanging from a joint, turned `angle` degrees from straight down."""
-    a = math.radians(angle)
-    cx = joint_x + math.sin(a) * length / 2
-    cy = joint_y + math.cos(a) * length / 2
-    return ellipse_mask(cx, cy, width, length / 2 + 2.5, -angle)
+HERO_X, HERO_Y = hero_grid()
+
+
+def ovoid(cx, cy, a, b, angle=0.0, egg=0.0, bend=0.0):
+    """An ovoid around (cx, cy) in a hero cell, half axes a (across) and b (along), turned angle
+    degrees; egg widens its +v end, bend curves it (its +v end goes sideways by bend times a,
+    its -v end stays). Its coverage (smooth edged), the normal of its round surface (nx, ny,
+    nz), as if it were a lit pebble, and about how far each point is outside it (negative
+    inside), in world units."""
+    t = math.radians(angle)
+    dx, dy = HERO_X - cx, HERO_Y - cy
+    u = dx * math.cos(t) + dy * math.sin(t)
+    v = -dx * math.sin(t) + dy * math.cos(t)
+    if bend:
+        u = u - bend * a * (np.clip(v / b, -1, 1) + 1) ** 2 / 4
+    widen = 1 + egg * np.clip(v / b, -1, 1)
+    un, vn = u / (a * widen), v / b
+    r = np.sqrt(un * un + vn * vn)
+    distance = (r - 1) * min(a, b)
+    cover = np.clip(-distance * HS * 0.9, 0, 1)
+    nz = np.sqrt(np.clip(1 - r * r, 0, 1))
+    nx = un * math.cos(t) - vn * math.sin(t)
+    ny = un * math.sin(t) + vn * math.cos(t)
+    return cover, nx, ny, nz, distance
+
+
+def hero_shade(nx, ny, nz, white):
+    """White: bright, lit from the top left, greyer towards its edges. Black: a soft highlight,
+    and a grey rim on the side of the white half's glow."""
+    diffuse = np.clip(nx * HERO_LIGHT[0] + ny * HERO_LIGHT[1] + nz * HERO_LIGHT[2], 0, 1)
+    edge = (1 - nz) ** 2.2
+    if white:
+        tone = 200 + 52 * diffuse ** 0.7 - 70 * edge
+        return np.dstack([tone * 0.98, tone * 0.99, tone * 1.02])
+    spec = np.clip(nx * -0.35 + ny * -0.55 + nz * 0.76, 0, 1) ** 18
+    tone = 8 + 22 * diffuse ** 2 + 58 * edge * np.clip(0.4 - nx * 0.8, 0, 1) + 60 * spec
+    return np.dstack([tone, tone, tone * 1.06])
 
 
 def hero_frame(pose):
-    """One picture of the hero, CELL_PX square, from a Pose."""
-    cx = CELL / 2 + pose.lean * 0.12
-    reach = max(math.cos(math.radians(pose.leg_a)) * pose.leg_len_a,
+    """One picture of the hero, CELL_PX square, from a Pose: ovoids laid from the back to the
+    front, split white and black along a curved meridian, then the eyes and the glow."""
+    cx = CELL / 2 + pose.x
+    reach = max(math.cos(math.radians(pose.leg_w)) * pose.leg_len_w,
                 math.cos(math.radians(pose.leg_b)) * pose.leg_len_b)
-    hip_y = FEET - reach - pose.lift + pose.drop
-    chest_y = hip_y - 13 * pose.stretch
+    hip_y = (FEET - reach + 3 if pose.ground else FEET - LEG_L + 2) + pose.bob
+    body_b = BODY_B * pose.squash
+    body_a = BODY_A / math.sqrt(pose.squash)
     lean = math.radians(pose.lean)
-    shoulder_y = chest_y - 11 * pose.stretch
-    head_x = cx + math.sin(lean) * 30 + pose.turn * 2.2
-    head_y = chest_y - 31.5 * pose.stretch + pose.drop * 0.2
-    split = cx + pose.turn * 1.6 + math.sin(lean) * 14
+    body_cx = cx + math.sin(lean) * body_b * 0.6
+    body_cy = hip_y - body_b * 0.62
+    head_cx = body_cx + math.sin(lean) * 26 + pose.turn * 1.5
+    head_cy = body_cy - body_b - HEAD_R * 0.78 + pose.head_drop
+    shoulder_y = body_cy - body_b * 0.56
+    turn = math.radians(pose.turn * 38)
 
-    xs = np.arange(HN)[None, :] / HS
-    left_side = np.clip((split - xs) * 2 + 0.5, 0, 1) * np.ones((HN, 1))
-    # The parts, from the back to the front: (mask, side) with side "w", "b" or "split".
-    parts = [
-        (limb(cx - 5.5, hip_y, pose.leg_a, pose.leg_len_a, 6.4), "w"),
-        (limb(cx + 5.5, hip_y, pose.leg_b, pose.leg_len_b, 6.4), "b"),
-        (ellipse_mask(cx + math.sin(lean) * 13, chest_y, 12.5, 17.5 * pose.stretch, -pose.lean),
-         "split"),
-        (ellipse_mask(head_x, head_y, 17.0, 16.0), "split"),
-        (limb(cx - 10.5 + math.sin(lean) * 22, shoulder_y, pose.arm_a, ARM, 5.3), "w"),
-        (limb(cx + 10.5 + math.sin(lean) * 22, shoulder_y, pose.arm_b, ARM, 5.3), "b"),
-    ]
-    rgb = np.zeros((HN, HN, 3))
-    alpha = np.zeros((HN, HN))
-    whiteness = np.zeros((HN, HN))
-    for mask, side in parts:
-        inner = np.clip(blur(mask, 3.2 * HS) * 1.6 - 0.25, 0, 1)
-        rim = np.clip((mask - blur(mask, 1.3 * HS)) * 2.4, 0, 1)
-        white_tone = 196 + 52 * inner
-        black_tone = 9 + 78 * rim
-        share = {"w": np.ones((HN, HN)), "b": np.zeros((HN, HN)), "split": left_side}[side]
-        tone = white_tone * share + black_tone * (1 - share)
-        colour = np.dstack([tone, tone, tone * 1.02 + (1 - share) * 3])
-        rgb = rgb * (1 - mask[..., None]) + colour * mask[..., None]
-        alpha = np.maximum(alpha, mask)
-        whiteness = whiteness * (1 - mask) + share * mask
-    # The white half glows (docs: "Le personnage").
-    glow = blur(whiteness * alpha, 7 * HS) * 0.55
-    # The eyes: white and glowing on both halves, ringed with grey on the white one.
-    eye_y = head_y - 0.5 + pose.look_y
+    layers = {"rgb": np.zeros((HN, HN, 3)), "alpha": np.zeros((HN, HN)),
+              "white": np.zeros((HN, HN))}
+
+    def lay(cover, colour, whiteness):
+        layers["rgb"] = layers["rgb"] * (1 - cover[..., None]) + colour * cover[..., None]
+        layers["alpha"] = layers["alpha"] + cover * (1 - layers["alpha"])
+        layers["white"] = layers["white"] * (1 - cover) + whiteness * cover
+
+    def limb(jx, jy, angle, length, width, white, egg, part):
+        a = math.radians(angle)
+        length = length * pose.stretch[part]
+        width = width / math.sqrt(pose.stretch[part])
+        shape = ovoid(jx + math.sin(a) * length * 0.42, jy + math.cos(a) * length * 0.42, width,
+                      length / 2, -angle, egg, pose.bend[part])
+        return shape, np.full((HN, HN), 1.0 if white else 0.0)
+
+    def halves(shape, middle_y, half_h, middle_x, half_w):
+        # The meridian between the halves, curved over the round shape as it turns.
+        lat = np.sqrt(np.clip(1 - ((HERO_Y - middle_y) / half_h) ** 2, 0, 1))
+        boundary = middle_x + half_w * math.sin(turn) * lat
+        return shape, np.clip((boundary - HERO_X) * HS * 0.5 + 0.5, 0, 1)
+
+    def paint(shape, whiteness):
+        cover, nx, ny, nz = shape[:4]
+        share = whiteness[..., None]
+        colour = hero_shade(nx, ny, nz, True) * share + hero_shade(nx, ny, nz, False) * (
+            1 - share)
+        lay(cover, colour, whiteness)
+
+    def melt(parts, k=3.5):
+        """One soft shape out of several (a smooth union): where the arm meets the body, a
+        round fillet, as if it grew out of it."""
+        (shape, white) = parts[0]
+        _, nx, ny, nz, dist = shape
+        for (other, other_white) in parts[1:]:
+            _, ox, oy, oz, od = other
+            h = np.clip(0.5 + 0.5 * (od - dist) / k, 0, 1)  # the share of the first
+            dist = od * (1 - h) + dist * h - k * h * (1 - h)
+            nx, ny, nz = nx * h + ox * (1 - h), ny * h + oy * (1 - h), nz * h + oz * (1 - h)
+            white = white * h + other_white * (1 - h)
+        # The fillet is inside both rounds' edges: keep it lit, not dark as an edge.
+        nz = np.maximum(nz, np.sqrt(np.clip(-dist / 4.0, 0, 1)) * 0.75)
+        norm = np.sqrt(nx * nx + ny * ny + nz * nz) + 1e-6
+        cover = np.clip(-dist * HS * 0.9, 0, 1)
+        paint((cover, nx / norm, ny / norm, nz / norm, dist), white)
+
+    hip_dx = 5.2 * math.cos(turn)
+    shoulder_dx = body_a * 0.62 * math.cos(turn)  # inside the body: the arm grows out of it
+    legs = [(body_cx - hip_dx, pose.leg_w, pose.leg_len_w, True),
+            (body_cx + hip_dx, pose.leg_b, pose.leg_len_b, False)]
+    arms = [(body_cx - shoulder_dx + math.sin(lean) * 8, pose.arm_w, True),
+            (body_cx + shoulder_dx + math.sin(lean) * 8, pose.arm_b, False)]
+
+    def behind(white):
+        # Turned to the right, the black arm and leg go behind the body; to the left, the white.
+        return (white and pose.turn < -0.15) or (not white and pose.turn > 0.15)
+
+    def leg_shapes(back):
+        return [limb(jx, hip_y - 4, angle, length, LEG_W, white, 0.28,
+                     "leg_w" if white else "leg_b")
+                for jx, angle, length, white in legs if behind(white) == back]
+
+    def arm_shapes(back):
+        return [limb(jx, shoulder_y, angle, ARM_L, ARM_W, white, 0.3,
+                     "arm_w" if white else "arm_b")
+                for jx, angle, white in arms if behind(white) == back]
+
+    for part in leg_shapes(True) + arm_shapes(True):
+        paint(*part)
+    if not pose.limbs_front:
+        for part in leg_shapes(False):
+            paint(*part)
+    body = halves(ovoid(body_cx, body_cy, body_a, body_b, -pose.lean, egg=0.22), body_cy,
+                  body_b, body_cx, body_a)
+    if pose.limbs_front:
+        paint(*body)
+        for part in leg_shapes(False) + arm_shapes(False):
+            paint(*part)
+    else:
+        melt([body] + arm_shapes(False))
+    head_a = HEAD_R / math.sqrt(pose.head_squash)
+    head_b = HEAD_R * 0.97 * pose.head_squash
+    head_cy += HEAD_R * (1 - pose.head_squash) * 0.8  # it squashes onto the body
+    paint(*halves(ovoid(head_cx, head_cy, head_a, head_b, -pose.tilt), head_cy, head_b,
+                  head_cx, head_a))
+
+    # The eyes, on the round of the head: big ovals a little tilted towards each other, glowing.
     eyes = np.zeros((HN, HN))
     for side in (-1, 1):
-        far = 1 - 0.28 * max(0.0, -side * pose.turn)
-        eyes = np.maximum(eyes, ellipse_mask(head_x + side * 6.8 + pose.turn * 4.2, eye_y,
-                                             4.1 * far, 5.1 * pose.blink + 0.25))
-    ring = np.clip(blur(eyes, 1.5 * HS) * 2.6 - eyes, 0, 1) * whiteness
-    rgb = rgb * (1 - ring[..., None] * 0.7)
-    eye_glow = blur(eyes, 2.6 * HS) * 0.9
-    rgb = rgb * (1 - eyes[..., None]) + 255 * eyes[..., None]
-    # The small black hole that pulls a foot as he walks.
-    if pose.hole is not None:
+        longitude = turn + side * math.radians(31)
+        if math.cos(longitude) < 0.15:
+            continue
+        squeeze = math.cos(longitude) ** 0.8
+        ex = head_cx + HEAD_R * math.sin(longitude) + pose.look_x
+        ey = head_cy + 2.2 + pose.look_y + math.sin(math.radians(pose.tilt)) * side * 4
+        eyes = np.maximum(eyes, ovoid(ex, ey, 4.1 * squeeze, 5.3 * max(pose.blink, 0.06),
+                                      -side * 14 * squeeze - pose.tilt)[0])
+    # On the white half, a soft grey hollow around each eye, so that it shows.
+    hollow = np.clip(blur(eyes, 2.0 * HS) * 2.4 - eyes, 0, 1) * layers["white"]
+    rgb = layers["rgb"] * (1 - hollow[..., None] * 0.62)
+    eye_glow = blur(eyes, 2.2 * HS)
+    rgb = rgb * (1 - eyes[..., None]) + np.array([252, 253, 255]) * eyes[..., None]
+    alpha = layers["alpha"]
+
+    # The small black hole that pulls a foot as he walks (D15).
+    hole_glow = np.zeros((HN, HN))
+    if pose.hole is not None and pose.hole[2] > 0.05:
         hx, hy, size = pose.hole
-        if size > 0.05:
-            disc = ellipse_mask(hx, hy, 3.4 * size, 3.4 * size)
-            ring_mask = np.clip(ellipse_mask(hx, hy, 4.4 * size, 4.4 * size) - disc, 0, 1)
-            halo = blur(ellipse_mask(hx, hy, 4.4 * size, 4.4 * size), 3 * HS * size) * 0.6
-            rgb = rgb * (1 - ring_mask[..., None]) + np.array([225, 232, 245]) * ring_mask[..., None]
-            rgb = rgb * (1 - disc[..., None])
-            alpha = np.maximum(alpha, np.maximum(disc, ring_mask))
-            glow = np.maximum(glow, halo)
-    # Behind the body, the glow; the eyes' glow over everything around them.
-    body = alpha
-    out_alpha = body + glow * (1 - body)
-    out_rgb = (rgb * body[..., None] + 255 * (glow * (1 - body))[..., None]) / np.maximum(
-        out_alpha[..., None], 1e-4)
-    shine = eye_glow * (1 - eyes)
-    out_rgb = out_rgb + (255 - out_rgb) * shine[..., None]
+        disc = ovoid(hx, hy, 3.0 * size, 1.4 * size)[0]
+        ring = np.clip(ovoid(hx, hy, 4.2 * size, 2.0 * size)[0] - disc, 0, 1)
+        rgb = rgb * (1 - ring[..., None]) + np.array([200, 222, 255]) * ring[..., None]
+        rgb = rgb * (1 - disc[..., None])
+        alpha = np.maximum(alpha, np.maximum(disc, ring))
+        hole_glow = blur(ring, 2 * HS) * 0.8
+
+    # The glow: strong around the white half, none around the black; and around the eyes.
+    white_body = layers["white"] * layers["alpha"]
+    halo = np.clip(np.maximum(blur(white_body, 5.5 * HS) * 0.85 + blur(white_body, 1.6 * HS)
+                              * 0.35, hole_glow), 0, 1)
+    out_alpha = alpha + halo * (1 - alpha)
+    out_rgb = (rgb * alpha[..., None] + np.array([236, 240, 255]) * (halo * (1 - alpha))[
+        ..., None]) / np.maximum(out_alpha[..., None], 1e-4)
+    shine = np.clip(eye_glow * 1.1 - eyes, 0, 1)
+    out_rgb = out_rgb + (255 - out_rgb) * shine[..., None] * 0.85
     out_alpha = np.maximum(out_alpha, shine)
     return shrink(out_rgb, out_alpha, CELL_PX, CELL_PX)
 
 
-def idle_poses(count=32):
-    poses = []
-    for index in range(count):
-        breath = math.sin(2 * math.pi * index / count)
-        blink = {26: 0.45, 27: 0.08, 28: 0.45}.get(index, 1.0)
-        poses.append(Pose(stretch=1 + 0.025 * breath, drop=-0.5 * breath,
-                          arm_a=-8 - 2.5 * breath, arm_b=8 + 2.5 * breath, blink=blink))
+def smooth(t):
+    t = min(max(t, 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def follow_through(poses, looping=True):
+    """Makes the soft shapes give with the motion: each limb bends against the way it turns
+    (its tip lags behind), and stretches a little with its speed; the head squashes as the body
+    squashes. Speeds are taken between the frames before and after (around the loop)."""
+    count = len(poses)
+    for index, pose in enumerate(poses):
+        before = poses[(index - 1) % count if looping else max(index - 1, 0)]
+        after = poses[(index + 1) % count if looping else min(index + 1, count - 1)]
+        for part in pose.bend:
+            speed = (getattr(after, part) - getattr(before, part)) / 2  # degrees a frame
+            pose.bend[part] = -max(-0.9, min(0.9, speed * 0.09))
+            pose.stretch[part] = 1 + min(0.12, abs(speed) * 0.012)
+        pose.head_squash = 1 - (1 - pose.squash) * 0.9
     return poses
 
 
-def walk_poses(facing, count=16):
-    """A step after the other: before each foot lands, a small black hole opens where it will
-    land and pulls it there (GDD §5, docs: "le trou noir attire la jambe")."""
+def idle_poses(count=80):
+    """At rest, looking at us: he breathes, sways his head, his arms follow a little late, and
+    he blinks once. Every motion is a whole number of waves over the loop: no jump."""
     poses = []
-    swing = 28.0
     for index in range(count):
-        phase = index / count
-        s = math.sin(2 * math.pi * phase)
-        c = math.cos(2 * math.pi * phase)
-        leg_a, leg_b = swing * s, -swing * s
-        # Which leg moves forward now, and how far it is in its swing (0 to 1).
-        a_forward = facing * c > 0
-        local = (phase * 2 + (0.25 if facing > 0 else 0.75) * 2) % 1.0
-        # The hole opens as the leg leaves, is biggest as the foot lands in it, then closes.
-        size = local ** 0.8 if local < 0.85 else (1 - local) / 0.15 * 0.85 ** 0.8
-        hip_x = CELL / 2 + (-5.5 if a_forward else 5.5)
-        reach = LEG * 1.18
-        hole = (hip_x + facing * math.sin(math.radians(swing)) * reach + facing * 6,
-                FEET - 3, size)
-        pull = 2.5 * size
-        poses.append(Pose(turn=0.85 * facing, lean=5 * facing, leg_a=leg_a, leg_b=leg_b,
-                          leg_len_a=LEG + (pull if a_forward else 0),
-                          leg_len_b=LEG + (0 if a_forward else pull),
-                          arm_a=-8 - 0.55 * swing * s, arm_b=8 + 0.55 * swing * s,
-                          hole=hole))
+        t = index / count
+        breath = math.sin(2 * math.pi * t)
+        late = math.sin(2 * math.pi * t - 0.7)
+        blink = 1 - math.exp(-((t - 0.72) / 0.024) ** 2) * 0.96
+        poses.append(Pose(squash=1 + 0.028 * breath, bob=-0.6 * breath,
+                          tilt=3.2 * math.sin(2 * math.pi * t + 1.1),
+                          turn=0.08 * math.sin(2 * math.pi * t + 2.0),
+                          look_x=0.6 * math.sin(2 * math.pi * t + 2.0),
+                          arm_w=-26 - 3.5 * late, arm_b=26 + 3.5 * late,
+                          leg_w=-6 + 0.4 * breath, leg_b=6 - 0.4 * breath, blink=blink))
     return poses
 
 
-def charge_poses(count=8):
+def walk_poses(facing, count=24):
+    """Two steps, the face and chest turned towards where he goes. Before each foot lands, a
+    small black hole opens where it will land and pulls it in (D15)."""
+    poses = []
+    swing = 32.0
+    for index in range(count):
+        p = index / count
+        s, c = math.sin(2 * math.pi * p), math.cos(2 * math.pi * p)
+        leg_w, leg_b = facing * swing * s, -facing * swing * s
+        # The leg that swings forward is in the air: a little shorter.
+        lift_w, lift_b = max(0.0, c) ** 1.5, max(0.0, -c) ** 1.5
+        # The hole of the foot that is about to land: it opens during the swing.
+        air_w = ((p + 0.25) % 1.0) / 0.5
+        air_b = ((p + 0.75) % 1.0) / 0.5
+        hole = None
+        for air, white in ((air_w, True), (air_b, False)):
+            if air <= 1.3:
+                size = smooth(air / 0.9) if air <= 1.0 else 1 - smooth((air - 1.0) / 0.3)
+                hip = CELL / 2 + (-5.2 if white else 5.2) * 0.6
+                land = hip + facing * math.sin(math.radians(swing)) * LEG_L + facing * 4
+                hole = (land, FEET + 1.5, 0.85 * size)
+        poses.append(Pose(turn=0.72 * facing, lean=6 * facing, leg_w=leg_w, leg_b=leg_b,
+                          leg_len_w=LEG_L * (1 - 0.16 * lift_w),
+                          leg_len_b=LEG_L * (1 - 0.16 * lift_b),
+                          arm_w=-22 - facing * 24 * s, arm_b=22 - facing * 24 * s,
+                          squash=1 + 0.045 * math.cos(4 * math.pi * p),
+                          tilt=2.5 * facing + 1.5 * math.sin(4 * math.pi * p),
+                          look_x=1.2 * facing, hole=hole))
+    return poses
+
+
+def charge_poses(count=16):
     """Space held: he crouches and lifts his arms towards the black hole over his head."""
     poses = []
     for index in range(count):
-        k = index / (count - 1)
-        poses.append(Pose(leg_a=-(4 + 14 * k), leg_b=4 + 14 * k, leg_len_a=LEG * (1 - 0.22 * k),
-                          leg_len_b=LEG * (1 - 0.22 * k), stretch=1 - 0.07 * k,
-                          arm_a=-(10 + 145 * k), arm_b=10 + 145 * k, look_y=-1.6 * k))
+        k = smooth(index / (count - 1))
+        poses.append(Pose(leg_w=-(6 + 16 * k), leg_b=6 + 16 * k,
+                          leg_len_w=LEG_L * (1 - 0.24 * k), leg_len_b=LEG_L * (1 - 0.24 * k),
+                          squash=1 - 0.1 * k, arm_w=-(26 + 128 * k), arm_b=26 + 128 * k,
+                          look_y=-2.2 * k, tilt=0))
     return poses
 
 
-def rise_poses(count=6):
+def rise_poses(count=8):
     poses = []
     for index in range(count):
         sway = math.sin(2 * math.pi * index / count)
-        poses.append(Pose(stretch=1.05, leg_a=-2 - sway, leg_b=2 - sway, leg_len_a=LEG + 1,
-                          leg_len_b=LEG + 1, arm_a=-(150 + 6 * sway), arm_b=150 - 6 * sway,
-                          look_y=-1.2))
+        poses.append(Pose(ground=False, squash=1.07, leg_w=-3 + 3 * sway, leg_b=3 + 3 * sway,
+                          arm_w=-(148 + 6 * sway), arm_b=148 - 6 * sway, look_y=-1.6,
+                          tilt=1.5 * sway))
     return poses
 
 
-def fall_poses(count=6):
+def fall_poses(count=8):
     poses = []
     for index in range(count):
         sway = math.sin(2 * math.pi * index / count)
-        poses.append(Pose(leg_a=-12 - 3 * sway, leg_b=12 - 3 * sway, arm_a=-(95 + 8 * sway),
-                          arm_b=95 - 8 * sway, look_y=1.0))
+        poses.append(Pose(ground=False, squash=0.97, leg_w=-14 - 4 * sway, leg_b=14 - 4 * sway,
+                          arm_w=-(100 + 10 * sway), arm_b=100 - 10 * sway, look_y=1.6,
+                          tilt=-1.5 * sway))
     return poses
 
 
-# The animations of the hero: (name, frames, ticks per frame), in the order of the atlas.
-HERO_CLIPS = [("idle", idle_poses(), 4), ("walk_right", walk_poses(1), 3),
-              ("walk_left", walk_poses(-1), 3), ("charge", charge_poses(), 4),
-              ("rise", rise_poses(), 5), ("fall", fall_poses(), 5)]
+POSE_NUMBERS = ["turn", "x", "bob", "squash", "lean", "tilt", "head_drop", "leg_w", "leg_b",
+                "leg_len_w", "leg_len_b", "arm_w", "arm_b", "blink", "look_x", "look_y"]
+
+
+def between(a, b, count, extra=None):
+    """count poses from a to b (both kept), eased in and out; extra(k) adds to each, k from 0 to
+    1, what the passage itself does (a dip, a hop, a stretch)."""
+    poses = []
+    for index in range(count):
+        k = smooth(index / (count - 1))
+        values = {name: getattr(a, name) * (1 - k) + getattr(b, name) * k
+                  for name in POSE_NUMBERS}
+        values["ground"] = a.ground if k < 0.5 else b.ground
+        if extra is not None:
+            for name, value in extra(index / (count - 1)).items():
+                values[name] = values[name] + value
+        poses.append(Pose(**values))
+    return poses
+
+
+def bump(k):
+    """0 at both ends, 1 in the middle."""
+    return math.sin(math.pi * k)
+
+
+def start_poses(facing):
+    """From rest to walking: he turns his face and chest, leans in, and the first leg goes."""
+    return between(idle_poses()[0], walk_poses(facing)[0], 8,
+                   lambda k: {"squash": -0.05 * bump(k), "lean": 3 * facing * bump(k)})
+
+
+def stop_poses(facing):
+    """From walking to rest: he leans back a little to stop, then turns to face us."""
+    return between(walk_poses(facing)[0], idle_poses()[0], 8,
+                   lambda k: {"lean": -5 * facing * bump(k), "squash": 0.04 * bump(k),
+                              "arm_w": 12 * facing * bump(k), "arm_b": 12 * facing * bump(k)})
+
+
+def turn_poses(facing):
+    """Walking one way, then the other: a little hop as he turns through facing us."""
+    return between(walk_poses(-facing)[0], walk_poses(facing)[0], 8,
+                   lambda k: {"bob": -2.5 * bump(k), "squash": 0.05 * bump(k),
+                              "arm_w": -10 * bump(k), "arm_b": 10 * bump(k)})
+
+
+def land_poses(count=10):
+    """Landing: the body gives (legs bent, body squashed, arms out), comes up a little too far,
+    then settles."""
+    crouch = Pose(squash=0.8, bob=3, leg_w=-24, leg_b=24, leg_len_w=LEG_L * 0.78,
+                  leg_len_b=LEG_L * 0.78, arm_w=-62, arm_b=62, look_y=1.5, tilt=0)
+    rebound = Pose(squash=1.05, arm_w=-20, arm_b=20)
+    return (between(fall_poses()[0], crouch, 3) + between(crouch, rebound, 4)[1:] +
+            between(rebound, idle_poses()[0], 4)[1:])
+
+
+def apex_poses():
+    """At the top of a jump: the arms come down, the legs part, he looks down."""
+    return between(rise_poses()[0], fall_poses()[0], 6)
+
+
+def leap_poses():
+    """Letting the charge go: he stretches up out of his crouch."""
+    return between(charge_poses()[-1], rise_poses()[0], 4, lambda k: {"squash": 0.12 * bump(k)})
+
+
+# The animations of the hero: (name, frames, ticks per frame), in the order of the atlas. Two ticks
+# a frame: thirty pictures a second.
+HERO_CLIPS = [("idle", follow_through(idle_poses()), 2),
+              ("walk_right", follow_through(walk_poses(1)), 2),
+              ("walk_left", follow_through(walk_poses(-1)), 2),
+              ("charge", follow_through(charge_poses(), looping=False), 2),
+              ("rise", follow_through(rise_poses()), 3), ("fall", follow_through(fall_poses()), 3)]
+# The transitions between them (sprite2d): (name, frames, ticks per frame, from, to), to None
+# meaning any clip. They follow the clips in the atlas.
+HERO_TRANSITIONS = [
+    ("start_right", follow_through(start_poses(1), False), 2, "idle", "walk_right"),
+    ("start_left", follow_through(start_poses(-1), False), 2, "idle", "walk_left"),
+    ("stop_right", follow_through(stop_poses(1), False), 2, "walk_right", "idle"),
+    ("stop_left", follow_through(stop_poses(-1), False), 2, "walk_left", "idle"),
+    ("turn_left", follow_through(turn_poses(-1), False), 2, "walk_right", "walk_left"),
+    ("turn_right", follow_through(turn_poses(1), False), 2, "walk_left", "walk_right"),
+    ("land", follow_through(land_poses(), False), 2, "fall", None),
+    ("apex", follow_through(apex_poses(), False), 2, "rise", "fall"),
+    ("leap", follow_through(leap_poses(), False), 2, "charge", None),
+]
 HERO_COLUMNS = 16
 
 
 def hero_sheet():
     frames = []
-    for _, poses, _ in HERO_CLIPS:
-        frames += [hero_frame(pose) for pose in poses]
+    for clip in HERO_CLIPS + HERO_TRANSITIONS:
+        frames += [hero_frame(pose) for pose in clip[1]]
     return sheet_of(frames, HERO_COLUMNS, CELL_PX, CELL_PX)
 
 
 def hero_curled():
-    """The hero curled up asleep, as he drifts in his barrier: knees up, head down."""
-    pose = Pose(leg_a=-115, leg_b=-100, leg_len_a=LEG * 0.85, leg_len_b=LEG * 0.85, arm_a=-60,
-                arm_b=-35, stretch=0.82, drop=-14, blink=0.08, look_y=2)
+    """The hero asleep, as he drifts in his barrier: floating as in Martin's picture, limbs loose,
+    eyes shut."""
+    pose = Pose(ground=False, tilt=-7, lean=-4, blink=0.06, look_y=1.2, leg_w=-14, leg_b=10,
+                leg_len_w=LEG_L * 0.95, arm_w=-38, arm_b=30, bob=-6)
     return hero_frame(pose)
 
 
@@ -666,103 +899,170 @@ def planet():
 BAND_SLOPE = -0.42  # the milky band of the skies rises to the right, as in the docs' pictures
 
 
+def octave(width, height, rng, scale):
+    """One smooth random layer, features about scale pixels apart, -1 to 1."""
+    small = rng.uniform(0, 1, (height // scale + 3, width // scale + 3))
+    big = np.asarray(Image.fromarray((small * 65535).astype(np.uint16), "I;16").convert(
+        "I").resize(((width // scale + 3) * scale, (height // scale + 3) * scale),
+                    Image.BICUBIC), dtype=np.float64)[:height, :width] / 65535.0
+    return np.clip(big, 0, 1) * 2 - 1
+
+
+def sample(field, xs, ys):
+    """The field read between its pixels (bilinear), at float coordinates (clamped)."""
+    h, w = field.shape
+    xs = np.clip(xs, 0, w - 1.001)
+    ys = np.clip(ys, 0, h - 1.001)
+    x0, y0 = xs.astype(int), ys.astype(int)
+    fx, fy = xs - x0, ys - y0
+    top = field[y0, x0] * (1 - fx) + field[y0, x0 + 1] * fx
+    bottom = field[y0 + 1, x0] * (1 - fx) + field[y0 + 1, x0 + 1] * fx
+    return top * (1 - fy) + bottom * fy
+
+
+def ridged(width, height, seed, scale, octaves=6, gain=0.55, warp=0.0):
+    """Ridged multifractal noise, as Spacescape draws its nebulae: thin bright ridges where the
+    noise crosses zero, each finer octave stronger where the coarser ones are bright. warp bends
+    it all by a slow field (pixels): filaments instead of a grid of blobs. 0 to about 1."""
+    rng = np.random.default_rng(seed)
+    pad = int(warp) + 2
+    big_w, big_h = width + 2 * pad, height + 2 * pad
+    total = np.zeros((big_h, big_w))
+    weight = np.ones((big_h, big_w))
+    amplitude, norm = 1.0, 0.0
+    for index in range(octaves):
+        size = max(2, int(scale / (2 ** index)))
+        layer = (1 - np.abs(octave(big_w, big_h, rng, size))) ** 2
+        layer = layer * weight
+        weight = np.clip(layer * 1.6, 0, 1)
+        total += layer * amplitude
+        norm += amplitude
+        amplitude *= gain
+    total /= norm
+    ys, xs = np.mgrid[0:height, 0:width].astype(np.float64)
+    if warp:
+        wx = octave(width, height, rng, int(scale * 1.5)) * warp
+        wy = octave(width, height, rng, int(scale * 1.5)) * warp
+        return sample(total, xs + pad + wx, ys + pad + wy)
+    return total[pad:pad + height, pad:pad + width]
+
+
 def band_of(width, height, thickness=0.28):
-    """How much of the band each pixel is in, 0 to 1."""
+    """How much of the milky band each pixel is in, 0 to 1."""
     y = np.linspace(0, 1, height)[:, None]
     x = np.linspace(0, 1, width)[None, :]
     middle = 0.62 + BAND_SLOPE * (x - 0.5)
     return np.exp(-((y - middle) / thickness) ** 2)
 
 
-def streaks(width, height, seed, scales, stretch):
-    """Noise stretched along x, then slid down its columns so that its streaks follow the band
-    (drawn taller than needed: no seam)."""
-    slope = -BAND_SLOPE * height / width  # rows to slide down for each column
-    tall = height + int(math.ceil(slope * width)) + 2
-    small = noise(max(8, width // stretch), tall, seed, scales)
-    long = np.asarray(Image.fromarray((small * 65535).astype(np.uint16), "I;16").convert(
-        "I").resize((width, tall), Image.BICUBIC), dtype=np.float64) / 65535.0
-    rows = (np.arange(height)[:, None] + (slope * np.arange(width))[None, :]).astype(int)
-    return long[rows, np.arange(width)[None, :]]
-
-
 def nebula(width, height, seed, palette, density=1.0):
-    """Clouds of dust along a band across the sky: long filaments, darker lanes of dust, coloured
-    along a palette (dark to bright)."""
-    big = streaks(width, height, seed, ((128, 1.0), (64, 0.6), (32, 0.3)), 3)
-    fine = streaks(width, height, seed + 1, ((16, 1.0), (8, 0.6), (4, 0.35), (2, 0.2)), 4)
-    lanes = streaks(width, height, seed + 2, ((48, 1.0), (24, 0.5), (12, 0.25)), 5)
-    band = band_of(width, height)
-    body = np.clip((big - 0.35) * 2.2, 0, 1) * band * density
-    wisps = body * (0.35 + 1.1 * fine ** 1.6)
-    wisps *= 1 - 0.75 * np.clip((lanes - 0.55) * 5, 0, 1)
-    wisps = np.clip(wisps, 0, 1)
+    """Clouds of gas along a band across the sky, as Spacescape makes them: bright ridged
+    filaments, a softer glow under them, darker lanes of dust, coloured along a palette (dark to
+    bright). Its colours (0 to 255) and how much it covers (0 to 1)."""
+    unit = max(width, height) / 1920
+    gas = ridged(width, height, seed, int(300 * unit), 8, 0.62, warp=150 * unit)
+    fine = ridged(width, height, seed + 3, int(90 * unit), 5, 0.6, warp=40 * unit)
+    glow = noise(width, height, seed + 1, ((256, 1.0), (128, 0.5), (64, 0.25)))
+    lanes = noise(width, height, seed + 2, ((96, 1.0), (48, 0.5), (24, 0.3), (12, 0.15)))
+    band = band_of(width, height, 0.3)
+    # Where the gas is: the band, broken into clouds by the slow glow.
+    mask = band * np.clip((glow - 0.2) * 2.0, 0, 1) * density
+    body = np.clip(gas ** 1.4 * 1.5 * (0.55 + 0.75 * fine), 0, 1) * mask
+    haze = blur(mask, 40 * unit) * 0.3
+    dust = np.clip((lanes - 0.56) * 4.0, 0, 1)
+    cover = np.clip((body + haze) * (1 - 0.75 * dust), 0, 1)
     colours = np.array(palette, dtype=np.float64)
-    t = np.clip(big * 0.9 + fine * 0.5 - 0.35, 0, 0.999) * (len(colours) - 1)
+    t = np.clip(body * 0.9 + glow * 0.4 - 0.15, 0, 0.999) * (len(colours) - 1)
     low = np.floor(t).astype(int)
     frac = (t - low)[..., None]
     rgb = colours[low] * (1 - frac) + colours[np.minimum(low + 1, len(colours) - 1)] * frac
-    return rgb, wisps
+    return rgb, cover
 
 
-def stars(width, height, seed, count, coloured=False):
-    """Stars: many small and faint, crowded in the band; a few big with a soft halo and a cross
-    of light."""
+def stars(width, height, seed, count, coloured=False, density=None):
+    """Stars as Spacescape lays them: a dust of faint points, thicker where the gas is (density,
+    0 to 1); a few bright stars with a soft round halo and a faint cross."""
     rng = np.random.default_rng(seed)
-    band = band_of(width, height, 0.3)
-    xs = rng.uniform(0, width, count * 4).astype(int)
-    ys = rng.uniform(0, height, count * 4).astype(int)
-    keep = rng.uniform(0, 1, count * 4) < 0.25 + 0.75 * band[ys, xs]
-    xs, ys = xs[keep][:count * 2], ys[keep][:count * 2]
-    brightness = rng.uniform(0.15, 1.0, xs.size) ** 3
+    if density is None:
+        density = band_of(width, height, 0.3)
     light = np.zeros((height, width, 3))
-    palette = np.array([[255, 210, 180], [190, 210, 255], [255, 255, 255], [255, 160, 200],
-                        [170, 255, 230]], dtype=np.float64)
+    xs = rng.uniform(0, width - 1, count * 4)
+    ys = rng.uniform(0, height - 1, count * 4)
+    keep = rng.uniform(0, 1, xs.size) < 0.2 + 0.8 * density[ys.astype(int), xs.astype(int)]
+    xs, ys = xs[keep][:count], ys[keep][:count]
+    brightness = rng.uniform(0.0, 1.0, xs.size) ** 4 * 0.9 + 0.12
+    palette = np.array([[255, 214, 186], [196, 214, 255], [255, 255, 255], [255, 236, 214],
+                        [210, 228, 255]], dtype=np.float64)
     tones = palette[rng.integers(0, 5, xs.size)] if coloured else np.full((xs.size, 3), 255.0)
-    np.add.at(light, (ys, xs), tones * brightness[:, None])
+    # Each point shared between its four pixels: no hard single pixels.
+    x0, y0 = xs.astype(int), ys.astype(int)
+    fx, fy = xs - x0, ys - y0
+    for dx, dy, w in ((0, 0, (1 - fx) * (1 - fy)), (1, 0, fx * (1 - fy)),
+                      (0, 1, (1 - fx) * fy), (1, 1, fx * fy)):
+        np.add.at(light, (y0 + dy, x0 + dx), tones * (brightness * w)[:, None])
+    light /= 255.0
+    # The bright ones: a soft halo, wider the brighter.
+    bright = max(4, count // 260)
     flares = np.zeros((height, width))
-    big = rng.choice(np.arange(width * height), size=max(1, count // 80))
-    flares[big // width, big % width] = rng.uniform(0.6, 1.0, big.size)
-    halo = blur(flares, 3.0) * 16
+    bx = rng.integers(8, width - 8, bright)
+    by = rng.integers(8, height - 8, bright)
+    power = rng.uniform(0.4, 1.0, bright) ** 2
+    flares[by, bx] = power
+    tint = palette[rng.integers(0, 5, bright)] / 255.0 if coloured else np.ones((bright, 3))
+    halo = np.zeros((height, width, 3))
+    reach = 40
+    wy, wx = np.mgrid[-reach:reach + 1, -reach:reach + 1].astype(np.float64)
+    r2 = wx * wx + wy * wy
+    shape = (2.2 * np.exp(-r2 / (2 * 1.2 ** 2)) + 0.45 * np.exp(-r2 / (2 * 4.0 ** 2)) +
+             0.1 * np.exp(-r2 / (2 * 13.0 ** 2)))
+    for x, y, p, t in zip(bx, by, power, tint):
+        x0, x1 = max(0, x - reach), min(width, x + reach + 1)
+        y0, y1 = max(0, y - reach), min(height, y + reach + 1)
+        part = shape[y0 - y + reach:y1 - y + reach, x0 - x + reach:x1 - x + reach]
+        halo[y0:y1, x0:x1] += (part * p)[..., None] * t
     cross = np.zeros_like(flares)
-    for shift in range(1, 12):
-        fade = (1 - shift / 12) ** 2
+    for shift in range(1, 10):
+        fade = (1 - shift / 10) ** 3 * 0.25
         cross += (np.roll(flares, shift, 1) + np.roll(flares, -shift, 1) +
-                  np.roll(flares, shift, 0) + np.roll(flares, -shift, 0)) * fade * 0.45
-    soft = blur(light.mean(axis=2) / 255.0, 0.6)
-    total = light / 255.0 + (soft * 0.5 + halo + cross + flares)[..., None]
+                  np.roll(flares, shift, 0) + np.roll(flares, -shift, 0)) * fade
+    total = light + blur_rgb(light, 0.7) * 0.6 + halo + cross[..., None]
     return np.clip(total, 0, 1)
 
 
+def blur_rgb(rgb, radius):
+    return np.dstack([blur(rgb[..., channel], radius) for channel in range(3)])
+
+
 def sky(coloured=False):
-    """The sky behind everything, the size of the screen: black, grey clouds of dust and stars
-    (docs: the character's picture); in colour for the opening (docs: "le ciel")."""
+    """The sky behind everything, the size of the screen, after Spacescape: black, a band of gas
+    in filaments with dark lanes, stars thick in it. In colour for the opening and the title
+    (docs: "le ciel"), in greys for the tutorial (docs: the character's picture)."""
     w, h = SCREEN_W, SCREEN_H
     if coloured:
-        rgb, dust = nebula(w, h, 31, [(14, 50, 80), (30, 130, 150), (70, 200, 205),
-                                      (120, 150, 240), (235, 180, 245)], 1.5)
-        star = stars(w, h, 7, 6000, coloured=True)
+        rgb, gas = nebula(w, h, 31, [(8, 30, 48), (14, 70, 90), (30, 130, 140), (60, 150, 210),
+                                     (150, 140, 235), (240, 200, 245)], 1.3)
     else:
-        rgb, dust = nebula(w, h, 31, [(60, 60, 68), (105, 105, 115), (150, 150, 160),
-                                      (200, 200, 210)], 0.75)
-        star = stars(w, h, 7, 5000)
-    base = np.dstack([np.full((h, w), 4.0), np.full((h, w), 4.0), np.full((h, w), 7.0)])
-    picture = base * (1 - dust[..., None] * 0.9) + rgb * dust[..., None] * 0.9
-    picture = picture + (255 - picture) * star * (1 - dust[..., None] * 0.4)
+        rgb, gas = nebula(w, h, 31, [(40, 41, 48), (78, 80, 90), (122, 124, 136),
+                                     (170, 172, 184), (220, 222, 232)], 0.85)
+    star = stars(w, h, 7, 16000 if coloured else 13000, coloured=coloured,
+                 density=np.clip(gas * 1.5 + band_of(w, h, 0.3) * 0.3, 0, 1))
+    base = np.dstack([np.full((h, w), 3.0), np.full((h, w), 3.5), np.full((h, w), 6.0)])
+    picture = base * (1 - gas[..., None]) + rgb * gas[..., None]
+    picture = picture + (255 - picture) * star * (1 - gas[..., None] * 0.25)
     return to_image(picture, np.ones((h, w)))
 
 
 def nebula_veil(coloured=False):
-    """A veil of dust that drifts before the sky (a little parallax): more depth."""
+    """A veil of gas that drifts before the sky (a little parallax): more depth."""
     w, h = 1600, 900
-    palette = ([(30, 80, 120), (60, 150, 170), (150, 120, 220)] if coloured else
-               [(110, 110, 120), (150, 150, 160), (190, 190, 200)])
-    rgb, dust = nebula(w, h, 58 if coloured else 59, palette, 0.9 if coloured else 0.6)
+    palette = ([(20, 60, 90), (50, 130, 160), (130, 120, 220), (220, 190, 240)] if coloured else
+               [(90, 92, 102), (140, 142, 152), (196, 198, 208)])
+    rgb, gas = nebula(w, h, 58 if coloured else 59, palette, 0.8 if coloured else 0.55)
     # Its edges fade out: no frame shows, whatever the camera does.
     y = np.linspace(-1, 1, h)[:, None]
     x = np.linspace(-1, 1, w)[None, :]
     edges = np.clip((1 - np.abs(x)) * 4, 0, 1) * np.clip((1 - np.abs(y)) * 4, 0, 1)
-    return to_image(rgb, dust * (0.55 if coloured else 0.4) * edges).filter(ImageFilter.GaussianBlur(1.2))
+    return to_image(rgb, gas * (0.5 if coloured else 0.38) * edges)
 
 
 HILLS_W, HILLS_H = 2048, 400  # world units of a band of hills (drawn at one pixel each)
@@ -1042,6 +1342,7 @@ def hero_clips():
         "rise": (40, "transform2d.Velocity.y", None, -140),
         "fall": (39, "transform2d.Velocity.y", 180, None),
     }
+    ids = {name: index + 1 for index, (name, _, _) in enumerate(HERO_CLIPS)}
     made = []
     first = 0
     for name, poses, ticks in HERO_CLIPS:
@@ -1055,6 +1356,15 @@ def hero_clips():
             clip["min"] = low
         if high is not None:
             clip["max"] = high
+        clip["id"] = ids[name]
+        made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
+        first += len(poses)
+    # The passages from one to the other (sprite2d transitions): played once, between.
+    for name, poses, ticks, source, target in HERO_TRANSITIONS:
+        clip = {"set": "hero", "first_frame": first, "frame_count": len(poses),
+                "ticks_per_frame": ticks, "looping": False, "from_id": ids[source]}
+        if target is not None:
+            clip["to_id"] = ids[target]
         made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
         first += len(poses)
     return made
@@ -1126,7 +1436,7 @@ def hands(fixed=True):
                                 "layer": LAYERS["hero"] + 2, "unlit": True, "alpha": 0},
             "sprite2d.FrameBind": {"field": "loadout.Hand.item",
                                    "frame_count": len(POWER_COLOURS) + 1},
-            "follow2d.Follow": {"target": "hero", "offset_x": side * 15, "offset_y": 14,
+            "follow2d.Follow": {"target": "hero", "offset_x": side * 18, "offset_y": 11,
                                 "stiffness": 0.6},
         }))
         made.append(bind(f"{name}_glows", name, "loadout.Hand.acting", "sprite2d.Sprite.alpha",
@@ -1604,10 +1914,10 @@ def title():
                                "rays_length": 0.25}}),
         entity("sleeper", VIEW_W / 2, 318, {"tag.Tag": {"tag": "sleeper"},
                                             "sprite2d.Sprite": {
-            "atlas": "hero_curled", "width": 64, "height": 64, "layer": 30, "unlit": True},
+            "atlas": "hero_curled", "width": 104, "height": 104, "layer": 30, "unlit": True},
             "transform2d.Rotation": {}}),
         entity("sleeper_bubble", VIEW_W / 2, 318, {"sprite2d.Sprite": {
-            "atlas": "barrier", "frame": 0, "width": 96, "height": 96, "layer": 31,
+            "atlas": "barrier", "frame": 0, "width": 118, "height": 118, "layer": 31,
             "unlit": True}, "follow2d.Follow": {"target": "sleeper", "stiffness": 1}}),
         entity("sleeper_glow", VIEW_W / 2, 318, {"sprite2d.Sprite": {
             "atlas": "glow", "width": 260, "height": 260, "layer": 29, "alpha": 90,

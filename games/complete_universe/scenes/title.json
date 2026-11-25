@@ -81,8 +81,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "hero_curled",
-          "width": 64,
-          "height": 64,
+          "width": 104,
+          "height": 104,
           "layer": 30,
           "unlit": true
         },
@@ -99,8 +99,8 @@
         "sprite2d.Sprite": {
           "atlas": "barrier",
           "frame": 0,
-          "width": 96,
-          "height": 96,
+          "width": 118,
+          "height": 118,
           "layer": 31,
           "unlit": true
         },
