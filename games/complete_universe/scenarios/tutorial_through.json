@@ -8,24 +8,24 @@
   "inputs": [
     // The first black hole, towards the sky: the camera comes close to the black hand.
     { "tick": 180, "action": "pointer_x", "value": 960 },
-    { "tick": 180, "action": "pointer_y", "value": 150 },
+    { "tick": 180, "action": "pointer_y", "value": 20 },
     { "tick": 182, "action": "hand_right", "value": 1 },
     { "tick": 200, "action": "hand_right", "value": 0 },
-    { "tick": 420, "action": "pointer_x", "value": 1095 },
-    { "tick": 420, "action": "pointer_y", "value": 736 },
+    { "tick": 420, "action": "pointer_x", "value": 1215 },
+    { "tick": 420, "action": "pointer_y", "value": 542 },
     { "tick": 422, "action": "hand_right", "value": 1 },
     { "tick": 570, "action": "hand_right", "value": 0 },
-    { "tick": 940, "action": "pointer_x", "value": 840 },
-    { "tick": 940, "action": "pointer_y", "value": 600 },
+    { "tick": 940, "action": "pointer_x", "value": 782 },
+    { "tick": 940, "action": "pointer_y", "value": 310 },
     { "tick": 942, "action": "hand_left", "value": 1 },
     { "tick": 956, "action": "hand_left", "value": 0 },
-    { "tick": 1210, "action": "pointer_x", "value": 1080 },
-    { "tick": 1210, "action": "pointer_y", "value": 560 },
+    { "tick": 1210, "action": "pointer_x", "value": 1190 },
+    { "tick": 1210, "action": "pointer_y", "value": 242 },
     { "tick": 1212, "action": "hand_left", "value": 1 },
-    { "tick": 1220, "action": "pointer_x", "value": 1230 },
+    { "tick": 1220, "action": "pointer_x", "value": 1444 },
     { "tick": 1240, "action": "hand_left", "value": 0 },
-    { "tick": 1640, "action": "pointer_x", "value": 630 },
-    { "tick": 1640, "action": "pointer_y", "value": 736 },
+    { "tick": 1640, "action": "pointer_x", "value": 424 },
+    { "tick": 1640, "action": "pointer_y", "value": 542 },
     { "tick": 1642, "action": "harvest", "value": 1 },
     { "tick": 1760, "action": "harvest", "value": 0 },
     { "tick": 2080, "action": "inventory", "value": 1 },
@@ -85,16 +85,20 @@
     { "at": 3880, "check": "checkpoint.checkpoint.Checkpoint.loads == 1" },
     { "at": 3880, "check": "matter.reserve.Reserve.amount > 70" },
     { "at": 4230, "check": "story.phase.Phase.current == 16" },
-    // The black, the white, walking and jumping: the camera came close before each, and went
-    // back once he had done it.
+    // The black, the white, the harvest, walking and jumping: the camera came close for each, and
+    // went back once it was done.
     { "at": 4180, "check": "black_goes_back.tween2d.Track.done == true" },
     { "at": 4180, "check": "white_goes_back.tween2d.Track.done == true" },
-    { "at": 4180, "check": "walk_goes_back.tween2d.Track.done == true" },
+    { "at": 4180, "check": "harvest_goes_back.tween2d.Track.done == true" },
     { "at": 4180, "check": "jump_goes_back.tween2d.Track.done == true" },
     { "at": 4180, "check": "camera.camera2d.Camera.zoom == 1.5" },
     // Not before five seconds held.
     { "at": 4520, "check": "story.phase.Phase.current == 16" },
     { "at": 4555, "check": "story.phase.Phase.current == 17" },
+    // The black hole that slips away is the jump's own: as big as it, where it was; the jump's
+    // hole is gone.
+    { "at": 4558, "check": "runaway.attractor2d.Attractor.radius < 60" },
+    { "at": 4558, "check": "jump_hole.sprite2d.Sprite.alpha == 0" },
     // The departure: the black hole runs away and grows, the ground shakes, the dome melts.
     { "at": 4615, "check": "runaway.attractor2d.Attractor.radius > 150" },
     { "at": 4615, "check": "camera.camera2d.CameraShake.strength > 5" },

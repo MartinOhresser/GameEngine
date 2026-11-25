@@ -1964,11 +1964,47 @@
       }
     },
     {
+      "name": "clip_charge_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 51,
+          "first_frame": 432,
+          "frame_count": 32,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02,
+          "and_field": "transform2d.Velocity.x",
+          "and_min": 60,
+          "id": 11
+        }
+      }
+    },
+    {
+      "name": "clip_charge_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 51,
+          "first_frame": 464,
+          "frame_count": 32,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02,
+          "and_field": "transform2d.Velocity.x",
+          "and_max": -60,
+          "id": 12
+        }
+      }
+    },
+    {
       "name": "clip_start_right",
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 432,
+          "first_frame": 496,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -1982,7 +2018,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 448,
+          "first_frame": 512,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -1996,7 +2032,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 464,
+          "first_frame": 528,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2010,7 +2046,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 480,
+          "first_frame": 544,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2024,7 +2060,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 496,
+          "first_frame": 560,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2038,7 +2074,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 512,
+          "first_frame": 576,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2052,7 +2088,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2065,7 +2101,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2078,7 +2114,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2091,7 +2127,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 548,
+          "first_frame": 612,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2105,7 +2141,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 560,
+          "first_frame": 624,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2119,7 +2155,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 572,
+          "first_frame": 636,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -2133,12 +2169,40 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 584,
+          "first_frame": 648,
           "frame_count": 8,
           "ticks_per_frame": 1,
           "looping": false,
           "from_id": 4,
           "to_id": 5
+        }
+      }
+    },
+    {
+      "name": "clip_leap_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 656,
+          "frame_count": 8,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 11,
+          "to_id": 7
+        }
+      }
+    },
+    {
+      "name": "clip_leap_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 664,
+          "frame_count": 8,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 12,
+          "to_id": 8
         }
       }
     },
@@ -4448,7 +4512,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4456,7 +4520,28 @@
             "black_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_black"
+        }
+      }
+    },
+    {
+      "name": "text_black_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "landing_done"
+        }
       }
     },
     {
@@ -4473,7 +4558,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4481,7 +4566,28 @@
             "black_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_black_line"
+        }
+      }
+    },
+    {
+      "name": "text_black_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "landing_done"
+        }
       }
     },
     {
@@ -4498,7 +4604,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4506,7 +4612,28 @@
             "white_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_white"
+        }
+      }
+    },
+    {
+      "name": "text_white_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "black_next"
+        }
       }
     },
     {
@@ -4523,7 +4650,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4531,7 +4658,28 @@
             "white_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_white_line"
+        }
+      }
+    },
+    {
+      "name": "text_white_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "black_next"
+        }
       }
     },
     {
@@ -4548,7 +4696,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4556,7 +4704,28 @@
             "harvest_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_harvest"
+        }
+      }
+    },
+    {
+      "name": "text_harvest_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_harvest",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "white_next"
+        }
       }
     },
     {
@@ -4573,7 +4742,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4581,7 +4750,28 @@
             "harvest_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_harvest_line"
+        }
+      }
+    },
+    {
+      "name": "text_harvest_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_harvest_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "white_next"
+        }
       }
     },
     {
@@ -4648,14 +4838,35 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
             "walk"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_walk"
+        }
+      }
+    },
+    {
+      "name": "text_walk_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "inventory_next"
+        }
       }
     },
     {
@@ -4672,14 +4883,35 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
             "walk"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_walk_line"
+        }
+      }
+    },
+    {
+      "name": "text_walk_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "inventory_next"
+        }
       }
     },
     {
@@ -4696,7 +4928,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4704,7 +4936,28 @@
             "jump_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_jump"
+        }
+      }
+    },
+    {
+      "name": "text_jump_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_jump",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "walk_done"
+        }
       }
     },
     {
@@ -4721,7 +4974,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -4729,7 +4982,28 @@
             "jump_practice"
           ]
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_jump_line"
+        }
+      }
+    },
+    {
+      "name": "text_jump_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_jump_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "walk_done"
+        }
       }
     },
     {
@@ -4973,34 +5247,6 @@
       }
     },
     {
-      "name": "text_practice",
-      "components": {
-        "transform2d.Position": {
-          "x": 960.0,
-          "y": 1028
-        },
-        "text2d.Text": {
-          "string": "tutorial.practice",
-          "font": "font",
-          "size": 26,
-          "pivot_x": 0.5,
-          "pivot_y": 0.5,
-          "screen": true,
-          "alpha": 170
-        },
-        "phase.ShowIn": {
-          "phases": [
-            "black_practice",
-            "white_practice",
-            "harvest_practice",
-            "inventory_practice",
-            "jump_practice"
-          ]
-        },
-        "transform2d.Hidden": {}
-      }
-    },
-    {
       "name": "whitein",
       "components": {
         "transform2d.Position": {
@@ -5081,11 +5327,11 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_y": -200,
-          "stiffness": 0.04
+          "offset_y": -78,
+          "stiffness": 1
         },
         "attractor2d.Attractor": {
-          "start_radius": 90,
+          "start_radius": 24,
           "grow": 150,
           "max_radius": 1600,
           "pull": 2600,
@@ -5158,6 +5404,60 @@
           "t1": 240,
           "v1": 360,
           "loop": true
+        }
+      }
+    },
+    {
+      "name": "runaway_rises",
+      "components": {
+        "tween2d.Track": {
+          "field": "follow2d.Follow.offset_y",
+          "onto": "runaway",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -78,
+          "t1": 300,
+          "v1": -220,
+          "start": "departure_done"
+        }
+      }
+    },
+    {
+      "name": "runaway_slips",
+      "components": {
+        "tween2d.Track": {
+          "field": "follow2d.Follow.stiffness",
+          "onto": "runaway",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 1,
+          "t1": 60,
+          "v1": 0.04,
+          "start": "departure_done"
+        }
+      }
+    },
+    {
+      "name": "jump_hole_leaves",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "jump_hole",
+          "field": "sprite2d.Sprite.alpha",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "jump_hole_dark",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "jump_hole",
+          "field": "light2d.Light.intensity",
+          "value": 0
         }
       }
     },
@@ -5244,26 +5544,6 @@
       }
     },
     {
-      "name": "black_awakens",
-      "components": {
-        "rules.Watch": {
-          "source": "black_hole",
-          "own": false,
-          "field": "attractor2d.Attractor.radius",
-          "min": 6,
-          "action": "awakens_black",
-          "once": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "black",
-            "black_practice"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
       "name": "black_comes_close",
       "components": {
         "tween2d.Track": {
@@ -5276,24 +5556,6 @@
           "t1": 50,
           "v1": 2.55,
           "start": "landing_done"
-        }
-      }
-    },
-    {
-      "name": "black_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 120,
-          "v1": 2.55,
-          "t2": 180,
-          "v2": 1.5,
-          "start": "awakens_black"
         }
       }
     },
@@ -5314,28 +5576,6 @@
       }
     },
     {
-      "name": "black_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 5,
-          "t0": 0,
-          "v0": 30,
-          "t1": 120,
-          "v1": 30,
-          "t2": 180,
-          "v2": -100,
-          "t3": 300,
-          "v3": -100,
-          "t4": 301,
-          "v4": -40,
-          "start": "awakens_black"
-        }
-      }
-    },
-    {
       "name": "black_follows_close",
       "components": {
         "tween2d.Track": {
@@ -5352,6 +5592,42 @@
       }
     },
     {
+      "name": "black_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 60,
+          "v1": 1.5,
+          "start": "black_done"
+        }
+      }
+    },
+    {
+      "name": "black_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 30,
+          "t1": 60,
+          "v1": -100,
+          "t2": 150,
+          "v2": -100,
+          "t3": 151,
+          "v3": -40,
+          "start": "black_done"
+        }
+      }
+    },
+    {
       "name": "black_follows_back",
       "components": {
         "tween2d.Track": {
@@ -5361,12 +5637,386 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 300,
+          "t1": 150,
           "v1": 0,
-          "t2": 301,
+          "t2": 151,
           "v2": 60,
-          "start": "awakens_black"
+          "start": "black_done"
         }
+      }
+    },
+    {
+      "name": "white_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 50,
+          "v1": 2.55,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 60,
+          "v1": 1.5,
+          "start": "white_done"
+        }
+      }
+    },
+    {
+      "name": "white_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 30,
+          "t1": 60,
+          "v1": -100,
+          "t2": 150,
+          "v2": -100,
+          "t3": 151,
+          "v3": -40,
+          "start": "white_done"
+        }
+      }
+    },
+    {
+      "name": "white_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 0,
+          "t2": 151,
+          "v2": 60,
+          "start": "white_done"
+        }
+      }
+    },
+    {
+      "name": "harvest_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 50,
+          "v1": 2.55,
+          "start": "white_next"
+        }
+      }
+    },
+    {
+      "name": "harvest_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "white_next"
+        }
+      }
+    },
+    {
+      "name": "harvest_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "white_next"
+        }
+      }
+    },
+    {
+      "name": "harvest_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 60,
+          "v1": 1.5,
+          "start": "harvest_done"
+        }
+      }
+    },
+    {
+      "name": "harvest_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 30,
+          "t1": 60,
+          "v1": -100,
+          "t2": 150,
+          "v2": -100,
+          "t3": 151,
+          "v3": -40,
+          "start": "harvest_done"
+        }
+      }
+    },
+    {
+      "name": "harvest_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 0,
+          "t2": 151,
+          "v2": 60,
+          "start": "harvest_done"
+        }
+      }
+    },
+    {
+      "name": "walk_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 50,
+          "v1": 2.55,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "walk_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "walk_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "jump_comes_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 50,
+          "v1": 2.55,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 60,
+          "v1": 1.5,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
+      "name": "jump_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 30,
+          "t1": 60,
+          "v1": -100,
+          "t2": 150,
+          "v2": -100,
+          "t3": 151,
+          "v3": -40,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
+      "name": "jump_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 0,
+          "t2": 151,
+          "v2": 60,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
+      "name": "black_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "black_hole",
+          "own": false,
+          "field": "attractor2d.Attractor.radius",
+          "min": 6,
+          "action": "awakens_black",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black",
+            "black_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -5497,112 +6147,6 @@
       }
     },
     {
-      "name": "white_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 120,
-          "v1": 2.55,
-          "t2": 180,
-          "v2": 1.5,
-          "start": "awakens_white"
-        }
-      }
-    },
-    {
-      "name": "white_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 5,
-          "t0": 0,
-          "v0": 30,
-          "t1": 120,
-          "v1": 30,
-          "t2": 180,
-          "v2": -100,
-          "t3": 300,
-          "v3": -100,
-          "t4": 301,
-          "v4": -40,
-          "start": "awakens_white"
-        }
-      }
-    },
-    {
-      "name": "white_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 300,
-          "v1": 0,
-          "t2": 301,
-          "v2": 60,
-          "start": "awakens_white"
-        }
-      }
-    },
-    {
       "name": "white_gathers",
       "components": {
         "transform2d.Position": {
@@ -5710,6 +6254,133 @@
       }
     },
     {
+      "name": "harvest_awakens",
+      "components": {
+        "rules.Watch": {
+          "source": "harvest_bubble",
+          "own": false,
+          "field": "attractor2d.Attractor.radius",
+          "min": 20,
+          "action": "awakens_harvest",
+          "once": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "harvest",
+            "harvest_practice"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "harvest_gathers",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "harvest_gathers"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -10,
+          "stiffness": 1
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 0.9,
+          "speed": 10,
+          "spread": 360,
+          "pull": 900,
+          "swirl": 380,
+          "drag": 1.2,
+          "size": 3.5,
+          "end_size": 1.2,
+          "red": 230,
+          "green": 236,
+          "blue": 250,
+          "alpha": 235,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "area_width": 150,
+          "area_height": 150,
+          "max": 260
+        }
+      }
+    },
+    {
+      "name": "harvest_gathers_light",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "harvest_gathers",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 20,
+          "v1": 240,
+          "t2": 120,
+          "v2": 240,
+          "t3": 150,
+          "v3": 0,
+          "start": "awakens_harvest"
+        }
+      }
+    },
+    {
+      "name": "harvest_shines",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "harvest_shines"
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -10,
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 70,
+          "height": 70,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14
+        }
+      }
+    },
+    {
+      "name": "harvest_shines_out",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "harvest_shines",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 0,
+          "t2": 120,
+          "v2": 230,
+          "t3": 160,
+          "v3": 120,
+          "t4": 210,
+          "v4": 0,
+          "start": "awakens_harvest"
+        }
+      }
+    },
+    {
       "name": "walk_awakens",
       "components": {
         "rules.Watch": {
@@ -5726,112 +6397,6 @@
           ]
         },
         "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "walk_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 120,
-          "v1": 2.55,
-          "t2": 180,
-          "v2": 1.5,
-          "start": "awakens_walk"
-        }
-      }
-    },
-    {
-      "name": "walk_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 5,
-          "t0": 0,
-          "v0": 30,
-          "t1": 120,
-          "v1": 30,
-          "t2": 180,
-          "v2": -100,
-          "t3": 300,
-          "v3": -100,
-          "t4": 301,
-          "v4": -40,
-          "start": "awakens_walk"
-        }
-      }
-    },
-    {
-      "name": "walk_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 300,
-          "v1": 0,
-          "t2": 301,
-          "v2": 60,
-          "start": "awakens_walk"
-        }
       }
     },
     {
@@ -5959,112 +6524,6 @@
           ]
         },
         "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "jump_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 120,
-          "v1": 2.55,
-          "t2": 180,
-          "v2": 1.5,
-          "start": "awakens_jump"
-        }
-      }
-    },
-    {
-      "name": "jump_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 5,
-          "t0": 0,
-          "v0": 30,
-          "t1": 120,
-          "v1": 30,
-          "t2": 180,
-          "v2": -100,
-          "t3": 300,
-          "v3": -100,
-          "t4": 301,
-          "v4": -40,
-          "start": "awakens_jump"
-        }
-      }
-    },
-    {
-      "name": "jump_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 300,
-          "v1": 0,
-          "t2": 301,
-          "v2": 60,
-          "start": "awakens_jump"
-        }
       }
     },
     {

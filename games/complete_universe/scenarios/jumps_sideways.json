@@ -3,19 +3,21 @@
   "schema_version": 1,
   "name": "jumps_sideways",
   "scene": "sandbox",
-  "ticks": 140,
+  "ticks": 180,
   "inputs": [
     { "tick": 20, "action": "move_x", "value": 1 },
     { "tick": 50, "action": "jump", "value": 1 },
-    { "tick": 56, "action": "jump", "value": 0 },
+    { "tick": 80, "action": "jump", "value": 0 },
   ],
   "expect": [
-    // Going up and to the right: the pictures of rise_right (336 to 359) are on the screen,
-    // then the top of the jump and its fall; never walking in the air.
-    { "at": 62, "check": "hero.sprite2d.Sprite.frame >= 336" },
-    { "at": 62, "check": "hero.sprite2d.Sprite.frame <= 359" },
-    { "at": 62, "check": "hero.transform2d.Velocity.x > 60" },
-    { "at": 70, "check": "hero.sprite2d.Sprite.frame >= 336" },
+    // Charging while walking: the side crouch (charge_right, from 432).
+    { "at": 70, "check": "hero.sprite2d.Sprite.frame >= 432" },
+    { "at": 70, "check": "hero.sprite2d.Sprite.frame <= 463" },
+    { "at": 70, "check": "hero.transform2d.Velocity.x > 60" },
+    // Then going up and to the right, after the side leap: rise_right (336 to 359).
+    { "at": 92, "check": "hero.sprite2d.Sprite.frame >= 336" },
+    { "at": 92, "check": "hero.sprite2d.Sprite.frame <= 359" },
+    { "at": 92, "check": "hero.transform2d.Velocity.x > 60" },
     // Back on the ground, walking on.
     "hero.sprite2d.Animator.clip == 2",
   ],

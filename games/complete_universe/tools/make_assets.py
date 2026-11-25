@@ -599,6 +599,27 @@ def side_fall_poses(facing, count=24):
     return poses
 
 
+def side_charge_poses(facing, count=32):
+    """Space held while going one way: he crouches turned that way, leaning in, his arms swung
+    back to throw himself forward."""
+    poses = []
+    for index in range(count):
+        k = smooth(index / (count - 1))
+        legs = side_legs(facing, 14 + 18 * k, -(8 + 14 * k), 1 - 0.26 * k, 1 - 0.18 * k)
+        back = -facing * (30 + 70 * k)
+        arms = {"arm_w": back - 12 * facing, "arm_b": back + 12 * facing}
+        poses.append(Pose(turn=0.72 * facing, lean=(6 + 8 * k) * facing, squash=1 - 0.1 * k,
+                          look_x=1.4 * facing, look_y=-0.6 * k, tilt=2 * facing, **legs,
+                          **arms))
+    return poses
+
+
+def side_leap_poses(facing):
+    """Letting the charge go while going one way: he unfolds forward and up."""
+    return between(side_charge_poses(facing)[-1], side_rise_poses(facing)[0], 8,
+                   lambda k: {"squash": 0.1 * bump(k), "lean": 4 * facing * bump(k)})
+
+
 def side_apex_poses(facing):
     return between(side_rise_poses(facing)[0], side_fall_poses(facing)[0], 12)
 
@@ -613,7 +634,9 @@ HERO_CLIPS = [("idle", follow_through(idle_poses()), 1),
               ("rise_right", follow_through(side_rise_poses(1)), 1),
               ("rise_left", follow_through(side_rise_poses(-1)), 1),
               ("fall_right", follow_through(side_fall_poses(1)), 1),
-              ("fall_left", follow_through(side_fall_poses(-1)), 1)]
+              ("fall_left", follow_through(side_fall_poses(-1)), 1),
+              ("charge_right", follow_through(side_charge_poses(1), looping=False), 1),
+              ("charge_left", follow_through(side_charge_poses(-1), looping=False), 1)]
 # The transitions between them (sprite2d): (name, frames, ticks per frame, from, to), to None
 # meaning any clip. They follow the clips in the atlas. Frames given as a name use the frames of
 # that transition again (a landing from a side jump is a landing).
@@ -631,6 +654,8 @@ HERO_TRANSITIONS = [
     ("apex_right", follow_through(side_apex_poses(1), False), 1, "rise_right", "fall_right"),
     ("apex_left", follow_through(side_apex_poses(-1), False), 1, "rise_left", "fall_left"),
     ("leap", follow_through(leap_poses(), False), 1, "charge", "rise"),
+    ("leap_right", follow_through(side_leap_poses(1), False), 1, "charge_right", "rise_right"),
+    ("leap_left", follow_through(side_leap_poses(-1), False), 1, "charge_left", "rise_left"),
 ]
 
 
@@ -1439,10 +1464,13 @@ def hero_clips():
         "rise_left": (42, "transform2d.Velocity.y", None, -60),
         "fall_right": (41, "jump.Jumper.since_ground", 0.1, None),
         "fall_left": (41, "jump.Jumper.since_ground", 0.1, None),
+        "charge_right": (51, "jump.Jumper.charge", 0.02, None),
+        "charge_left": (51, "jump.Jumper.charge", 0.02, None),
     }
     # A jump to one side: going that way too (a second condition).
     sideways = {"rise_right": (60, None), "fall_right": (60, None),
-                "rise_left": (None, -60), "fall_left": (None, -60)}
+                "rise_left": (None, -60), "fall_left": (None, -60),
+                "charge_right": (60, None), "charge_left": (None, -60)}
     ids = {name: index + 1 for index, (name, _, _) in enumerate(HERO_CLIPS)}
     made = []
     first = 0
@@ -1450,7 +1478,7 @@ def hero_clips():
         priority, field, low, high = conditions[name]
         clip = {"set": "hero", "priority": priority, "first_frame": first,
                 "frame_count": len(poses), "ticks_per_frame": ticks,
-                "looping": name != "charge"}
+                "looping": not name.startswith("charge")}
         if field:
             clip["field"] = field
         if low is not None:
@@ -1484,6 +1512,10 @@ def hero_clips():
     return made
 
 
+JUMP_HOLE_Y = -78  # the jump's black hole, over his head
+JUMP_HOLE_SIZE = 24  # its scale (and radius) at a full charge
+
+
 def jump_hole():
     """The small black hole above the hero's head while he charges a jump: its size follows the
     charge, and it costs matter while it is there."""
@@ -1494,7 +1526,7 @@ def jump_hole():
                                 "layer": LAYERS["hero"] + 5, "unlit": True},
             "transform2d.Scale": {"factor": 0},
             "transform2d.Rotation": {},
-            "follow2d.Follow": {"target": "hero", "offset_y": -78, "stiffness": 1},
+            "follow2d.Follow": {"target": "hero", "offset_y": JUMP_HOLE_Y, "stiffness": 1},
             "reserve.Drain": {"kind": "matter", "field": "transform2d.Scale.factor",
                               "per_unit": 0.05},
             "light2d.Light": {"radius": 0, "red": 190, "green": 210, "blue": 255,
@@ -1510,7 +1542,7 @@ def jump_hole():
         bind("jump_hole_draws_high", "jump_hole", "transform2d.Scale.factor",
              "particles2d.Emitter.area_height", 0, 24, 0, 110, 1, onto="jump_hole"),
         bind("jump_hole_grows", "hero", "jump.Jumper.charge", "transform2d.Scale.factor",
-             0, 1, 0, 24, 1, onto="jump_hole"),
+             0, 1, 0, JUMP_HOLE_SIZE, 1, onto="jump_hole"),
         spin("jump_hole_turns", "jump_hole", 150),
     ]
 
@@ -2148,30 +2180,35 @@ TEXTS = {
     "departure": ("Le départ",
                   "Maintiens Espace cinq secondes : le plus grand saut possible."),
 }
-PRACTICE_TEXT = "Bien. Essaie encore un peu…"
 DEPARTURE_HOLD = 5.0  # seconds of the jump held for the departure
 PRACTICE_SECONDS = {"black": 6, "white": 6, "harvest": 5, "inventory": 3, "jump": 2}
 
 
 def step_texts():
+    """The title and the line of each step. On the steps seen close, they come once the camera is
+    close (the title, then the line)."""
     made = []
+    close = {step: begins for step, begins, _ in CLOSE_STEPS}
     for step, (title, line) in TEXTS.items():
         phases = [step] + ([f"{step}_practice"] if step in PRACTICE_SECONDS else [])
         for part, y, size, alpha in (("title", SCREEN_H - 168, 50, 240),
                                      ("line", SCREEN_H - 104, 32, 215)):
-            made.append(entity(f"text_{step}_{part}", SCREEN_W / 2, y, {
+            name = f"text_{step}_{part}"
+            text = entity(name, SCREEN_W / 2, y, {
                 "text2d.Text": {"string": f"tutorial.{step}.{part}", "font": "font",
                                 "size": size, "pivot_x": 0.5, "pivot_y": 0.5, "screen": True,
-                                "alpha": alpha},
+                                "alpha": 0 if step in close else alpha},
                 "phase.ShowIn": {"phases": phases},
                 "transform2d.Hidden": {},
-            }))
-    made.append(entity("text_practice", SCREEN_W / 2, SCREEN_H - 52, {
-        "text2d.Text": {"string": "tutorial.practice", "font": "font", "size": 26,
-                        "pivot_x": 0.5, "pivot_y": 0.5, "screen": True, "alpha": 170},
-        "phase.ShowIn": {"phases": [f"{step}_practice" for step in PRACTICE_SECONDS]},
-        "transform2d.Hidden": {},
-    }))
+            })
+            made.append(text)
+            if step in close:
+                tag = f"text_{step}" if part == "title" else f"text_{step}_line"
+                text["components"]["tag.Tag"] = {"tag": tag}
+                later = 0 if part == "title" else 25
+                made.append(track(f"{name}_comes", tag, "text2d.Text.alpha",
+                                  [(0, 0), (TEXT_AFTER + later, 0),
+                                   (TEXT_AFTER + later + 30, alpha)], start=close[step]))
     return made
 
 
@@ -2196,29 +2233,68 @@ def on(name, action, source, field, value):
         "action": action, "source": source, "field": field, "value": value}}}
 
 
-AWAKENINGS = [
-    # (name, step, the action that starts the step, watched tag, field, from, part followed,
-    # offset y, particles colour, additive)
-    ("black", "black", "landing_done", "black_hole", "attractor2d.Attractor.radius", 6,
-     "hand_right", 0, (150, 160, 190), False),
-    ("white", "white", "black_next", "white_caster", "barrier2d.Caster.radius", 6, "hand_left",
-     0, (240, 244, 255), True),
-    ("walk", "walk", "inventory_next", "hero", "transform2d.Velocity.x", 60, "hero", 40,
-     (210, 220, 240), True),
-    ("jump", "jump", "walk_done", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240),
-     True),
+# The steps seen close (D18): the camera comes close as the step starts, then its text shows,
+# and the player does it seen close (the black hole that comes, the barrier that rises, the
+# fossils and the ground swallowed, the black holes under his feet, the one over his head); it
+# goes back once the step is done (walking and jumping follow each other: it stays close).
+CLOSE_STEPS = [
+    # (step, the action that starts it, the one that ends it or None to stay close)
+    ("black", "landing_done", "black_done"),
+    ("white", "black_next", "white_done"),
+    ("harvest", "white_next", "harvest_done"),
+    ("walk", "inventory_next", None),
+    ("jump", "walk_done", "jump_done"),
 ]
 AWAKE_ZOOM = ZOOM * 1.7  # the camera close to him
+TEXT_AFTER = 60  # ticks: the camera is close, then the text comes
+# The first time he does it, light gathers into the part of his body that does it: (name, step,
+# watched tag, field, from, part followed, offset y, particles colour, additive).
+AWAKENINGS = [
+    ("black", "black", "black_hole", "attractor2d.Attractor.radius", 6, "hand_right", 0,
+     (150, 160, 190), False),
+    ("white", "white", "white_caster", "barrier2d.Caster.radius", 6, "hand_left", 0,
+     (240, 244, 255), True),
+    ("harvest", "harvest", "harvest_bubble", "attractor2d.Attractor.radius", 20, "hero", -10,
+     (230, 236, 250), True),
+    ("walk", "walk", "hero", "transform2d.Velocity.x", 60, "hero", 40, (210, 220, 240), True),
+    ("jump", "jump", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240), True),
+]
+
+
+def close_steps():
+    """The camera close during the steps of CLOSE_STEPS. Close, it also looks a little lower
+    (he is in the middle of the screen, his feet above the texts) and follows him exactly (no
+    dead zone); going back, it comes back to where a camera at rest stays, at the edge of its
+    dead zone (60 above where it aims), then the dead zone comes back."""
+    made = []
+    for step, begins, ends in CLOSE_STEPS:
+        made += [
+            track(f"{step}_comes_close", "camera", "camera2d.Camera.zoom",
+                  [(0, ZOOM), (50, AWAKE_ZOOM)], start=begins),
+            track(f"{step}_looks_down", "camera", "camera2d.CameraFollow.offset_y",
+                  [(0, -40), (50, 30)], start=begins),
+            track(f"{step}_follows_close", "camera", "camera2d.CameraFollow.dead_y",
+                  [(0, 0), (1, 0)], start=begins),
+        ]
+        if ends is None:
+            continue
+        made += [
+            track(f"{step}_goes_back", "camera", "camera2d.Camera.zoom",
+                  [(0, AWAKE_ZOOM), (60, ZOOM)], start=ends),
+            track(f"{step}_looks_back", "camera", "camera2d.CameraFollow.offset_y",
+                  [(0, 30), (60, -40 - 60), (150, -40 - 60), (151, -40)], start=ends),
+            track(f"{step}_follows_back", "camera", "camera2d.CameraFollow.dead_y",
+                  [(0, 0), (150, 0), (151, 60)], start=ends),
+        ]
+    return made
 
 
 def awakenings():
-    """When a step gives him a power, walking or jumping, the camera comes close before he tries
-    it, so that he sees what his body does (the black hole that pulls his foot, the one over his
-    head); the first time he does it, light gathers, turning, into that part of his body (the
-    black hand, the white hand, the feet, the body), which glows, and the camera goes back
-    (D16, D18)."""
-    made = []
-    for name, step, begins, source, field, low, part, offset_y, colour, additive in AWAKENINGS:
+    """The first time he uses a power, harvests, walks or jumps, light gathers, turning, into the
+    part of his body that does it (the black hand, the white hand, the body, the feet), which
+    glows (D16, D18)."""
+    made = close_steps()
+    for name, step, source, field, low, part, offset_y, colour, additive in AWAKENINGS:
         action = f"awakens_{name}"
         made.append({"name": f"{name}_awakens", "components": {
             "rules.Watch": {"source": source, "own": False, "field": field, "min": low,
@@ -2226,23 +2302,6 @@ def awakenings():
             "phase.ActiveIn": {"phases": [step] + ([f"{step}_practice"] if step in
                                                    PRACTICE_SECONDS else [])},
             "transform2d.Disabled": {}}})
-        made.append(track(f"{name}_comes_close", "camera", "camera2d.Camera.zoom",
-                          [(0, ZOOM), (50, AWAKE_ZOOM)], start=begins))
-        made.append(track(f"{name}_goes_back", "camera", "camera2d.Camera.zoom",
-                          [(0, AWAKE_ZOOM), (120, AWAKE_ZOOM), (180, ZOOM)], start=action))
-        # Close, the camera looks a little lower: he is in the middle of the screen, his feet
-        # above the texts.
-        made.append(track(f"{name}_looks_down", "camera", "camera2d.CameraFollow.offset_y",
-                          [(0, -40), (50, 30)], start=begins))
-        made.append(track(f"{name}_looks_back", "camera", "camera2d.CameraFollow.offset_y",
-                          [(0, 30), (120, 30), (180, -40 - 60), (300, -40 - 60), (301, -40)],
-                          start=action))
-        # Meanwhile the camera follows him exactly (no dead zone), and comes back to where a
-        # camera at rest stays: at the edge of its dead zone (60 above where it aims).
-        made.append(track(f"{name}_follows_close", "camera", "camera2d.CameraFollow.dead_y",
-                          [(0, 0), (1, 0)], start=begins))
-        made.append(track(f"{name}_follows_back", "camera", "camera2d.CameraFollow.dead_y",
-                          [(0, 0), (300, 0), (301, 60)], start=action))
         gather = f"{name}_gathers"
         made.append(entity(gather, 0, 0, {
             "tag.Tag": {"tag": gather},
@@ -2424,8 +2483,10 @@ def departure():
             "tag.Tag": {"tag": "runaway"},
             "transform2d.Disabled": {},
             "phase.ActiveIn": {"phases": ["end"]},
-            "follow2d.Follow": {"target": "hero", "offset_y": -200, "stiffness": 0.04},
-            "attractor2d.Attractor": {"start_radius": 90, "grow": 150, "max_radius": 1600,
+            # Where the jump's black hole is, as big: it is that one that grows and slips away.
+            "follow2d.Follow": {"target": "hero", "offset_y": JUMP_HOLE_Y, "stiffness": 1},
+            "attractor2d.Attractor": {"start_radius": JUMP_HOLE_SIZE, "grow": 150,
+                                      "max_radius": 1600,
                                       "pull": 2600, "pulls": ["rock"], "inner": HEART},
             "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
             "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
@@ -2438,6 +2499,13 @@ def departure():
         bind("runaway_shows", "runaway", "attractor2d.Attractor.radius",
              "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="runaway"),
         spin("runaway_turns", "runaway", 240),
+        # It rises away from him, slowly, as it grows; the jump's hole is now that one.
+        track("runaway_rises", "runaway", "follow2d.Follow.offset_y",
+              [(0, JUMP_HOLE_Y), (300, -220)], start="departure_done"),
+        track("runaway_slips", "runaway", "follow2d.Follow.stiffness", [(0, 1), (60, 0.04)],
+              start="departure_done"),
+        on("jump_hole_leaves", "departure_done", "jump_hole", "sprite2d.Sprite.alpha", 0),
+        on("jump_hole_dark", "departure_done", "jump_hole", "light2d.Light.intensity", 0),
         on("ground_shakes", "departure_done", "camera", "camera2d.CameraShake.strength", 14),
         track("dome_melts", "dome", "sprite2d.Sprite.alpha", [(60, 230), (300, 0)],
               start="departure_done"),
@@ -2582,14 +2650,17 @@ def drift():
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
            "locked", "skip", "exploded", "refill", "awakens_black", "awakens_white",
-           "awakens_walk", "awakens_jump", "pause", "resume", "to_title", "menu_up",
+           "awakens_harvest", "awakens_walk", "awakens_jump", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
         if _action not in ACTIONS and not _step.endswith("_practice"):
             ACTIONS.append(_action)
-TAGS = ["black_gathers", "white_gathers", "walk_gathers", "jump_gathers", "black_shines",
-        "white_shines", "walk_shines", "jump_shines", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
+TAGS = ["black_gathers", "white_gathers", "harvest_gathers", "walk_gathers", "jump_gathers",
+        "black_shines", "white_shines", "harvest_shines", "walk_shines", "jump_shines",
+        "text_black", "text_white", "text_harvest", "text_walk", "text_jump",
+        "text_black_line", "text_white_line", "text_harvest_line", "text_walk_line",
+        "text_jump_line", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
         "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
@@ -2666,7 +2737,6 @@ def write_strings():
     for step, (title, line) in TEXTS.items():
         entries[f"tutorial.{step}.title"] = title
         entries[f"tutorial.{step}.line"] = line
-    entries["tutorial.practice"] = PRACTICE_TEXT
     entries["tutorial.next"] = "À suivre…"
     entries.update({"menu.title": "COMPLETE UNIVERSE", "menu.play": "Jouer",
                     "menu.quit": "Quitter", "menu.pause": "Pause", "menu.resume": "Reprendre",
