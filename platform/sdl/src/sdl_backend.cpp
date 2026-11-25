@@ -527,8 +527,7 @@ private:
         const SDL_FlipMode flip = command.flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         const auto angle = static_cast<double>(command.angle);
         if (!command.repeat_x || width < 1.0F) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
-                                     flip);
+            draw_cut(atlas.texture, source, target, angle, flip);
             return;
         }
         // An endless band: copies side by side from the left edge of the view to its right edge.
@@ -538,9 +537,43 @@ private:
             left -= width;
         }
         for (target.x = left; target.x < view_width; target.x += width) {
-            SDL_RenderTextureRotated(renderer_, atlas.texture, &source, &target, angle, nullptr,
-                                     flip);
+            draw_cut(atlas.texture, source, target, angle, flip);
         }
+    }
+
+    /// Draws part of a texture, first cut to the view when it is not turned: renderers without
+    /// a graphics card scale the whole target, so a sprite much bigger than the view (a backdrop)
+    /// would otherwise take gigabytes and minutes.
+    void draw_cut(SDL_Texture* texture, SDL_FRect source, SDL_FRect target, double angle,
+                  SDL_FlipMode flip) {
+        const float view_width = half_width_ * 2.0F;
+        const float view_height = half_height_ * 2.0F;
+        const float right = target.x + target.w;
+        const float bottom = target.y + target.h;
+        const bool beyond = target.x < 0.0F || target.y < 0.0F || right > view_width ||
+                            bottom > view_height;
+        if (angle == 0.0 && beyond && target.w > 0.0F && target.h > 0.0F) {
+            const float left = std::max(target.x, 0.0F);
+            const float top = std::max(target.y, 0.0F);
+            const float kept_right = std::min(right, view_width);
+            const float kept_bottom = std::min(bottom, view_height);
+            if (kept_right <= left || kept_bottom <= top) {
+                return;
+            }
+            const float per_x = source.w / target.w;
+            const float per_y = source.h / target.h;
+            float cut_left = left - target.x;
+            float cut_right = right - kept_right;
+            if (flip == SDL_FLIP_HORIZONTAL) {
+                std::swap(cut_left, cut_right);
+            }
+            source.x += cut_left * per_x;
+            source.w -= (cut_left + cut_right) * per_x;
+            source.y += (top - target.y) * per_y;
+            source.h -= (top - target.y + bottom - kept_bottom) * per_y;
+            target = SDL_FRect{left, top, kept_right - left, kept_bottom - top};
+        }
+        SDL_RenderTextureRotated(renderer_, texture, &source, &target, angle, nullptr, flip);
     }
 
     /// A soft disc, from the glow picture made on first use.
