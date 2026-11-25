@@ -1,0 +1,15 @@
+// The title: "Jouer" (chosen at once, Enter) starts the opening.
+{
+  "schema_version": 1,
+  "name": "title_starts",
+  "scene": "title",
+  "ticks": 40,
+  "inputs": [
+    { "tick": 20, "action": "accept", "value": 1 },
+    { "tick": 21, "action": "accept", "value": 0 },
+  ],
+  "expect": [
+    "great_barrier alive",
+    "sleeper alive",
+  ],
+}

@@ -90,3 +90,4 @@ Ces propositions s'appliquent tant que Martin ne dit rien.
 | T5 | Ralenti | Les vitesses passent par `transform2d.SpeedScale` et un facteur de temps global. Les scénarios restent déterministes. |
 | T6 | Sauvegarde | `SaveData` du moteur, en entiers : fragments obtenus, ressources autres que le Noir et le Blanc. |
 | T7 | Nom du jeu dans le dépôt | `games/complete_universe/`. |
+| T8 | Pause (D6), faite le 25 novembre 2026 | Le moteur a un drapeau `Time::paused` : tant qu'il est levé, `FixedUpdate` ne fait tourner que les systèmes marqués `while_paused` dans leur `module.json` (menus, phases, changement de scène, sortie). C'est un `toggle.Toggle` avec `pauses` qui le lève ; son action `off` est le bouton « Reprendre ». Le flou est `postfx.Effects.paused_blur` (T4 : basse résolution agrandie avec lissage). La pause par une barrière posée sur soi n'est pas encore faite : seulement Échap. |

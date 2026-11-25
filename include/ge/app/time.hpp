@@ -27,6 +27,10 @@ struct Time {
     /// things between the last two ticks by `alpha`, so that they move smoothly on any screen.
     /// Off in tests and scenarios, which see exactly the last tick.
     bool interpolate = false;
+    /// The game is paused: the `FixedUpdate` systems do not run, except those added with
+    /// `Order::while_paused` (a pause menu, a change of scene). Ticks still count. Set by the
+    /// game (module `pause`); the other stages run as usual, so what is drawn stays on screen.
+    bool paused = false;
 
     /// Hashes only what the simulation depends on: `frame_delta`, `alpha` and
     /// `interpolate` follow the real clock or the host, so they are left out.
@@ -34,6 +38,7 @@ struct Time {
         hasher.add(tick);
         hasher.add(tick_rate);
         hasher.add(fixed_delta);
+        hasher.add(paused);
     }
 };
 

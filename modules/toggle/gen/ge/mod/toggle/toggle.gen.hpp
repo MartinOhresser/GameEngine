@@ -11,16 +11,20 @@
 
 namespace ge::mod::toggle {
 
-/// Flips on each time the action is pressed (and with hold, is on only while the action is held). times counts the times it was switched on, for a rule or a test.
+/// Flips on each time the action is pressed (and with hold, is on only while the action is held); off (an action, none when left out) only switches it off: the Resume or Close button of a menu. times counts the times it was switched on, for a rule or a test. With pauses, the game is paused while it is on (app Time paused): the simulation stops, except what runs while paused (menus, phases, a change of scene), and while paused only the Toggles that pause react to their actions. A pause menu is then an entity with ShownBy this Toggle.
 struct Toggle {
     std::uint32_t action = 4294967295U;
     bool hold = false;
+    std::uint32_t off = 4294967295U;
+    bool pauses = false;
     bool on = false;
     std::uint32_t times = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(action);
         hasher.add(hold);
+        hasher.add(off);
+        hasher.add(pauses);
         hasher.add(on);
         hasher.add(times);
     }
@@ -54,8 +58,8 @@ struct ActiveBy {
     [[nodiscard]] friend bool operator==(const ActiveBy&, const ActiveBy&) = default;
 };
 
-/// Flips every Toggle whose action is pressed, then shows and hides, switches on and off, what follows them.
-/// Runs in FixedUpdate.
+/// Flips every Toggle whose action is pressed, pauses the game while a Toggle that pauses is on, then shows and hides, switches on and off, what follows them.
+/// Runs in FixedUpdate, even while paused.
 void flip(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

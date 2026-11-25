@@ -3,16 +3,18 @@
   "schema_version": 1,
   "name": "toggle",
   "version": "0.1.0",
-  "description": "Things switched on and off by a button: a map, an inventory, a torch, a list of quests, a second view. A Toggle is flipped by its action; the entities that follow it are shown only while it is on (or only while it is off), or work only then.",
+  "description": "Things switched on and off by a button: a map, an inventory, a torch, a list of quests, a second view, the pause of the game. A Toggle is flipped by its action; the entities that follow it are shown only while it is on (or only while it is off), or work only then.",
   "depends": ["transform2d", "tag"],
   "components": [
     {
       "name": "Toggle",
-      "description": "Flips on each time the action is pressed (and with hold, is on only while the action is held). times counts the times it was switched on, for a rule or a test.",
+      "description": "Flips on each time the action is pressed (and with hold, is on only while the action is held); off (an action, none when left out) only switches it off: the Resume or Close button of a menu. times counts the times it was switched on, for a rule or a test. With pauses, the game is paused while it is on (app Time paused): the simulation stops, except what runs while paused (menus, phases, a change of scene), and while paused only the Toggles that pause react to their actions. A pause menu is then an entity with ShownBy this Toggle.",
       "replicable": true,
       "fields": [
         { "name": "action", "type": "u32", "default": 4294967295, "ref": "action" },
         { "name": "hold", "type": "bool", "default": false },
+        { "name": "off", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "pauses", "type": "bool", "default": false },
         { "name": "on", "type": "bool", "default": false },
         { "name": "times", "type": "u32", "default": 0 }
       ]
@@ -39,8 +41,9 @@
   "systems": [
     {
       "name": "flip",
-      "description": "Flips every Toggle whose action is pressed, then shows and hides, switches on and off, what follows them.",
+      "description": "Flips every Toggle whose action is pressed, pauses the game while a Toggle that pauses is on, then shows and hides, switches on and off, what follows them.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["ShownBy", "tag.Tag", "transform2d.Hidden", "ActiveBy"],
       "writes": ["Toggle", "transform2d.Hidden", "transform2d.Disabled"]
     }

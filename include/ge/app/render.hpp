@@ -121,11 +121,14 @@ struct ScreenEffects {
     float rays_x = 0.5F;
     float rays_y = 0.35F;
     float rays_length = 0.3F;
+    /// The whole picture softened (0: sharp, 1: a few soft blots): what is behind a pause menu.
+    float blur = 0.0F;
 
     /// Whether any effect is asked for.
     [[nodiscard]] bool any() const noexcept {
         return bloom > 0.0F || vignette > 0.0F || edge_glow > 0.0F || grain > 0.0F || (tint | 0xFFU) != 0xFFFFFFFFU ||
-               (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F || rays > 0.0F;
+               (lift & 0xFFFFFF00U) != 0U || letterbox > 0.0F || rays > 0.0F ||
+               blur > 0.0F;
     }
 
     friend bool operator==(const ScreenEffects&, const ScreenEffects&) = default;

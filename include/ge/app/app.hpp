@@ -30,6 +30,15 @@ using System = std::function<void(ecs::World&)>;
 struct Order {
     std::vector<std::string> runs_after;  ///< Run only after these systems.
     std::vector<std::string> runs_before; ///< Run before these systems.
+    /// A `FixedUpdate` system that still runs while the game is paused (`Time::paused`): a
+    /// pause menu, what leaves the game. The others wait.
+    bool runs_while_paused = false;
+
+    /// The same order, for a system that runs while the game is paused.
+    [[nodiscard]] Order while_paused() && {
+        runs_while_paused = true;
+        return std::move(*this);
+    }
 
     [[nodiscard]] static Order after(std::vector<std::string> names) {
         Order order;
@@ -64,7 +73,8 @@ public:
     void add_system(Stage stage, System system, std::string name = {}, Order order = {});
 
     /// Runs every system of one stage. When the world holds a `Commands`
-    /// resource, its queue is applied after each system.
+    /// resource, its queue is applied after each system. While its `Time` is paused,
+    /// `FixedUpdate` runs only the systems whose `Order` runs while paused.
     void run_stage(Stage stage, ecs::World& world);
 
     [[nodiscard]] std::size_t system_count(Stage stage) const noexcept;

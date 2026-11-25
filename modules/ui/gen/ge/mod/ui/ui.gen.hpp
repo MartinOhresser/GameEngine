@@ -197,27 +197,27 @@ struct RowButton {
 };
 
 /// Places the cells of every grid.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void layout(::ge::ecs::World& world);
 
 /// Copies the bound numbers into the texts and bars that show them.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void bind(::ge::ecs::World& world);
 
 /// Sizes the sprite of every bar from its value.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void fill(::ge::ecs::World& world);
 
 /// Moves the focus of every menu and raises the action of the button that is pressed.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void menu(::ge::ecs::World& world);
 
 /// Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void pager(::ge::ecs::World& world);
 
 /// Makes the item of the focused Row (or RowButton) the selected item of its list.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void select(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

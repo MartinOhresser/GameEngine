@@ -146,7 +146,7 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &trigger, "host.trigger");
+    app.add_system(::ge::app::Stage::FixedUpdate, &trigger, "host.trigger", ::ge::app::Order::between({}, {}).while_paused());
 }
 
 } // namespace ge::mod::host

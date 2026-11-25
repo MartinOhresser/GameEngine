@@ -723,6 +723,9 @@ private:
     /// the plain blend modes, so it works with every renderer, software included.
     void apply_effects() {
         SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        if (effects_.blur > 0.0F) {
+            apply_blur(std::min(effects_.blur, 1.0F));
+        }
         if (effects_.bloom > 0.0F || effects_.rays > 0.0F) {
             make_bright();
         }
@@ -772,6 +775,31 @@ private:
         spread(bright_, blur_);
         spread(blur_, bright_);
         SDL_SetRenderTarget(renderer_, nullptr);
+    }
+
+    /// The picture softened: shrunk to a quarter and enlarged again, smoothly, over the screen
+    /// (up to a strength of 0.5), then shrunk to a sixteenth, spread, and enlarged (up to 1).
+    void apply_blur(float strength) {
+        SDL_SetRenderTarget(renderer_, quarter_);
+        SDL_RenderTexture(renderer_, scene_, nullptr, nullptr);
+        SDL_SetRenderTarget(renderer_, blur_);
+        SDL_RenderTexture(renderer_, quarter_, nullptr, nullptr);
+        spread(blur_, bright_);
+        spread(bright_, blur_);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        const auto lay = [this](SDL_Texture* texture, float alpha) {
+            if (alpha <= 0.0F) {
+                return;
+            }
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(texture, static_cast<std::uint8_t>(
+                                                std::lround(std::min(alpha, 1.0F) * 255.0F)));
+            SDL_RenderTexture(renderer_, texture, nullptr, nullptr);
+            SDL_SetTextureAlphaMod(texture, 255U);
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
+        };
+        lay(quarter_, strength * 2.0F);
+        lay(blur_, (strength * 2.0F) - 1.0F);
     }
 
     /// The bright parts enlarged and added over the screen: a soft glow around what is bright.

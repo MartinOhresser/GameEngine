@@ -89,7 +89,8 @@
         "reads": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
         "writes": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
         "after": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
-        "before": { "type": "array", "items": { "$ref": "#/$defs/reference" } }
+        "before": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+        "while_paused": { "type": "boolean" }
       }
     }
   }

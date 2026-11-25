@@ -460,7 +460,9 @@ def bubble(strength=1.0, size=BARRIER):
     inside = np.clip((1 - r) * size * 0.5, 0, 1)
     fresnel = np.clip((r - 0.45) / 0.55, 0, 1) ** 2.4
     rim = np.exp(-((r - 0.985) / 0.022) ** 2)
-    outer = np.exp(-np.clip(r - 1, 0, None) / 0.035) * (r > 1) * 0.55
+    # The glow outside fades out before the edge of the cell, so that no square shows.
+    border = np.clip((1 - np.maximum(np.abs(nx), np.abs(ny))) / 0.06, 0, 1)
+    outer = np.exp(-np.clip(r - 1, 0, None) / 0.035) * (r > 1) * 0.55 * border
     top = np.exp(-(((nx + 0.3) / 0.38) ** 2 + ((ny + 0.62) / 0.13) ** 2)) * 0.45
     bottom = np.exp(-((nx / 0.6) ** 2 + ((ny - 0.55) / 0.16) ** 2)) * 0.22
     scale = 22.0
@@ -472,6 +474,31 @@ def bubble(strength=1.0, size=BARRIER):
     alpha = np.clip(light * strength, 0, 1)
     tint = np.clip(fresnel * 0.6 + rim, 0, 1)
     rgb = np.dstack([175 + 65 * tint, 215 + 40 * tint, 212 + 38 * tint])
+    return to_image(rgb, alpha)
+
+
+BUTTON = (512, 128)  # a cell of the button atlas
+
+
+def button(focused):
+    """A button of the menus: a long capsule of glass, like a flattened bubble; focused, its rim
+    is bright and light fills it."""
+    width, height = BUTTON
+    y, x = np.mgrid[0:height, 0:width].astype(np.float64)
+    half = height / 2 - 6
+    # The distance to the capsule's middle segment, as a share of its half height.
+    cx = np.clip(x, half + 6, width - half - 6)
+    r = np.hypot(x - cx, y - height / 2) / half
+    inside = np.clip((1 - r) * half * 0.6, 0, 1)
+    rim = np.exp(-((r - 0.97) / (0.05 if focused else 0.035)) ** 2)
+    border = np.clip(np.minimum(np.minimum(x, width - 1 - x), np.minimum(y, height - 1 - y))
+                     / 22.0, 0, 1)
+    outer = (np.exp(-np.clip(r - 1, 0, None) / 0.07) * (r > 1) * (0.5 if focused else 0.15)
+             * border ** 2)
+    sheen = np.exp(-((y - height * 0.3) / (height * 0.12)) ** 2) * inside * 0.12
+    fill = inside * ((0.22 + 0.25 * r ** 3) if focused else (0.06 + 0.1 * r ** 3))
+    alpha = np.clip(fill + sheen + rim * (1.0 if focused else 0.55) + outer, 0, 1)
+    rgb = np.dstack([np.full_like(r, 236), np.full_like(r, 244), np.full_like(r, 248)])
     return to_image(rgb, alpha)
 
 
@@ -1329,7 +1356,7 @@ def camera(bound_right, bound_bottom):
         "postfx.Effects": {"vignette": BASE_VIGNETTE, "vignette_size": BASE_VIGNETTE_SIZE,
                            "edge_glow": 0, "edge_glow_size": 0.5, "bloom": 0.45,
                            "grain": 0.05, "rays": 0.22, "rays_x": 0.5, "rays_y": 0.08,
-                           "rays_length": 0.22},
+                           "rays_length": 0.22, "paused_blur": 0.8},
         # The dark between the lights: what the hero's glow does not reach stays dim.
         "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
         # Ori's camera: soft, a little ahead, the hero a little below the middle.
@@ -1512,6 +1539,99 @@ def cover(name, alpha=0, colour=(255, 255, 255)):
         "unlit": True, "layer": 1000}})
 
 
+MENU_LAYER = 900  # the menus, over the interface of the game
+
+
+def menu_buttons(menu, labels, top, shown_by=None):
+    """The buttons of a menu (ui), one under the other from top, centred on the screen. Each
+    label is (string, action). The keyboard, the pad and the mouse all choose."""
+    made = [entity(f"{menu}_menu", 0, 0, {"ui.Menu": {
+        "group": menu, "up": "menu_up", "down": "menu_down", "accept": "accept",
+        "use_pointer": True, "pointer_x": "pointer_x", "pointer_y": "pointer_y",
+        "click": "menu_click"}})]
+    for order, (string, action) in enumerate(labels):
+        y = top + order * 118
+        hidden = {"toggle.ShownBy": {"toggle": shown_by}, "transform2d.Hidden": {}} if (
+            shown_by) else {}
+        made.append(entity(f"{menu}_{action}", SCREEN_W / 2, y, {
+            "ui.Button": {"menu": menu, "order": order, "action": action, "width": 440,
+                          "height": 104, "normal_frame": 0, "focus_frame": 1},
+            "sprite2d.Sprite": {"atlas": "button", "width": 440, "height": 110, "screen": True,
+                                "layer": MENU_LAYER + 20, "unlit": True},
+            **hidden}))
+        made.append(entity(f"{menu}_{action}_label", SCREEN_W / 2, y + 2, {
+            "text2d.Text": {"string": string, "font": "font", "size": 38, "pivot_x": 0.5,
+                            "pivot_y": 0.5, "screen": True, "alpha": 240},
+            **hidden}))
+    return made
+
+
+def pause_menu():
+    """The pause (D6): Escape shuts him in a bubble, everything stops (toggle.Toggle.pauses), the
+    world goes soft behind it (postfx paused_blur), and the menu is in the bubble."""
+    shown = {"toggle.ShownBy": {"toggle": "pause"}, "transform2d.Hidden": {}}
+    middle = (SCREEN_W / 2, SCREEN_H / 2)
+    return [
+        entity("pause", 0, 0, {"tag.Tag": {"tag": "pause"}, "toggle.Toggle": {
+            "action": "pause", "off": "resume", "pauses": True}}),
+        entity("pause_dim", *middle, {"sprite2d.Sprite": {
+            "atlas": "plain", "width": SCREEN_W + 64, "height": SCREEN_H + 64, "screen": True,
+            "red": 6, "green": 7, "blue": 10, "alpha": 120, "unlit": True,
+            "layer": MENU_LAYER}, **shown}),
+        entity("pause_bubble", *middle, {"sprite2d.Sprite": {
+            "atlas": "barrier", "frame": 0, "width": 760, "height": 760, "screen": True,
+            "layer": MENU_LAYER + 5, "unlit": True}, **shown}),
+        entity("pause_sleeper", middle[0], middle[1] - 205, {"sprite2d.Sprite": {
+            "atlas": "hero_curled", "width": 128, "height": 128, "screen": True,
+            "layer": MENU_LAYER + 10, "unlit": True}, **shown}),
+        entity("pause_title", middle[0], middle[1] - 82, {"text2d.Text": {
+            "string": "menu.pause", "font": "font", "size": 56, "pivot_x": 0.5,
+            "pivot_y": 0.5, "screen": True, "alpha": 235}, **shown}),
+        entity("to_title", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "title", "use_action": True, "action": "to_title"}}),
+    ] + menu_buttons("pause", [("menu.resume", "resume"), ("menu.leave", "to_title")],
+                     middle[1] + 40, shown_by="pause")
+
+
+def title():
+    """The title: the sky of the beginning, still in colours, the hero asleep in his bubble,
+    and the menu."""
+    return sky_entity(coloured=True) + [
+        entity("camera", VIEW_W / 2, VIEW_H / 2, {
+            "tag.Tag": {"tag": "camera"}, "camera2d.Camera": {"zoom": ZOOM},
+            "postfx.Effects": {"bloom": 0.6, "vignette": 0.55, "vignette_size": 0.35,
+                               "grain": 0.05, "rays": 0.18, "rays_x": 0.5, "rays_y": 0.45,
+                               "rays_length": 0.25}}),
+        entity("sleeper", VIEW_W / 2, 318, {"tag.Tag": {"tag": "sleeper"},
+                                            "sprite2d.Sprite": {
+            "atlas": "hero_curled", "width": 64, "height": 64, "layer": 30, "unlit": True},
+            "transform2d.Rotation": {}}),
+        entity("sleeper_bubble", VIEW_W / 2, 318, {"sprite2d.Sprite": {
+            "atlas": "barrier", "frame": 0, "width": 96, "height": 96, "layer": 31,
+            "unlit": True}, "follow2d.Follow": {"target": "sleeper", "stiffness": 1}}),
+        entity("sleeper_glow", VIEW_W / 2, 318, {"sprite2d.Sprite": {
+            "atlas": "glow", "width": 260, "height": 260, "layer": 29, "alpha": 90,
+            "additive": True, "unlit": True},
+            "follow2d.Follow": {"target": "sleeper", "stiffness": 1}}),
+        track("sleeper_floats", "sleeper", "transform2d.Position.y",
+              [(0, 318), (150, 308), (300, 318)], loop=True),
+        track("sleeper_turns", "sleeper", "transform2d.Rotation.angle",
+              [(0, -6), (240, 6), (480, -6)], loop=True),
+        # Dust of light drifting across the colours.
+        entity("title_dust", VIEW_W / 2, VIEW_H / 2, {"particles2d.Emitter": {
+            "rate": 14, "lifetime": 9, "speed": 14, "speed_spread": 10, "angle": -90,
+            "spread": 360, "wander": 10, "size": 3, "end_size": 1, "red": 236, "green": 232,
+            "blue": 255, "alpha": 200, "fade": True, "additive": True, "unlit": True,
+            "layer": 20, "area_width": VIEW_W, "area_height": VIEW_H, "max": 140}}),
+        entity("title_name", SCREEN_W / 2, 230, {"text2d.Text": {
+            "string": "menu.title", "font": "font", "size": 92, "spacing": 10,
+            "pivot_x": 0.5, "pivot_y": 0.5, "screen": True, "alpha": 245}}),
+        entity("to_opening", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "opening", "use_action": True, "action": "play"}}),
+        entity("quits", 0, 0, {"host.Quit": {"action": "quit"}}),
+    ] + menu_buttons("title", [("menu.play", "play"), ("menu.quit", "quit")], 700)
+
+
 def sandbox():
     """The test ground of the modules: flat, wide, nothing on it."""
     return (sky_entity() + scenery(GROUND_Y) +
@@ -1529,7 +1649,7 @@ def sandbox():
              hero_entity(400, GROUND_Y - HERO_H / 2),
              camera(SANDBOX_W, GROUND_Y + 120)] + hero_clips() + hero_trail() +
             hands(fixed=False) + powers()
-            + inventory() + jump_hole() + death())
+            + inventory() + jump_hole() + death() + pause_menu())
 
 
 def sandbox_scene(matter=100, carbon=100):
@@ -1753,7 +1873,7 @@ def tutorial():
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
-            landing() + departure())
+            landing() + departure() + pause_menu())
 
 
 def landing():
@@ -1934,7 +2054,8 @@ def drift():
 
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
-           "locked", "skip", "exploded", "refill"]
+           "locked", "skip", "exploded", "refill", "pause", "resume", "to_title", "menu_up",
+           "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
         if _action not in ACTIONS and not _step.endswith("_practice"):
@@ -1943,16 +2064,17 @@ TAGS = ["hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
         "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
-        "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow"]
+        "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
-           "inventory", "plain", "font", "glow", "planet"]
-SCENE_NAMES = ["opening", "tutorial", "drift", "sandbox", "sandbox_low"]
+           "inventory", "plain", "font", "glow", "planet", "button"]
+SCENE_NAMES = ["title", "opening", "tutorial", "drift", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
              "inventory_opens", "walking_costs", "charged_jump", "dies_and_restarts",
              "tutorial_through", "cannot_walk_early", "powers_in_order",
-             "opening", "opening_skips"]
+             "opening", "opening_skips", "pause_stops_everything", "pause_resumes",
+             "title_starts"]
 
 
 def write_manifest():
@@ -1969,7 +2091,7 @@ def write_manifest():
             "jump", "tag", "terrain2d", "reserve", "bind", "postfx", "aim2d", "loadout",
             "follow2d", "attractor2d", "barrier2d", "toggle", "rules", "checkpoint",
             "spawner2d", "bounds2d", "tween2d", "phase", "text2d", "particles2d",
-            "scene_switch"],
+            "scene_switch", "ui", "host"],
         "lists": {
             "action": ACTIONS,
             "layer": ["hero", "ground", "rock", "barrier"],
@@ -1978,6 +2100,7 @@ def write_manifest():
             "phase": STEPS,
             "power": POWERS,
             "animation_set": ["hero"],
+            "menu": ["title", "pause"],
         },
         "simulation": {"tick_rate": 60, "seed": 11},
         "window": {"width": SCREEN_W, "height": SCREEN_H},
@@ -1988,7 +2111,7 @@ def write_manifest():
         "prefabs": [f"prefabs/{prefab['name']}.json" for prefab in PREFAB_LIST],
         "scenes": [f"scenes/{name}.json" for name in SCENE_NAMES],
         "scenarios": [f"scenarios/{name}.json" for name in SCENARIOS],
-        "start_scene": "opening",
+        "start_scene": "title",
     }
     with open(os.path.join(GAME, "game.json"), "w", encoding="utf-8") as out:
         out.write("// Complete Universe: a being made of ovals gathers the fragments of power its "
@@ -2016,6 +2139,9 @@ def write_strings():
         entries[f"tutorial.{step}.line"] = line
     entries["tutorial.practice"] = PRACTICE_TEXT
     entries["tutorial.next"] = "À suivre…"
+    entries.update({"menu.title": "COMPLETE UNIVERSE", "menu.play": "Jouer",
+                    "menu.quit": "Quitter", "menu.pause": "Pause", "menu.resume": "Reprendre",
+                    "menu.leave": "Retour au titre"})
     with open(os.path.join(TEXT, "fr.json"), "w", encoding="utf-8") as out:
         json.dump({"schema_version": 1, "locale": "fr", "entries": entries}, out, indent=2,
                   ensure_ascii=False)
@@ -2036,6 +2162,7 @@ def write_scenes():
     write_scene("sandbox_low", sandbox_scene(matter=20, carbon=8))
     write_scene("tutorial", tutorial())
     write_scene("opening", opening())
+    write_scene("title", title())
     write_scene("drift", drift())
 
 
@@ -2059,6 +2186,7 @@ def write_pictures():
     save(rock(9, colour=(120, 118, 110), light=(226, 224, 214), spiral=True), "fossil")
     save(barriers(), "barrier", cell=(BARRIER, BARRIER))
     save(dome(), "dome")
+    save(sheet_of([button(False), button(True)], 2, *BUTTON), "button", cell=BUTTON)
     save(harvest(), "harvest")
     save(inventory_bubbles(), "inventory", cell=(INVENTORY, INVENTORY))
     save(Image.new("RGBA", (4, 4), (255, 255, 255, 255)), "plain")

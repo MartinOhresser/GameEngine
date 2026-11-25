@@ -62,11 +62,11 @@ struct ActiveIn {
 };
 
 /// Moves the current phase on the action of the first Transition that is pressed and allowed.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void transition(::ge::ecs::World& world);
 
 /// Hides and switches off the entities that do not belong to the current phase, shows and switches on the others.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void apply(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

@@ -127,6 +127,7 @@
       "name": "layout",
       "description": "Places the cells of every grid.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Grid", "Cell"],
       "writes": ["transform2d.Position"],
       "after": ["transform2d.anchor"]
@@ -135,6 +136,7 @@
       "name": "bind",
       "description": "Copies the bound numbers into the texts and bars that show them.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Bind", "tag.Tag"],
       "writes": ["text2d.Text", "Bar"]
     },
@@ -142,6 +144,7 @@
       "name": "fill",
       "description": "Sizes the sprite of every bar from its value.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Bar"],
       "writes": ["sprite2d.Sprite"],
       "after": ["bind"]
@@ -150,6 +153,7 @@
       "name": "menu",
       "description": "Moves the focus of every menu and raises the action of the button that is pressed.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Button", "transform2d.Position"],
       "writes": ["Menu", "sprite2d.Sprite"],
       "after": ["layout", "pager"]
@@ -158,6 +162,7 @@
       "name": "pager",
       "description": "Turns the pages of every Pager and gives each Row and RowButton its item, switching off the buttons that have none.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Pager", "Row", "RowButton"],
       "writes": ["Pager", "Row", "RowButton", "Button", "text2d.Dynamic"],
       "after": ["layout"]
@@ -166,6 +171,7 @@
       "name": "select",
       "description": "Makes the item of the focused Row (or RowButton) the selected item of its list.",
       "stage": "FixedUpdate",
+      "while_paused": true,
       "reads": ["Pager", "Row", "RowButton", "Menu", "Button"],
       "after": ["menu"]
     }

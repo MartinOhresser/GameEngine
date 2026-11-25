@@ -42,7 +42,7 @@ struct Call {
 };
 
 /// Each tick, a pressed action of a Quit asks the host to stop (QuitRequest), and a pressed action of a Call leaves its request in HostRequests; the host reads them between frames.
-/// Runs in FixedUpdate.
+/// Runs in FixedUpdate, even while paused.
 void trigger(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

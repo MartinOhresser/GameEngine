@@ -217,8 +217,8 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &transition, "phase.transition");
-    app.add_system(::ge::app::Stage::FixedUpdate, &apply, "phase.apply", ::ge::app::Order::between({"phase.transition"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &transition, "phase.transition", ::ge::app::Order::between({}, {}).while_paused());
+    app.add_system(::ge::app::Stage::FixedUpdate, &apply, "phase.apply", ::ge::app::Order::between({"phase.transition"}, {}).while_paused());
 }
 
 } // namespace ge::mod::phase

@@ -55,6 +55,7 @@ Le dossier porte le même nom que le module. Les modules sont des bibliothèques
 | `systems[].stage` | `Startup`, `PreUpdate`, `FixedUpdate`, `Update` ou `PostUpdate`. La logique de jeu va dans `FixedUpdate`. |
 | `systems[].reads`, `writes` | Composants touchés : `Nom` pour le module, `module.Nom` pour une dépendance. |
 | `systems[].after`, `before` | Ordre par rapport à d'autres systèmes, même notation. |
+| `systems[].while_paused` | `true` : un système de `FixedUpdate` qui tourne encore quand le jeu est en pause (`Time::paused`, mis par un `toggle.Toggle` qui a `pauses`). Les autres attendent. Réservé à ce qui doit marcher dans un menu de pause : `ui`, `phase`, `scene_switch`, `host`, `toggle`. |
 
 Le schéma `schemas/module.schema.json` donne l'autocomplétion dans les éditeurs. `gectl check` applique les mêmes règles, plus celles qu'un schéma ne sait pas exprimer : références entre modules, dépendances déclarées, cycles, nom du dossier.
 

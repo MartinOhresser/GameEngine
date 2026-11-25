@@ -1,4 +1,5 @@
 #include "ge/app/render.hpp"
+#include "ge/app/time.hpp"
 #include "ge/mod/postfx/postfx.gen.hpp"
 
 #include <algorithm>
@@ -20,6 +21,8 @@ void apply(ecs::World& world) {
     if (backend == nullptr) {
         return;
     }
+    const auto* time = world.resource<app::Time>();
+    const bool paused = time != nullptr && time->paused;
     bool found = false;
     world.each<const Effects>([&](ecs::Entity, const Effects& effects) {
         if (found) {
@@ -43,6 +46,7 @@ void apply(ecs::World& world) {
         screen.rays_x = effects.rays_x;
         screen.rays_y = effects.rays_y;
         screen.rays_length = std::clamp(effects.rays_length, 0.0F, 1.0F);
+        screen.blur = std::clamp(paused ? effects.paused_blur : effects.blur, 0.0F, 1.0F);
         backend->renderer().set_effects(screen);
     });
 }

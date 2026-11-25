@@ -84,7 +84,8 @@ TEST_CASE("generate: systems are declared and registered with their ordering") {
       "systems": [
         {"name": "first", "description": "Goes first.", "stage": "PreUpdate", "reads": ["C"]},
         {"name": "second", "stage": "Update", "writes": ["C"], "after": ["first"],
-         "before": ["other.last"]}
+         "before": ["other.last"]},
+        {"name": "third", "stage": "FixedUpdate", "while_paused": true}
       ]
     })");
     const GeneratedFile* header = find_file(files, "demo.gen.hpp");
@@ -98,6 +99,8 @@ TEST_CASE("generate: systems are declared and registered with their ordering") {
     CHECK(contains(cpp, "app.add_module(info());"));
     CHECK(contains(cpp, "app.add_system(::ge::app::Stage::PreUpdate, &first, \"demo.first\");"));
     CHECK(contains(cpp, "::ge::app::Order::between({\"demo.first\"}, {\"other.last\"})"));
+    CHECK(contains(cpp, "&third, \"demo.third\", ::ge::app::Order::between({}, {}).while_paused()"));
+    CHECK(contains(header->content, "/// Runs in FixedUpdate, even while paused.\n"));
     CHECK(contains(cpp, "system_0_reads{\"demo.C\"}"));
     CHECK(contains(cpp, "system_1_writes{\"demo.C\"}"));
     CHECK(contains(cpp, "\"demo\", \"1.2.3\", depends, components, systems"));

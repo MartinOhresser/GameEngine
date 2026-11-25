@@ -172,7 +172,12 @@ void Schedule::run_stage(Stage stage, ecs::World& world) {
         order_cache_[slot] = execution_order(stage, nullptr);
         order_dirty_[slot] = false;
     }
+    const Time* time = world.resource<Time>();
+    const bool paused = stage == Stage::FixedUpdate && time != nullptr && time->paused;
     for (const std::size_t entry : order_cache_[slot]) {
+        if (paused && !stages_[slot][entry].order.runs_while_paused) {
+            continue;
+        }
         stages_[slot][entry].run(world);
         if (auto* commands = world.resource<ecs::Commands>(); commands != nullptr) {
             commands->apply(world);

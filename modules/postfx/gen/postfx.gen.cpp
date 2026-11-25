@@ -64,6 +64,10 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.rays_y = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "rays_length") {
             component.rays_length = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "blur") {
+            component.blur = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "paused_blur") {
+            component.paused_blur = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -143,6 +147,12 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "rays_length") {
         return ::ge::app::Scalar{static_cast<double>(component->rays_length)};
+    }
+    if (field == "blur") {
+        return ::ge::app::Scalar{static_cast<double>(component->blur)};
+    }
+    if (field == "paused_blur") {
+        return ::ge::app::Scalar{static_cast<double>(component->paused_blur)};
     }
     return std::nullopt;
 }
@@ -246,10 +256,18 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->rays_length = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "blur") {
+        component->blur = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "paused_blur") {
+        component->paused_blur = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 23> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"vignette_red", "u32", "", false}, {"vignette_green", "u32", "", false}, {"vignette_blue", "u32", "", false}, {"edge_glow", "f32", "", false}, {"edge_glow_size", "f32", "", false}, {"edge_glow_red", "u32", "", false}, {"edge_glow_green", "u32", "", false}, {"edge_glow_blue", "u32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}, {"rays", "f32", "", false}, {"rays_x", "f32", "", false}, {"rays_y", "f32", "", false}, {"rays_length", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 25> component_0_fields{{{"bloom", "f32", "", false}, {"vignette", "f32", "", false}, {"vignette_size", "f32", "", false}, {"vignette_red", "u32", "", false}, {"vignette_green", "u32", "", false}, {"vignette_blue", "u32", "", false}, {"edge_glow", "f32", "", false}, {"edge_glow_size", "f32", "", false}, {"edge_glow_red", "u32", "", false}, {"edge_glow_green", "u32", "", false}, {"edge_glow_blue", "u32", "", false}, {"grain", "f32", "", false}, {"tint_red", "u32", "", false}, {"tint_green", "u32", "", false}, {"tint_blue", "u32", "", false}, {"lift_red", "u32", "", false}, {"lift_green", "u32", "", false}, {"lift_blue", "u32", "", false}, {"letterbox", "f32", "", false}, {"rays", "f32", "", false}, {"rays_x", "f32", "", false}, {"rays_y", "f32", "", false}, {"rays_length", "f32", "", false}, {"blur", "f32", "", false}, {"paused_blur", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Effects", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

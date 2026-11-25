@@ -360,7 +360,8 @@ void read_system(Reader& reader, const json::Value& value, const std::string& pa
         return;
     }
     reader.reject_unknown(*object, path,
-                          {"name", "description", "stage", "reads", "writes", "after", "before"});
+                          {"name", "description", "stage", "reads", "writes", "after", "before",
+                           "while_paused"});
     SystemSpec system;
     if (reader.string_at(*object, "name", path, true, system.name)) {
         check_name(reader, Reader::join_path(path, "name"), system.name, false);
@@ -385,6 +386,7 @@ void read_system(Reader& reader, const json::Value& value, const std::string& pa
     system.writes = reader.strings_at(*object, "writes", path);
     system.after = reader.strings_at(*object, "after", path);
     system.before = reader.strings_at(*object, "before", path);
+    static_cast<void>(reader.bool_at(*object, "while_paused", path, false, system.while_paused));
     module.systems.push_back(std::move(system));
 }
 
@@ -802,6 +804,7 @@ json::Value catalog_entry(const ModuleSpec& module) {
         entry.set("writes", strings(system.writes));
         entry.set("after", strings(system.after));
         entry.set("before", strings(system.before));
+        entry.set("while_paused", json::Value::boolean(system.while_paused));
         systems.push_back(std::move(entry));
     }
 

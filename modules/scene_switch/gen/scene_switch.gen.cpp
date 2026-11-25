@@ -155,7 +155,7 @@ const ::ge::app::ModuleInfo& info() noexcept {
 
 void install(::ge::app::App& app) {
     app.add_module(info());
-    app.add_system(::ge::app::Stage::FixedUpdate, &trigger, "scene_switch.trigger", ::ge::app::Order::between({"collision2d.detect"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &trigger, "scene_switch.trigger", ::ge::app::Order::between({"collision2d.detect"}, {}).while_paused());
 }
 
 } // namespace ge::mod::scene_switch

@@ -1,0 +1,26 @@
+// Escape shuts him in his bubble (D6): everything stops, the wearing of black and white too, and
+// the menu is shown over a soft world.
+{
+  "schema_version": 1,
+  "name": "pause_stops_everything",
+  "scene": "sandbox",
+  "ticks": 900,
+  "inputs": [
+    { "tick": 30, "action": "pause", "value": 1 },
+    { "tick": 31, "action": "pause", "value": 0 },
+    // While paused, nothing that is not the menu answers.
+    { "tick": 200, "action": "move_x", "value": 1 },
+    { "tick": 400, "action": "move_x", "value": 0 },
+    { "tick": 500, "action": "inventory", "value": 1 },
+    { "tick": 501, "action": "inventory", "value": 0 },
+  ],
+  "expect": [
+    "pause.toggle.Toggle.on == true",
+    // Half a second of wear at most, not fifteen.
+    "matter.reserve.Reserve.amount > 99.8",
+    "carbon.reserve.Reserve.amount > 99.8",
+    "hero.transform2d.Position.x > 399",
+    "hero.transform2d.Position.x < 401",
+    "inventory.toggle.Toggle.on == false",
+  ],
+}
