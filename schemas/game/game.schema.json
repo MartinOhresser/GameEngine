@@ -66,6 +66,7 @@
           "spawner2d",
           "sprite2d",
           "tag",
+          "terrain2d",
           "text2d",
           "touch_controls",
           "transform2d",
@@ -302,6 +303,11 @@
           "additionalProperties": false
         },
         "tag": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "terrain2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

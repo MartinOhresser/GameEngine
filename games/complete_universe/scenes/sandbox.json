@@ -26,22 +26,71 @@
       "name": "ground",
       "components": {
         "transform2d.Position": {
-          "x": 2048.0,
-          "y": 800.0
+          "x": 0,
+          "y": 0
         },
-        "sprite2d.Sprite": {
-          "atlas": "ground",
-          "width": 4096,
-          "height": 400,
-          "layer": 0
-        },
-        "collision2d.Collider": {
-          "width": 4096,
-          "height": 400,
+        "terrain2d.Terrain": {
+          "columns": 512,
+          "rows": 100,
+          "cell": 8,
           "layer": [
             "ground"
           ],
-          "solid": true
+          "surface": 75.0
+        },
+        "terrain2d.Look": {
+          "layer": 0,
+          "pixels": 4,
+          "red": 16,
+          "green": 16,
+          "blue": 18,
+          "top_red": 150,
+          "top_green": 150,
+          "top_blue": 156,
+          "lip": 12,
+          "grain": 0.06
+        }
+      }
+    },
+    {
+      "name": "pit",
+      "components": {
+        "transform2d.Position": {
+          "x": 232,
+          "y": 680
+        },
+        "terrain2d.Shape": {
+          "width": 64,
+          "height": 160,
+          "fill": false
+        }
+      }
+    },
+    {
+      "name": "step",
+      "components": {
+        "transform2d.Position": {
+          "x": 800,
+          "y": 596
+        },
+        "terrain2d.Shape": {
+          "width": 200,
+          "height": 8,
+          "fill": true
+        }
+      }
+    },
+    {
+      "name": "wall",
+      "components": {
+        "transform2d.Position": {
+          "x": 1250,
+          "y": 540
+        },
+        "terrain2d.Shape": {
+          "width": 32,
+          "height": 120,
+          "fill": true
         }
       }
     },
