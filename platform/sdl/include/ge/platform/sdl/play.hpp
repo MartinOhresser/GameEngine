@@ -28,6 +28,8 @@ struct PlayOptions {
     /// The file the game keeps what must last between two runs in (high scores);
     /// nothing is read or written when empty.
     std::string save_path;
+    /// Where to write how long frames take (LoopOptions::stats); nowhere when null.
+    std::ostream* stats = nullptr;
     /// Raw sources that leave the game for the host (the way back to a launcher): Escape, and the
     /// Back button of Android.
     std::vector<std::string> back_sources = {"key:escape", "key:ac_back"};

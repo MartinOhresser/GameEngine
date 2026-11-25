@@ -63,7 +63,7 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 | 9 | **La matière s'épuise** | récolte les pierres, ou creuse le sol ; il peut s'y enfoncer, la caméra suit | la matière au-dessus de la moitié |
 | 10 | **La mort** | la matière baisse quoi qu'il fasse, tout devient blanc | il revient |
 | 11 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil ; ses réserves lui sont rendues | six secondes |
-| 12 | **Le départ** | maintient le clic droit vers le ciel : le trou noir grossit, échappe à tout contrôle, la planète est aspirée, le dôme fond, tout devient blanc | « à suivre » |
+| 12 | **Le départ** | maintient Espace cinq secondes : le trou noir du saut grossit au-dessus de sa tête, lui échappe, la planète est aspirée, le dôme fond, tout devient blanc | « à suivre » |
 
 La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle, tout s'arrête (la consommation aussi), le monde devient flou, et le menu (Reprendre, Retour au titre) s'affiche dans la bulle (D6, T8). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 

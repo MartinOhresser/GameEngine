@@ -4,8 +4,10 @@
 #include "ge/app/viewport.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <ostream>
 
 namespace ge::platform {
 
@@ -148,18 +150,34 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
         time->interpolate = true; // real time: draw between ticks
     }
 
+    // A back source the game binds to one of its own actions is the game's (Escape for its
+    // pause menu): it no longer leaves.
+    std::vector<std::string> back_sources;
+    for (const std::string& source : options.back_sources) {
+        const auto& bound = map.bindings();
+        if (std::none_of(bound.begin(), bound.end(),
+                         [&source](const auto& binding) { return binding.source == source; })) {
+            back_sources.push_back(source);
+        }
+    }
+
     LoopResult result;
     RawState raw;
     std::vector<RawEvent> events;
     std::vector<RawEvent> held; // releases that wait for the next frame
     std::chrono::nanoseconds last = backend.now();
+    using Clock = std::chrono::steady_clock;
+    double simulated_ms = 0.0;
+    double drawn_ms = 0.0;
+    std::uint32_t measured = 0;
+    Clock::time_point window_start = Clock::now();
     while (options.max_frames == 0 || result.frames < options.max_frames) {
         events.clear();
         if (!backend.poll(events)) {
             result.backend_stopped = true;
             break;
         }
-        if (back_pressed(options.back_sources, events, raw)) {
+        if (back_pressed(back_sources, events, raw)) {
             result.back_requested = true;
             break;
         }
@@ -169,8 +187,27 @@ LoopResult run_loop(app::App& app, Backend& backend, const InputMap& map,
             map.apply(raw, *live);
         }
         const std::chrono::nanoseconds now = backend.now();
+        const Clock::time_point before = Clock::now();
         app.advance(now - last);
+        const Clock::time_point simulated = Clock::now();
         app.world().resource<app::RenderBackend>()->renderer().end_frame();
+        if (options.stats != nullptr) {
+            const Clock::time_point drawn = Clock::now();
+            simulated_ms += std::chrono::duration<double, std::milli>(simulated - before).count();
+            drawn_ms += std::chrono::duration<double, std::milli>(drawn - simulated).count();
+            measured += 1;
+            if (measured >= options.stats_every) {
+                const double seconds =
+                    std::chrono::duration<double>(drawn - window_start).count();
+                *options.stats << "frame: simulation " << simulated_ms / measured
+                               << " ms, drawing " << drawn_ms / measured << " ms, "
+                               << measured / seconds << " frames a second\n";
+                simulated_ms = 0.0;
+                drawn_ms = 0.0;
+                measured = 0;
+                window_start = drawn;
+            }
+        }
         last = now;
         ++result.frames;
         if (options.after_frame) {

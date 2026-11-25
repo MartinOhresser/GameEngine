@@ -472,6 +472,19 @@ TEST_CASE("sprite2d: a transition plays once between two clips, then the new cli
     CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 50U); // cut short: standing to running again
 }
 
+TEST_CASE("sprite2d: a clip with a second condition needs both") {
+    Walker walker;
+    // Going up and to the right: cell 70, above going up.
+    sprite2d::AnimationClip up_right =
+        clip_when(walker.app, "transform2d.Velocity.y", -1.0e9F, -60.0F, 3, 70U);
+    up_right.and_field = field_index(walker.app, "transform2d.Velocity.x");
+    up_right.and_min = 20.0F;
+    add(walker.app, up_right);
+    CHECK(walker.frame_after(1U, 30.0F, -100.0F) == 70U);
+    CHECK(walker.frame_after(1U, -30.0F, -100.0F) == 20U); // up and to the left: going up
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 10U);     // to the right only: running
+}
+
 TEST_CASE("sprite2d: clips of another set, or on a missing component, are not chosen") {
     Walker walker;
     sprite2d::AnimationClip other = clip(9, 30U, 1U);

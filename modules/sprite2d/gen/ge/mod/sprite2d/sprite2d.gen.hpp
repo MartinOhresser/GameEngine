@@ -120,7 +120,7 @@ struct Animator {
     [[nodiscard]] friend bool operator==(const Animator&, const Animator&) = default;
 };
 
-/// One animation of a set, for the Animators of that set: an entity of its own, which draws nothing. It plays the cells first_frame to first_frame + frame_count - 1, each for ticks_per_frame ticks, over and over with looping, or once and then stays on the last. It is chosen when its condition holds: the animated entity's own number field ("module.Component.field", for example "transform2d.Velocity.y" or "collision2d.Blocked.below", a bool counting as 0 or 1) is between min and max. With absolute the size of the number is compared, whatever its sign (a speed in either direction). A clip without a field always holds: give it the lowest priority, it is what plays when nothing else does. Among the clips that hold, the highest priority wins, then the oldest. A missing component makes the condition fail. id is a number for the clip in its set, for transitions. A clip with a from_id is a transition instead, never chosen by a condition: it plays once when an Animator of its set goes from the clip with id from_id to the clip with id to_id (to any clip when to_id is left out; a transition for that very pair wins over one to any clip).
+/// One animation of a set, for the Animators of that set: an entity of its own, which draws nothing. It plays the cells first_frame to first_frame + frame_count - 1, each for ticks_per_frame ticks, over and over with looping, or once and then stays on the last. It is chosen when its condition holds: the animated entity's own number field ("module.Component.field", for example "transform2d.Velocity.y" or "collision2d.Blocked.below", a bool counting as 0 or 1) is between min and max. With absolute the size of the number is compared, whatever its sign (a speed in either direction). A clip without a field always holds: give it the lowest priority, it is what plays when nothing else does. Among the clips that hold, the highest priority wins, then the oldest. A missing component makes the condition fail. and_field, with and_min and and_max, is a second condition that must hold too (rising and going right: a jump to the right); none, the default, adds nothing. id is a number for the clip in its set, for transitions. A clip with a from_id is a transition instead, never chosen by a condition: it plays once when an Animator of its set goes from the clip with id from_id to the clip with id to_id (to any clip when to_id is left out; a transition for that very pair wins over one to any clip).
 struct AnimationClip {
     std::uint32_t set = 0U;
     std::int32_t priority = 0;
@@ -132,6 +132,9 @@ struct AnimationClip {
     std::uint32_t frame_count = 1U;
     std::uint32_t ticks_per_frame = 6U;
     bool looping = true;
+    std::uint32_t and_field = 4294967295U;
+    float and_min = -1e+09F;
+    float and_max = 1e+09F;
     std::uint32_t id = 0U;
     std::uint32_t from_id = 4294967295U;
     std::uint32_t to_id = 4294967295U;
@@ -147,6 +150,9 @@ struct AnimationClip {
         hasher.add(frame_count);
         hasher.add(ticks_per_frame);
         hasher.add(looping);
+        hasher.add(and_field);
+        hasher.add(and_min);
+        hasher.add(and_max);
         hasher.add(id);
         hasher.add(from_id);
         hasher.add(to_id);

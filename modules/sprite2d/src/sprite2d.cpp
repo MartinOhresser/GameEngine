@@ -107,6 +107,13 @@ std::optional<double> number_of(const ecs::World& world, const app::FieldTable* 
 
 bool holds(const ecs::World& world, const app::FieldTable* table, ecs::Entity entity,
            const AnimationClip& clip) {
+    if (clip.and_field != no_field) {
+        const std::optional<double> also = number_of(world, table, entity, clip.and_field);
+        if (!also || *also < static_cast<double>(clip.and_min) ||
+            *also > static_cast<double>(clip.and_max)) {
+            return false;
+        }
+    }
     if (clip.field == no_field) {
         return true;
     }
