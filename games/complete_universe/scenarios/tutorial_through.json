@@ -67,7 +67,7 @@
     { "at": 1770, "check": "story.phase.Phase.current == 6" },
     { "at": 2070, "check": "story.phase.Phase.current == 7" },
     { "at": 2275, "check": "story.phase.Phase.current == 9" },
-    { "at": 2535, "check": "story.phase.Phase.current == 10" },
+    { "at": 2545, "check": "story.phase.Phase.current == 10" },
     { "at": 2780, "check": "story.phase.Phase.current == 11" },
     { "at": 2880, "check": "story.phase.Phase.current == 12" },
     { "at": 2885, "check": "carbon.reserve.Reserve.amount < 26" },
@@ -85,12 +85,12 @@
     { "at": 3880, "check": "checkpoint.checkpoint.Checkpoint.loads == 1" },
     { "at": 3880, "check": "matter.reserve.Reserve.amount > 70" },
     { "at": 4230, "check": "story.phase.Phase.current == 16" },
-    // The first black hole, the first barrier, the first steps and the first jump: the camera
-    // came close each time, and went back.
-    { "at": 4180, "check": "black_comes_close.tween2d.Track.done == true" },
-    { "at": 4180, "check": "white_comes_close.tween2d.Track.done == true" },
-    { "at": 4180, "check": "walk_comes_close.tween2d.Track.done == true" },
-    { "at": 4180, "check": "jump_comes_close.tween2d.Track.done == true" },
+    // The black, the white, walking and jumping: the camera came close before each, and went
+    // back once he had done it.
+    { "at": 4180, "check": "black_goes_back.tween2d.Track.done == true" },
+    { "at": 4180, "check": "white_goes_back.tween2d.Track.done == true" },
+    { "at": 4180, "check": "walk_goes_back.tween2d.Track.done == true" },
+    { "at": 4180, "check": "jump_goes_back.tween2d.Track.done == true" },
     { "at": 4180, "check": "camera.camera2d.Camera.zoom == 1.5" },
     // Not before five seconds held.
     { "at": 4520, "check": "story.phase.Phase.current == 16" },

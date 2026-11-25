@@ -452,7 +452,7 @@ def walk_poses(facing, count=48):
                 size = smooth(air / 0.9) if air <= 1.0 else 1 - smooth((air - 1.0) / 0.3)
                 hip = CELL / 2 + (-5.2 if white else 5.2) * 0.6
                 land = hip + facing * math.sin(math.radians(swing)) * LEG_L + facing * 4
-                hole = (land, FEET + 1.5, 0.85 * size)
+                hole = (land, FEET + 1.5, 1.7 * size)
         poses.append(Pose(turn=0.72 * facing, lean=6 * facing, leg_w=leg_w, leg_b=leg_b,
                           leg_len_w=LEG_L * (1 - 0.16 * lift_w),
                           leg_len_b=LEG_L * (1 - 0.16 * lift_b),
@@ -630,7 +630,7 @@ HERO_TRANSITIONS = [
     ("apex", follow_through(apex_poses(), False), 1, "rise", "fall"),
     ("apex_right", follow_through(side_apex_poses(1), False), 1, "rise_right", "fall_right"),
     ("apex_left", follow_through(side_apex_poses(-1), False), 1, "rise_left", "fall_left"),
-    ("leap", follow_through(leap_poses(), False), 1, "charge", None),
+    ("leap", follow_through(leap_poses(), False), 1, "charge", "rise"),
 ]
 
 
@@ -1431,12 +1431,14 @@ def hero_clips():
         "walk_right": (20, "transform2d.Velocity.x", 20, None),
         "walk_left": (20, "transform2d.Velocity.x", None, -20),
         "charge": (50, "jump.Jumper.charge", 0.02, None),
-        "rise": (40, "transform2d.Velocity.y", None, -140),
-        "fall": (39, "transform2d.Velocity.y", 180, None),
-        "rise_right": (42, "transform2d.Velocity.y", None, -140),
-        "rise_left": (42, "transform2d.Velocity.y", None, -140),
-        "fall_right": (41, "transform2d.Velocity.y", 180, None),
-        "fall_left": (41, "transform2d.Velocity.y", 180, None),
+        # Going up as soon as he is thrown up; coming down as soon as he has been off the ground
+        # a moment (never walking in the air, even at the top of a jump).
+        "rise": (40, "transform2d.Velocity.y", None, -60),
+        "fall": (39, "jump.Jumper.since_ground", 0.1, None),
+        "rise_right": (42, "transform2d.Velocity.y", None, -60),
+        "rise_left": (42, "transform2d.Velocity.y", None, -60),
+        "fall_right": (41, "jump.Jumper.since_ground", 0.1, None),
+        "fall_left": (41, "jump.Jumper.since_ground", 0.1, None),
     }
     # A jump to one side: going that way too (a second condition).
     sideways = {"rise_right": (60, None), "fall_right": (60, None),
@@ -2195,22 +2197,28 @@ def on(name, action, source, field, value):
 
 
 AWAKENINGS = [
-    # (name, step, watched tag, field, from, part followed, offset y, particles colour, additive)
-    ("black", "black", "black_hole", "attractor2d.Attractor.radius", 6, "hand_right", 0,
-     (150, 160, 190), False),
-    ("white", "white", "white_caster", "barrier2d.Caster.radius", 6, "hand_left", 0,
-     (240, 244, 255), True),
-    ("walk", "walk", "hero", "transform2d.Velocity.x", 60, "hero", 40, (210, 220, 240), True),
-    ("jump", "jump", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240), True),
+    # (name, step, the action that starts the step, watched tag, field, from, part followed,
+    # offset y, particles colour, additive)
+    ("black", "black", "landing_done", "black_hole", "attractor2d.Attractor.radius", 6,
+     "hand_right", 0, (150, 160, 190), False),
+    ("white", "white", "black_next", "white_caster", "barrier2d.Caster.radius", 6, "hand_left",
+     0, (240, 244, 255), True),
+    ("walk", "walk", "inventory_next", "hero", "transform2d.Velocity.x", 60, "hero", 40,
+     (210, 220, 240), True),
+    ("jump", "jump", "walk_done", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240),
+     True),
 ]
+AWAKE_ZOOM = ZOOM * 1.7  # the camera close to him
 
 
 def awakenings():
-    """The first time he uses a power, walks or jumps, the camera comes close: light gathers,
-    turning, into the part of his body that does it (the black hand, the white hand, the feet,
-    the body), which glows, and the camera goes back (D16)."""
+    """When a step gives him a power, walking or jumping, the camera comes close before he tries
+    it, so that he sees what his body does (the black hole that pulls his foot, the one over his
+    head); the first time he does it, light gathers, turning, into that part of his body (the
+    black hand, the white hand, the feet, the body), which glows, and the camera goes back
+    (D16, D18)."""
     made = []
-    for name, step, source, field, low, part, offset_y, colour, additive in AWAKENINGS:
+    for name, step, begins, source, field, low, part, offset_y, colour, additive in AWAKENINGS:
         action = f"awakens_{name}"
         made.append({"name": f"{name}_awakens", "components": {
             "rules.Watch": {"source": source, "own": False, "field": field, "min": low,
@@ -2219,8 +2227,22 @@ def awakenings():
                                                    PRACTICE_SECONDS else [])},
             "transform2d.Disabled": {}}})
         made.append(track(f"{name}_comes_close", "camera", "camera2d.Camera.zoom",
-                          [(0, ZOOM), (40, ZOOM * 1.7), (150, ZOOM * 1.7), (210, ZOOM)],
+                          [(0, ZOOM), (50, AWAKE_ZOOM)], start=begins))
+        made.append(track(f"{name}_goes_back", "camera", "camera2d.Camera.zoom",
+                          [(0, AWAKE_ZOOM), (120, AWAKE_ZOOM), (180, ZOOM)], start=action))
+        # Close, the camera looks a little lower: he is in the middle of the screen, his feet
+        # above the texts.
+        made.append(track(f"{name}_looks_down", "camera", "camera2d.CameraFollow.offset_y",
+                          [(0, -40), (50, 30)], start=begins))
+        made.append(track(f"{name}_looks_back", "camera", "camera2d.CameraFollow.offset_y",
+                          [(0, 30), (120, 30), (180, -40 - 60), (300, -40 - 60), (301, -40)],
                           start=action))
+        # Meanwhile the camera follows him exactly (no dead zone), and comes back to where a
+        # camera at rest stays: at the edge of its dead zone (60 above where it aims).
+        made.append(track(f"{name}_follows_close", "camera", "camera2d.CameraFollow.dead_y",
+                          [(0, 0), (1, 0)], start=begins))
+        made.append(track(f"{name}_follows_back", "camera", "camera2d.CameraFollow.dead_y",
+                          [(0, 0), (300, 0), (301, 60)], start=action))
         gather = f"{name}_gathers"
         made.append(entity(gather, 0, 0, {
             "tag.Tag": {"tag": gather},

@@ -733,7 +733,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "id": 5
         }
       }
@@ -748,8 +748,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "id": 6
         }
       }
@@ -765,7 +765,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 7
@@ -783,7 +783,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 8
@@ -800,8 +800,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 9
@@ -818,8 +818,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 10
@@ -1000,7 +1000,8 @@
           "frame_count": 8,
           "ticks_per_frame": 1,
           "looping": false,
-          "from_id": 4
+          "from_id": 4,
+          "to_id": 5
         }
       }
     },

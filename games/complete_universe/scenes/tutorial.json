@@ -1870,7 +1870,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "id": 5
         }
       }
@@ -1885,8 +1885,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "id": 6
         }
       }
@@ -1902,7 +1902,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 7
@@ -1920,7 +1920,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 8
@@ -1937,8 +1937,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 9
@@ -1955,8 +1955,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 10
@@ -2137,7 +2137,8 @@
           "frame_count": 8,
           "ticks_per_frame": 1,
           "looping": false,
-          "from_id": 4
+          "from_id": 4,
+          "to_id": 5
         }
       }
     },
@@ -5269,15 +5270,101 @@
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
+          "keys": 2,
           "t0": 0,
           "v0": 1.5,
-          "t1": 40,
+          "t1": 50,
           "v1": 2.55,
-          "t2": 150,
-          "v2": 2.55,
-          "t3": 210,
-          "v3": 1.5,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "black_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 120,
+          "v1": 2.55,
+          "t2": 180,
+          "v2": 1.5,
+          "start": "awakens_black"
+        }
+      }
+    },
+    {
+      "name": "black_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "black_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 30,
+          "t1": 120,
+          "v1": 30,
+          "t2": 180,
+          "v2": -100,
+          "t3": 300,
+          "v3": -100,
+          "t4": 301,
+          "v4": -40,
+          "start": "awakens_black"
+        }
+      }
+    },
+    {
+      "name": "black_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "black_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 300,
+          "v1": 0,
+          "t2": 301,
+          "v2": 60,
           "start": "awakens_black"
         }
       }
@@ -5416,15 +5503,101 @@
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
+          "keys": 2,
           "t0": 0,
           "v0": 1.5,
-          "t1": 40,
+          "t1": 50,
           "v1": 2.55,
-          "t2": 150,
-          "v2": 2.55,
-          "t3": 210,
-          "v3": 1.5,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 120,
+          "v1": 2.55,
+          "t2": 180,
+          "v2": 1.5,
+          "start": "awakens_white"
+        }
+      }
+    },
+    {
+      "name": "white_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 30,
+          "t1": 120,
+          "v1": 30,
+          "t2": 180,
+          "v2": -100,
+          "t3": 300,
+          "v3": -100,
+          "t4": 301,
+          "v4": -40,
+          "start": "awakens_white"
+        }
+      }
+    },
+    {
+      "name": "white_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "white_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 300,
+          "v1": 0,
+          "t2": 301,
+          "v2": 60,
           "start": "awakens_white"
         }
       }
@@ -5562,15 +5735,101 @@
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
+          "keys": 2,
           "t0": 0,
           "v0": 1.5,
-          "t1": 40,
+          "t1": 50,
           "v1": 2.55,
-          "t2": 150,
-          "v2": 2.55,
-          "t3": 210,
-          "v3": 1.5,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "walk_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 120,
+          "v1": 2.55,
+          "t2": 180,
+          "v2": 1.5,
+          "start": "awakens_walk"
+        }
+      }
+    },
+    {
+      "name": "walk_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "walk_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 30,
+          "t1": 120,
+          "v1": 30,
+          "t2": 180,
+          "v2": -100,
+          "t3": 300,
+          "v3": -100,
+          "t4": 301,
+          "v4": -40,
+          "start": "awakens_walk"
+        }
+      }
+    },
+    {
+      "name": "walk_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "walk_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 300,
+          "v1": 0,
+          "t2": 301,
+          "v2": 60,
           "start": "awakens_walk"
         }
       }
@@ -5709,15 +5968,101 @@
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
+          "keys": 2,
           "t0": 0,
           "v0": 1.5,
-          "t1": 40,
+          "t1": 50,
           "v1": 2.55,
-          "t2": 150,
-          "v2": 2.55,
-          "t3": 210,
-          "v3": 1.5,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_goes_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 2.55,
+          "t1": 120,
+          "v1": 2.55,
+          "t2": 180,
+          "v2": 1.5,
+          "start": "awakens_jump"
+        }
+      }
+    },
+    {
+      "name": "jump_looks_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": -40,
+          "t1": 50,
+          "v1": 30,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_looks_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 30,
+          "t1": 120,
+          "v1": 30,
+          "t2": 180,
+          "v2": -100,
+          "t3": 300,
+          "v3": -100,
+          "t4": 301,
+          "v4": -40,
+          "start": "awakens_jump"
+        }
+      }
+    },
+    {
+      "name": "jump_follows_close",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 1,
+          "v1": 0,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "jump_follows_back",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.dead_y",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 300,
+          "v1": 0,
+          "t2": 301,
+          "v2": 60,
           "start": "awakens_jump"
         }
       }
