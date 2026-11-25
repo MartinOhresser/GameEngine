@@ -32,6 +32,8 @@ Une décision prise plus tard s'ajoute ici avec sa date. Ce fichier prime sur le
 | D13 | Ressources | Elles durent plus (douze minutes pleines), les pouvoirs coûtent moins, les récoltes rapportent plus. **Le sol contient de la matière et du carbone** : creuser recharge. On peut s'enfoncer dans la planète, la caméra suit. |
 | D14 | Images | D'après les images de Martin : ciel en couleurs pendant le big bang, noir et blanc ensuite ; trou noir au cœur noir cerclé de lumière ; personnage d'ovales blanc et noir aux yeux lumineux ; barrière en bulle de verre, et un vrai plan pour un mur. Jeu en 1920 × 1080. |
 | D15 | Marche | Un petit trou noir s'ouvre devant le pied et tire la jambe, comme pour le saut. |
+| D16 | Personnage et mouvement (25 novembre 2026) | Redessiné d'après l'image de Martin : grosse tête ronde, grands yeux lumineux, corps et membres allongés en ovoïdes modelés, le haut du bras qui sort du torse. Animations à trente images par seconde ; les formes se déforment avec le mouvement (membres qui se courbent et s'étirent, tête qui s'écrase) ; les changements sont animés (départ, arrêt, demi-tour, atterrissage, sommet du saut, envol). |
+| D17 | Ciel | À la façon de Spacescape : nébuleuse en filaments, couloirs de poussière, étoiles plus denses dans le gaz, quelques étoiles brillantes à halo. |
 
 Conséquences de D2 (D9 les remplace pour les mains et le retournement) :
 
@@ -91,3 +93,4 @@ Ces propositions s'appliquent tant que Martin ne dit rien.
 | T6 | Sauvegarde | `SaveData` du moteur, en entiers : fragments obtenus, ressources autres que le Noir et le Blanc. |
 | T7 | Nom du jeu dans le dépôt | `games/complete_universe/`. |
 | T8 | Pause (D6), faite le 25 novembre 2026 | Le moteur a un drapeau `Time::paused` : tant qu'il est levé, `FixedUpdate` ne fait tourner que les systèmes marqués `while_paused` dans leur `module.json` (menus, phases, changement de scène, sortie). C'est un `toggle.Toggle` avec `pauses` qui le lève ; son action `off` est le bouton « Reprendre ». Le flou est `postfx.Effects.paused_blur` (T4 : basse résolution agrandie avec lissage). La pause par une barrière posée sur soi n'est pas encore faite : seulement Échap. |
+| T9 | Transitions d'animation (D16) | `sprite2d` : un `AnimationClip` avec `from_id` (et `to_id`) est joué une fois quand l'`Animator` passe d'un clip à l'autre, puis le nouveau clip. Les déformations sont calculées dans `make_assets.py` à partir de la vitesse de chaque membre entre deux images. |

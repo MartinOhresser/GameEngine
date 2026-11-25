@@ -105,18 +105,22 @@ struct FrameBind {
     [[nodiscard]] friend bool operator==(const FrameBind&, const FrameBind&) = default;
 };
 
-/// Chooses the entity's animation from its state, among the AnimationClips of its set (an item of the game's animation_set list): every tick, the clip with the highest priority whose condition holds for this entity is played by its SpriteAnimation (one is added when it has none). Switching to another clip starts it from its first cell; staying on the same one lets it run on. Many entities can share one set: every enemy of a kind, every copy of a prefab.
+/// Chooses the entity's animation from its state, among the AnimationClips of its set (an item of the game's animation_set list): every tick, the clip with the highest priority whose condition holds for this entity is played by its SpriteAnimation (one is added when it has none). Switching to another clip starts it from its first cell; staying on the same one lets it run on. Many entities can share one set: every enemy of a kind, every copy of a prefab. When it goes from one clip to another and a transition clip of the set joins them, the transition plays first, once, then the new clip (a turn between running left and running right, a landing between falling and standing). clip (the id of the clip it is on) and transition (the ticks of transition left) are kept for you.
 struct Animator {
     std::uint32_t set = 0U;
+    std::uint32_t clip = 4294967295U;
+    std::uint32_t transition = 0U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(set);
+        hasher.add(clip);
+        hasher.add(transition);
     }
 
     [[nodiscard]] friend bool operator==(const Animator&, const Animator&) = default;
 };
 
-/// One animation of a set, for the Animators of that set: an entity of its own, which draws nothing. It plays the cells first_frame to first_frame + frame_count - 1, each for ticks_per_frame ticks, over and over with looping, or once and then stays on the last. It is chosen when its condition holds: the animated entity's own number field ("module.Component.field", for example "transform2d.Velocity.y" or "collision2d.Blocked.below", a bool counting as 0 or 1) is between min and max. With absolute the size of the number is compared, whatever its sign (a speed in either direction). A clip without a field always holds: give it the lowest priority, it is what plays when nothing else does. Among the clips that hold, the highest priority wins, then the oldest. A missing component makes the condition fail.
+/// One animation of a set, for the Animators of that set: an entity of its own, which draws nothing. It plays the cells first_frame to first_frame + frame_count - 1, each for ticks_per_frame ticks, over and over with looping, or once and then stays on the last. It is chosen when its condition holds: the animated entity's own number field ("module.Component.field", for example "transform2d.Velocity.y" or "collision2d.Blocked.below", a bool counting as 0 or 1) is between min and max. With absolute the size of the number is compared, whatever its sign (a speed in either direction). A clip without a field always holds: give it the lowest priority, it is what plays when nothing else does. Among the clips that hold, the highest priority wins, then the oldest. A missing component makes the condition fail. id is a number for the clip in its set, for transitions. A clip with a from_id is a transition instead, never chosen by a condition: it plays once when an Animator of its set goes from the clip with id from_id to the clip with id to_id (to any clip when to_id is left out; a transition for that very pair wins over one to any clip).
 struct AnimationClip {
     std::uint32_t set = 0U;
     std::int32_t priority = 0;
@@ -128,6 +132,9 @@ struct AnimationClip {
     std::uint32_t frame_count = 1U;
     std::uint32_t ticks_per_frame = 6U;
     bool looping = true;
+    std::uint32_t id = 0U;
+    std::uint32_t from_id = 4294967295U;
+    std::uint32_t to_id = 4294967295U;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(set);
@@ -140,6 +147,9 @@ struct AnimationClip {
         hasher.add(frame_count);
         hasher.add(ticks_per_frame);
         hasher.add(looping);
+        hasher.add(id);
+        hasher.add(from_id);
+        hasher.add(to_id);
     }
 
     [[nodiscard]] friend bool operator==(const AnimationClip&, const AnimationClip&) = default;
@@ -160,7 +170,7 @@ struct Facing {
     [[nodiscard]] friend bool operator==(const Facing&, const Facing&) = default;
 };
 
-/// Gives every Animator the clip of its set that its state asks for (see AnimationClip), before the animations advance.
+/// Gives every Animator the clip of its set that its state asks for (see AnimationClip), with the transition that joins it to the previous one, before the animations advance.
 /// Runs in FixedUpdate.
 void choose_clip(::ge::ecs::World& world);
 

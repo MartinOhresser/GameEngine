@@ -20,6 +20,10 @@ namespace {
 
 /// A field reference that names no field.
 constexpr std::uint32_t no_field = 0xFFFFFFFFU;
+/// A clip id that names no clip: a clip that is not a transition, an Animator that has none yet.
+constexpr std::uint32_t no_clip = 0xFFFFFFFFU;
+
+bool same_animation(const SpriteAnimation& animation, const AnimationClip& clip);
 
 std::uint32_t channel(std::uint32_t value) {
     return std::min<std::uint32_t>(value, 255U);
@@ -121,12 +125,69 @@ const AnimationClip* chosen(const ecs::World& world, const app::FieldTable* tabl
                             const std::vector<AnimationClip>& clips) {
     const AnimationClip* best = nullptr;
     for (const AnimationClip& clip : clips) {
-        if (clip.set == set && (best == nullptr || clip.priority > best->priority) &&
+        if (clip.set == set && clip.from_id == no_clip &&
+            (best == nullptr || clip.priority > best->priority) &&
             holds(world, table, entity, clip)) {
             best = &clip;
         }
     }
     return best;
+}
+
+/// The transition of `set` from the clip `from` to the clip `to`: one made for that pair, or else
+/// one from `from` to any clip; none when there is neither.
+const AnimationClip* transition(std::uint32_t set, std::uint32_t from, std::uint32_t to,
+                                const std::vector<AnimationClip>& clips) {
+    const AnimationClip* any = nullptr;
+    for (const AnimationClip& clip : clips) {
+        if (clip.set != set || clip.from_id == no_clip || clip.from_id != from) {
+            continue;
+        }
+        if (clip.to_id == to) {
+            return &clip;
+        }
+        if (clip.to_id == no_clip && any == nullptr) {
+            any = &clip;
+        }
+    }
+    return any;
+}
+
+SpriteAnimation animation_of(const AnimationClip& clip) {
+    return SpriteAnimation{clip.first_frame, clip.frame_count, clip.ticks_per_frame,
+                           clip.looping, 0U};
+}
+
+/// What the Animator plays this tick, given the clip its state asks for: a transition when it
+/// changes clips and one joins them, the rest of a transition, or the clip. Empty when what
+/// plays goes on.
+std::optional<SpriteAnimation> next_animation(Animator& animator, const AnimationClip& clip,
+                                              const SpriteAnimation* playing,
+                                              const std::vector<AnimationClip>& clips) {
+    if (playing != nullptr && clip.id != animator.clip) {
+        const std::uint32_t from = animator.clip;
+        animator.clip = clip.id;
+        if (const AnimationClip* bridge = transition(animator.set, from, clip.id, clips)) {
+            animator.transition =
+                std::max<std::uint32_t>(bridge->frame_count, 1U) *
+                std::max<std::uint32_t>(bridge->ticks_per_frame, 1U);
+            return animation_of(*bridge);
+        }
+        animator.transition = 0U;
+        return animation_of(clip);
+    }
+    animator.clip = clip.id;
+    if (animator.transition > 0U) {
+        animator.transition -= 1U;
+        if (animator.transition > 0U) {
+            return std::nullopt;
+        }
+        return animation_of(clip);
+    }
+    if (playing == nullptr || !same_animation(*playing, clip)) {
+        return animation_of(clip);
+    }
+    return std::nullopt;
 }
 
 bool same_animation(const SpriteAnimation& animation, const AnimationClip& clip) {
@@ -145,15 +206,14 @@ void choose_clip(ecs::World& world) {
     }
     const auto* table = world.resource<app::FieldTable>();
     std::vector<std::pair<ecs::Entity, SpriteAnimation>> changes;
-    world.each<const Animator>([&](ecs::Entity entity, const Animator& animator) {
+    world.each<Animator>([&](ecs::Entity entity, Animator& animator) {
         const AnimationClip* clip = chosen(world, table, entity, animator.set, clips);
         if (clip == nullptr) {
             return;
         }
-        const auto* playing = world.get<SpriteAnimation>(entity);
-        if (playing == nullptr || !same_animation(*playing, *clip)) {
-            changes.emplace_back(entity, SpriteAnimation{clip->first_frame, clip->frame_count,
-                                                         clip->ticks_per_frame, clip->looping, 0U});
+        if (const auto next =
+                next_animation(animator, *clip, world.get<SpriteAnimation>(entity), clips)) {
+            changes.emplace_back(entity, *next);
         }
     });
     // Outside the walk over the world: a new SpriteAnimation changes the entity's components.

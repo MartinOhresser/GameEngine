@@ -1192,9 +1192,10 @@
           "set": "hero",
           "priority": 0,
           "first_frame": 0,
-          "frame_count": 32,
-          "ticks_per_frame": 4,
-          "looping": true
+          "frame_count": 80,
+          "ticks_per_frame": 2,
+          "looping": true,
+          "id": 1
         }
       }
     },
@@ -1204,12 +1205,13 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 20,
-          "first_frame": 32,
-          "frame_count": 16,
-          "ticks_per_frame": 3,
+          "first_frame": 80,
+          "frame_count": 24,
+          "ticks_per_frame": 2,
           "looping": true,
           "field": "transform2d.Velocity.x",
-          "min": 20
+          "min": 20,
+          "id": 2
         }
       }
     },
@@ -1219,12 +1221,13 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 20,
-          "first_frame": 48,
-          "frame_count": 16,
-          "ticks_per_frame": 3,
+          "first_frame": 104,
+          "frame_count": 24,
+          "ticks_per_frame": 2,
           "looping": true,
           "field": "transform2d.Velocity.x",
-          "max": -20
+          "max": -20,
+          "id": 3
         }
       }
     },
@@ -1234,12 +1237,13 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 50,
-          "first_frame": 64,
-          "frame_count": 8,
-          "ticks_per_frame": 4,
+          "first_frame": 128,
+          "frame_count": 16,
+          "ticks_per_frame": 2,
           "looping": false,
           "field": "jump.Jumper.charge",
-          "min": 0.02
+          "min": 0.02,
+          "id": 4
         }
       }
     },
@@ -1249,12 +1253,13 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 40,
-          "first_frame": 72,
-          "frame_count": 6,
-          "ticks_per_frame": 5,
+          "first_frame": 144,
+          "frame_count": 8,
+          "ticks_per_frame": 3,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140
+          "max": -140,
+          "id": 5
         }
       }
     },
@@ -1264,12 +1269,137 @@
         "sprite2d.AnimationClip": {
           "set": "hero",
           "priority": 39,
-          "first_frame": 78,
-          "frame_count": 6,
-          "ticks_per_frame": 5,
+          "first_frame": 152,
+          "frame_count": 8,
+          "ticks_per_frame": 3,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "min": 180
+          "min": 180,
+          "id": 6
+        }
+      }
+    },
+    {
+      "name": "clip_start_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 160,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 1,
+          "to_id": 2
+        }
+      }
+    },
+    {
+      "name": "clip_start_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 168,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 1,
+          "to_id": 3
+        }
+      }
+    },
+    {
+      "name": "clip_stop_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 176,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 2,
+          "to_id": 1
+        }
+      }
+    },
+    {
+      "name": "clip_stop_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 184,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 3,
+          "to_id": 1
+        }
+      }
+    },
+    {
+      "name": "clip_turn_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 192,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 2,
+          "to_id": 3
+        }
+      }
+    },
+    {
+      "name": "clip_turn_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 200,
+          "frame_count": 8,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 3,
+          "to_id": 2
+        }
+      }
+    },
+    {
+      "name": "clip_land",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 208,
+          "frame_count": 9,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 6
+        }
+      }
+    },
+    {
+      "name": "clip_apex",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 217,
+          "frame_count": 6,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 5,
+          "to_id": 6
+        }
+      }
+    },
+    {
+      "name": "clip_leap",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 223,
+          "frame_count": 4,
+          "ticks_per_frame": 2,
+          "looping": false,
+          "from_id": 4
         }
       }
     },
@@ -1423,8 +1553,8 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": -15,
-          "offset_y": 14,
+          "offset_x": -18,
+          "offset_y": 11,
           "stiffness": 0.6
         }
       }
@@ -1474,8 +1604,8 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 15,
-          "offset_y": 14,
+          "offset_x": 18,
+          "offset_y": 11,
           "stiffness": 0.6
         }
       }
