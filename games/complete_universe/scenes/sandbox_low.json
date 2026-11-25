@@ -733,7 +733,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "id": 5
         }
       }
@@ -748,8 +748,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "id": 6
         }
       }
@@ -765,7 +765,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 7
@@ -783,7 +783,7 @@
           "ticks_per_frame": 1,
           "looping": true,
           "field": "transform2d.Velocity.y",
-          "max": -140,
+          "max": -60,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 8
@@ -800,8 +800,8 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_min": 60,
           "id": 9
@@ -818,11 +818,47 @@
           "frame_count": 24,
           "ticks_per_frame": 1,
           "looping": true,
-          "field": "transform2d.Velocity.y",
-          "min": 180,
+          "field": "jump.Jumper.since_ground",
+          "min": 0.1,
           "and_field": "transform2d.Velocity.x",
           "and_max": -60,
           "id": 10
+        }
+      }
+    },
+    {
+      "name": "clip_charge_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 51,
+          "first_frame": 432,
+          "frame_count": 32,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02,
+          "and_field": "transform2d.Velocity.x",
+          "and_min": 60,
+          "id": 11
+        }
+      }
+    },
+    {
+      "name": "clip_charge_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "priority": 51,
+          "first_frame": 464,
+          "frame_count": 32,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "field": "jump.Jumper.charge",
+          "min": 0.02,
+          "and_field": "transform2d.Velocity.x",
+          "and_max": -60,
+          "id": 12
         }
       }
     },
@@ -831,7 +867,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 432,
+          "first_frame": 496,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -845,7 +881,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 448,
+          "first_frame": 512,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -859,7 +895,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 464,
+          "first_frame": 528,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -873,7 +909,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 480,
+          "first_frame": 544,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -887,7 +923,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 496,
+          "first_frame": 560,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -901,7 +937,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 512,
+          "first_frame": 576,
           "frame_count": 16,
           "ticks_per_frame": 1,
           "looping": false,
@@ -915,7 +951,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -928,7 +964,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -941,7 +977,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 528,
+          "first_frame": 592,
           "frame_count": 20,
           "ticks_per_frame": 1,
           "looping": false,
@@ -954,7 +990,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 548,
+          "first_frame": 612,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -968,7 +1004,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 560,
+          "first_frame": 624,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -982,7 +1018,7 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 572,
+          "first_frame": 636,
           "frame_count": 12,
           "ticks_per_frame": 1,
           "looping": false,
@@ -996,11 +1032,40 @@
       "components": {
         "sprite2d.AnimationClip": {
           "set": "hero",
-          "first_frame": 584,
+          "first_frame": 648,
           "frame_count": 8,
           "ticks_per_frame": 1,
           "looping": false,
-          "from_id": 4
+          "from_id": 4,
+          "to_id": 5
+        }
+      }
+    },
+    {
+      "name": "clip_leap_right",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 656,
+          "frame_count": 8,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 11,
+          "to_id": 7
+        }
+      }
+    },
+    {
+      "name": "clip_leap_left",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero",
+          "first_frame": 664,
+          "frame_count": 8,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 12,
+          "to_id": 8
         }
       }
     },

@@ -45,8 +45,8 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 
 1. Un titre et une ligne de contrôle en bas de l'écran.
 2. Le pouvoir de l'étape se débloque ; ceux des étapes suivantes ne marchent pas encore.
-3. Une fois l'étape réussie, quelques secondes d'entraînement (« Bien. Essaie encore un peu… »),
-   puis l'étape suivante.
+3. Une fois l'étape réussie, quelques secondes d'entraînement, puis l'étape suivante. Les étapes
+   du Noir, du Blanc, de la récolte, de la marche et du saut se font vues de près (D18).
 4. Une mort ramène au début de l'étape en cours (D7).
 
 | # | Étape | Le joueur… | Suite quand… |
