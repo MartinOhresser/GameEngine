@@ -1,0 +1,25 @@
+// Shift held alone opens the wheel after a third of a second; the pointer below where it opened
+// chooses the white (two powers: the black at the top, the white below), a click gives it.
+{
+  "schema_version": 1,
+  "name": "wheel",
+  "scene": "sandbox",
+  "ticks": 60,
+  "inputs": [
+    { "tick": 0, "action": "pointer_x", "value": 640 },
+    { "tick": 0, "action": "pointer_y", "value": 360 },
+    { "tick": 0, "action": "change", "value": 1 },
+    { "tick": 30, "action": "pointer_y", "value": 460 },
+    { "tick": 35, "action": "hand_right", "value": 1 },
+    { "tick": 36, "action": "hand_right", "value": 0 },
+    { "tick": 45, "action": "change", "value": 0 },
+  ],
+  "expect": [
+    { "at": 15, "check": "kit.loadout.Kit.wheel_open == false" },
+    { "at": 25, "check": "kit.loadout.Kit.wheel_open == true" },
+    { "at": 25, "check": "kit.loadout.Kit.wheel_choice == 4294967295" },
+    { "at": 33, "check": "kit.loadout.Kit.wheel_choice == 1" },
+    { "at": 40, "check": "hand_right.loadout.Hand.item == 1" },
+    "kit.loadout.Kit.wheel_open == false",
+  ],
+}

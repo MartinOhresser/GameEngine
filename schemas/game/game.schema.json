@@ -32,6 +32,7 @@
         "type": "string",
         "enum": [
           "action_control",
+          "aim2d",
           "autofire",
           "bind",
           "bounce2d",
@@ -52,6 +53,7 @@
           "jump",
           "lifetime",
           "light2d",
+          "loadout",
           "particles2d",
           "path2d",
           "patrol2d",
@@ -135,6 +137,11 @@
       "type": "object",
       "properties": {
         "action_control": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "aim2d": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -235,6 +242,11 @@
           "additionalProperties": false
         },
         "light2d": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "loadout": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

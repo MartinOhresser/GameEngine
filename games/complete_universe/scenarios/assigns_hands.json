@@ -1,0 +1,29 @@
+// Shift and a click put a power in a hand: the empty left hand takes the black, then the white;
+// the right one takes the black. Given the white the left hand holds, it swaps with it.
+{
+  "schema_version": 1,
+  "name": "assigns_hands",
+  "scene": "sandbox",
+  "ticks": 40,
+  "inputs": [
+    { "tick": 0, "action": "change", "value": 1 },
+    { "tick": 2, "action": "hand_left", "value": 1 },
+    { "tick": 3, "action": "hand_left", "value": 0 },
+    { "tick": 5, "action": "hand_left", "value": 1 },
+    { "tick": 6, "action": "hand_left", "value": 0 },
+    { "tick": 8, "action": "hand_right", "value": 1 },
+    { "tick": 9, "action": "hand_right", "value": 0 },
+    { "tick": 20, "action": "hand_right", "value": 1 },
+    { "tick": 21, "action": "hand_right", "value": 0 },
+    { "tick": 30, "action": "change", "value": 0 },
+  ],
+  "expect": [
+    { "at": 1, "check": "hand_left.loadout.Hand.item == 4294967295" },
+    { "at": 4, "check": "hand_left.loadout.Hand.item == 0" },
+    { "at": 7, "check": "hand_left.loadout.Hand.item == 1" },
+    { "at": 10, "check": "hand_right.loadout.Hand.item == 0" },
+    "hand_right.loadout.Hand.item == 1",
+    "hand_left.loadout.Hand.item == 0",
+    "kit.loadout.Kit.wheel_open == false",
+  ],
+}
