@@ -33,6 +33,7 @@
         "enum": [
           "action_control",
           "autofire",
+          "bind",
           "bounce2d",
           "bounds2d",
           "camera2d",
@@ -59,6 +60,7 @@
           "postfx",
           "progress",
           "records",
+          "reserve",
           "rules",
           "scene_switch",
           "screen_wrap",
@@ -138,6 +140,11 @@
           "additionalProperties": false
         },
         "autofire": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "bind": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
@@ -268,6 +275,11 @@
           "additionalProperties": false
         },
         "records": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "reserve": {
           "type": "object",
           "properties": {},
           "additionalProperties": false

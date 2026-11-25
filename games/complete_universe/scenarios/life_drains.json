@@ -1,0 +1,16 @@
+// Black and white wear away by themselves (100 in 300 seconds); while both are above half, the
+// edges of the screen stay as they are at rest.
+{
+  "schema_version": 1,
+  "name": "life_drains",
+  "scene": "sandbox",
+  "ticks": 600,
+  "expect": [
+    // 10 seconds at 1/3 a second.
+    "matter.reserve.Reserve.amount > 96.6",
+    "matter.reserve.Reserve.amount < 96.7",
+    "carbon.reserve.Reserve.amount > 96.6",
+    "camera.postfx.Effects.vignette == 0.45",
+    "camera.postfx.Effects.edge_glow == 0",
+  ],
+}

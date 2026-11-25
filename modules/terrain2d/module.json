@@ -4,88 +4,27 @@
   "name": "terrain2d",
   "version": "0.1.0",
   "description": "Ground that can be dug: a grid of small square cells, each solid or empty, that bodies stand on and walk along in any direction, and that diggers carve holes in. The ground of a planet, a cave, an asteroid, a wall blown open; rolling hills or a round rock come from a few numbers and a seed, hand-made steps, ledges and gaps from shapes laid over it. The cells are kept out of the components (ge/mod/terrain2d/cells.hpp), so that other modules can read and change them.",
-  "depends": [
-    "transform2d",
-    "collision2d",
-    "sprite2d"
-  ],
+  "depends": ["transform2d", "collision2d", "sprite2d"],
   "components": [
     {
       "name": "Terrain",
       "description": "A grid of columns by rows square cells, cell units wide, whose top-left corner is the entity's Position (the grid does not move). It is built on the first tick: a cell is solid below a surface line surface cells from the top, which rises and falls by up to amplitude cells in hills about wavelength cells wide (a smooth noise drawn from seed); with round, it is a disc in the middle of the grid instead, whose top is surface cells from the top of the grid, its edge rising and falling the same way all around; with filled, every cell is solid. Shapes then add or carve what the game draws by hand. layer is what the terrain is (a set of names of the game's layer list): it stops every collision2d.Body whose Collider mask includes it, which may climb steps up to climb units high while walking. The module keeps generated, solid_cells (how many cells are solid: a rule or a test can watch the ground being dug) and revision (one more every time a cell changes).",
       "replicable": true,
       "fields": [
-        {
-          "name": "columns",
-          "type": "u32",
-          "default": 256
-        },
-        {
-          "name": "rows",
-          "type": "u32",
-          "default": 64
-        },
-        {
-          "name": "cell",
-          "type": "f32",
-          "default": 8
-        },
-        {
-          "name": "layer",
-          "type": "u32",
-          "default": 1,
-          "ref_set": "layer"
-        },
-        {
-          "name": "surface",
-          "type": "f32",
-          "default": 32
-        },
-        {
-          "name": "amplitude",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "wavelength",
-          "type": "f32",
-          "default": 32
-        },
-        {
-          "name": "seed",
-          "type": "u32",
-          "default": 0
-        },
-        {
-          "name": "round",
-          "type": "bool",
-          "default": false
-        },
-        {
-          "name": "filled",
-          "type": "bool",
-          "default": false
-        },
-        {
-          "name": "climb",
-          "type": "f32",
-          "default": 12
-        },
-        {
-          "name": "generated",
-          "type": "bool",
-          "default": false
-        },
-        {
-          "name": "solid_cells",
-          "type": "u32",
-          "default": 0
-        },
-        {
-          "name": "revision",
-          "type": "u32",
-          "default": 0
-        }
+        { "name": "columns", "type": "u32", "default": 256 },
+        { "name": "rows", "type": "u32", "default": 64 },
+        { "name": "cell", "type": "f32", "default": 8 },
+        { "name": "layer", "type": "u32", "default": 1, "ref_set": "layer" },
+        { "name": "surface", "type": "f32", "default": 32 },
+        { "name": "amplitude", "type": "f32", "default": 0 },
+        { "name": "wavelength", "type": "f32", "default": 32 },
+        { "name": "seed", "type": "u32", "default": 0 },
+        { "name": "round", "type": "bool", "default": false },
+        { "name": "filled", "type": "bool", "default": false },
+        { "name": "climb", "type": "f32", "default": 12 },
+        { "name": "generated", "type": "bool", "default": false },
+        { "name": "solid_cells", "type": "u32", "default": 0 },
+        { "name": "revision", "type": "u32", "default": 0 }
       ]
     },
     {
@@ -93,37 +32,12 @@
       "description": "A hand-made change to every Terrain it overlaps whose layer meets layers, made once, right after the terrain is built: a rectangle width by height centred on the entity's Position, or a disc of that radius when radius is more than 0. fill makes its cells solid (a ledge, a pillar, a bridge), otherwise it carves them (a gap, a cave, a tunnel). applied is set once it is done.",
       "replicable": true,
       "fields": [
-        {
-          "name": "width",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "height",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "radius",
-          "type": "f32",
-          "default": 0
-        },
-        {
-          "name": "fill",
-          "type": "bool",
-          "default": true
-        },
-        {
-          "name": "layers",
-          "type": "u32",
-          "default": 4294967295,
-          "ref_set": "layer"
-        },
-        {
-          "name": "applied",
-          "type": "bool",
-          "default": false
-        }
+        { "name": "width", "type": "f32", "default": 0 },
+        { "name": "height", "type": "f32", "default": 0 },
+        { "name": "radius", "type": "f32", "default": 0 },
+        { "name": "fill", "type": "bool", "default": true },
+        { "name": "layers", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "applied", "type": "bool", "default": false }
       ]
     },
     {
@@ -131,27 +45,10 @@
       "description": "Carves every tick the cells whose middle is within radius of the entity's Position, in every Terrain whose layer meets layers: a drill, an explosion, the mouth of something that eats the ground. A transform2d.Disabled digger does not dig. The module keeps removed, every cell it ever carved, and last, the cells it carved this tick: another module can turn them into something (a resource gathered, a score).",
       "replicable": true,
       "fields": [
-        {
-          "name": "radius",
-          "type": "f32",
-          "default": 16
-        },
-        {
-          "name": "layers",
-          "type": "u32",
-          "default": 4294967295,
-          "ref_set": "layer"
-        },
-        {
-          "name": "removed",
-          "type": "u32",
-          "default": 0
-        },
-        {
-          "name": "last",
-          "type": "u32",
-          "default": 0
-        }
+        { "name": "radius", "type": "f32", "default": 16 },
+        { "name": "layers", "type": "u32", "default": 4294967295, "ref_set": "layer" },
+        { "name": "removed", "type": "u32", "default": 0 },
+        { "name": "last", "type": "u32", "default": 0 }
       ]
     },
     {
@@ -159,61 +56,17 @@
       "description": "How the Terrain of the same entity is drawn, among the sprites on layer: its cells become smooth pictures (pixels pixels to a cell side), rounded along their edges rather than square. The ground is red, green and blue (0 to 255); every surface that faces up shows its top, lit, in top_red, top_green and top_blue, fading into the ground lip units down (the edge of a cliff, a lawn, the lit rim of a rock), so that a little of the top of the ground shows, as from slightly above. grain (0 to 1) speckles it. unlit keeps its colours whatever the light. Pictures are remade only where cells change.",
       "replicable": false,
       "fields": [
-        {
-          "name": "layer",
-          "type": "i32",
-          "default": 0
-        },
-        {
-          "name": "pixels",
-          "type": "u32",
-          "default": 4
-        },
-        {
-          "name": "red",
-          "type": "u32",
-          "default": 14
-        },
-        {
-          "name": "green",
-          "type": "u32",
-          "default": 14
-        },
-        {
-          "name": "blue",
-          "type": "u32",
-          "default": 16
-        },
-        {
-          "name": "top_red",
-          "type": "u32",
-          "default": 130
-        },
-        {
-          "name": "top_green",
-          "type": "u32",
-          "default": 130
-        },
-        {
-          "name": "top_blue",
-          "type": "u32",
-          "default": 134
-        },
-        {
-          "name": "lip",
-          "type": "f32",
-          "default": 10
-        },
-        {
-          "name": "grain",
-          "type": "f32",
-          "default": 0.05
-        },
-        {
-          "name": "unlit",
-          "type": "bool",
-          "default": false
-        }
+        { "name": "layer", "type": "i32", "default": 0 },
+        { "name": "pixels", "type": "u32", "default": 4 },
+        { "name": "red", "type": "u32", "default": 14 },
+        { "name": "green", "type": "u32", "default": 14 },
+        { "name": "blue", "type": "u32", "default": 16 },
+        { "name": "top_red", "type": "u32", "default": 130 },
+        { "name": "top_green", "type": "u32", "default": 130 },
+        { "name": "top_blue", "type": "u32", "default": 134 },
+        { "name": "lip", "type": "f32", "default": 10 },
+        { "name": "grain", "type": "f32", "default": 0.05 },
+        { "name": "unlit", "type": "bool", "default": false }
       ]
     }
   ],
@@ -222,65 +75,31 @@
       "name": "build",
       "description": "Builds the cells of every Terrain not generated yet, then applies the Shapes not applied yet; forgets the cells of terrains that are gone.",
       "stage": "FixedUpdate",
-      "reads": [
-        "Terrain",
-        "Shape",
-        "transform2d.Position"
-      ],
-      "writes": [
-        "Terrain",
-        "Shape"
-      ],
-      "before": [
-        "transform2d.integrate"
-      ]
+      "reads": ["Terrain", "Shape", "transform2d.Position"],
+      "writes": ["Terrain", "Shape"],
+      "before": ["transform2d.integrate"]
     },
     {
       "name": "dig",
       "description": "Carves the cells around every Digger that is not Disabled, and counts them.",
       "stage": "FixedUpdate",
-      "reads": [
-        "Digger",
-        "transform2d.Position",
-        "transform2d.Disabled"
-      ],
-      "writes": [
-        "Digger",
-        "Terrain"
-      ],
-      "after": [
-        "build",
-        "transform2d.integrate"
-      ]
+      "reads": ["Digger", "transform2d.Position", "transform2d.Disabled"],
+      "writes": ["Digger", "Terrain"],
+      "after": ["build", "transform2d.integrate"]
     },
     {
       "name": "collide",
       "description": "Stops every collision2d.Body at the solid cells of the terrains its mask includes: it is moved back along x, then along y, to the last place it could reach since the previous tick, climbs low steps while it walks, loses the speed that went into the ground, and its collision2d.Blocked notes the sides that stopped it. A body that ends up inside the ground (dug over it, or put there) is lifted out.",
       "stage": "FixedUpdate",
-      "reads": [
-        "Terrain",
-        "collision2d.Collider",
-        "collision2d.Body"
-      ],
-      "writes": [
-        "transform2d.Position",
-        "transform2d.Velocity",
-        "collision2d.Blocked"
-      ],
-      "after": [
-        "dig",
-        "collision2d.block"
-      ]
+      "reads": ["Terrain", "collision2d.Collider", "collision2d.Body"],
+      "writes": ["transform2d.Position", "transform2d.Velocity", "collision2d.Blocked"],
+      "after": ["dig", "collision2d.block"]
     },
     {
       "name": "draw",
       "description": "Remakes the pictures of the parts of every Look terrain whose cells changed (when the renderer shows pictures made while the game runs) and puts them among the sprites. Presentation only.",
       "stage": "Update",
-      "reads": [
-        "Terrain",
-        "Look",
-        "transform2d.Hidden"
-      ]
+      "reads": ["Terrain", "Look", "transform2d.Hidden"]
     }
   ]
 }

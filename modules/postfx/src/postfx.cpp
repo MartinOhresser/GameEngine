@@ -29,7 +29,12 @@ void apply(ecs::World& world) {
         app::ScreenEffects screen;
         screen.bloom = std::clamp(effects.bloom, 0.0F, 1.0F);
         screen.vignette = std::clamp(effects.vignette, 0.0F, 1.0F);
-        screen.vignette_size = std::clamp(effects.vignette_size, 0.0F, 1.0F);
+        screen.vignette_size = std::clamp(effects.vignette_size, -4.0F, 1.0F);
+        screen.vignette_color = rgba(effects.vignette_red, effects.vignette_green, effects.vignette_blue);
+        screen.edge_glow = std::clamp(effects.edge_glow, 0.0F, 1.0F);
+        screen.edge_glow_size = std::clamp(effects.edge_glow_size, -4.0F, 1.0F);
+        screen.edge_glow_color =
+            rgba(effects.edge_glow_red, effects.edge_glow_green, effects.edge_glow_blue);
         screen.grain = std::clamp(effects.grain, 0.0F, 1.0F);
         screen.tint = rgba(effects.tint_red, effects.tint_green, effects.tint_blue);
         screen.lift = rgba(effects.lift_red, effects.lift_green, effects.lift_blue);

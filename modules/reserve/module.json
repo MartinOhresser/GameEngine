@@ -1,0 +1,63 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "reserve",
+  "version": "0.1.0",
+  "description": "Stocks of resources that fill and empty: fuel, mana, oxygen, ammunition, wood and stone, the strength that keeps a body alive. Each kind of resource is an item of the game's resource list, kept by one Reserve; what costs, what gives and what the things of the world hold is said by the other components. The ge/mod/reserve/stock.hpp header lets other modules spend and give.",
+  "depends": ["transform2d"],
+  "components": [
+    {
+      "name": "Reserve",
+      "description": "The stock of one kind of resource (an item of the game's resource list; the oldest Reserve of a kind is the one used): amount, at most max. It loses drain every second by itself (a body that needs it to live, a fire that burns its wood) and never goes below floor through a drain or a cost (a place where the stock is spared: costs that would go below it are refused). When amount reaches 0, the action empty_action (none by default) is pressed once. The module keeps fill, amount divided by max (0 to 1), for a gauge, a picture or a rule. A transform2d.Disabled Reserve does not drain by itself.",
+      "replicable": true,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "resource" },
+        { "name": "amount", "type": "f32", "default": 100 },
+        { "name": "max", "type": "f32", "default": 100 },
+        { "name": "drain", "type": "f32", "default": 0 },
+        { "name": "floor", "type": "f32", "default": 0 },
+        { "name": "empty_action", "type": "u32", "default": 4294967295, "ref": "action" },
+        { "name": "fill", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Drain",
+      "description": "While the entity is not transform2d.Disabled, takes from the Reserve of kind per_second every second, plus per_unit for every unit of the number field names (\"transform2d.Velocity.x\", without its sign) on this same entity: walking that tires, an engine that burns more the faster it goes.",
+      "replicable": true,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "resource" },
+        { "name": "per_second", "type": "f32", "default": 0 },
+        { "name": "field", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "per_unit", "type": "f32", "default": 0 }
+      ]
+    },
+    {
+      "name": "Gain",
+      "description": "Every tick, gives the Reserve of kind per_unit for every unit of the number field names on this same entity (without its sign): a count of what was gathered this tick (\"terrain2d.Digger.last\", the cells dug) becomes a resource.",
+      "replicable": true,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "resource" },
+        { "name": "field", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "per_unit", "type": "f32", "default": 1 }
+      ]
+    },
+    {
+      "name": "Yield",
+      "description": "What the entity holds, for whatever gathers it (another module): amount of the resource kind. A tree holds wood, a rock stone, a body its strength.",
+      "replicable": true,
+      "fields": [
+        { "name": "kind", "type": "u32", "default": 0, "ref": "resource" },
+        { "name": "amount", "type": "f32", "default": 10 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "flow",
+      "description": "Gives what every Gain brings, takes what every Reserve and Drain uses, keeps each amount between its floor and its max, updates fill, and presses the empty_action of a Reserve that has just run out.",
+      "stage": "FixedUpdate",
+      "reads": ["Drain", "Gain", "transform2d.Disabled"],
+      "writes": ["Reserve"]
+    }
+  ]
+}

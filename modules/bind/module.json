@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/module.schema.json",
+  "schema_version": 1,
+  "name": "bind",
+  "version": "0.1.0",
+  "description": "A number that follows another one: a gauge that follows a stock, the darkness of the screen that follows a wound, the size of a glow that follows a speed, the volume of a sound that follows a distance. Any two numeric fields of any components, on the same entity or on two entities found by their tags.",
+  "depends": ["tag"],
+  "components": [
+    {
+      "name": "Bind",
+      "description": "Every tick, writes into the number target (\"postfx.Effects.vignette\") of the entity that answers to onto (a tag.Tag; this entity when onto is none) a value that follows the number source of the entity that answers to from (this entity when none). The source is taken between low and high and becomes a share t from 0 to 1 (low may be above high: then the share grows as the source falls), raised to power (1 keeps it straight, 2 makes it grow late and fast); the target becomes out_low + (out_high - out_low) × t. Nothing is written while either entity or field is missing.",
+      "replicable": true,
+      "fields": [
+        { "name": "source", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "from", "type": "u32", "default": 4294967295, "ref": "tag" },
+        { "name": "target", "type": "u32", "default": 4294967295, "ref": "field" },
+        { "name": "onto", "type": "u32", "default": 4294967295, "ref": "tag" },
+        { "name": "low", "type": "f32", "default": 0 },
+        { "name": "high", "type": "f32", "default": 1 },
+        { "name": "out_low", "type": "f32", "default": 0 },
+        { "name": "out_high", "type": "f32", "default": 1 },
+        { "name": "power", "type": "f32", "default": 1 }
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "follow",
+      "description": "Writes the target of every Bind from its source.",
+      "stage": "FixedUpdate",
+      "reads": ["Bind", "tag.Tag"]
+    }
+  ]
+}
