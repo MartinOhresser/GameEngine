@@ -83,6 +83,7 @@ app::DrawCommand sprite_command(const ecs::World& world, ecs::Entity entity, con
     command.height = sprite.height;
     command.flip_x = sprite.flip_x;
     command.screen = sprite.screen;
+    command.over_effects = sprite.over_effects;
     command.lit = !sprite.unlit;
     command.light = sprite.light;
     if (const auto* scale = world.get<transform2d::Scale>(entity); scale != nullptr) {

@@ -545,3 +545,14 @@ TEST_CASE("sprite2d: Facing turns the picture to where the entity goes, and keep
     facing.drawn_left = true;
     CHECK(faced(facing, speeds) == right_then_left);
 }
+
+TEST_CASE("sprite2d: over_effects reaches the renderer") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    sprite2d::Sprite sprite;
+    sprite.over_effects = true;
+    spawn(app, 0.0F, 0.0F, sprite);
+    app.run_frames(1);
+    REQUIRE(renderer->commands().size() == 1U);
+    CHECK(renderer->commands()[0].over_effects);
+}

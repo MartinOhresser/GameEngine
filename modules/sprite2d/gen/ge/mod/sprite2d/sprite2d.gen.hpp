@@ -11,7 +11,7 @@
 
 namespace ge::mod::sprite2d {
 
-/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position. When the game has lighting (module light2d), a sprite is darkened by the dark and brightened by the lights around it; unlit keeps its own colours (a sky, a far plane painted with its own light, a glow), and light makes the picture a light instead of a drawing: it is added to the light map and brightens what is around it (a shaft of sunlight, a lit window), without being drawn itself. Without lighting, unlit changes nothing and a light sprite is not drawn.
+/// Draws one cell of an atlas centred on the entity's Position. atlas names an atlas of the game (game.json "atlases"); frame is the cell number, counted row by row from the top left. width and height are in world units, 0 meaning the cell's own size. Sprites with a higher layer are drawn over lower ones; at equal layers the older entity is drawn first. red, green, blue and alpha (0 to 255) tint and fade the picture; 255 leaves it as it is. pivot_x and pivot_y say which point of the picture sits on the Position: 0 is the left or top edge, 0.5 the middle (the default), 1 the right or bottom edge; they need a width and a height to have an effect. With screen, the Position and the size are pixels of the window and the camera does not move or zoom the sprite: that is how an interface stays put while the world scrolls. additive adds the picture's light to what is under it (glows, sparks, rays of light: black adds nothing); multiply darkens what is under it by the picture's colour (shadows, tints: white changes nothing); with neither it simply covers what is under it. A transform2d.Rotation turns the picture around its Position. When the game has lighting (module light2d), a sprite is darkened by the dark and brightened by the lights around it; unlit keeps its own colours (a sky, a far plane painted with its own light, a glow), and light makes the picture a light instead of a drawing: it is added to the light map and brightens what is around it (a shaft of sunlight, a lit window), without being drawn itself. Without lighting, unlit changes nothing and a light sprite is not drawn. over_effects draws it in the world, but after the screen effects (postfx): never blurred nor darkened by them (the one thing kept sharp while all around is blurred, a pause).
 struct Sprite {
     std::uint32_t atlas = 0U;
     std::uint32_t frame = 0U;
@@ -22,6 +22,7 @@ struct Sprite {
     float pivot_y = 0.5F;
     bool flip_x = false;
     bool screen = false;
+    bool over_effects = false;
     std::uint32_t red = 255U;
     std::uint32_t green = 255U;
     std::uint32_t blue = 255U;
@@ -41,6 +42,7 @@ struct Sprite {
         hasher.add(pivot_y);
         hasher.add(flip_x);
         hasher.add(screen);
+        hasher.add(over_effects);
         hasher.add(red);
         hasher.add(green);
         hasher.add(blue);

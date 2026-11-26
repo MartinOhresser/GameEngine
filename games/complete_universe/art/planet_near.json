@@ -3,6 +3,6 @@
   "name": "planet_near",
   "image": "planet_near.png",
   "cell_width": 2048,
-  "cell_height": 1966,
+  "cell_height": 2130,
   "filter": "linear"
 }

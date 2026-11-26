@@ -48,6 +48,12 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.dir_x = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "dir_y") {
             component.dir_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "way_x") {
+            component.way_x = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "way_y") {
+            component.way_y = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "way_turn") {
+            component.way_turn = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -103,6 +109,15 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "dir_y") {
         return ::ge::app::Scalar{static_cast<double>(component->dir_y)};
+    }
+    if (field == "way_x") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->way_x)};
+    }
+    if (field == "way_y") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->way_y)};
+    }
+    if (field == "way_turn") {
+        return ::ge::app::Scalar{static_cast<double>(component->way_turn)};
     }
     return std::nullopt;
 }
@@ -174,10 +189,22 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->dir_y = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "way_x") {
+        component->way_x = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "way_y") {
+        component->way_y = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "way_turn") {
+        component->way_turn = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 15> component_0_fields{{{"target", "u32", "tag", false}, {"owner", "bool", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}, {"stiffness", "f32", "", false}, {"turn", "bool", "", false}, {"wave_x", "f32", "", false}, {"wave_y", "f32", "", false}, {"wave_period", "f32", "", false}, {"ahead", "f32", "", false}, {"side", "i32", "", false}, {"time", "f32", "", false}, {"speed", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 18> component_0_fields{{{"target", "u32", "tag", false}, {"owner", "bool", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}, {"stiffness", "f32", "", false}, {"turn", "bool", "", false}, {"wave_x", "f32", "", false}, {"wave_y", "f32", "", false}, {"wave_period", "f32", "", false}, {"ahead", "f32", "", false}, {"side", "i32", "", false}, {"time", "f32", "", false}, {"speed", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}, {"way_x", "u32", "action", false}, {"way_y", "u32", "action", false}, {"way_turn", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Follow", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

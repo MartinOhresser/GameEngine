@@ -34,13 +34,13 @@ TEST_CASE("modules: the generated info matches module.json") {
     CHECK(info.name == "transform2d");
     CHECK(info.version == "0.1.0");
     CHECK(info.depends.empty());
-    REQUIRE(info.components.size() == 11U);
+    REQUIRE(info.components.size() == 12U);
     CHECK(info.components[0].name == "Position");
     CHECK(info.components[0].replicable);
     REQUIRE(info.components[0].fields.size() == 2U);
     CHECK(info.components[0].fields[1].name == "y");
     CHECK(info.components[0].fields[1].type == "f32");
-    REQUIRE(info.systems.size() == 5U);
+    REQUIRE(info.systems.size() == 6U);
     CHECK(info.systems[0].name == "transform2d.integrate");
     CHECK(info.systems[0].stage == ge::app::Stage::FixedUpdate);
     REQUIRE(info.systems[0].writes.size() == 1U);

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -266,4 +267,33 @@ TEST_CASE("tween2d: a looping Track starts again from its first key, for ever") 
     CHECK(std::abs(x_of(app, spinner) - 50.0F) < 0.01F);
     app.run_frames(100);
     CHECK(!app.world().get<tween2d::Track>(spinner)->done);
+}
+
+TEST_CASE("tween2d: a curved Track goes through its keys without slowing down at them") {
+    ge::app::App app = game();
+    const ge::ecs::Entity thing = app.world().spawn();
+    CHECK(app.world().insert(thing, transform2d::Position{0.0F, 0.0F}));
+    CHECK(app.world().insert(thing, tag::Tag{7U}));
+    tween2d::Track track;
+    track.field = field_index(app, "transform2d.Position.x");
+    track.onto = 7U;
+    track.curve = true;
+    track.keys = 3U;
+    track.t0 = 0U;
+    track.v0 = 0.0F;
+    track.t1 = 10U;
+    track.v1 = 100.0F;
+    track.t2 = 20U;
+    track.v2 = 200.0F;
+    CHECK(app.world().insert(app.world().spawn(), track));
+    std::vector<float> xs;
+    for (int tick = 0; tick <= 20; ++tick) {
+        app.run_frames(1);
+        xs.push_back(x_of(app, thing));
+    }
+    CHECK(std::abs(xs[5] - 37.5F) < 0.01F);   // starting slowly
+    CHECK(std::abs(xs[10] - 100.0F) < 0.01F); // through the key...
+    CHECK(std::abs((xs[11] - xs[10]) - (xs[10] - xs[9])) < 0.5F); // ... at full speed
+    CHECK(std::abs(xs[15] - 162.5F) < 0.01F);
+    CHECK(std::abs(xs[20] - 200.0F) < 0.01F); // and stopping on the last
 }

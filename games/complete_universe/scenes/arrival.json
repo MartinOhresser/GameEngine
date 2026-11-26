@@ -560,7 +560,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -575,7 +575,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 70
         }
       }
@@ -590,7 +590,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 60
         }
       }
@@ -605,7 +605,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -620,7 +620,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -635,7 +635,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -650,7 +650,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -665,7 +665,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -680,7 +680,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -695,7 +695,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -710,7 +710,7 @@
           "keys": 2,
           "t0": 20,
           "v0": 0,
-          "t1": 100,
+          "t1": 80,
           "v1": 255
         }
       }
@@ -3693,7 +3693,9 @@
         "tag.Tag": {
           "tag": "hero"
         },
-        "transform2d.Velocity": {},
+        "transform2d.Velocity": {
+          "y": 1100
+        },
         "collision2d.Collider": {
           "width": 34,
           "height": 84,
@@ -3737,6 +3739,11 @@
           "kind": "matter",
           "field": "transform2d.Velocity.x",
           "per_unit": 0.0008
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -3745,7 +3752,7 @@
       "components": {
         "transform2d.Position": {
           "x": 640.0,
-          "y": -1440
+          "y": -1552.7
         },
         "tag.Tag": {
           "tag": "camera"
@@ -5396,6 +5403,11 @@
           "max": 120,
           "pull": 1200,
           "swirl": 400
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -6386,7 +6398,7 @@
           "field": "transform2d.Position.x",
           "from": 0,
           "to": 1,
-          "ticks": 260,
+          "ticks": 240,
           "use_action": true,
           "action": "landing_done"
         }
@@ -8018,9 +8030,9 @@
           "onto": "dome",
           "smooth": true,
           "keys": 2,
-          "t0": 130,
+          "t0": 110,
           "v0": 0,
-          "t1": 290,
+          "t1": 270,
           "v1": 230
         }
       }
@@ -8032,15 +8044,13 @@
           "field": "camera2d.CameraFollow.stiffness",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
+          "keys": 3,
           "t0": 0,
-          "v0": 0.06,
-          "t1": 15,
+          "v0": 0.25,
+          "t1": 90,
           "v1": 0.25,
-          "t2": 110,
-          "v2": 0.25,
-          "t3": 170,
-          "v3": 0.06
+          "t2": 150,
+          "v2": 0.06
         }
       }
     },
@@ -8808,6 +8818,11 @@
           "additive": true,
           "unlit": true,
           "layer": 14
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -8934,6 +8949,11 @@
           "additive": true,
           "unlit": true,
           "layer": 14
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -9061,6 +9081,11 @@
           "additive": true,
           "unlit": true,
           "layer": 14
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -9462,93 +9487,83 @@
       }
     },
     {
-      "name": "pause_dim",
+      "name": "pause_hero",
       "components": {
         "transform2d.Position": {
-          "x": 960.0,
-          "y": 540.0
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "pause_hero"
         },
         "sprite2d.Sprite": {
-          "atlas": "plain",
-          "width": 1984,
-          "height": 1144,
-          "screen": true,
-          "red": 6,
-          "green": 7,
-          "blue": 10,
-          "alpha": 120,
+          "atlas": "hero",
+          "width": 128,
+          "height": 128,
+          "layer": 11,
           "unlit": true,
-          "layer": 900
+          "over_effects": true
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "stiffness": 1
         },
         "toggle.ShownBy": {
           "toggle": "pause"
         },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
+        }
+      }
+    },
+    {
+      "name": "pause_pose",
+      "components": {
+        "bind.Bind": {
+          "source": "sprite2d.Sprite.frame",
+          "from": "hero",
+          "target": "sprite2d.Sprite.frame",
+          "onto": "pause_hero",
+          "low": 0,
+          "high": 100000,
+          "out_low": 0,
+          "out_high": 100000,
+          "power": 1
+        }
       }
     },
     {
       "name": "pause_bubble",
       "components": {
         "transform2d.Position": {
-          "x": 960.0,
-          "y": 540.0
+          "x": 0,
+          "y": 0
         },
         "sprite2d.Sprite": {
           "atlas": "barrier",
           "frame": 0,
-          "width": 760,
-          "height": 760,
-          "screen": true,
-          "layer": 905,
-          "unlit": true
+          "width": 200,
+          "height": 200,
+          "layer": 12,
+          "unlit": true,
+          "over_effects": true
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "stiffness": 1
         },
         "toggle.ShownBy": {
           "toggle": "pause"
         },
-        "transform2d.Hidden": {}
-      }
-    },
-    {
-      "name": "pause_sleeper",
-      "components": {
-        "transform2d.Position": {
-          "x": 960.0,
-          "y": 335.0
-        },
-        "sprite2d.Sprite": {
-          "atlas": "hero_curled",
-          "width": 128,
-          "height": 128,
-          "screen": true,
-          "layer": 910,
-          "unlit": true
-        },
-        "toggle.ShownBy": {
-          "toggle": "pause"
-        },
-        "transform2d.Hidden": {}
-      }
-    },
-    {
-      "name": "pause_title",
-      "components": {
-        "transform2d.Position": {
-          "x": 960.0,
-          "y": 458.0
-        },
-        "text2d.Text": {
-          "string": "menu.pause",
-          "font": "font",
-          "size": 56,
-          "pivot_x": 0.5,
-          "pivot_y": 0.5,
-          "screen": true,
-          "alpha": 235
-        },
-        "toggle.ShownBy": {
-          "toggle": "pause"
-        },
-        "transform2d.Hidden": {}
+        "transform2d.Hidden": {},
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
+        }
       }
     },
     {
@@ -9589,7 +9604,7 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 580.0
+          "y": 860
         },
         "ui.Button": {
           "menu": "pause",
@@ -9619,7 +9634,7 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 582.0
+          "y": 862
         },
         "text2d.Text": {
           "string": "menu.resume",
@@ -9641,7 +9656,7 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 698.0
+          "y": 978
         },
         "ui.Button": {
           "menu": "pause",
@@ -9671,7 +9686,7 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 700.0
+          "y": 980
         },
         "text2d.Text": {
           "string": "menu.leave",
@@ -9700,8 +9715,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "planet",
-          "width": 1400,
-          "height": 1400,
+          "width": 1680.0,
+          "height": 1680.0,
           "layer": -60,
           "alpha": 0,
           "unlit": true
@@ -9714,6 +9729,11 @@
           "offset_x": 1500,
           "offset_y": -1300,
           "stiffness": 1
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
         }
       }
     },
@@ -9791,7 +9811,10 @@
         "follow2d.Follow": {
           "target": "hero",
           "ahead": 95,
-          "stiffness": 1
+          "stiffness": 1,
+          "way_x": 0,
+          "way_y": 1,
+          "way_turn": 240
         }
       }
     },

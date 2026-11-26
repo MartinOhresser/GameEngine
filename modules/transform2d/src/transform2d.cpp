@@ -5,6 +5,9 @@
 #include "ge/mod/transform2d/transform2d.gen.hpp"
 #include "ge/mod/transform2d/world_speed.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <utility>
 
 namespace ge::mod::transform2d {
@@ -35,6 +38,40 @@ void remember(ecs::World& world) {
         }
         now.entries[entity.index()] = {entity.generation(), true, position};
     });
+}
+
+void smooth(ecs::World& world) {
+    const auto* time = world.resource<app::Time>();
+    if (time == nullptr) {
+        return;
+    }
+    world.each<const Position, Smooth>(
+        [time](ecs::Entity /*entity*/, const Position& position, Smooth& smooth) {
+            const float dx = position.x - smooth.x;
+            const float dy = position.y - smooth.y;
+            const std::uint64_t now = time->tick + 1U; // 0 is "never placed"
+            if (smooth.tick == 0U || std::hypot(dx, dy) > smooth.snap) {
+                smooth.x = position.x;
+                smooth.y = position.y;
+                smooth.tick = now;
+                return;
+            }
+            if (now <= smooth.tick) {
+                return; // no tick since the last look
+            }
+            const auto ticks = static_cast<float>(now - smooth.tick);
+            const float kept = std::pow(1.0F - std::clamp(smooth.share, 0.0F, 1.0F), ticks);
+            float behind_x = dx * kept;
+            float behind_y = dy * kept;
+            const float behind = std::hypot(behind_x, behind_y);
+            if (behind > smooth.most && behind > 0.0F) {
+                behind_x *= smooth.most / behind;
+                behind_y *= smooth.most / behind;
+            }
+            smooth.x = position.x - behind_x;
+            smooth.y = position.y - behind_y;
+            smooth.tick = now;
+        });
 }
 
 void integrate(ecs::World& world) {
