@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "planet",
   "image": "planet.png",
-  "cell_width": 768,
-  "cell_height": 768,
+  "cell_width": 1536,
+  "cell_height": 1536,
   "filter": "linear"
 }

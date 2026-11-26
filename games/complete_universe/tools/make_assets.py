@@ -990,7 +990,7 @@ def glow():
 def planet():
     """The planet of the tutorial seen from space: a grey disc lit from the upper left, with
     craters, its night side lost in the dark, a thin bright edge of air."""
-    size = 768
+    size = 1536
     rng = np.random.default_rng(21)
     y, x = np.mgrid[0:size, 0:size].astype(np.float64)
     cx = cy = size / 2 - 0.5
@@ -1205,6 +1205,160 @@ def nebula_veil(coloured=False):
     x = np.linspace(-1, 1, w)[None, :]
     edges = np.clip((1 - np.abs(x)) * 4, 0, 1) * np.clip((1 - np.abs(y)) * 4, 0, 1)
     return to_image(rgb, gas * (0.5 if coloured else 0.38) * edges)
+
+
+BANG_PALETTE = [(255, 255, 255), (170, 215, 255), (110, 160, 255), (175, 120, 255),
+                (255, 130, 210), (255, 170, 90), (255, 220, 150)]
+
+
+def light_picture(light):
+    """Light to add (0 to about 1 per channel): its colours at full strength, its strength as the
+    opacity (the pictures of the explosion are drawn added)."""
+    alpha = np.clip(light.max(axis=2), 0, 1)
+    return to_image(np.clip(light, 0, 1) * 255 / np.maximum(alpha, 1e-4)[..., None], alpha)
+
+
+def polar_to_square(polar, size):
+    """A picture drawn in (angle, radius) rows, laid round its middle: a square size wide."""
+    angles, radii = polar.shape[:2]
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    dx, dy = x - size / 2 + 0.5, y - size / 2 + 0.5
+    r = np.hypot(dx, dy) / (size / 2) * (radii - 1)
+    a = (np.arctan2(dy, dx) + math.pi) / (2 * math.pi) * angles
+    wrapped = np.concatenate([polar, polar[:1]], axis=0)
+    return np.dstack([sample(wrapped[..., channel], r, a) for channel in range(polar.shape[2])])
+
+
+def bang_rays(size=1024, seed=81):
+    """The rays of the explosion (docs: the big bang): a crowd of thin streaks of light out of
+    the middle, of every length, white near it, coloured further out."""
+    rng = np.random.default_rng(seed)
+    angles, radii = 4096, size // 2
+    polar = np.zeros((angles, radii, 3))
+    rr = np.arange(radii, dtype=np.float64)
+    palette = np.array(BANG_PALETTE[1:], dtype=np.float64) / 255.0
+    for _ in range(1800):
+        a = int(rng.integers(angles))
+        length = rng.uniform(0.12, 1.0) ** 0.8 * radii * 0.97
+        start = rng.uniform(0.0, 0.3) * length
+        width = int(rng.integers(1, 5))
+        strength = rng.uniform(0.15, 1.0) ** 2.2 * 0.9
+        colour = palette[rng.integers(len(palette))]
+        profile = (np.clip((rr - start) / 14, 0, 1) * np.clip((length - rr) / (length * 0.6), 0, 1)
+                   ** 1.4)
+        rows = np.arange(a, a + width) % angles
+        polar[rows] += profile[None, :, None] * strength * colour[None, None, :]
+    polar = np.dstack([blur(polar[..., channel], 0.8) for channel in range(3)])
+    light = polar_to_square(polar, size)
+    r = np.hypot(*(np.mgrid[0:size, 0:size] - size / 2 + 0.5)) / (size / 2)
+    # White near the middle; nothing at the edge of the square.
+    white = np.clip(1 - r / 0.45, 0, 1) ** 2
+    light = light * (1 - white[..., None]) + light.max(axis=2, keepdims=True) * white[..., None]
+    light += (np.exp(-(r / 0.05) ** 2) * 1.0 + np.exp(-(r / 0.2) ** 2) * 0.25)[..., None]
+    return light_picture(light * np.clip((1 - r) * 6, 0, 1)[..., None])
+
+
+def bang_core(size=512, seed=82):
+    """The heart of the explosion: a white light in rings of colour, not quite round."""
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    dx, dy = x - size / 2 + 0.5, y - size / 2 + 0.5
+    lumps = noise(size, size, seed, ((64, 1.0), (32, 0.5), (16, 0.25)))
+    r = np.hypot(dx, dy) / (size / 2) * (0.85 + 0.3 * lumps)
+    light = np.zeros((size, size, 3))
+    for reach, strength, colour in ((0.07, 1.2, (255, 255, 255)), (0.22, 0.6, (190, 225, 255)),
+                                    (0.42, 0.35, (120, 150, 255)), (0.7, 0.22, (190, 120, 255)),
+                                    (0.95, 0.12, (255, 160, 120))):
+        light += np.exp(-(r / reach) ** 2)[..., None] * strength * np.array(colour) / 255.0
+    edge = np.clip((1 - np.hypot(dx, dy) / (size / 2)) * 5, 0, 1)
+    return light_picture(light * edge[..., None])
+
+
+def flares():
+    """The reflections of a light too strong (a lens): a long flat streak, a ring, a soft disc.
+    Three cells of 512 by 128 (the ring and the disc in the middle of theirs)."""
+    w, h = 512, 128
+    y, x = np.mgrid[0:h, 0:w].astype(np.float64)
+    u, v = (x - w / 2 + 0.5) / (w / 2), (y - h / 2 + 0.5) / (h / 2)
+    along = np.clip(1 - np.abs(u), 0, 1) ** 1.6
+    streak = (np.exp(-(v / 0.05) ** 2) * along + np.exp(-(v / 0.3) ** 2) * along ** 3 * 0.35)
+    tint = np.array([200, 225, 255]) / 255.0
+    made = [light_picture(streak[..., None] * tint)]
+    r = np.hypot(u * w / h, v)
+    ring = np.zeros((h, w, 3))
+    for channel, radius in enumerate((0.86, 0.83, 0.8)):  # a little rainbow on its edge
+        ring[..., channel] = np.exp(-((r - radius) / 0.05) ** 2) * 0.55
+    ring += (np.clip(1 - r / 0.8, 0, 1) * 0.08)[..., None]
+    made.append(light_picture(ring * (r < 1)[..., None]))
+    disc = np.clip(1 - r, 0, 1) ** 1.5 * 0.5
+    made.append(light_picture(disc[..., None] * np.array([180, 200, 255]) / 255.0))
+    return sheet_of(made, 3, w, h)
+
+
+CLOUD = 512
+
+
+def clouds():
+    """Clouds of gas (docs: the big bang): wisps and filaments round a thicker heart, white, to be
+    tinted. Four of them, in cells of CLOUD."""
+    made = []
+    size = CLOUD
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    u, v = (x - size / 2 + 0.5) / (size / 2), (y - size / 2 + 0.5) / (size / 2)
+    for seed in range(4):
+        rng = np.random.default_rng(90 + seed)
+        bend = noise(size, size, 95 + seed, ((128, 1.0), (64, 0.5)))
+        stretch = rng.uniform(0.7, 1.3)
+        r = np.hypot(u * stretch, v / stretch) * (0.75 + 0.5 * bend)
+        heart = np.clip(1 - r, 0, 1) ** 1.3
+        wisps = ridged(size, size, 100 + seed, 150, 6, 0.6, warp=60)
+        soft = noise(size, size, 110 + seed, ((96, 1.0), (48, 0.5), (24, 0.25)))
+        edge = np.clip((1 - np.hypot(u, v)) * 4, 0, 1)
+        cover = np.clip((wisps ** 1.5 * 1.5 + soft * 0.35 - 0.15) * heart * 1.8, 0, 1) * edge
+        value = 140 + 115 * np.clip(wisps * 1.3, 0, 1)
+        made.append(to_image(np.dstack([value, value, value]), cover))
+    return sheet_of(made, 4, size, size)
+
+
+ASTEROID = 128
+
+
+def asteroids():
+    """Rocks thrown by the explosion: dark lumps, their edge lit by the light behind them, a few
+    craters. Six of them, in cells of ASTEROID."""
+    made = []
+    n = ASTEROID * SUPER
+    for seed in range(6):
+        rng = np.random.default_rng(120 + seed)
+        mask_picture = Image.new("L", (n, n), 0)
+        points = []
+        long = rng.uniform(0.6, 1.0)
+        turn = rng.uniform(0, math.pi)
+        lumps = rng.uniform(0.75, 1.05, 7)
+        for i in range(28):
+            t = 2 * math.pi * i / 28
+            radius = 0.4 * rng.uniform(0.9, 1.04) * lumps[(i * 7) // 28]
+            px, py = radius * math.cos(t), radius * long * math.sin(t)
+            points.append(((0.5 + px * math.cos(turn) - py * math.sin(turn)) * n,
+                           (0.5 + px * math.sin(turn) + py * math.cos(turn)) * n))
+        ImageDraw.Draw(mask_picture).polygon(points, fill=255)
+        mask = blur(np.asarray(mask_picture, dtype=np.float64) / 255.0, n * 0.015)
+        mask = np.clip((mask - 0.5) * 5 + 0.5, 0, 1)
+        inner = blur(mask, n * 0.04)
+        rim = np.clip((mask - inner) * 2.6, 0, 1) ** 2
+        grain = noise(n, n, 130 + seed, ((32, 1.0), (12, 0.6), (4, 0.4)))
+        body = np.array([22.0, 23.0, 28.0])[None, None, :] * (0.6 + 0.8 * grain[..., None])
+        for _ in range(int(rng.integers(2, 6))):
+            cx, cy = rng.uniform(0.3, 0.7, 2) * n
+            cr = rng.uniform(0.04, 0.1) * n
+            d = np.hypot(*(np.mgrid[0:n, 0:n] - np.array([cy, cx])[:, None, None])) / cr
+            body *= (1 - 0.4 * np.clip(1 - d, 0, 1) ** 0.5)[..., None]
+            rim += np.clip(1 - np.abs(d - 1.05) * 6, 0, 1) * 0.08 * mask
+        side = np.clip(np.mgrid[0:n, 0:n][1] / n * 1.4 - 0.2, 0, 1)
+        light = np.array([150.0, 180.0, 235.0]) * (1 - side[..., None]) + \
+            np.array([255.0, 200.0, 160.0]) * side[..., None]
+        rgb = body + light * np.clip(rim, 0, 1)[..., None]
+        made.append(shrink(rgb, mask, ASTEROID, ASTEROID))
+    return sheet_of(made, 6, ASTEROID, ASTEROID)
 
 
 HILLS_W, HILLS_H = 2048, 400  # world units of a band of hills (drawn at one pixel each)
@@ -3018,51 +3172,209 @@ FRAGMENT_COLOURS = [("pink", (240, 130, 190)), ("violet", (150, 90, 210)),
                     ("orange", (240, 140, 50)), ("red", (220, 60, 50)),
                     ("yellow", (240, 210, 80)), ("green", (80, 190, 110)),
                     ("blue", (70, 130, 230))]
-PLANET_AT = (700, -120)
-OPENING_TICKS = 900
-OPENING_SKY = (2400, 1350)  # the opening's camera goes back to 0.55 of its zoom at rest
+PLANET_AT = (2400, 1500)  # the planet of the tutorial in its great barrier, from the explosion
+PLANET_SIZE, GREAT_BARRIER_SIZE = 1500, 3300  # ... far bigger than him
+PLANET_TOP = PLANET_AT[1] + 0.23 * PLANET_SIZE - PLANET_SIZE / 2  # its ground, where he comes down
+OPENING_TICKS = 1430
+REVEAL = (170, 470)  # the white light of the explosion fades out between these ticks: him, far
+WANDER = (720, 1380)  # he wanders through space to the planet, down onto it
+# The camera's zoom along the opening: back from the explosion, close on him as he nears, back
+# again to show the planet, close on him as he comes down onto it.
+OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER[0], 1.6 * ZOOM), (880, 0.9 * ZOOM),
+                (1100, 0.42 * ZOOM), (WANDER[1], 2.4 * ZOOM)]
+SKY_MARGIN = 1.08  # the skies of the opening, a little bigger than the screen whatever the zoom
+# The gas of the explosion, the colours going out in turn (GDD §2), then the grey that stays.
+CLOUD_TINTS = [(255, 150, 70), (255, 110, 190), (180, 110, 255), (90, 140, 255),
+               (80, 210, 255), (255, 210, 140)]
+CLOUD_GREY = (130, 134, 146)
+CLOUD_COUNT, CLOUD_GREYS = 22, 6  # clouds of the explosion; the last ones grey
+GLOW_COUNT = 4
+
+
+def hero_frames(clip):
+    """The first frame of a clip of the hero in its atlas, and how many it has."""
+    first = 0
+    for name, poses, _ in HERO_CLIPS:
+        if name == clip:
+            return first, len(poses)
+        first += len(poses)
+    raise KeyError(clip)
+
+
+def bang_clouds():
+    """The clouds of gas of the explosion (docs: the big bang): they fly out of it, grow and turn
+    slowly; coloured and glowing first, going out in turn, the grey ones staying (D23)."""
+    rng = np.random.default_rng(23)
+    made = []
+    for index in range(CLOUD_COUNT):
+        grey = index >= CLOUD_COUNT - CLOUD_GREYS
+        name = f"cloud_{index}"
+        angle = math.radians(index * 137.5 + float(rng.uniform(-20, 20)))
+        near = float(rng.uniform(250, 700) if grey else rng.uniform(150, 420))
+        speed = float(rng.uniform(40, 130))
+        size = round(float(rng.uniform(900, 1400) if grey else rng.uniform(750, 1300)))
+        tint = CLOUD_GREY if grey else CLOUD_TINTS[index % len(CLOUD_TINTS)]
+        sprite = {"atlas": "clouds", "frame": index % 4, "width": size, "height": size,
+                  "layer": -103 if grey else -98 + index, "alpha": 0, "unlit": True,
+                  "red": tint[0], "green": tint[1], "blue": tint[2]}
+        if not grey:
+            sprite["additive"] = True
+        turn = round(float(rng.uniform(0, 360)))
+        made.append(entity(name, round(math.cos(angle) * near), round(math.sin(angle) * near), {
+            "tag.Tag": {"tag": name}, "sprite2d.Sprite": sprite,
+            "transform2d.Velocity": {"x": round(math.cos(angle) * speed, 1),
+                                     "y": round(math.sin(angle) * speed, 1)},
+            "transform2d.Scale": {"factor": 0.3}, "transform2d.Rotation": {"angle": turn}}))
+        if grey:
+            keys = [(250, 0), (450 + round(float(rng.uniform(0, 80))),
+                               round(float(rng.uniform(70, 120))))]
+        else:
+            strength = round(float(rng.uniform(200, 255)))
+            out = 330 + (index % len(CLOUD_TINTS)) * 45 + round(float(rng.uniform(0, 30)))
+            keys = [(4, 0), (30 + round(float(rng.uniform(0, 40))), strength),
+                    (out, round(strength * 0.8)), (out + 160, 0)]
+        made += [
+            track(f"{name}_shows", name, "sprite2d.Sprite.alpha", keys),
+            track(f"{name}_grows", name, "transform2d.Scale.factor",
+                  [(0, 0.3), (220, 1.0), (OPENING_TICKS, 1.9)]),
+            track(f"{name}_turns", name, "transform2d.Rotation.angle",
+                  [(0, turn), (OPENING_TICKS, turn + round(float(rng.uniform(-35, 35))))]),
+        ]
+    # Glows of colour in the gas, coming and going.
+    for index, tint in enumerate(CLOUD_TINTS[:GLOW_COUNT]):
+        name = f"glow_{index}"
+        angle = math.radians(40 + index * 95)
+        made += [
+            entity(name, round(math.cos(angle) * 140), round(math.sin(angle) * 140), {
+                "tag.Tag": {"tag": name},
+                "sprite2d.Sprite": {"atlas": "glow", "width": 1100, "height": 1100,
+                                    "layer": -97, "alpha": 0, "additive": True, "unlit": True,
+                                    "red": tint[0], "green": tint[1], "blue": tint[2]},
+                "transform2d.Velocity": {"x": round(math.cos(angle) * 45, 1),
+                                         "y": round(math.sin(angle) * 45, 1)}}),
+            track(f"{name}_shows", name, "sprite2d.Sprite.alpha",
+                  [(0, 0), (25 + index * 10, 170), (160 + index * 50, 120),
+                   (330 + index * 60, 0)]),
+        ]
+    return made
+
+
+def bang_light():
+    """The light of the explosion: a white heart that stays, then fades out slowly; rays, two
+    crowds turning each its way; a long flat streak and reflections, as through a lens."""
+    made = [
+        entity("core", 0, 0, {"tag.Tag": {"tag": "core"}, "sprite2d.Sprite": {
+            "atlas": "bang_core", "width": 700, "height": 700, "layer": 50, "additive": True,
+            "unlit": True}, "transform2d.Scale": {"factor": 0.5}}),
+        track("core_grows", "core", "transform2d.Scale.factor",
+              [(0, 0.3), (20, 1.1), (REVEAL[0], 1.25), (REVEAL[1], 0.5)]),
+        track("core_fades", "core", "sprite2d.Sprite.alpha",
+              [(0, 255), (REVEAL[0], 255), (REVEAL[1], 0)]),
+    ]
+    for name, tint, layer, scale, alpha, turn in (
+            ("rays_a", (255, 255, 255), 49, [(0, 0.15), (30, 1.0), (320, 2.6)],
+             [(0, 0), (6, 200), (140, 150), (380, 0)], 360),
+            ("rays_b", (255, 200, 160), 48, [(10, 0.3), (60, 1.4), (380, 3.4)],
+             [(10, 0), (35, 130), (210, 90), (430, 0)], -360)):
+        made += [
+            entity(name, 0, 0, {"tag.Tag": {"tag": name}, "sprite2d.Sprite": {
+                "atlas": "bang_rays", "width": 1600, "height": 1600, "layer": layer,
+                "alpha": 0, "additive": True, "unlit": True, "red": tint[0],
+                "green": tint[1], "blue": tint[2]},
+                "transform2d.Scale": {"factor": scale[0][1]}, "transform2d.Rotation": {}}),
+            track(f"{name}_grows", name, "transform2d.Scale.factor", scale),
+            track(f"{name}_shows", name, "sprite2d.Sprite.alpha", alpha),
+            track(f"{name}_turns", name, "transform2d.Rotation.angle",
+                  [(0, 0), (9000, turn)], smooth=False),
+        ]
+    made += [
+        entity("streak", 0, 0, {"tag.Tag": {"tag": "streak"}, "sprite2d.Sprite": {
+            "atlas": "flares", "frame": 0, "width": 3200, "height": 200, "layer": 52,
+            "alpha": 0, "additive": True, "unlit": True}, "transform2d.Scale": {"factor": 0.4}}),
+        track("streak_grows", "streak", "transform2d.Scale.factor",
+              [(0, 0.4), (40, 1.0), (420, 1.3)]),
+        track("streak_shows", "streak", "sprite2d.Sprite.alpha",
+              [(0, 0), (12, 255), (200, 170), (430, 0)]),
+    ]
+    for index, (x, y, size, frame, tint) in enumerate((
+            (190, 105, 110, 1, (255, 255, 255)), (340, 190, 60, 2, (200, 220, 255)),
+            (-280, -155, 170, 1, (255, 200, 170)), (-130, -72, 46, 2, (220, 190, 255)))):
+        name = f"ghost_{index}"
+        made += [
+            entity(name, x, y, {"tag.Tag": {"tag": name}, "sprite2d.Sprite": {
+                "atlas": "flares", "frame": frame, "width": size * 4, "height": size,
+                "layer": 53, "alpha": 0, "additive": True, "unlit": True, "red": tint[0],
+                "green": tint[1], "blue": tint[2]}}),
+            track(f"{name}_shows", name, "sprite2d.Sprite.alpha",
+                  [(8, 0), (40, 120), (180, 90), (320, 0)]),
+        ]
+    return made
+
+
+def bang_rocks():
+    """Rocks thrown out of the explosion, small and far, then a few that pass close by."""
+    made = []
+    for frame in range(6):
+        made.append(entity(f"rocks_{frame}", 0, 0, {"particles2d.Emitter": {
+            "rate": 0, "burst": 7, "lifetime": 10, "lifetime_spread": 3, "speed": 170,
+            "speed_spread": 150, "spread": 360, "drag": 0.02, "size": 14, "end_size": 70,
+            "red": 255, "green": 255, "blue": 255, "alpha": 255, "fade": True,
+            "unlit": True, "layer": 55, "atlas": "asteroids", "frame": frame, "max": 7}}))
+    for frame in (1, 4):
+        made.append(entity(f"rocks_near_{frame}", 0, 0, {"particles2d.Emitter": {
+            "rate": 0, "burst": 2, "lifetime": 6, "lifetime_spread": 1, "speed": 520,
+            "speed_spread": 120, "spread": 360, "size": 8, "end_size": 320, "red": 255,
+            "green": 255, "blue": 255, "alpha": 255, "fade": True, "unlit": True,
+            "layer": 60, "atlas": "asteroids", "frame": frame, "max": 2}}))
+    return made
 
 
 def opening():
-    """The opening (GDD §2): an explosion, the universe spreads out full of colours, fewer and
-    fewer, down to black and white and a sky like ours. The camera finds the hero curled up in an
-    immense barrier, far, then drifting down to a planet, and comes close: white, and the game."""
+    """The opening (GDD §2, D23): an explosion, rays and reflections, clouds of gas in every
+    colour flying out with rocks; the colours go out in turn, the sky builds up. The white light
+    of its heart fades out slowly: far off in it, him. He grows nearer, wanders through space,
+    and comes down onto the planet of the tutorial in its great barrier: white, and the game."""
+    fall_first, fall_count = hero_frames("fall")
     made = [
         # The skies stay on the screen; big enough for the camera's widest view. Black after
         # the flash (nothing behind: true black); the gas and the stars come in turn.
-        entity("void", 0, 0, {"sprite2d.Sprite": {
-            "atlas": "plain", "width": OPENING_SKY[0] * 2, "height": OPENING_SKY[1] * 2,
+        entity("void", 0, 0, {"tag.Tag": {"tag": "void"}, "sprite2d.Sprite": {
+            "atlas": "plain", "width": SCREEN_W * 2, "height": SCREEN_H * 2,
             "layer": -120, "unlit": True, "red": 0, "green": 0, "blue": 0},
-            "sprite2d.Parallax": {"x": 0, "y": 0}}),
-        entity("nebula", 200, 0, {"tag.Tag": {"tag": "nebula"}, "sprite2d.Sprite": {
-            "atlas": "veil", "width": 2600, "height": 1460, "layer": -105, "alpha": 0,
-            "unlit": True}, "sprite2d.Parallax": {"x": 0.25, "y": 0.25}}),
-        entity("nebula_colour", 200, 0, {"tag.Tag": {"tag": "nebula_colour"},
-                                         "sprite2d.Sprite": {
-            "atlas": "veil_colour", "width": 2600, "height": 1460, "layer": -104, "alpha": 0,
-            "unlit": True}, "sprite2d.Parallax": {"x": 0.25, "y": 0.25}}),
+            "sprite2d.Parallax": {"x": 0, "y": 0}, "transform2d.Scale": {"factor": 1}}),
+        entity("nebula", 0, 0, {"tag.Tag": {"tag": "nebula"}, "sprite2d.Sprite": {
+            "atlas": "veil", "width": SCREEN_W * 1.4, "height": SCREEN_H * 1.4, "layer": -105,
+            "alpha": 0, "unlit": True}, "sprite2d.Parallax": {"x": 0, "y": 0},
+            "transform2d.Scale": {"factor": 1}}),
+        entity("nebula_colour", 0, 0, {"tag.Tag": {"tag": "nebula_colour"},
+                                       "sprite2d.Sprite": {
+            "atlas": "veil_colour", "width": SCREEN_W * 1.4, "height": SCREEN_H * 1.4,
+            "layer": -104, "alpha": 0, "unlit": True}, "sprite2d.Parallax": {"x": 0, "y": 0},
+            "transform2d.Scale": {"factor": 1}}),
         entity("flash", 0, 0, {"tag.Tag": {"tag": "flash"}, "sprite2d.Sprite": {
-            "atlas": "glow", "width": 300, "height": 300, "layer": 50, "additive": True,
+            "atlas": "glow", "width": 300, "height": 300, "layer": 51, "additive": True,
             "unlit": True}, "transform2d.Scale": {"factor": 0.2}}),
+        # The camera stays on him: on the heart of the explosion first, where he is.
         entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"},
                                 "camera2d.Camera": {"zoom": 1.3 * ZOOM},
+                                "follow2d.Follow": {"target": "wanderer", "stiffness": 0.06},
                                 "postfx.Effects": {"bloom": 0.8, "vignette": 0.5,
                                                    "vignette_size": 0.4, "grain": 0.05}}),
         entity("great_barrier", *PLANET_AT, {"tag.Tag": {"tag": "great_barrier"},
                                              "sprite2d.Sprite": {
-            "atlas": "barrier", "frame": 0, "width": 820, "height": 820, "layer": 20,
-            "alpha": 0, "unlit": True}}),
-        entity("planet", PLANET_AT[0], PLANET_AT[1] + 70, {"tag.Tag": {"tag": "planet"},
-                                                          "sprite2d.Sprite": {
-            "atlas": "planet", "width": 300, "height": 300, "layer": 10, "alpha": 0,
-            "unlit": True}}),
-        entity("sleeper", 470, -330, {"tag.Tag": {"tag": "sleeper"}, "sprite2d.Sprite": {
-            "atlas": "hero_curled", "width": 56, "height": 56, "layer": 30, "alpha": 0,
-            "unlit": True}, "transform2d.Rotation": {}}),
-        entity("sleeper_bubble", 470, -330, {"tag.Tag": {"tag": "sleeper_bubble"},
-                                             "sprite2d.Sprite": {
-            "atlas": "barrier", "frame": 0, "width": 64, "height": 64, "layer": 31, "alpha": 0,
-            "unlit": True}, "follow2d.Follow": {"target": "sleeper", "stiffness": 1}}),
+            "atlas": "barrier", "frame": 0, "width": GREAT_BARRIER_SIZE,
+            "height": GREAT_BARRIER_SIZE, "layer": 20, "alpha": 0, "unlit": True}}),
+        entity("planet", PLANET_AT[0], round(PLANET_AT[1] + 0.23 * PLANET_SIZE),
+               {"tag.Tag": {"tag": "planet"}, "sprite2d.Sprite": {
+                   "atlas": "planet", "width": PLANET_SIZE, "height": PLANET_SIZE, "layer": 10,
+                   "alpha": 0, "unlit": True}}),
+        # Him, in the heart of the explosion: a speck in the white light, his limbs moving.
+        entity("wanderer", 0, 0, {"tag.Tag": {"tag": "wanderer"}, "sprite2d.Sprite": {
+            "atlas": "hero", "frame": fall_first, "width": CELL, "height": CELL, "layer": 45,
+            "unlit": True}, "sprite2d.SpriteAnimation": {
+                "first_frame": fall_first, "frame_count": fall_count, "ticks_per_frame": 3,
+                "looping": True},
+            "transform2d.Scale": {"factor": 0.02}, "transform2d.Rotation": {"angle": -20}}),
         cover("whiteout"),
         # The end, or a press of Escape: the planet.
         entity("to_tutorial", 0, 0, {"scene_switch.GoToScene": {
@@ -3075,19 +3387,24 @@ def opening():
                                          ("stars_3", "stars_3", -109, True),
                                          ("stars_2", "stars_2", -108, True),
                                          ("stars_1", "stars_1", -107, True)):
-        sprite = {"atlas": atlas, "width": OPENING_SKY[0], "height": OPENING_SKY[1],
-                  "layer": layer, "alpha": 0, "unlit": True}
+        sprite = {"atlas": atlas, "width": SCREEN_W * SKY_MARGIN,
+                  "height": SCREEN_H * SKY_MARGIN, "layer": layer, "alpha": 0, "unlit": True}
         if additive:
             sprite["additive"] = True
         made.append(entity(name, 0, 0, {"tag.Tag": {"tag": name}, "sprite2d.Sprite": sprite,
-                                        "sprite2d.Parallax": {"x": 0, "y": 0}}))
+                                        "sprite2d.Parallax": {"x": 0, "y": 0},
+                                        "transform2d.Scale": {"factor": 1}}))
+    for name in ("void", "nebula", "nebula_colour", "gas", "gas_colour", "stars_1", "stars_2",
+                 "stars_3", "stars_4"):
+        made.append(track(f"{name}_covers", name, "transform2d.Scale.factor",
+                          [(tick, round(1 / zoom, 4)) for tick, zoom in OPENING_ZOOM]))
     # New stars light up one by one all over the black, and fade into the sky that builds.
     made.append(entity("births", 0, 0, {"tag.Tag": {"tag": "births"}, "particles2d.Emitter": {
         "rate": 0, "lifetime": 3.5, "lifetime_spread": 1.5, "speed": 0, "size": 5,
         "end_size": 2, "red": 240, "green": 244, "blue": 255, "alpha": 255, "fade": True,
-        "additive": True, "unlit": True, "layer": -100, "area_width": OPENING_SKY[0] * 1.6,
-        "area_height": OPENING_SKY[1] * 1.6, "max": 400}}))
-    # The explosion: every colour flies out, and goes out in turn; the grey stays longest.
+        "additive": True, "unlit": True, "layer": -100, "area_width": SCREEN_W * 1.4,
+        "area_height": SCREEN_H * 1.4, "max": 400}}))
+    # Sparks of every colour fly out, and go out in turn; the grey stays longest.
     for index, (name, colour) in enumerate(FRAGMENT_COLOURS + [("grey", (200, 200, 200))]):
         made.append(entity(f"burst_{name}", 0, 0, {"particles2d.Emitter": {
             "rate": 0, "burst": 160, "lifetime": 2.2 + 0.6 * index if name != "grey" else 9,
@@ -3095,9 +3412,10 @@ def opening():
             "drag": 0.45, "wander": 30, "size": 7, "end_size": 2.5, "red": colour[0],
             "green": colour[1], "blue": colour[2], "alpha": 255, "fade": True,
             "additive": True, "unlit": True, "layer": 40, "max": 180}}))
+    made += bang_light() + bang_clouds() + bang_rocks()
     made += [
-        track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 9)]),
-        track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (80, 0)]),
+        track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 5)]),
+        track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (60, 0)]),
         # Black, then the sky builds up: a few bright stars, then more and more, new ones
         # lighting up all over; the gas of the universe in colours, which then go out: black
         # and white is left.
@@ -3113,25 +3431,29 @@ def opening():
               [(200, 0), (300, 230), (350, 230), (490, 0)]),
         track("gas_comes", "gas", "sprite2d.Sprite.alpha", [(330, 0), (480, 255)]),
         track("dust_comes", "nebula", "sprite2d.Sprite.alpha", [(340, 0), (520, 210)]),
-        # The camera: back from the explosion, still, then over to the barrier and down to it.
-        track("camera_zoom", "camera", "camera2d.Camera.zoom",
-              [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (440, 0.55 * ZOOM), (580, 0.75 * ZOOM),
-               (800, 2.6 * ZOOM)]),
-        track("camera_x", "camera", "transform2d.Position.x",
-              [(440, 0), (620, PLANET_AT[0]), (800, PLANET_AT[0] - 10)]),
-        track("camera_y", "camera", "transform2d.Position.y",
-              [(440, 0), (620, PLANET_AT[1]), (800, PLANET_AT[1] - 90)]),
-        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha", [(450, 0), (560, 220)]),
-        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(450, 0), (540, 255)]),
-        track("sleeper_shows", "sleeper", "sprite2d.Sprite.alpha", [(490, 0), (560, 255)]),
-        track("sleeper_bubble_shows", "sleeper_bubble", "sprite2d.Sprite.alpha",
-              [(490, 0), (560, 200)]),
-        track("sleeper_x", "sleeper", "transform2d.Position.x",
-              [(500, 470), (820, PLANET_AT[0] - 12)]),
-        track("sleeper_y", "sleeper", "transform2d.Position.y",
-              [(500, -330), (820, PLANET_AT[1] - 82)]),
-        track("sleeper_turns", "sleeper", "transform2d.Rotation.angle", [(500, -30), (820, 20)]),
-        track("white_comes", "whiteout", "sprite2d.Sprite.alpha", [(780, 0), (880, 255)]),
+        # Out of the white light, far: he grows nearer, the camera closing in on him; then
+        # back a little, the planet ahead, and down onto it with him.
+        track("wanderer_nears", "wanderer", "transform2d.Scale.factor",
+              [(0, 0.02), (REVEAL[0], 0.02), (REVEAL[1], 0.25), (WANDER[0], 1.0)]),
+        track("wanderer_turns", "wanderer", "transform2d.Rotation.angle",
+              [(0, -20), (WANDER[0], 15), (1000, -12), (1200, 8), (WANDER[1], 0)]),
+        track("wanderer_x", "wanderer", "transform2d.Position.x",
+              [(WANDER[0], 0), (900, 300), (1080, 900), (1250, 1800),
+               (WANDER[1], PLANET_AT[0] - 10)]),
+        track("wanderer_y", "wanderer", "transform2d.Position.y",
+              [(WANDER[0], 0), (900, 80), (1080, 380), (1250, 760),
+               (WANDER[1], round(PLANET_TOP - 70))]),
+        track("camera_zoom", "camera", "camera2d.Camera.zoom", OPENING_ZOOM),
+        # Looking ahead of him, to the planet, while he goes to it.
+        track("camera_ahead_x", "camera", "follow2d.Follow.offset_x",
+              [(WANDER[0], 0), (950, 700), (1150, 500), (WANDER[1], 0)]),
+        track("camera_ahead_y", "camera", "follow2d.Follow.offset_y",
+              [(WANDER[0], 0), (950, 700), (1150, 350), (WANDER[1], 0)]),
+        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha",
+              [(860, 0), (1000, 150)]),
+        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(860, 0), (980, 255)]),
+        track("white_comes", "whiteout", "sprite2d.Sprite.alpha",
+              [(WANDER[1] - 50, 0), (OPENING_TICKS - 10, 255)]),
     ]
     return made
 
@@ -3158,11 +3480,14 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
         "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
+        "wanderer", "void", "core", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
+TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
+         [f"glow_{index}" for index in range(GLOW_COUNT)])
 ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
-           "cave_far", "ore"]
+           "cave_far", "ore", "bang_rays", "bang_core", "flares", "clouds", "asteroids"]
 SCENE_NAMES = ["title", "opening", "tutorial", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
@@ -3294,6 +3619,11 @@ def write_pictures():
     save(glow(), "glow")
     save(crystal(), "crystal")
     save(planet(), "planet")
+    save(bang_rays(), "bang_rays")
+    save(bang_core(), "bang_core")
+    save(flares(), "flares", cell=(512, 128))
+    save(clouds(), "clouds", cell=(CLOUD, CLOUD))
+    save(asteroids(), "asteroids", cell=(ASTEROID, ASTEROID))
     save_font()
 
 

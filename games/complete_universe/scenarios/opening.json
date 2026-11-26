@@ -1,23 +1,32 @@
-// The opening plays by itself: the explosion's flash grows and fades, black, then the sky builds
-// up (a few stars first, then more and more, the gas in colours then in grey), the camera goes
-// over to the planet in its barrier; then the tutorial starts, with the hero falling to the
-// ground.
+// The opening plays by itself (D23): the explosion's flash, rays, clouds of gas in colours that
+// go out in turn, black, then the sky builds up (a few stars first, then more and more, the gas
+// in colours then in grey). The white light of its heart fades out slowly: far off in it, the
+// hero, who grows nearer, wanders to the planet and comes down onto it; then the tutorial
+// starts, with the hero falling to the ground.
 {
   "schema_version": 1,
   "name": "opening",
   "scene": "opening",
-  "ticks": 1100,
+  "ticks": 1630,
   "expect": [
-    { "at": 20, "check": "flash.transform2d.Scale.factor > 4" },
+    { "at": 20, "check": "flash.transform2d.Scale.factor > 3" },
+    { "at": 40, "check": "rays_a.sprite2d.Sprite.alpha > 150" },
     { "at": 75, "check": "stars_1.sprite2d.Sprite.alpha == 0" },
     { "at": 100, "check": "flash.sprite2d.Sprite.alpha == 0" },
+    { "at": 100, "check": "core.sprite2d.Sprite.alpha == 255" },
+    { "at": 100, "check": "cloud_0.sprite2d.Sprite.alpha > 100" },
     { "at": 200, "check": "stars_1.sprite2d.Sprite.alpha == 255" },
     { "at": 200, "check": "stars_3.sprite2d.Sprite.alpha == 0" },
+    { "at": 485, "check": "core.sprite2d.Sprite.alpha == 0" },
+    { "at": 485, "check": "wanderer.transform2d.Scale.factor > 0.25" },
     { "at": 485, "check": "stars_4.sprite2d.Sprite.alpha == 230" },
     { "at": 485, "check": "gas.sprite2d.Sprite.alpha == 255" },
     { "at": 485, "check": "gas_colour.sprite2d.Sprite.alpha == 0" },
-    { "at": 622, "check": "camera.transform2d.Position.x > 699.5" },
-    { "at": 810, "check": "camera.camera2d.Camera.zoom == 3.9" },
+    { "at": 730, "check": "wanderer.transform2d.Scale.factor == 1" },
+    { "at": 730, "check": "cloud_0.sprite2d.Sprite.alpha == 0" },
+    { "at": 730, "check": "cloud_21.sprite2d.Sprite.alpha > 60" },
+    { "at": 1385, "check": "wanderer.transform2d.Position.x > 2389" },
+    { "at": 1385, "check": "camera.camera2d.Camera.zoom > 3.5" },
     "story.phase.Phase.current == 1",
     "hero.collision2d.Blocked.below == true",
   ],

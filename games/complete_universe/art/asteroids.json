@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "asteroids",
+  "image": "asteroids.png",
+  "cell_width": 128,
+  "cell_height": 128,
+  "filter": "linear"
+}
