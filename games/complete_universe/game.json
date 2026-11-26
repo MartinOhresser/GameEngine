@@ -68,6 +68,8 @@
       "demo_wall_now",
       "charge_full",
       "charge_lost",
+      "seed_trembles",
+      "seed_trembles_more",
       "pause",
       "resume",
       "to_title",

@@ -732,24 +732,45 @@ def passages():
 HERO_TRANSITIONS += passages()
 
 
-# In space (D26): its own set of animations, floating when he hardly moves, flying (the arms
-# of the fall) when he goes; passages between them, and from his flight up into orbit.
+# In space (D26, D30): its own set of animations: floating when he hardly moves, flying the way
+# he goes (up: the arms of a jump; down: those of a fall; to one side: a leap to that side), each
+# with a passage to every other, and from his flight up into orbit.
 SPACE_FLOAT = follow_through(float_poses())
-SPACE_TRANSITIONS = [
-    # (name, frames, ticks per frame, from (set, clip), to clip of the space set)
-    ("float_to_fly", follow_through(between(SPACE_FLOAT[0], fall_poses()[0], 10), False), 1,
-     ("hero_space", "float"), "fly"),
-    ("fly_to_float", follow_through(between(fall_poses()[0], SPACE_FLOAT[0], 18), False), 1,
-     ("hero_space", "fly"), "float"),
-    ("rise_to_fly", follow_through(between(rise_poses()[0], fall_poses()[0], 12), False), 1,
-     ("hero", "rise"), "fly"),
-    ("rise_to_float", follow_through(between(rise_poses()[0], SPACE_FLOAT[0], 18), False), 1,
-     ("hero", "rise"), "float"),
-]
-SPACE_IDS = {"float": 101, "fly": 102}
 SPACE_STILL = 70  # slower than this along both axes: he floats
+# (name, the hero clip whose frames it plays or None for its own, priority, field, min, max)
+SPACE_CLIPS = [("fly", "fall", 0, None, None, None),
+               ("fly_up", "rise", 4, "transform2d.Velocity.y", None, -SPACE_STILL),
+               ("fly_right", "rise_right", 5, "transform2d.Velocity.x", SPACE_STILL, None),
+               ("fly_left", "rise_left", 5, "transform2d.Velocity.x", None, -SPACE_STILL),
+               ("float", None, 10, None, None, None)]
+SPACE_IDS = {"float": 101, "fly": 102, "fly_up": 103, "fly_right": 104, "fly_left": 105}
 
-HERO_COLUMNS = 36  # 5760 pixels wide (under 8192 both ways)
+
+def space_passages():
+    """Every passage of the space set (name, frames, ticks, (from set, from clip), to clip)."""
+    start = {"float": SPACE_FLOAT[0], "fly": fall_poses()[0], "fly_up": rise_poses()[0],
+             "fly_right": side_rise_poses(1)[0], "fly_left": side_rise_poses(-1)[0]}
+    hero = {"rise": rise_poses()[0], "rise_right": side_rise_poses(1)[0],
+            "rise_left": side_rise_poses(-1)[0]}
+    made = []
+    for source, pose in start.items():
+        for target in start:
+            if target != source:
+                count = 16 if "float" in (source, target) else 12
+                made.append((f"{source}_to_{target}",
+                             follow_through(between(pose, start[target], count), False), 1,
+                             ("hero_space", source), target))
+    for source, pose in hero.items():
+        for target in start:
+            made.append((f"{source}_into_{target}",
+                         follow_through(between(pose, start[target], 14), False), 1,
+                         ("hero", source), target))
+    return made
+
+
+SPACE_TRANSITIONS = space_passages()
+
+HERO_COLUMNS = 40  # 6400 pixels wide (under 8192 both ways)
 
 
 def hero_sheet():
@@ -1344,18 +1365,18 @@ def blur_rgb(rgb, radius):
     return np.dstack([blur(rgb[..., channel], radius) for channel in range(3)])
 
 
-def sky(coloured=False, scale=1.0):
+def sky(wide=1.0, tall=1.0, coloured=False):
     """The sky behind everything, the size of the screen, after Spacescape: black, a band of gas
     in filaments with dark lanes, stars thick in it. In colour for the opening and the title
     (docs: "le ciel"), in greys for the tutorial (docs: the character's picture)."""
-    w, h = round(SCREEN_W * scale), round(SCREEN_H * scale)
+    w, h = round(SCREEN_W * wide), round(SCREEN_H * tall)
     if coloured:
         rgb, gas = nebula(w, h, 31, [(8, 30, 48), (14, 70, 90), (30, 130, 140), (60, 150, 210),
                                      (150, 140, 235), (240, 200, 245)], 1.3)
     else:
         rgb, gas = nebula(w, h, 31, [(40, 41, 48), (78, 80, 90), (122, 124, 136),
                                      (170, 172, 184), (220, 222, 232)], 0.85)
-    star = stars(w, h, 7, round((16000 if coloured else 13000) * scale * scale), coloured=coloured,
+    star = stars(w, h, 7, round((16000 if coloured else 13000) * wide * tall), coloured=coloured,
                  density=np.clip(gas * 1.5 + band_of(w, h, 0.3) * 0.3, 0, 1))
     base = np.dstack([np.full((h, w), 3.0), np.full((h, w), 3.5), np.full((h, w), 6.0)])
     picture = base * (1 - gas[..., None]) + rgb * gas[..., None]
@@ -2000,29 +2021,35 @@ def hero_clips():
         if target is not None:
             clip["to_id"] = ids[target]
         made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
-    # In space: floating when he hardly moves, else flying (the frames of the fall).
-    fall_first, fall_count = hero_frames("fall")
-    made += [
-        {"name": "clip_space_fly", "components": {"sprite2d.AnimationClip": {
-            "set": "hero_space", "first_frame": fall_first, "frame_count": fall_count,
-            "ticks_per_frame": 1, "looping": True, "id": SPACE_IDS["fly"]}}},
-        {"name": "clip_space_float", "components": {"sprite2d.AnimationClip": {
-            "set": "hero_space", "priority": 10, "first_frame": first,
-            "frame_count": len(SPACE_FLOAT), "ticks_per_frame": 1, "looping": True,
-            "field": "transform2d.Velocity.x", "absolute": True, "max": SPACE_STILL,
-            "and_field": "transform2d.Velocity.y", "and_absolute": True,
-            "and_max": SPACE_STILL, "id": SPACE_IDS["float"]}}},
-    ]
+    # In space: floating when he hardly moves, else flying the way he goes (D30).
+    for name, frames_of, priority, field, low, high in SPACE_CLIPS:
+        if frames_of is None:
+            clip_first, count = first, len(SPACE_FLOAT)
+        else:
+            clip_first, count = hero_frames(frames_of)
+        clip = {"set": "hero_space", "priority": priority, "first_frame": clip_first,
+                "frame_count": count, "ticks_per_frame": 1, "looping": True,
+                "id": SPACE_IDS[name]}
+        if name == "float":
+            clip.update({"field": "transform2d.Velocity.x", "absolute": True,
+                         "max": SPACE_STILL, "and_field": "transform2d.Velocity.y",
+                         "and_absolute": True, "and_max": SPACE_STILL})
+        elif field:
+            clip["field"] = field
+            if low is not None:
+                clip["min"] = low
+            if high is not None:
+                clip["max"] = high
+        made.append({"name": f"clip_space_{name}", "components": {
+            "sprite2d.AnimationClip": clip}})
     first += len(SPACE_FLOAT)
     for name, poses, ticks, (source_set, source), target in SPACE_TRANSITIONS:
-        sources = [SPACE_IDS[source]] if source_set == "hero_space" else [
-            ids[clip] for clip in (source, f"{source}_right", f"{source}_left")]
-        for index, source_id in enumerate(sources):
-            made.append({"name": f"clip_{name}_{index}", "components": {
-                "sprite2d.AnimationClip": {
-                    "set": "hero_space", "first_frame": first, "frame_count": len(poses),
-                    "ticks_per_frame": ticks, "looping": False, "from_id": source_id,
-                    "to_id": SPACE_IDS[target]}}})
+        source_id = SPACE_IDS[source] if source_set == "hero_space" else ids[source]
+        made.append({"name": f"clip_{name}", "components": {
+            "sprite2d.AnimationClip": {
+                "set": "hero_space", "first_frame": first, "frame_count": len(poses),
+                "ticks_per_frame": ticks, "looping": False, "from_id": source_id,
+                "to_id": SPACE_IDS[target]}}})
         first += len(poses)
     return made
 
@@ -2551,7 +2578,10 @@ def terrain_entity(name, left, top, width, height, surface_y, extra=None):
                               # would not show: nothing unseen stops him.
                               "crumble": 2,
                               # Walking down a slope or a step, he stays on the ground.
-                              "stick": True},
+                              "stick": True,
+                              # He walks on the ground as it is drawn (smoothed over 2 cells):
+                              # slopes, not steps of cells (D30).
+                              "smooth": 2},
         "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 6, "red": 12, "green": 12,
                            "blue": 14, "top_red": 176, "top_green": 180, "top_blue": 190,
                            "lip": 10, "grain": 0.08, "smooth": 2},
@@ -3302,8 +3332,8 @@ def arrival_sky_end(made, arrival):
     if not arrival:
         return made
     sky = next(item for item in made if item["name"] == "sky")
-    sky["components"]["sprite2d.Sprite"].update(atlas="sky_big", width=VIEW_W * SKY_BIG,
-                                                height=VIEW_H * SKY_BIG)
+    sky["components"]["sprite2d.Sprite"].update(atlas="sky_big", width=VIEW_W * SKY_WIDE,
+                                                height=VIEW_H * SKY_TALL)
     # The opening's last frame showed it at OPENING_TICKS - 2: this one, one tick on; the
     # track's first key, the next.
     sky["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
@@ -3437,7 +3467,10 @@ FRAGMENT_COLOURS = [("pink", (240, 130, 190)), ("violet", (150, 90, 210)),
                     ("orange", (240, 140, 50)), ("red", (220, 60, 50)),
                     ("yellow", (240, 210, 80)), ("green", (80, 190, 110)),
                     ("blue", (70, 130, 230))]
-BANG = 220  # black, a point that grows and trembles; then the explosion, this tick (D24)
+# Before the explosion (D30): black until SEED[0], the point comes until SEED[1], stays still
+# until SEED[2], trembles a little, then more from SEED[3]; it bursts at BANG.
+SEED = (150, 270, 390, 450)
+BANG = 510  # the explosion, this tick (D24, D30)
 REVEAL = (170, 470)  # the white light of the explosion fades out between these ticks: him, far
 WANDER = 720  # he is near, he wanders to the planet of the tutorial
 ARRIVAL = (1450, 1760)  # the pivot: the planet slides down, the sky after it, and stops
@@ -3453,24 +3486,25 @@ ARRIVAL_VY = 1100
 ARRIVAL_CAMERA_DY = 152.7
 ARRIVAL_FALL = 70  # the ticks his fall takes, more than from the usual start
 ARRIVAL_DOWN = 107  # ... and from the tutorial's start to the ground
-SKY_BIG = 1.9  # the sky of the arrival (its own picture), bigger than the screen: it can slide
-PIVOT_SLIDE = 640  # ... down this much with the pivot, nearly a screen: the view turns 90 degrees
-FALL_RISE = 180  # ... then up this much as he falls (the stars rise)
-VEIL_BIG = 1.15  # its veil of gas, bigger too: it slides with it
-# The ticks (of the opening) of the pivot, of the planet's pull and of his landing.
-SKY_SLIDE_TICKS = (1380, ARRIVAL_PULL, OPENING_TICKS + ARRIVAL_DOWN)
+SKY_WIDE, SKY_TALL = 1.2, 2.45  # the sky of the arrival (its own picture): taller than the
+# screen, it can slide up more than a screen; a little wider (pictures stay under 4096 pixels)
+SKY_RISE = 1000  # ... up this much, more than a screen, as the planet goes down (the view turns)
+VEIL_BIG = 1.4  # its veil of gas, bigger too: it slides with it
+# The planet hides the change of sky (from the stars of space to its own) while it fills the
+# screen, between these ticks of the opening (D30).
+SKY_CHANGE = (1410, 1465)
+# The ticks (of the opening) the sky starts to rise (the planet starts down) and stops (he lands).
+SKY_SLIDE_TICKS = (1420, OPENING_TICKS + ARRIVAL_DOWN)
 
 
 def sky_slide(tick):
     """Where the sky of the arrival is at a tick of the opening (past its end: of the tutorial
-    that follows, from OPENING_TICKS): it comes down with the pivot, slows down, then, as he
-    falls to the planet, goes up (the stars rise), slower and slower until he lands (D26)."""
-    start, pull, end = SKY_SLIDE_TICKS
-    if tick <= pull:
-        k = min(max((tick - start) / (pull - start), 0.0), 1.0)
-        return round(PIVOT_SLIDE / 2 - PIVOT_SLIDE * (1 - k * k * (3 - 2 * k)), 2)
-    k = min((tick - pull) / (end - pull), 1.0)
-    return round(PIVOT_SLIDE / 2 - FALL_RISE * k * k * (3 - 2 * k), 2)
+    that follows, from OPENING_TICKS): as the planet goes down, it rises, more than a screen
+    (D30): the view turns from the planet ahead to the planet below; faster, then slower and
+    slower until he lands (D26)."""
+    start, end = SKY_SLIDE_TICKS
+    k = min(max((tick - start) / (end - start), 0.0), 1.0)
+    return round(SKY_RISE / 2 - SKY_RISE * k * k * (3 - 2 * k), 2)
 # The camera's zoom along the opening: back from the explosion, close on him as he nears, then
 # at rest, as in the tutorial.
 OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER, 1.6 * ZOOM), (880, ZOOM)]
@@ -3522,7 +3556,7 @@ def bang_clouds():
         if grey:
             strength = round(float(rng.uniform(70, 120)))
             keys = [(250, 0), (450 + round(float(rng.uniform(0, 80))), strength),
-                    (1100, strength), (1300, 0)]
+                    (SKY_CHANGE[0], strength), (SKY_CHANGE[1], 0)]
         else:
             strength = round(float(rng.uniform(200, 255)))
             out = 330 + (index % len(CLOUD_TINTS)) * 45 + round(float(rng.uniform(0, 30)))
@@ -3632,9 +3666,11 @@ def arrival_planet():
     seas and mountains getting finer. Then the pivot: the planet slides down out of the screen, the sky after it, slower and slower, until it stops: the planet is
     below him now, he falls to it."""
     # (tick, x, y, scale): where the planet is on the screen and how big.
-    # (The camera is still closer than at rest when it shows: 2.1 times, then 1.5 from 880.)
-    keys = [(780, 400, 205, 0.006), (1000, 330, 215, 0.3), (1150, 220, 260, 1.0),
-            (1250, 120, 330, 2.2), (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
+    # (The camera is still closer than at rest when it shows: 2.1 times, then 1.5 from 880.) It
+    # comes slowly from far, then faster and faster as it nears (D30); it fills the screen as
+    # the pivot starts, and hides the change of sky (SKY_CHANGE).
+    keys = [(640, 400, 205, 0.006), (950, 360, 215, 0.06), (1150, 260, 240, 0.3),
+            (1300, 120, 330, 1.6), (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
     near_x = (PLANET_NEAR[0] + PLANET_NEAR[2]) / 2 * PLANET_W / 2
     near_y = (PLANET_NEAR[1] + PLANET_NEAR[3]) / 2 * PLANET_W / 2
     near_w = (PLANET_NEAR[2] - PLANET_NEAR[0]) * PLANET_W / 2
@@ -3654,8 +3690,8 @@ def arrival_planet():
             "alpha": 0, "additive": True, "unlit": True, "red": 205, "green": 212,
             "blue": 228}, 0.006),
         track("planet_dot_shows", "planet_dot", "sprite2d.Sprite.alpha",
-              [(780, 0), (786, 255), (830, 255), (880, 0)]),
-        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(815, 0), (875, 255)]),
+              [(640, 0), (646, 255), (820, 255), (870, 0)]),
+        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(800, 0), (860, 255)]),
         track("planet_near_shows", "planet_near", "sprite2d.Sprite.alpha",
               [(1360, 0), (1440, 255)]),
     ]
@@ -3680,15 +3716,15 @@ def arrival_sky():
     # (the tutorial's veil, seen from its camera at the start: the same place on the screen)
     return [
         screen_entity("sky_t", 0, sky_slide(0), {
-            "atlas": "sky_big", "width": VIEW_W * SKY_BIG, "height": VIEW_H * SKY_BIG,
+            "atlas": "sky_big", "width": VIEW_W * SKY_WIDE, "height": VIEW_H * SKY_TALL,
             "layer": -118, "alpha": 0, "unlit": True}),
         # As in the tutorial, a veil of gas lit by him in the dark (light2d).
         screen_entity("veil_t", round(veil_x, 1), round(veil_y + sky_slide(0), 1), {
             "atlas": "veil", "width": 1600 * 1.6 * VEIL_BIG, "height": 900 * 1.6 * VEIL_BIG,
             "layer": -95,
             "alpha": 0}),
-        track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 255)]),
-        track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 200)]),
+        track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(SKY_CHANGE[0], 0), (SKY_CHANGE[1], 255)]),
+        track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(SKY_CHANGE[0], 0), (SKY_CHANGE[1], 200)]),
         # It comes down with the pivot, then goes up as he falls, until he lands (the tutorial
         # goes on with it: one motion).
         track("sky_t_comes", "sky_t", "transform2d.Position.y",
@@ -3699,25 +3735,39 @@ def arrival_sky():
 
 
 def big_bang_seed():
-    """Before the explosion (D24): black; a point of light appears, grows a little and
-    trembles more and more; then it bursts."""
+    """Before the explosion (D24, D30): black for a while; a point of light comes, slowly; it
+    stays, still; then it trembles, a little, then more and more; then it bursts."""
+    show, still, tremble, more = SEED
+    shake_x = [(0, 0), (2, 2.5), (4, -2), (6, 1.5), (8, -2.5), (10, 0)]
+    shake_y = [(0, 0), (3, -2), (5, 2.5), (7, -1.5), (9, 2), (11, 0)]
+
+    def trembling(name, field, keys, size, action):
+        return track(name, "seed", field, [(t, round(v * size, 2)) for t, v in keys],
+                     start=action, smooth=False, loop=True)
     return [
         entity("seed", 0, 0, {"tag.Tag": {"tag": "seed"}, "sprite2d.Sprite": {
             "atlas": "glow", "width": 60, "height": 60, "layer": 51, "alpha": 0,
             "additive": True, "unlit": True}, "transform2d.Scale": {"factor": 0.15}}),
         track("seed_shows", "seed", "sprite2d.Sprite.alpha",
-              [(30, 0), (90, 255), (BANG, 255), (BANG + 1, 0)]),
+              [(show, 0), (still, 255), (BANG, 255), (BANG + 1, 0)]),
         track("seed_grows", "seed", "transform2d.Scale.factor",
-              [(30, 0.15), (90, 0.35), (BANG - 15, 0.9), (BANG, 0.7)]),
-        track("seed_trembles_x", "seed", "transform2d.Position.x",
-              [(0, 0), (2, 2.5), (4, -2), (6, 1.5), (8, -2.5), (10, 0)], smooth=False,
-              loop=True),
-        track("seed_trembles_y", "seed", "transform2d.Position.y",
-              [(0, 0), (3, -2), (5, 2.5), (7, -1.5), (9, 2), (11, 0)], smooth=False,
-              loop=True),
+              [(show, 0.15), (still, 0.35), (tremble, 0.4), (BANG - 15, 0.9), (BANG, 0.7)]),
+        # Still, then it trembles: a little, then more (the later track wins).
+        entity("seed_timer", 0, 0, {"tween2d.Track": {
+            "field": "transform2d.Position.x", "keys": 3, "t0": 0, "v0": 0, "t1": tremble,
+            "v1": 1, "t2": more, "v2": 2, "end_action": "seed_trembles_more"}}),
+        entity("seed_timer_first", 0, 0, {"tween2d.Track": {
+            "field": "transform2d.Position.x", "keys": 2, "t0": 0, "v0": 0, "t1": tremble,
+            "v1": 1, "end_action": "seed_trembles"}}),
+        trembling("seed_trembles_x", "transform2d.Position.x", shake_x, 0.4, "seed_trembles"),
+        trembling("seed_trembles_y", "transform2d.Position.y", shake_y, 0.4, "seed_trembles"),
+        trembling("seed_trembles_more_x", "transform2d.Position.x", shake_x, 1.0,
+                  "seed_trembles_more"),
+        trembling("seed_trembles_more_y", "transform2d.Position.y", shake_y, 1.0,
+                  "seed_trembles_more"),
         # The camera trembles with it, more and more, and is thrown by the explosion.
         track("seed_shakes", "camera", "camera2d.CameraShake.strength",
-              [(100, 0), (BANG, 7), (BANG + 1, 34), (BANG + 70, 0)]),
+              [(tremble, 0), (BANG, 7), (BANG + 1, 34), (BANG + 70, 0)]),
     ]
 
 
@@ -3820,21 +3870,21 @@ def opening():
         track("births_come", "births", "particles2d.Emitter.rate",
               [(70, 0), (110, 60), (380, 60), (470, 0)]),
         track("stars_1_come", "stars_1", "sprite2d.Sprite.alpha",
-              [(80, 0), (170, 255), (1100, 255), (1300, 0)]),
+              [(80, 0), (170, 255), (SKY_CHANGE[0], 255), (SKY_CHANGE[1], 0)]),
         track("stars_2_come", "stars_2", "sprite2d.Sprite.alpha",
-              [(150, 0), (250, 255), (1100, 255), (1300, 0)]),
+              [(150, 0), (250, 255), (SKY_CHANGE[0], 255), (SKY_CHANGE[1], 0)]),
         track("stars_3_come", "stars_3", "sprite2d.Sprite.alpha",
-              [(230, 0), (340, 255), (1100, 255), (1300, 0)]),
+              [(230, 0), (340, 255), (SKY_CHANGE[0], 255), (SKY_CHANGE[1], 0)]),
         track("stars_4_come", "stars_4", "sprite2d.Sprite.alpha",
-              [(310, 0), (440, 230), (1100, 230), (1300, 0)]),
+              [(310, 0), (440, 230), (SKY_CHANGE[0], 230), (SKY_CHANGE[1], 0)]),
         track("gas_colour_comes", "gas_colour", "sprite2d.Sprite.alpha",
               [(170, 0), (290, 255), (340, 255), (480, 0)]),
         track("nebula_colour_comes", "nebula_colour", "sprite2d.Sprite.alpha",
               [(200, 0), (300, 230), (350, 230), (490, 0)]),
         track("gas_comes", "gas", "sprite2d.Sprite.alpha",
-              [(330, 0), (480, 255), (1100, 255), (1300, 0)]),
+              [(330, 0), (480, 255), (SKY_CHANGE[0], 255), (SKY_CHANGE[1], 0)]),
         track("dust_comes", "nebula", "sprite2d.Sprite.alpha",
-              [(340, 0), (520, 210), (1100, 210), (1300, 0)]),
+              [(340, 0), (520, 210), (SKY_CHANGE[0], 210), (SKY_CHANGE[1], 0)]),
         # Out of the white light, far: he grows nearer, the camera closing in on him; he
         # wanders, turning slowly, and ends upright, his feet to the planet.
         track("wanderer_shows", "wanderer", "sprite2d.Sprite.alpha", [(0, 255)], smooth=False),
@@ -3893,7 +3943,7 @@ def opening():
 ACTIONS = ["move_x", "move_y", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
            "locked", "skip", "in_orbit", "refill", "awakens_black", "awakens_white",
-           "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "pause", "resume", "to_title", "menu_up",
+           "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "seed_trembles", "seed_trembles_more", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
@@ -3997,8 +4047,7 @@ def write_strings():
         out.write("\n")
 
 
-# A climbed step of ground (a cell, 8 units, at once) glides over a few ticks (D29).
-HERO_SMOOTH = {"share": 0.22, "most": 24, "snap": 300}
+HERO_SMOOTH = {"share": 0.3, "most": 20, "snap": 300}
 
 
 def smoothed(entities):
@@ -4038,7 +4087,7 @@ def write_pictures():
     save(hero_curled(), "hero_curled")
     save(sky(), "sky")
     save(sky(coloured=True), "sky_colour")
-    save(sky(scale=SKY_BIG), "sky_big")  # the arrival's, bigger: it slides nearly a screen
+    save(sky(SKY_WIDE, SKY_TALL), "sky_big")  # the arrival's, taller: it slides
     for index, picture in enumerate(star_layers()):
         save(picture, f"stars_{index + 1}")
     save(gas(), "gas")

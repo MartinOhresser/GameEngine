@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "sky_big",
   "image": "sky_big.png",
-  "cell_width": 3648,
-  "cell_height": 2052,
+  "cell_width": 2304,
+  "cell_height": 2646,
   "filter": "linear"
 }

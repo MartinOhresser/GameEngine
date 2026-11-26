@@ -1,5 +1,7 @@
-// The ground is a terrain2d grid: the hero climbs a low step (8 units, under the 12 he can
-// climb), walks down it and is stopped by a wall; on the left he falls into a pit.
+// The ground is a terrain2d grid, walked on as it is drawn (smoothed over 2 cells, D30): the hero
+// climbs a low step (8 units, under the 12 he can climb), walks down it and is stopped by a wall;
+// on the left he falls into a pit. The inner corners (the foot of the wall, the bottom of the
+// narrow pit) are rounded, as drawn.
 {
   "schema_version": 1,
   "name": "terrain",
@@ -13,12 +15,15 @@
   "expect": [
     // On the step (x 700 to 900, its top at 592): 592 - 42.
     { "at": 90, "check": "hero.transform2d.Position.y == 550" },
-    // Against the wall: its cells (8 units wide) start at x 1232, minus half the hero (17).
-    { "at": 250, "check": "hero.transform2d.Position.x == 1215" },
+    // Against the wall (from x 1232, minus half the hero, 17), up its rounded foot.
+    { "at": 250, "check": "hero.transform2d.Position.x > 1205" },
+    { "at": 250, "check": "hero.transform2d.Position.x < 1216" },
     { "at": 250, "check": "hero.collision2d.Blocked.right == true" },
-    { "at": 250, "check": "hero.transform2d.Position.y == 558" },
-    // Back left, past the start, into the pit (x 200 to 264, its floor at 760): 760 - 42.
-    "hero.transform2d.Position.y == 718",
+    { "at": 250, "check": "hero.transform2d.Position.y < 558" },
+    { "at": 250, "check": "hero.transform2d.Position.y > 530" },
+    // Back left, past the start, into the pit (x 200 to 264, its floor at 760, rounded).
+    "hero.transform2d.Position.y > 690",
+    "hero.transform2d.Position.y < 719",
     "hero.transform2d.Position.x < 264",
   ],
 }

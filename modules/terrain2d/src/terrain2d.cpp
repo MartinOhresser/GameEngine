@@ -137,7 +137,7 @@ struct Box {
 
 bool free_at(const std::vector<const Grid*>& grids, const Box& box, float x, float y) {
     return std::ranges::none_of(grids, [&](const Grid* grid) {
-        return grid->any_in(x - box.half_w, y - box.half_h, x + box.half_w, y + box.half_h);
+        return grid->blocks(x - box.half_w, y - box.half_h, x + box.half_w, y + box.half_h);
     });
 }
 
@@ -172,8 +172,15 @@ void move_x(const std::vector<const Grid*>& grids, Box& box, float dx, float cli
         bool climbed = false;
         for (float lift = 1.0F; standing && lift <= climb; lift += 1.0F) {
             if (free_at(grids, box, next, box.y - lift)) {
+                // As little as it takes (a slope of smoothed ground is climbed evenly).
+                float low = lift;
+                float high = lift - 1.0F;
+                for (int round = 0; round < 10; round += 1) {
+                    const float middle = (low + high) / 2.0F;
+                    (free_at(grids, box, next, box.y - middle) ? low : high) = middle;
+                }
                 box.x = next;
-                box.y -= lift;
+                box.y -= low;
                 climbed = true;
                 break;
             }
@@ -271,6 +278,7 @@ void note(collision2d::Blocked* blocked, const Stops& stops) {
 void build(ecs::World& world) {
     Cells& cells = cells_of(world);
     std::vector<std::uint64_t> alive;
+    std::vector<std::uint64_t> touched; // built or shaped this tick: their smoothing is redone
     world.each<Terrain, const transform2d::Position>(
         [&](ecs::Entity entity, Terrain& terrain, const transform2d::Position& at) {
             const std::uint64_t link = entity.to_link();
@@ -285,6 +293,7 @@ void build(ecs::World& world) {
             grid.x = at.x;
             grid.y = at.y;
             grid.layer = terrain.layer;
+            grid.blur = terrain.smooth;
             grid.solid.assign(static_cast<std::size_t>(grid.columns) * grid.rows, 0U);
             if (terrain.filled) {
                 std::ranges::fill(grid.solid, std::uint8_t{1});
@@ -294,6 +303,7 @@ void build(ecs::World& world) {
                 generate_flat(terrain, grid);
             }
             cells.grids[link] = std::move(grid);
+            touched.push_back(link);
             terrain.generated = true;
             terrain.revision += 1U;
         });
@@ -309,6 +319,7 @@ void build(ecs::World& world) {
             for (auto& [link, grid] : cells.grids) {
                 if ((grid.layer & shape.layers) != 0U) {
                     apply_shape(shape, at, grid);
+                    touched.push_back(link);
                     if (auto* terrain = world.get<Terrain>(ecs::Entity::from_link(link));
                         terrain != nullptr) {
                         terrain->revision += 1U;
@@ -317,6 +328,11 @@ void build(ecs::World& world) {
             }
             shape.applied = true;
         });
+    for (const std::uint64_t link : touched) {
+        if (const auto found = cells.grids.find(link); found != cells.grids.end()) {
+            found->second.refresh_all();
+        }
+    }
     world.each<Terrain>([&](ecs::Entity entity, Terrain& terrain) {
         if (const auto found = cells.grids.find(entity.to_link()); found != cells.grids.end()) {
             terrain.solid_cells = count_solid(found->second);

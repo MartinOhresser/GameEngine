@@ -9,6 +9,7 @@
 
 #include "mini_test.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <memory>
@@ -299,5 +300,35 @@ TEST_CASE("terrain2d: with stick, a walking body stays on the ground down a low 
         }
         CHECK(left_the_ground == !stick); // without stick, it falls off the step
         CHECK(near(app.world().get<transform2d::Position>(walker)->y, 126.0F));
+    }
+}
+
+TEST_CASE("terrain2d: with smooth, a body walks up steps of cells as an even slope") {
+    for (const std::uint32_t blur : {0U, 2U}) {
+        ge::app::App app = game();
+        terrain2d::Terrain made;
+        made.smooth = blur;
+        made.stick = true;
+        ground(app, made);
+        // A stair: one cell higher every two columns, from x 160.
+        for (int step = 0; step < 8; step += 1) {
+            terrain2d::Shape stair{16.0F, 8.0F * static_cast<float>(step + 1), 0.0F, true};
+            shape(app, 168.0F + (16.0F * static_cast<float>(step)),
+                  128.0F - (4.0F * static_cast<float>(step + 1)), stair);
+        }
+        const ge::ecs::Entity walker = body(app, 100.0F, 118.0F);
+        app.run_frames(10);
+        float biggest = 0.0F; // the largest move up in one tick while it climbs
+        float before = app.world().get<transform2d::Position>(walker)->y;
+        for (int tick = 0; tick < 40; tick += 1) {
+            app.world().get<transform2d::Velocity>(walker)->x = 120.0F;
+            app.run_frames(1);
+            const float now = app.world().get<transform2d::Position>(walker)->y;
+            biggest = std::max(biggest, before - now);
+            before = now;
+        }
+        CHECK(app.world().get<transform2d::Position>(walker)->x > 160.0F); // it went up
+        // Cells: a whole step at once; smoothed: a little each tick (2 units forward, 1 up).
+        CHECK((biggest > 6.0F) == (blur == 0U));
     }
 }
