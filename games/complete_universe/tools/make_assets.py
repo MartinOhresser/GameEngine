@@ -1324,27 +1324,148 @@ def foreground():
 CAVE_W, CAVE_H = 1024, 1536  # world units of the inside of the ground, behind what is dug
 
 
-def cave():
-    """What is seen in a hole: the dark inside of the planet, a little lighter where it is dug
-    fresh, with grains of carbon catching the light (docs: "il y a du carbone dans la planète").
-    Endless side by side."""
-    w, h = CAVE_W // 2, CAVE_H // 2  # one pixel for two units: it is far and dark
+def wrap_x(field):
+    """A field whose left and right edges meet (endless side by side): blended with itself shifted
+    by half its width, across a seam in the middle."""
+    w = field.shape[1]
+    shifted = np.roll(field, w // 2, axis=1)
+    weight = np.abs(np.linspace(-1, 1, w))[None, :]
+    return field * (1 - weight) + shifted * weight
+
+
+def cave_pictures():
+    """What is seen in what is dug (docs: "il y a du carbone dans la planète"), one pixel a unit:
+    the near rock, in strata, with roots near the surface, cracks, pockets of matter ore (dark,
+    with bluish glints) and of carbon crystals (white), fossils; caverns open in it deeper down.
+    Returns the rock (lit by the scene's lights) and the glints of its crystals (which glow)."""
+    w, h = CAVE_W, CAVE_H
     rng = np.random.default_rng(17)
-    rock_field = noise(w, h, 17, ((64, 1.0), (32, 0.6), (16, 0.4), (8, 0.25), (4, 0.15)))
-    # The left and right edges must meet: blend the field with itself turned around.
-    fade = np.linspace(0, 1, w)[None, :]
-    rock_field = rock_field * (1 - fade) + rock_field[:, ::-1] * fade
-    rock_field = np.minimum(rock_field, rock_field[:, ::-1])
-    depth = np.linspace(0, 1, h)[:, None]
-    value = 30 + 26 * rock_field - 12 * depth
-    sparks = np.zeros((h, w))
-    xs = rng.integers(0, w, 900)
-    ys = rng.integers(0, h, 900)
-    sparks[ys, xs] = rng.uniform(0.3, 1.0, 900) ** 2
-    sparks = np.maximum(sparks, blur(sparks, 1.2) * 3)
-    value = value + 150 * np.clip(sparks, 0, 1)
-    rgb = np.dstack([value, value, value * 1.06])
-    return to_image(rgb, np.ones((h, w)))
+    y = np.arange(h)[:, None].astype(np.float64)
+    soft = wrap_x(noise(w, h, 17, ((128, 1.0), (64, 0.6), (32, 0.35), (16, 0.2), (8, 0.12))))
+    warp = wrap_x(noise(w, h, 18, ((256, 1.0), (128, 0.5))))
+    strata = np.sin(y / 34.0 + warp * 9.0) * 0.5 + 0.5
+    cracks = wrap_x(ridged(w, h, 19, 160, 5, 0.55, warp=30))
+    value = 26 + 22 * soft + 9 * strata - 14 * np.clip((cracks - 0.62) * 4, 0, 1)
+    # Near the surface: soil, lighter and finer, with roots hanging into it.
+    soil = np.clip(1 - y / 140.0, 0, 1)
+    value = value + 10 * soil
+    picture = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(picture)
+    for _ in range(70):
+        x = rng.uniform(0, w)
+        length = rng.uniform(40, 170)
+        px, py = x, 0.0
+        for step in range(int(length / 6)):
+            nx_ = px + rng.uniform(-4, 4)
+            ny_ = py + 6
+            draw.line([(px, py), (nx_, ny_)], fill=255, width=max(1, 3 - step // 8))
+            px, py = nx_, ny_
+    roots = np.asarray(picture, dtype=np.float64) / 255.0
+    value = value * (1 - 0.6 * roots)
+    rgb = np.dstack([value, value * 1.0, value * 1.07])
+    glints = np.zeros((h, w))
+    # Pockets of matter ore: dark stones, a cold glint on each.
+    for _ in range(46):
+        cx, cy = rng.uniform(20, w - 20), rng.uniform(120, h - 20)
+        r = rng.uniform(5, 13)
+        mask = np.clip((r - np.hypot(np.arange(w)[None, :] - cx, y - cy)) / 1.5, 0, 1)
+        rgb = rgb * (1 - mask[..., None]) + np.array([16, 18, 26]) * mask[..., None]
+        spot = np.clip((r * 0.35 - np.hypot(np.arange(w)[None, :] - cx + r * 0.3,
+                                            y - cy + r * 0.3)) / 1.0, 0, 1)
+        rgb = rgb + np.array([60, 80, 120]) * spot[..., None]
+    # Carbon: clusters of small white crystals, that glow.
+    for _ in range(38):
+        cx, cy = rng.uniform(20, w - 20), rng.uniform(80, h - 20)
+        for _ in range(rng.integers(2, 6)):
+            ox, oy = rng.uniform(-8, 8), rng.uniform(-5, 5)
+            length, width = rng.uniform(5, 12), rng.uniform(1.5, 3)
+            a = rng.uniform(-0.9, 0.9) - math.pi / 2
+            u = (np.arange(w)[None, :] - cx - ox) * math.cos(a) + (y - cy - oy) * math.sin(a)
+            v = -(np.arange(w)[None, :] - cx - ox) * math.sin(a) + (y - cy - oy) * math.cos(a)
+            mask = np.clip(1 - np.maximum(np.abs(u - length / 2) / (length / 2),
+                                          np.abs(v) / width), 0, 1) ** 0.3
+            rgb = rgb * (1 - mask[..., None]) + np.array([232, 236, 244]) * mask[..., None]
+            glints = np.maximum(glints, mask)
+    # Fossils: pale spirals.
+    for _ in range(14):
+        cx, cy = rng.uniform(30, w - 30), rng.uniform(150, h - 30)
+        r = rng.uniform(7, 14)
+        dx, dy = np.arange(w)[None, :] - cx, y - cy
+        dist = np.hypot(dx, dy)
+        angle = np.arctan2(dy, dx)
+        spiral = np.abs(((dist / r * 4 - angle / math.pi) % 2) - 1)
+        mask = np.clip((r - dist) / 1.5, 0, 1)
+        shade = 70 + 60 * spiral
+        rgb = rgb * (1 - mask[..., None]) + np.dstack([shade, shade, shade * 0.96]) * mask[..., None]
+    # Caverns, deeper down: open (the far caves show through), their rims darker.
+    voids = wrap_x(noise(w, h, 23, ((192, 1.0), (96, 0.5), (48, 0.25))))
+    depth_in = np.clip((y - 420) / 200.0, 0, 1)
+    open_ = np.clip((voids - 0.6) * 9, 0, 1) * depth_in
+    rim = np.clip(blur(open_, 6) * 2.2 - open_, 0, 1)
+    rgb = rgb * (1 - 0.55 * rim[..., None])
+    alpha = 1 - open_
+    rock = to_image(np.clip(rgb, 0, 255), alpha)
+    glow = blur(glints, 3) * 1.6 + glints
+    glints_picture = to_image(np.dstack([np.full((h, w), 230.0), np.full((h, w), 238.0),
+                                         np.full((h, w), 255.0)]), np.clip(glow, 0, 1) * 0.9)
+    return rock, glints_picture
+
+
+CAVE_FAR_W, CAVE_FAR_H = 1024, 2048
+
+
+def cave_far():
+    """The far caves seen through the caverns: dark walls, stalactites, a few glowing seams far
+    away; endless side by side. Half a pixel a unit: it is far and soft."""
+    w, h = CAVE_FAR_W // 2, CAVE_FAR_H // 2
+    rng = np.random.default_rng(31)
+    y = np.arange(h)[:, None].astype(np.float64)
+    field = wrap_x(noise(w, h, 31, ((96, 1.0), (48, 0.5), (24, 0.3), (12, 0.15))))
+    walls = wrap_x(ridged(w, h, 32, 120, 4, 0.5, warp=20))
+    value = 10 + 12 * field + 10 * np.clip((walls - 0.5) * 2, 0, 1)
+    picture = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(picture)
+    for _ in range(120):
+        x, top = rng.uniform(0, w), rng.uniform(0, h)
+        length, width = rng.uniform(10, 45), rng.uniform(3, 8)
+        draw.polygon([(x - width, top), (x + width, top), (x, top + length)], fill=255)
+    hanging = blur(np.asarray(picture, dtype=np.float64) / 255.0, 1.0)
+    value = value * (1 - 0.5 * hanging)
+    seams = np.zeros((h, w))
+    for _ in range(26):
+        cx, cy = rng.integers(0, w), rng.integers(0, h)
+        seams[cy, cx] = rng.uniform(0.5, 1.0)
+    seams = blur(seams, 4) * 60 + blur(seams, 1.2) * 6
+    value = value + 140 * np.clip(seams, 0, 1)
+    rgb = np.dstack([value, value * 1.02, value * 1.1])
+    return to_image(rgb, np.ones((h, w))).resize((CAVE_FAR_W, CAVE_FAR_H), Image.BICUBIC)
+
+
+ORE = 96  # pixels of a buried stone of matter
+
+
+def ore():
+    """A stone of matter in the ground: dark, angular, with cold glints along its veins."""
+    rng = np.random.default_rng(41)
+    big = ORE * SUPER
+    picture = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(picture)
+    points = []
+    for index in range(9):
+        a = 2 * math.pi * index / 9 + rng.uniform(-0.2, 0.2)
+        r = big * rng.uniform(0.32, 0.45)
+        points.append((big / 2 + math.cos(a) * r, big / 2 + math.sin(a) * r * 0.8))
+    draw.polygon(points, fill=(26, 28, 36, 255))
+    for _ in range(5):
+        a = rng.uniform(0, math.pi)
+        x0, y0 = big / 2 + rng.uniform(-big * 0.2, big * 0.2), big / 2 + rng.uniform(-big * 0.15, big * 0.15)
+        draw.line([(x0 - math.cos(a) * big * 0.18, y0 - math.sin(a) * big * 0.12),
+                   (x0 + math.cos(a) * big * 0.18, y0 + math.sin(a) * big * 0.12)],
+                  fill=(110, 140, 200, 255), width=SUPER * 2)
+    draw.polygon(points[:4] + [(big / 2, big / 2)], fill=(44, 47, 60, 255))
+    alpha = np.asarray(picture, dtype=np.float64)[..., 3] / 255.0
+    rgb = np.asarray(picture, dtype=np.float64)[..., :3]
+    return shrink(rgb, alpha, ORE, ORE)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1405,7 +1526,7 @@ def hero_entity(x, y, locked=False):
                                       "braking": 2400},
         # Jumping (GDD §5, D5): Space held makes a small black hole above his head that grows;
         # let go, he leaps, higher and less straight the bigger it was. Full, he takes off.
-        "jump.Jumper": {"speed": 560, "charge_time": 1.2, "charge_low": 0.55,
+        "jump.Jumper": {"speed": 560, "charge_time": HERO_CHARGE_TIME, "charge_low": 0.55,
                         "charge_high": 1.8, "wobble": 160, "full_action": "take_off"},
         # Dead, he does nothing until the checkpoint puts him back (D7).
         "toggle.ActiveBy": {"toggle": "dead", "inverse": True},
@@ -1416,8 +1537,8 @@ def hero_entity(x, y, locked=False):
     })
     if locked:
         # He does not know how to walk yet (D4): the tutorial gives him move_x and jump.
-        hero["components"]["action_control.Controlled"]["action_x"] = "locked"
-        hero["components"]["jump.Jumper"]["action"] = "locked"
+        hero["components"]["action_control.Controlled"]["action_x"] = "demo_walk"
+        hero["components"]["jump.Jumper"]["action"] = "demo_jump"
     return hero
 
 
@@ -1567,7 +1688,10 @@ def hands(fixed=True):
     kit = {"tag.Tag": {"tag": "kit"}, "loadout.Kit": {"unlocked": ["black", "white"],
                                                        "together": 0.12}}
     if fixed:
-        kit["loadout.Kit"].update({"unlocked": [], "change": "locked"})
+        # No combination is made by the two hands (the harvest is its key, D10): no waiting to see
+        # whether the other hand comes too, a power starts at once (and a wall starts where the
+        # button was pressed, however fast it is drawn).
+        kit["loadout.Kit"].update({"unlocked": [], "change": "locked", "together": 0})
     made = [entity("kit", 0, 0, kit),
             {"name": "harvest_combo", "components": {"loadout.Combo": {
                 "a": "black", "b": "white", "result": "harvest", "by_hands": False}}}]
@@ -1804,6 +1928,29 @@ def deposit(name, x, ground_y, count=3, amount=12):
     return made
 
 
+def buried(ground_y, width):
+    """Resources in the ground: a stone of matter or a crystal of carbon every few hundred units,
+    at depths that change; none in the hard rock of the landing."""
+    rng = np.random.default_rng(5)
+    made = []
+    for index, x in enumerate(range(380, int(width) - 200, 230)):
+        depth = rng.uniform(60, 1100)
+        if LANDING_ROCK[0] - 40 < x < LANDING_ROCK[1] + 40 and depth < 420:
+            continue
+        y = ground_y + depth
+        if index % 2 == 0:
+            made.append(entity(f"ore_{index}", x, y, {
+                "sprite2d.Sprite": {"atlas": "ore", "width": 30, "height": 30,
+                                    "layer": LAYERS["hero"] - 3},
+                "collision2d.Collider": {"width": 20, "height": 20, "layer": ["rock"],
+                                         "mask": []},
+                "attractor2d.Absorbable": {"mass": 10},
+                "reserve.Yield": {"kind": "matter", "amount": 14}}))
+        else:
+            made += deposit(f"buried_{index}", x, y + 12, count=2, amount=10)
+    return made
+
+
 def inventory():
     """The inventory (GDD §7): the inventory key shows, above the body, a bubble for the matter
     and one for the carbon, as big as there is of it."""
@@ -1874,6 +2021,24 @@ def layer_entity(name, atlas, size, foot_y, parallax, layer, camera_y, alpha=255
                                                      "repeat_x": True}})
 
 
+# The far planes that get a skirt: (name, atlas, size, foot from the ground, parallax, layer).
+SKIRTED = [
+    ("mountains", "mountains", None, lambda g: g + 30, 0.12, LAYERS["far"] - 20),
+    ("hills_far", "hills_far", None, lambda g: g + 40, 0.25, LAYERS["far"]),
+    ("hills_near", "hills_near", None, lambda g: g + 40, 0.55, LAYERS["near"]),
+    ("ground_far", "ground_far", None, lambda g: g + 110, 0.88, LAYERS["ground"] - 8),
+]
+
+
+def foot_colour(atlas):
+    """The colour of the bottom rows of a picture of the art (what its skirt continues)."""
+    picture = np.asarray(Image.open(os.path.join(ART, atlas + ".png")).convert("RGBA"),
+                         dtype=np.float64)[-6:]
+    alpha = picture[..., 3:4] / 255.0
+    colour = (picture[..., :3] * alpha).sum(axis=(0, 1)) / max(alpha.sum(), 1e-6)
+    return [int(round(c)) for c in colour]
+
+
 def scenery(ground_y):
     """Planes of depth, from the far mountains to black grass in front of the camera, with mist
     between them; dust and ash floating in the light."""
@@ -1889,17 +2054,43 @@ def scenery(ground_y):
                      0.88, LAYERS["ground"] - 8, camera_y),
         layer_entity("front", "front", (FRONT_W, FRONT_H), ground_y + 230, 1.35, 60, camera_y),
     ]
+    made[-1]["components"]["tag.Tag"] = {"tag": "front"}
     for name, atlas, parallax, layer, alpha in (("hills_far", "hills_far", 0.25, LAYERS["far"],
                                                  255),
                                                 ("hills_near", "hills_near", 0.55,
                                                  LAYERS["near"], 255)):
         made.append(layer_entity(name, atlas, (HILLS_W, HILLS_H), ground_y + 40, parallax,
                                  layer, camera_y, alpha=alpha))
-    # The inside of the planet, behind the ground: what is seen in what is dug.
-    made.append(entity("inside", 0, ground_y + 24 + CAVE_H / 2, {
-        "sprite2d.Sprite": {"atlas": "cave", "width": CAVE_W, "height": CAVE_H,
-                            "layer": LAYERS["ground"] - 5},
-        "sprite2d.Parallax": {"x": 1, "y": 1, "repeat_x": True}}))
+    # The inside of the planet, behind the ground: what is seen in what is dug. Near, the rock
+    # (lit: the hero's light shows it), its crystals glowing on their own; through its caverns,
+    # far caves that move less (depth). They go deep enough for the deepest dig.
+    for index in range(2):
+        top = ground_y + 16 + index * CAVE_H
+        made.append(entity(f"inside_{index}", 0, top + CAVE_H / 2, {
+            "sprite2d.Sprite": {"atlas": "cave", "width": CAVE_W, "height": CAVE_H,
+                                "layer": LAYERS["ground"] - 5},
+            "sprite2d.Parallax": {"x": 1, "y": 1, "repeat_x": True}}))
+        made.append(entity(f"inside_glints_{index}", 0, top + CAVE_H / 2, {
+            "sprite2d.Sprite": {"atlas": "cave_glints", "width": CAVE_W, "height": CAVE_H,
+                                "layer": LAYERS["ground"] - 4, "additive": True,
+                                "unlit": True, "alpha": 200},
+            "sprite2d.Parallax": {"x": 1, "y": 1, "repeat_x": True}}))
+    made.append(layer_entity("inside_far", "cave_far", (CAVE_FAR_W, CAVE_FAR_H),
+                             ground_y + 200 + CAVE_FAR_H, 0.8, LAYERS["ground"] - 7, camera_y,
+                             lit=True))
+    # Under every far plane, the colour of its foot all the way down: when the camera rises (a
+    # jump, the flight to orbit), no edge of a band shows above the ground.
+    for name, atlas, size, foot, parallax, layer in SKIRTED:
+        colour = foot_colour(atlas)
+        y = foot(ground_y) - camera_y * (1 - parallax) - 2
+        made.append(entity(f"{name}_skirt", 0, y + 3000, {
+            "sprite2d.Sprite": {"atlas": "plain", "width": 200000, "height": 6000,
+                                "layer": layer, "unlit": True, "red": colour[0],
+                                "green": colour[1], "blue": colour[2]},
+            "sprite2d.Parallax": {"x": parallax, "y": parallax}}))
+    # The grass in front fades as the camera goes down into the ground (its foot would show).
+    made.append(bind("front_fades", "camera", "transform2d.Position.y", "sprite2d.Sprite.alpha",
+                     camera_y + 40, camera_y + 220, 255, 0, 1, onto="front"))
     made.append(entity("dust", 0, 0, {
         "follow2d.Follow": {"target": "camera", "stiffness": 1},
         "particles2d.Emitter": {
@@ -1931,7 +2122,7 @@ def terrain_entity(name, left, top, width, height, surface_y, extra=None):
                               "rows": int(height // TERRAIN_CELL), "cell": TERRAIN_CELL,
                               "layer": ["ground"],
                               "surface": (surface_y - top) / TERRAIN_CELL},
-        "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 4, "red": 12, "green": 12,
+        "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 6, "red": 12, "green": 12,
                            "blue": 14, "top_red": 176, "top_green": 180, "top_blue": 190,
                            "lip": 10, "grain": 0.08},
     }
@@ -2139,7 +2330,7 @@ def sandbox_scene(matter=100, carbon=100):
 # ---------------------------------------------------------------------------------------------
 # The tutorial (docs/complete_universe/TUTORIEL.md): one planet in the great barrier, played flat.
 
-TUTORIAL_W = 5600  # the planet's ground runs from x 0 to here
+TUTORIAL_W = 6600  # the planet's ground runs from x 0 to here
 TUTORIAL_TOP = -1000  # the ground's grid starts this high (walls at both ends go up to it)
 TUTORIAL_DEPTH = 1400  # how deep the ground goes under its surface: it can be dug into
 LANDING_X = 600
@@ -2147,28 +2338,42 @@ LANDING_ROCK = (300, 900)  # the hard rock under the landing: the hero cannot di
 WALK_TO = 1600  # walking ends here
 GAP = (1800, 1900)  # jumping: a pit to jump over...
 LEDGE = (2100, 2600, 110)  # ...then a ledge this high
-BASIN = (2700, 4000, 80)  # the basin with fossils, then rocks
+PILLAR = (2800, 70)  # x and width of a pillar up to the sky: only digging gets through
+CHASM = (3000, 3420, 220)  # a chasm too wide to jump: a wall of white is the bridge
+BASIN = (3700, 5000, 80)  # the basin with fossils, then rocks
 
 # The steps of the tutorial, in order. A step "x_practice" follows the step x once it is done: a
 # few seconds to try it again and see what it does, before the next one.
-STEPS = ["landing", "black", "black_practice", "white", "white_practice", "harvest",
-         "harvest_practice", "inventory", "inventory_practice", "walk", "jump", "jump_practice",
-         "lack_white", "lack_black", "death", "after_death", "departure", "end"]
+STEPS = ["landing", "black_show", "black", "black_practice", "white_show", "white",
+         "white_practice", "harvest_show", "harvest", "harvest_practice", "inventory",
+         "inventory_practice", "walk_show", "walk", "jump_show", "jump", "jump_practice",
+         "obstacles", "lack_white", "lack_black", "death", "after_death", "departure", "end"]
+# A step "x_show" comes before the step x (D19): the game does it by itself, seen close, and says
+# how it works; then the player does it, told which key. Its seconds:
+SHOW_SECONDS = {"black": 6, "white": 6, "harvest": 6, "walk": 4, "jump": 4}
 
 # The texts of each step (GDD §12: text is only for the controls): a title and a line.
 TEXTS = {
-    "black": ("Le noir",
-              "Clic droit maintenu : un trou noir qui attire et avale. Avale deux pierres."),
-    "white": ("Le blanc",
+    "black_show": ("Le noir",
+                   "Ta main droite crée un trou noir : il attire, puis avale ce qui l'entoure."),
+    "black": ("À toi : le noir", "Maintiens le clic droit sur les pierres. Avale-en deux."),
+    "white_show": ("Le blanc",
+                   "Ta main gauche lève une barrière : une bulle, ou un mur d'un point à un autre."),
+    "white": ("À toi : le blanc",
               "Clic gauche : une bulle. Clic gauche glissé : un mur. Fais-en deux."),
-    "harvest": ("La récolte",
-                "F maintenu sur un fossile : il rejoint tes réserves, avec le sol autour."),
+    "harvest_show": ("La récolte",
+                     "Une bulle de récolte avale ce qu'elle touche, sol compris, et le range en toi."),
+    "harvest": ("À toi : la récolte", "Maintiens F sur un fossile."),
     "inventory": ("Tes réserves",
                   "Tab : la matière (noire) et le carbone (blanc) que tu portes."),
-    "walk": ("Marcher",
-             "Q / D ou ← → : à chaque pas, un petit trou noir tire ta jambe."),
-    "jump": ("Sauter",
-             "Espace maintenu puis relâché : plus le trou noir grandit, plus tu sautes haut."),
+    "walk_show": ("Marcher", "À chaque pas, un petit trou noir s'ouvre devant toi et tire ta jambe."),
+    "walk": ("À toi : marcher", "Q / D ou ← → : avance jusqu'au bout du chemin."),
+    "jump_show": ("Sauter",
+                  "Un trou noir grandit au-dessus de ta tête tant que tu charges, puis te projette."),
+    "jump": ("À toi : sauter",
+             "Maintiens Espace puis relâche : saute le fossé, puis monte sur le rebord."),
+    "obstacles": ("Les deux mains",
+                  "Creuse le pilier avec le noir, puis jette un mur de blanc sur le gouffre."),
     "lack_white": ("Le carbone s'épuise",
                    "F sur les fossiles, ou dans le sol : il contient aussi du carbone."),
     "lack_black": ("La matière s'épuise",
@@ -2181,6 +2386,7 @@ TEXTS = {
                   "Maintiens Espace cinq secondes : le plus grand saut possible."),
 }
 DEPARTURE_HOLD = 5.0  # seconds of the jump held for the departure
+HERO_CHARGE_TIME = 1.2  # seconds to charge a jump fully
 PRACTICE_SECONDS = {"black": 6, "white": 6, "harvest": 5, "inventory": 3, "jump": 2}
 
 
@@ -2188,7 +2394,7 @@ def step_texts():
     """The title and the line of each step. On the steps seen close, they come once the camera is
     close (the title, then the line)."""
     made = []
-    close = {step: begins for step, begins, _ in CLOSE_STEPS}
+    close = LATE_TEXTS
     for step, (title, line) in TEXTS.items():
         phases = [step] + ([f"{step}_practice"] if step in PRACTICE_SECONDS else [])
         for part, y, size, alpha in (("title", SCREEN_H - 168, 50, 240),
@@ -2203,7 +2409,7 @@ def step_texts():
             })
             made.append(text)
             if step in close:
-                tag = f"text_{step}" if part == "title" else f"text_{step}_line"
+                tag = f"text_{step}_{part}"
                 text["components"]["tag.Tag"] = {"tag": tag}
                 later = 0 if part == "title" else 25
                 made.append(track(f"{name}_comes", tag, "text2d.Text.alpha",
@@ -2238,13 +2444,16 @@ def on(name, action, source, field, value):
 # fossils and the ground swallowed, the black holes under his feet, the one over his head); it
 # goes back once the step is done (walking and jumping follow each other: it stays close).
 CLOSE_STEPS = [
-    # (step, the action that starts it, the one that ends it or None to stay close)
+    # (name, the action that starts it, the one that ends it): from the show to his success.
     ("black", "landing_done", "black_done"),
     ("white", "black_next", "white_done"),
     ("harvest", "white_next", "harvest_done"),
-    ("walk", "inventory_next", None),
-    ("jump", "walk_done", "jump_done"),
+    ("walk", "inventory_next", "jump_done"),
 ]
+# The texts of the shows come once the camera is close.
+LATE_TEXTS = {"black_show": "landing_done", "white_show": "black_next",
+              "harvest_show": "white_next", "walk_show": "inventory_next",
+              "jump_show": "walk_done"}
 AWAKE_ZOOM = ZOOM * 1.7  # the camera close to him
 TEXT_AFTER = 60  # ticks: the camera is close, then the text comes
 # The first time he does it, light gathers into the part of his body that does it: (name, step,
@@ -2276,8 +2485,6 @@ def close_steps():
             track(f"{step}_follows_close", "camera", "camera2d.CameraFollow.dead_y",
                   [(0, 0), (1, 0)], start=begins),
         ]
-        if ends is None:
-            continue
         made += [
             track(f"{step}_goes_back", "camera", "camera2d.Camera.zoom",
                   [(0, AWAKE_ZOOM), (60, ZOOM)], start=ends),
@@ -2286,6 +2493,69 @@ def close_steps():
             track(f"{step}_follows_back", "camera", "camera2d.CameraFollow.dead_y",
                   [(0, 0), (150, 0), (151, 60)], start=ends),
         ]
+    return made
+
+
+def demonstrations():
+    """What the game does by itself before the player's turn (D19): a black hole that swallows
+    a rock, a bubble and a wall, a harvest that swallows a fossil; he walks, then jumps."""
+    hole_look = {"sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                                     "layer": LAYERS["hero"] + 5, "unlit": True},
+                 "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}}
+    made = [
+        entity("demo_black", 960, GROUND_Y - 30, dict({
+            "tag.Tag": {"tag": "demo_black"},
+            "transform2d.Disabled": {}, "phase.ActiveIn": {"phases": ["black_show"]},
+            "attractor2d.Attractor": {"start_radius": 6, "grow": 30, "max_radius": 60,
+                                      "shrink": 120, "pull": 1500, "pulls": ["rock"],
+                                      "inner": HEART},
+            "light2d.Light": {"radius": 140, "red": 190, "green": 210, "blue": 255,
+                              "intensity": 0.6},
+            "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1800, swirl=520, rate=40)},
+            **hole_look)),
+        bind("demo_black_shows", "demo_black", "attractor2d.Attractor.radius",
+             "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="demo_black"),
+        spin("demo_black_turns", "demo_black", 150),
+        entity("demo_harvest", 330, GROUND_Y - 12, {
+            "tag.Tag": {"tag": "demo_harvest"},
+            "transform2d.Disabled": {}, "phase.ActiveIn": {"phases": ["harvest_show"]},
+            "attractor2d.Attractor": {"start_radius": 10, "grow": 25, "max_radius": 50,
+                                      "shrink": 200, "pull": 300, "pulls": ["rock"],
+                                      "inner": 1},
+            "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
+            "sprite2d.Sprite": {"atlas": "harvest", "width": 2, "height": 2,
+                                "layer": LAYERS["hero"] + 5, "unlit": True},
+            "transform2d.Scale": {"factor": 0}}),
+        bind("demo_harvest_shows", "demo_harvest", "attractor2d.Attractor.radius",
+             "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="demo_harvest"),
+        bind("demo_harvest_digs", "demo_harvest", "attractor2d.Attractor.heart",
+             "terrain2d.Digger.radius", 0, 5000, 0, 5000, 1, onto="demo_harvest"),
+    ]
+    # The white: a bubble, then a wall, raised and taken down by the story.
+    for name, x, y, round_, extra in (("demo_bubble", 760, GROUND_Y - 130, True,
+                                       {"radius": 46}),
+                                      ("demo_wall", 880, GROUND_Y - 70, False,
+                                       {"end_x": 1000, "end_y": GROUND_Y - 150})):
+        made.append(entity(name, x, y, {"tag.Tag": {"tag": name}, "barrier2d.Barrier": dict({
+            "pool": 7, "round": round_, "layer": ["barrier"], "freezes": ["rock"],
+            "atlas": "barrier", "bubble": 0, "wall": 1, "draw_layer": LAYERS["hero"] + 4,
+            "thickness": 14}, **extra)}))
+    made += [
+        on("demo_bubble_up", "black_next", "demo_bubble", "barrier2d.Barrier.up", 1),
+        on("demo_bubble_down", "white_show_done", "demo_bubble", "barrier2d.Barrier.up", 0),
+        on("demo_wall_up", "demo_wall_now", "demo_wall", "barrier2d.Barrier.up", 1),
+        on("demo_wall_down", "white_show_done", "demo_wall", "barrier2d.Barrier.up", 0),
+        entity("demo_wall_timer", 0, 0, {"tween2d.Track": {
+            "field": "transform2d.Position.x", "keys": 2, "t0": 0, "v0": 0, "t1": 170,
+            "v1": 1, "start": "black_next", "end_action": "demo_wall_now"}}),
+        # Walking: he walks a little by himself; jumping: he charges, then lets go.
+        {"name": "demo_walks", "components": {"rules.Press": {
+            "start": "inventory_next", "action": "demo_walk", "value": 1, "delay": 70,
+            "ticks": 90}}},
+        {"name": "demo_jumps", "components": {"rules.Press": {
+            "start": "walk_done", "action": "demo_jump", "value": 1, "delay": 80,
+            "ticks": 55}}},
+    ]
     return made
 
 
@@ -2340,6 +2610,13 @@ def story():
         ends[step] = action
         made.append({"name": f"after_{step}", "components": {"phase.Transition": {
             "action": action, "from": [step], "from_any": False, "to": STEPS[index + 1]}}})
+    # A step shown: the clock starts again, and the player's turn comes after some seconds.
+    for step, seconds in SHOW_SECONDS.items():
+        show = f"{step}_show"
+        made.append(on(f"{show}_clock", ends[STEPS[STEPS.index(show) - 1]], "clock",
+                       "transform2d.Position.x", 0))
+        made.append(watch(f"{show}_watch", show, "clock", "transform2d.Position.x", ends[show],
+                          seconds, inside=True))
     # A step of practice: the clock starts again, and the next step comes after some seconds.
     for step, seconds in PRACTICE_SECONDS.items():
         made.append(on(f"{step}_clock", ends[step], "clock", "transform2d.Position.x", 0))
@@ -2351,15 +2628,15 @@ def story():
         entity("landing_timer", 0, 0, {"tween2d.Tween": {
             "field": "transform2d.Position.x", "from": 0, "to": 1, "ticks": 170,
             "use_action": True, "action": "landing_done"}}),
-        on("gives_black", "landing_done", "kit", "loadout.Kit.unlocked", 1),
+        on("gives_black", "black_show_done", "kit", "loadout.Kit.unlocked", 1),
         # The black swallows two rocks.
         watch("black_watch", "black", "black_hole", "attractor2d.Attractor.swallowed",
               "black_done", 2),
-        on("gives_white", "black_next", "kit", "loadout.Kit.unlocked", 3),
+        on("gives_white", "white_show_done", "kit", "loadout.Kit.unlocked", 3),
         # The white raises two barriers.
         watch("white_watch", "white", "white_caster", "barrier2d.Caster.raised", "white_done",
               2),
-        on("gives_harvest", "white_next", "harvest_key", "loadout.Shortcut.action",
+        on("gives_harvest", "harvest_show_done", "harvest_key", "loadout.Shortcut.action",
            ACTIONS.index("harvest")),
         # The harvest brings carbon in.
         watch("harvest_watch", "harvest", "carbon", "reserve.Reserve.gained", "harvest_done",
@@ -2367,20 +2644,26 @@ def story():
         # The inventory opened.
         watch("inventory_watch", "inventory", "inventory", "toggle.Toggle.times",
               "inventory_done", 1),
-        # Walking, and jumping at once (a hole dug in front of him must not trap him).
-        on("learns_walking", "inventory_next", "hero", "action_control.Controlled.action_x",
+        # Walking, and jumping at once (a hole dug in front of him must not trap him); the jump
+        # is the game's again while it is shown.
+        on("learns_walking", "walk_show_done", "hero", "action_control.Controlled.action_x",
            ACTIONS.index("move_x")),
-        on("learns_jumping", "inventory_next", "hero", "jump.Jumper.action",
+        on("learns_jumping", "walk_show_done", "hero", "jump.Jumper.action",
            ACTIONS.index("jump")),
+        on("shows_jumping", "walk_done", "hero", "jump.Jumper.action", ACTIONS.index("demo_jump")),
+        on("jumps_again", "jump_show_done", "hero", "jump.Jumper.action", ACTIONS.index("jump")),
+        # The obstacles: past the chasm.
+        watch("obstacles_watch", "obstacles", "hero", "transform2d.Position.x", "obstacles_done",
+              CHASM[1] + 60),
         watch("walk_watch", "walk", "hero", "transform2d.Position.x", "walk_done", WALK_TO),
         watch("jump_watch", "jump", "hero", "transform2d.Position.x", "jump_done",
               LEDGE[0] + 60),
         # From now on the reserves can run out.
-        on("matter_unguarded", "jump_next", "matter", "reserve.Reserve.floor", 0),
-        on("carbon_unguarded", "jump_next", "carbon", "reserve.Reserve.floor", 0),
+        on("matter_unguarded", "obstacles_done", "matter", "reserve.Reserve.floor", 0),
+        on("carbon_unguarded", "obstacles_done", "carbon", "reserve.Reserve.floor", 0),
         # The white runs low and fast: harvest carbon back above half.
-        on("white_falls", "jump_next", "carbon", "reserve.Reserve.amount", 25),
-        on("white_drains", "jump_next", "carbon", "reserve.Reserve.drain", 1.2),
+        on("white_falls", "obstacles_done", "carbon", "reserve.Reserve.amount", 25),
+        on("white_drains", "obstacles_done", "carbon", "reserve.Reserve.drain", 1.2),
         watch("white_watch_back", "lack_white", "carbon", "reserve.Reserve.amount",
               "lack_white_done", 50, inside=True),
         on("white_steadies", "lack_white_done", "carbon", "reserve.Reserve.drain", LIFE_DRAIN),
@@ -2404,9 +2687,17 @@ def story():
               "after_death_done", 6, inside=True),
         # The departure: the jump held five seconds, its black hole as big as it gets over his
         # head; full, it slips out of his hands (no need to let go).
-        on("long_jump", "after_death_done", "hero", "jump.Jumper.charge_time", DEPARTURE_HOLD),
-        watch("departure_watch", "departure", "hero", "jump.Jumper.charge", "departure_done",
+        # The jump is the same as before (D19): only the time it is held counts. Full, the clock
+        # starts; let go, it is put far back; five seconds held in all, he goes.
+        on("hold_clock_off", "after_death_done", "clock", "transform2d.Position.x", -1000),
+        watch("charge_full_watch", "departure", "hero", "jump.Jumper.charge", "charge_full",
               0.995),
+        on("hold_clock", "charge_full", "clock", "transform2d.Position.x", 0),
+        watch("charge_lost_watch", "departure", "hero", "jump.Jumper.charge", "charge_lost",
+              high=0.5),
+        on("hold_clock_lost", "charge_lost", "clock", "transform2d.Position.x", -1000),
+        watch("departure_watch", "departure", "clock", "transform2d.Position.x",
+              "departure_done", DEPARTURE_HOLD - HERO_CHARGE_TIME),
     ]
     return made + step_texts()
 
@@ -2438,20 +2729,32 @@ def tutorial():
         # The basin.
         shape("basin", (BASIN[0] + BASIN[1]) / 2, GROUND_Y + BASIN[2] / 2 - 8,
               BASIN[1] - BASIN[0], BASIN[2] + 16, False),
+        # The obstacles (D19): a pillar of earth up to the top of the sky (dig through it), then
+        # a chasm too wide to jump, not too deep to climb out of (a wall of white across it).
+        shape("pillar", PILLAR[0], (TUTORIAL_TOP + GROUND_Y) / 2, PILLAR[1],
+              GROUND_Y - TUTORIAL_TOP, True),
+        shape("chasm", (CHASM[0] + CHASM[1]) / 2, GROUND_Y + CHASM[2] / 2 - 8,
+              CHASM[1] - CHASM[0], CHASM[2] + 16, False),
     ]
     basin_floor = GROUND_Y + BASIN[2]
     things = [rock_entity(f"rock_{name}", x, GROUND_Y - 11)
               for name, x in (("a", 700), ("b", 760), ("c", 470), ("d", 830))]
     things += [fossil_entity(f"fossil_{name}", x, GROUND_Y - 11)
                for name, x in (("a", 420), ("b", 530))]
-    for index, x in enumerate((2850, 3000, 3150, 3300)):
+    # What the demonstrations use, worth nothing: a rock for the black, a fossil for the harvest.
+    things += [rock_entity("rock_demo", 960, GROUND_Y - 11, amount=0),
+               fossil_entity("fossil_demo", 330, GROUND_Y - 11, amount=0)]
+    for index, x in enumerate((3850, 4000, 4150, 4300)):
         things.append(fossil_entity(f"fossil_{index + 1}", x, basin_floor - 11))
-    for index, x in enumerate((3500, 3650, 3800, 3950)):
+    for index, x in enumerate((4500, 4650, 4800, 4950)):
         things.append(rock_entity(f"rock_{index + 1}", x, basin_floor - 11))
+    # In the ground, deeper and deeper: stones of matter and pockets of carbon crystals, seen in
+    # the cut of the ground, found by digging (D19).
+    things += buried(GROUND_Y, TUTORIAL_W)
     # Deposits of carbon all along: the white never lacks food for long.
     for index, (x, y) in enumerate(((1100, GROUND_Y), (1500, GROUND_Y),
-                                    (2350, GROUND_Y - LEDGE[2]), (3250, basin_floor),
-                                    (4400, GROUND_Y), (5100, GROUND_Y))):
+                                    (2350, GROUND_Y - LEDGE[2]), (4250, basin_floor),
+                                    (5400, GROUND_Y), (6100, GROUND_Y))):
         things += deposit(f"deposit_{index + 1}", x, y)
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
     return (sky_entity() + scenery(GROUND_Y) + [ground] + shapes + things +
@@ -2459,7 +2762,7 @@ def tutorial():
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
-            landing() + departure() + awakenings() + pause_menu())
+            landing() + departure() + awakenings() + demonstrations() + pause_menu())
 
 
 def landing():
@@ -2474,44 +2777,19 @@ def landing():
     ]
 
 
+ORBIT_Y = -3000  # high enough above the planet: it is out of sight, the next scene comes
+
+
 def departure():
-    """The end of the tutorial (GDD §12, 10): the black hole he raised slips out of his hands. It
-    grows and grows, the ground shakes and is torn up, the dome melts, and everything goes white:
-    the planet is gone."""
+    """The end of the tutorial: the jump held five seconds throws him up out of the planet, into
+    orbit (D19). The camera lets him go up; once the planet is far below and out of sight, the
+    next scene (space) comes, and the planet is gone with the scene."""
     return [
-        entity("runaway", 0, 0, {
-            "tag.Tag": {"tag": "runaway"},
-            "transform2d.Disabled": {},
-            "phase.ActiveIn": {"phases": ["end"]},
-            # Where the jump's black hole is, as big: it is that one that grows and slips away.
-            "follow2d.Follow": {"target": "hero", "offset_y": JUMP_HOLE_Y, "stiffness": 1},
-            "attractor2d.Attractor": {"start_radius": JUMP_HOLE_SIZE, "grow": 150,
-                                      "max_radius": 1600,
-                                      "pull": 2600, "pulls": ["rock"], "inner": HEART},
-            "terrain2d.Digger": {"radius": 0, "layers": ["ground"]},
-            "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
-                                "layer": LAYERS["hero"] + 7, "unlit": True},
-            "transform2d.Scale": {"factor": 0},
-            "transform2d.Rotation": {},
-        }),
-        bind("runaway_digs", "runaway", "attractor2d.Attractor.heart",
-             "terrain2d.Digger.radius", 0, 5000, 0, 5000, 1, onto="runaway"),
-        bind("runaway_shows", "runaway", "attractor2d.Attractor.radius",
-             "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="runaway"),
-        spin("runaway_turns", "runaway", 240),
-        # It rises away from him, slowly, as it grows; the jump's hole is now that one.
-        track("runaway_rises", "runaway", "follow2d.Follow.offset_y",
-              [(0, JUMP_HOLE_Y), (300, -220)], start="departure_done"),
-        track("runaway_slips", "runaway", "follow2d.Follow.stiffness", [(0, 1), (60, 0.04)],
-              start="departure_done"),
-        on("jump_hole_leaves", "departure_done", "jump_hole", "sprite2d.Sprite.alpha", 0),
-        on("jump_hole_dark", "departure_done", "jump_hole", "light2d.Light.intensity", 0),
-        on("ground_shakes", "departure_done", "camera", "camera2d.CameraShake.strength", 14),
-        track("dome_melts", "dome", "sprite2d.Sprite.alpha", [(60, 230), (300, 0)],
-              start="departure_done"),
-        cover("blast"),
-        track("blast_comes", "blast", "sprite2d.Sprite.alpha", [(240, 0), (330, 255)],
-              start="departure_done", end_action="exploded"),
+        on("thrown_up", "departure_done", "hero", "transform2d.Velocity.y", -1400),
+        # Then he keeps rising, faster and faster: out of the planet's pull.
+        on("out_of_pull", "departure_done", "hero", "gravity2d.Gravity.y", -700),
+        on("sky_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_top", -100000),
+        watch("orbit_watch", "end", "hero", "transform2d.Position.y", "exploded", high=ORBIT_Y),
         entity("to_drift", 0, 0, {"scene_switch.GoToScene": {
             "scene": "drift", "use_action": True, "action": "exploded"}}),
     ]
@@ -2650,24 +2928,26 @@ def drift():
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
            "locked", "skip", "exploded", "refill", "awakens_black", "awakens_white",
-           "awakens_harvest", "awakens_walk", "awakens_jump", "pause", "resume", "to_title", "menu_up",
+           "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
     for _action in (f"{_step}_done", f"{_step}_next"):
         if _action not in ACTIONS and not _step.endswith("_practice"):
             ACTIONS.append(_action)
-TAGS = ["black_gathers", "white_gathers", "harvest_gathers", "walk_gathers", "jump_gathers",
+TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gathers", "jump_gathers",
         "black_shines", "white_shines", "harvest_shines", "walk_shines", "jump_shines",
-        "text_black", "text_white", "text_harvest", "text_walk", "text_jump",
-        "text_black_line", "text_white_line", "text_harvest_line", "text_walk_line",
-        "text_jump_line", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
+        "text_black_show_title", "text_white_show_title", "text_harvest_show_title",
+        "text_walk_show_title", "text_jump_show_title", "text_black_show_line",
+        "text_white_show_line", "text_harvest_show_line", "text_walk_show_line",
+        "text_jump_show_line", "demo_black", "demo_harvest", "demo_bubble", "demo_wall", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
         "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
-           "inventory", "plain", "font", "glow", "planet", "button", "crystal"]
+           "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
+           "cave_far", "ore"]
 SCENE_NAMES = ["title", "opening", "tutorial", "drift", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
@@ -2775,7 +3055,11 @@ def write_pictures():
     save(hills(12, 170, 30, 9, 30), "hills_far")
     save(hills(13, 120, 13, 14, 8), "hills_near")
     save(orbs(), "orb", cell=(ORB, ORB))
-    save(cave(), "cave")
+    cave_rock, cave_glints = cave_pictures()
+    save(cave_rock, "cave")
+    save(cave_glints, "cave_glints")
+    save(cave_far(), "cave_far")
+    save(ore(), "ore")
     save(mountains(), "mountains")
     save(mist(51), "mist")
     save(ground_far(), "ground_far")

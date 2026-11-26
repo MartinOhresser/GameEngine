@@ -95,10 +95,14 @@ void aim(ecs::World& world) {
         }
         aimed.reach_x = target_x;
         aimed.reach_y = target_y;
-        if (!aimed.lock || world.has<transform2d::Disabled>(entity)) {
+        // Locked, it follows the pointer only once it has stopped working for a whole tick: the
+        // tick it stops, what it raises is still placed where it was locked.
+        const bool working = !world.has<transform2d::Disabled>(entity);
+        if (!aimed.lock || (!working && !aimed.working)) {
             position.x = target_x;
             position.y = target_y;
         }
+        aimed.working = working;
     });
 }
 

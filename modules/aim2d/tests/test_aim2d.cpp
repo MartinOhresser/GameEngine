@@ -82,4 +82,10 @@ TEST_CASE("aim2d: within reach of who aims, and locked once it works") {
     app.run_frames(1);
     CHECK(near(app.world().get<transform2d::Position>(mark)->x, 150.0F)); // it stays
     CHECK(near(app.world().get<aim2d::Aim>(mark)->dir_y, 1.0F));
+    // It stops: still there that tick (a wall is raised from it), then it follows again.
+    CHECK(app.world().insert(mark, transform2d::Disabled{}));
+    app.run_frames(1);
+    CHECK(near(app.world().get<transform2d::Position>(mark)->x, 150.0F));
+    app.run_frames(1);
+    CHECK(near(app.world().get<transform2d::Position>(mark)->x, 100.0F));
 }

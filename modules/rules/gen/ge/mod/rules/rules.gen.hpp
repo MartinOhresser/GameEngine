@@ -61,6 +61,27 @@ struct OnAction {
     [[nodiscard]] friend bool operator==(const OnAction&, const OnAction&) = default;
 };
 
+/// When start is pressed, the game holds action at value for ticks ticks, delay ticks later, as a player would: a demonstration (the character walks or jumps by itself to show how), an attract mode, a cut scene. Several Presses on the same start make a sequence. times counts the presses made. A Disabled entity does not press.
+struct Press {
+    std::uint32_t start = 0U;
+    std::uint32_t action = 0U;
+    float value = 1.0F;
+    std::uint32_t delay = 0U;
+    std::uint32_t ticks = 60U;
+    std::uint32_t times = 0U;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(start);
+        hasher.add(action);
+        hasher.add(value);
+        hasher.add(delay);
+        hasher.add(ticks);
+        hasher.add(times);
+    }
+
+    [[nodiscard]] friend bool operator==(const Press&, const Press&) = default;
+};
+
 /// Checks every Watch against its number and raises the action of the ones that just came into their range.
 /// Runs in FixedUpdate.
 void watch(::ge::ecs::World& world);
@@ -68,6 +89,10 @@ void watch(::ge::ecs::World& world);
 /// Applies every OnAction whose action is pressed this tick.
 /// Runs in FixedUpdate.
 void on_action(::ge::ecs::World& world);
+
+/// Starts every Press whose start is pressed this tick: its action is held from the next tick on (after its delay), then let go.
+/// Runs in FixedUpdate.
+void press(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

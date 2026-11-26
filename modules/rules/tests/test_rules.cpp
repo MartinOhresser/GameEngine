@@ -55,6 +55,33 @@ struct Scene {
 
 } // namespace
 
+TEST_CASE("rules: a Press holds an action for a while, as a player would") {
+    Scene scene;
+    const auto entity = scene.app.world().spawn();
+    rules::Press press;
+    press.start = 0U;  // reached
+    press.action = 3U; // other
+    press.value = 0.5F;
+    press.delay = 2U;
+    press.ticks = 4U;
+    CHECK(scene.app.world().insert(entity, press));
+    auto* input = scene.app.world().resource<ge::app::ScriptedInput>();
+    input->add(1, "reached", 1.0F);
+    input->add(2, "reached", 0.0F);
+    const auto held = [&scene] {
+        return scene.app.world().resource<ge::app::Actions>()->value("other");
+    };
+    scene.app.run_frames(4); // ticks 0 to 3: pressed on tick 1, held from tick 4
+    CHECK(held() == 0.0F);
+    scene.app.run_frames(1);
+    CHECK(held() == 0.5F);
+    scene.app.run_frames(3);
+    CHECK(held() == 0.5F);
+    scene.app.run_frames(1);
+    CHECK(held() == 0.0F);
+    CHECK(scene.app.world().get<rules::Press>(entity)->times == 1U);
+}
+
 TEST_CASE("rules: a Watch raises its action when the number comes into its range") {
     Scene scene;
     const auto entity = scene.app.world().spawn();

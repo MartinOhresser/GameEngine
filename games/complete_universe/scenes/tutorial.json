@@ -151,6 +151,9 @@
           "x": 1.35,
           "y": 1.35,
           "repeat_x": true
+        },
+        "tag.Tag": {
+          "tag": "front"
         }
       }
     },
@@ -199,11 +202,11 @@
       }
     },
     {
-      "name": "inside",
+      "name": "inside_0",
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 1392.0
+          "y": 1384.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave",
@@ -215,6 +218,201 @@
           "x": 1,
           "y": 1,
           "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_glints_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1384.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_glints",
+          "width": 1024,
+          "height": 1536,
+          "layer": -4,
+          "additive": true,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 2920.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave",
+          "width": 1024,
+          "height": 1536,
+          "layer": -5
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_glints_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 2920.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_glints",
+          "width": 1024,
+          "height": 1536,
+          "layer": -4,
+          "additive": true,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1724.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_far",
+          "width": 1024,
+          "height": 2048,
+          "layer": -7,
+          "alpha": 255
+        },
+        "sprite2d.Parallax": {
+          "x": 0.8,
+          "y": 0.8,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "mountains_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3188.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -80,
+          "unlit": true,
+          "red": 31,
+          "green": 31,
+          "blue": 33
+        },
+        "sprite2d.Parallax": {
+          "x": 0.12,
+          "y": 0.12
+        }
+      }
+    },
+    {
+      "name": "hills_far_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3263.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -60,
+          "unlit": true,
+          "red": 58,
+          "green": 58,
+          "blue": 62
+        },
+        "sprite2d.Parallax": {
+          "x": 0.25,
+          "y": 0.25
+        }
+      }
+    },
+    {
+      "name": "hills_near_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3413.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -30,
+          "unlit": true,
+          "red": 20,
+          "green": 20,
+          "blue": 21
+        },
+        "sprite2d.Parallax": {
+          "x": 0.55,
+          "y": 0.55
+        }
+      }
+    },
+    {
+      "name": "ground_far_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3648.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -8,
+          "unlit": true,
+          "red": 12,
+          "green": 12,
+          "blue": 12
+        },
+        "sprite2d.Parallax": {
+          "x": 0.88,
+          "y": 0.88
+        }
+      }
+    },
+    {
+      "name": "front_fades",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.y",
+          "from": "camera",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "front",
+          "low": 540,
+          "high": 720,
+          "out_low": 255,
+          "out_high": 0,
+          "power": 1
         }
       }
     },
@@ -298,7 +496,7 @@
           "y": -1000
         },
         "terrain2d.Terrain": {
-          "columns": 700,
+          "columns": 825,
           "rows": 375,
           "cell": 8,
           "layer": [
@@ -312,7 +510,7 @@
         },
         "terrain2d.Look": {
           "layer": 0,
-          "pixels": 4,
+          "pixels": 6,
           "red": 12,
           "green": 12,
           "blue": 14,
@@ -343,7 +541,7 @@
       "name": "wall_right",
       "components": {
         "transform2d.Position": {
-          "x": 5592,
+          "x": 6592,
           "y": 500.0
         },
         "terrain2d.Shape": {
@@ -358,11 +556,11 @@
       "name": "bedrock",
       "components": {
         "transform2d.Position": {
-          "x": 2800.0,
+          "x": 3300.0,
           "y": 1968
         },
         "terrain2d.Shape": {
-          "width": 5600,
+          "width": 6600,
           "height": 64,
           "fill": true,
           "hard": true
@@ -430,12 +628,40 @@
       "name": "basin",
       "components": {
         "transform2d.Position": {
-          "x": 3350.0,
+          "x": 4350.0,
           "y": 632.0
         },
         "terrain2d.Shape": {
           "width": 1300,
           "height": 96,
+          "fill": false
+        }
+      }
+    },
+    {
+      "name": "pillar",
+      "components": {
+        "transform2d.Position": {
+          "x": 2800,
+          "y": -200.0
+        },
+        "terrain2d.Shape": {
+          "width": 70,
+          "height": 1600,
+          "fill": true
+        }
+      }
+    },
+    {
+      "name": "chasm",
+      "components": {
+        "transform2d.Position": {
+          "x": 3210.0,
+          "y": 702.0
+        },
+        "terrain2d.Shape": {
+          "width": 420,
+          "height": 236,
           "fill": false
         }
       }
@@ -699,10 +925,99 @@
       }
     },
     {
+      "name": "rock_demo",
+      "components": {
+        "transform2d.Position": {
+          "x": 960,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 0
+        }
+      }
+    },
+    {
+      "name": "fossil_demo",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "fossil",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 0
+        },
+        "light2d.Light": {
+          "radius": 70,
+          "red": 220,
+          "green": 232,
+          "blue": 236,
+          "intensity": 0.45,
+          "flicker": 0.25,
+          "flicker_speed": 1.5
+        }
+      }
+    },
+    {
       "name": "fossil_1",
       "components": {
         "transform2d.Position": {
-          "x": 2850,
+          "x": 3850,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -751,7 +1066,7 @@
       "name": "fossil_2",
       "components": {
         "transform2d.Position": {
-          "x": 3000,
+          "x": 4000,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -800,7 +1115,7 @@
       "name": "fossil_3",
       "components": {
         "transform2d.Position": {
-          "x": 3150,
+          "x": 4150,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -849,7 +1164,7 @@
       "name": "fossil_4",
       "components": {
         "transform2d.Position": {
-          "x": 3300,
+          "x": 4300,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -898,7 +1213,7 @@
       "name": "rock_1",
       "components": {
         "transform2d.Position": {
-          "x": 3500,
+          "x": 4500,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -938,7 +1253,7 @@
       "name": "rock_2",
       "components": {
         "transform2d.Position": {
-          "x": 3650,
+          "x": 4650,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -978,7 +1293,7 @@
       "name": "rock_3",
       "components": {
         "transform2d.Position": {
-          "x": 3800,
+          "x": 4800,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -1018,7 +1333,7 @@
       "name": "rock_4",
       "components": {
         "transform2d.Position": {
-          "x": 3950,
+          "x": 4950,
           "y": 669
         },
         "sprite2d.Sprite": {
@@ -1051,6 +1366,1349 @@
         "reserve.Yield": {
           "kind": "matter",
           "amount": 25
+        }
+      }
+    },
+    {
+      "name": "ore_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 380,
+          "y": 1497.2030406951953
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_1_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 599.0,
+          "y": 1501.3784213259532
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_1_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 621.0,
+          "y": 1498.1784213259534
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 840,
+          "y": 1195.9385834838276
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_3_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1059.0,
+          "y": 958.3534352916673
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_3_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 1081.0,
+          "y": 955.1534352916673
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 1300,
+          "y": 716.0879304769227
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_5_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1519.0,
+          "y": 1059.823636016939
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_5_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 1541.0,
+          "y": 1056.6236360169391
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_6",
+      "components": {
+        "transform2d.Position": {
+          "x": 1760,
+          "y": 1084.8121336367985
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_7_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 1979.0,
+          "y": 708.206201658543
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_7_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2001.0,
+          "y": 705.006201658543
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_8",
+      "components": {
+        "transform2d.Position": {
+          "x": 2220,
+          "y": 710.7080191562547
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_9_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 2439.0,
+          "y": 1700.2631596676742
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_9_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2461.0,
+          "y": 1697.0631596676744
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_10",
+      "components": {
+        "transform2d.Position": {
+          "x": 2680,
+          "y": 1338.4638760515072
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_11_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 2899.0,
+          "y": 905.0106097366169
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_11_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 2921.0,
+          "y": 901.8106097366168
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_12",
+      "components": {
+        "transform2d.Position": {
+          "x": 3140,
+          "y": 1112.3454543141477
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_13_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 3359.0,
+          "y": 1674.2736409896256
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_13_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 3381.0,
+          "y": 1671.0736409896258
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_14",
+      "components": {
+        "transform2d.Position": {
+          "x": 3600,
+          "y": 1593.5847124328907
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_15_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 3819.0,
+          "y": 1539.1202791130904
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_15_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 3841.0,
+          "y": 1535.9202791130906
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_16",
+      "components": {
+        "transform2d.Position": {
+          "x": 4060,
+          "y": 1068.1008509081694
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_17_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 4279.0,
+          "y": 1173.863939481012
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_17_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4301.0,
+          "y": 1170.6639394810122
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_18",
+      "components": {
+        "transform2d.Position": {
+          "x": 4520,
+          "y": 1363.7569259043087
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_19_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 4739.0,
+          "y": 724.3548214763783
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_19_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 4761.0,
+          "y": 721.1548214763783
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_20",
+      "components": {
+        "transform2d.Position": {
+          "x": 4980,
+          "y": 1237.8199615975523
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_21_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 5199.0,
+          "y": 943.4296687113057
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_21_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 5221.0,
+          "y": 940.2296687113056
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_22",
+      "components": {
+        "transform2d.Position": {
+          "x": 5440,
+          "y": 1574.837220268319
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_23_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 5659.0,
+          "y": 727.9030148046786
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_23_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 5681.0,
+          "y": 724.7030148046786
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_24",
+      "components": {
+        "transform2d.Position": {
+          "x": 5900,
+          "y": 1366.3487943422197
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
+        }
+      }
+    },
+    {
+      "name": "buried_25_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 6119.0,
+          "y": 1566.0120424206034
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 34,
+          "height": 34,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        }
+      }
+    },
+    {
+      "name": "buried_25_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 6141.0,
+          "y": 1562.8120424206036
+        },
+        "sprite2d.Sprite": {
+          "atlas": "crystal",
+          "width": 44,
+          "height": 44,
+          "layer": 7,
+          "unlit": true
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "carbon",
+          "amount": 10
+        },
+        "light2d.Light": {
+          "radius": 120,
+          "red": 226,
+          "green": 234,
+          "blue": 246,
+          "intensity": 0.6,
+          "flicker": 0.15,
+          "flicker_speed": 1.2
+        }
+      }
+    },
+    {
+      "name": "ore_26",
+      "components": {
+        "transform2d.Position": {
+          "x": 6360,
+          "y": 896.4112661673445
+        },
+        "sprite2d.Sprite": {
+          "atlas": "ore",
+          "width": 30,
+          "height": 30,
+          "layer": 7
+        },
+        "collision2d.Collider": {
+          "width": 20,
+          "height": 20,
+          "layer": [
+            "rock"
+          ],
+          "mask": []
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 14
         }
       }
     },
@@ -1364,7 +3022,7 @@
       "name": "deposit_4_0",
       "components": {
         "transform2d.Position": {
-          "x": 3228.0,
+          "x": 4228.0,
           "y": 669.12
         },
         "sprite2d.Sprite": {
@@ -1395,7 +3053,7 @@
       "name": "deposit_4_1",
       "components": {
         "transform2d.Position": {
-          "x": 3250.0,
+          "x": 4250.0,
           "y": 665.92
         },
         "sprite2d.Sprite": {
@@ -1435,7 +3093,7 @@
       "name": "deposit_4_2",
       "components": {
         "transform2d.Position": {
-          "x": 3272.0,
+          "x": 4272.0,
           "y": 669.12
         },
         "sprite2d.Sprite": {
@@ -1466,7 +3124,7 @@
       "name": "deposit_5_0",
       "components": {
         "transform2d.Position": {
-          "x": 4378.0,
+          "x": 5378.0,
           "y": 589.12
         },
         "sprite2d.Sprite": {
@@ -1497,7 +3155,7 @@
       "name": "deposit_5_1",
       "components": {
         "transform2d.Position": {
-          "x": 4400.0,
+          "x": 5400.0,
           "y": 585.92
         },
         "sprite2d.Sprite": {
@@ -1537,7 +3195,7 @@
       "name": "deposit_5_2",
       "components": {
         "transform2d.Position": {
-          "x": 4422.0,
+          "x": 5422.0,
           "y": 589.12
         },
         "sprite2d.Sprite": {
@@ -1568,7 +3226,7 @@
       "name": "deposit_6_0",
       "components": {
         "transform2d.Position": {
-          "x": 5078.0,
+          "x": 6078.0,
           "y": 589.12
         },
         "sprite2d.Sprite": {
@@ -1599,7 +3257,7 @@
       "name": "deposit_6_1",
       "components": {
         "transform2d.Position": {
-          "x": 5100.0,
+          "x": 6100.0,
           "y": 585.92
         },
         "sprite2d.Sprite": {
@@ -1639,7 +3297,7 @@
       "name": "deposit_6_2",
       "components": {
         "transform2d.Position": {
-          "x": 5122.0,
+          "x": 6122.0,
           "y": 589.12
         },
         "sprite2d.Sprite": {
@@ -1720,7 +3378,7 @@
           "vertical": false,
           "acceleration": 1600,
           "braking": 2400,
-          "action_x": "locked"
+          "action_x": "demo_walk"
         },
         "jump.Jumper": {
           "speed": 560,
@@ -1729,7 +3387,7 @@
           "charge_high": 1.8,
           "wobble": 160,
           "full_action": "take_off",
-          "action": "locked"
+          "action": "demo_jump"
         },
         "toggle.ActiveBy": {
           "toggle": "dead",
@@ -1791,7 +3449,7 @@
           "look_ahead": 0.25,
           "bounded": true,
           "bound_left": 0,
-          "bound_right": 5600,
+          "bound_right": 6600,
           "bound_top": -2000,
           "bound_bottom": 2000
         }
@@ -2311,7 +3969,7 @@
         },
         "loadout.Kit": {
           "unlocked": [],
-          "together": 0.12,
+          "together": 0,
           "change": "locked"
         }
       }
@@ -3711,6 +5369,19 @@
             "landing"
           ],
           "from_any": false,
+          "to": "black_show"
+        }
+      }
+    },
+    {
+      "name": "after_black_show",
+      "components": {
+        "phase.Transition": {
+          "action": "black_show_done",
+          "from": [
+            "black_show"
+          ],
+          "from_any": false,
           "to": "black"
         }
       }
@@ -3737,6 +5408,19 @@
             "black_practice"
           ],
           "from_any": false,
+          "to": "white_show"
+        }
+      }
+    },
+    {
+      "name": "after_white_show",
+      "components": {
+        "phase.Transition": {
+          "action": "white_show_done",
+          "from": [
+            "white_show"
+          ],
+          "from_any": false,
           "to": "white"
         }
       }
@@ -3761,6 +5445,19 @@
           "action": "white_next",
           "from": [
             "white_practice"
+          ],
+          "from_any": false,
+          "to": "harvest_show"
+        }
+      }
+    },
+    {
+      "name": "after_harvest_show",
+      "components": {
+        "phase.Transition": {
+          "action": "harvest_show_done",
+          "from": [
+            "harvest_show"
           ],
           "from_any": false,
           "to": "harvest"
@@ -3815,6 +5512,19 @@
             "inventory_practice"
           ],
           "from_any": false,
+          "to": "walk_show"
+        }
+      }
+    },
+    {
+      "name": "after_walk_show",
+      "components": {
+        "phase.Transition": {
+          "action": "walk_show_done",
+          "from": [
+            "walk_show"
+          ],
+          "from_any": false,
           "to": "walk"
         }
       }
@@ -3826,6 +5536,19 @@
           "action": "walk_done",
           "from": [
             "walk"
+          ],
+          "from_any": false,
+          "to": "jump_show"
+        }
+      }
+    },
+    {
+      "name": "after_jump_show",
+      "components": {
+        "phase.Transition": {
+          "action": "jump_show_done",
+          "from": [
+            "jump_show"
           ],
           "from_any": false,
           "to": "jump"
@@ -3852,6 +5575,19 @@
           "action": "jump_next",
           "from": [
             "jump_practice"
+          ],
+          "from_any": false,
+          "to": "obstacles"
+        }
+      }
+    },
+    {
+      "name": "after_obstacles",
+      "components": {
+        "phase.Transition": {
+          "action": "obstacles_done",
+          "from": [
+            "obstacles"
           ],
           "from_any": false,
           "to": "lack_white"
@@ -3921,6 +5657,156 @@
           "from_any": false,
           "to": "end"
         }
+      }
+    },
+    {
+      "name": "black_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "landing_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "black_show_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "black_show_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "white_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_next",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "white_show_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "white_show_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "harvest_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_next",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "harvest_show_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "harvest_show_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "harvest_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "walk_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "inventory_next",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "walk_show_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "walk_show_done",
+          "min": 4,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "walk_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "jump_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "walk_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "jump_show_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "jump_show_done",
+          "min": 4,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "jump_show"
+          ]
+        },
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -4094,7 +5980,7 @@
       "name": "gives_black",
       "components": {
         "rules.OnAction": {
-          "action": "landing_done",
+          "action": "black_show_done",
           "source": "kit",
           "field": "loadout.Kit.unlocked",
           "value": 1
@@ -4123,7 +6009,7 @@
       "name": "gives_white",
       "components": {
         "rules.OnAction": {
-          "action": "black_next",
+          "action": "white_show_done",
           "source": "kit",
           "field": "loadout.Kit.unlocked",
           "value": 3
@@ -4152,7 +6038,7 @@
       "name": "gives_harvest",
       "components": {
         "rules.OnAction": {
-          "action": "white_next",
+          "action": "harvest_show_done",
           "source": "harvest_key",
           "field": "loadout.Shortcut.action",
           "value": 9
@@ -4199,7 +6085,7 @@
       "name": "learns_walking",
       "components": {
         "rules.OnAction": {
-          "action": "inventory_next",
+          "action": "walk_show_done",
           "source": "hero",
           "field": "action_control.Controlled.action_x",
           "value": 0
@@ -4210,11 +6096,51 @@
       "name": "learns_jumping",
       "components": {
         "rules.OnAction": {
-          "action": "inventory_next",
+          "action": "walk_show_done",
           "source": "hero",
           "field": "jump.Jumper.action",
           "value": 1
         }
+      }
+    },
+    {
+      "name": "shows_jumping",
+      "components": {
+        "rules.OnAction": {
+          "action": "walk_done",
+          "source": "hero",
+          "field": "jump.Jumper.action",
+          "value": 23
+        }
+      }
+    },
+    {
+      "name": "jumps_again",
+      "components": {
+        "rules.OnAction": {
+          "action": "jump_show_done",
+          "source": "hero",
+          "field": "jump.Jumper.action",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "obstacles_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "obstacles_done",
+          "min": 3480
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "obstacles"
+          ]
+        },
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -4257,7 +6183,7 @@
       "name": "matter_unguarded",
       "components": {
         "rules.OnAction": {
-          "action": "jump_next",
+          "action": "obstacles_done",
           "source": "matter",
           "field": "reserve.Reserve.floor",
           "value": 0
@@ -4268,7 +6194,7 @@
       "name": "carbon_unguarded",
       "components": {
         "rules.OnAction": {
-          "action": "jump_next",
+          "action": "obstacles_done",
           "source": "carbon",
           "field": "reserve.Reserve.floor",
           "value": 0
@@ -4279,7 +6205,7 @@
       "name": "white_falls",
       "components": {
         "rules.OnAction": {
-          "action": "jump_next",
+          "action": "obstacles_done",
           "source": "carbon",
           "field": "reserve.Reserve.amount",
           "value": 25
@@ -4290,7 +6216,7 @@
       "name": "white_drains",
       "components": {
         "rules.OnAction": {
-          "action": "jump_next",
+          "action": "obstacles_done",
           "source": "carbon",
           "field": "reserve.Reserve.drain",
           "value": 1.2
@@ -4470,24 +6396,24 @@
       }
     },
     {
-      "name": "long_jump",
+      "name": "hold_clock_off",
       "components": {
         "rules.OnAction": {
           "action": "after_death_done",
-          "source": "hero",
-          "field": "jump.Jumper.charge_time",
-          "value": 5.0
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": -1000
         }
       }
     },
     {
-      "name": "departure_watch",
+      "name": "charge_full_watch",
       "components": {
         "rules.Watch": {
           "source": "hero",
           "own": false,
           "field": "jump.Jumper.charge",
-          "action": "departure_done",
+          "action": "charge_full",
           "min": 0.995
         },
         "phase.ActiveIn": {
@@ -4496,6 +6422,154 @@
           ]
         },
         "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "hold_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "charge_full",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "charge_lost_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "jump.Jumper.charge",
+          "action": "charge_lost",
+          "max": 0.5
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "departure"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "hold_clock_lost",
+      "components": {
+        "rules.OnAction": {
+          "action": "charge_lost",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": -1000
+        }
+      }
+    },
+    {
+      "name": "departure_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "departure_done",
+          "min": 3.8
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "departure"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "text_black_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_black_show_title"
+        }
+      }
+    },
+    {
+      "name": "text_black_show_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "text_black_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_black_show_line"
+        }
+      }
+    },
+    {
+      "name": "text_black_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_show_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "landing_done"
+        }
       }
     },
     {
@@ -4512,7 +6586,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -4520,28 +6594,7 @@
             "black_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_black"
-        }
-      }
-    },
-    {
-      "name": "text_black_title_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_black",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 60,
-          "v1": 0,
-          "t2": 90,
-          "v2": 240,
-          "start": "landing_done"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4558,7 +6611,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
@@ -4566,18 +6619,87 @@
             "black_practice"
           ]
         },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_show"
+          ]
+        },
         "transform2d.Hidden": {},
         "tag.Tag": {
-          "tag": "text_black_line"
+          "tag": "text_white_show_title"
         }
       }
     },
     {
-      "name": "text_black_line_comes",
+      "name": "text_white_show_title_comes",
       "components": {
         "tween2d.Track": {
           "field": "text2d.Text.alpha",
-          "onto": "text_black_line",
+          "onto": "text_white_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "black_next"
+        }
+      }
+    },
+    {
+      "name": "text_white_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_white_show_line"
+        }
+      }
+    },
+    {
+      "name": "text_white_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_show_line",
           "smooth": true,
           "keys": 3,
           "t0": 0,
@@ -4586,7 +6708,7 @@
           "v1": 0,
           "t2": 115,
           "v2": 215,
-          "start": "landing_done"
+          "start": "black_next"
         }
       }
     },
@@ -4604,7 +6726,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -4612,28 +6734,7 @@
             "white_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_white"
-        }
-      }
-    },
-    {
-      "name": "text_white_title_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_white",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 60,
-          "v1": 0,
-          "t2": 90,
-          "v2": 240,
-          "start": "black_next"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4650,7 +6751,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
@@ -4658,18 +6759,87 @@
             "white_practice"
           ]
         },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_harvest_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.harvest_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "harvest_show"
+          ]
+        },
         "transform2d.Hidden": {},
         "tag.Tag": {
-          "tag": "text_white_line"
+          "tag": "text_harvest_show_title"
         }
       }
     },
     {
-      "name": "text_white_line_comes",
+      "name": "text_harvest_show_title_comes",
       "components": {
         "tween2d.Track": {
           "field": "text2d.Text.alpha",
-          "onto": "text_white_line",
+          "onto": "text_harvest_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "white_next"
+        }
+      }
+    },
+    {
+      "name": "text_harvest_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.harvest_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "harvest_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_harvest_show_line"
+        }
+      }
+    },
+    {
+      "name": "text_harvest_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_harvest_show_line",
           "smooth": true,
           "keys": 3,
           "t0": 0,
@@ -4678,7 +6848,7 @@
           "v1": 0,
           "t2": 115,
           "v2": 215,
-          "start": "black_next"
+          "start": "white_next"
         }
       }
     },
@@ -4696,7 +6866,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -4704,28 +6874,7 @@
             "harvest_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_harvest"
-        }
-      }
-    },
-    {
-      "name": "text_harvest_title_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_harvest",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 60,
-          "v1": 0,
-          "t2": 90,
-          "v2": 240,
-          "start": "white_next"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4742,7 +6891,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
@@ -4750,28 +6899,7 @@
             "harvest_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_harvest_line"
-        }
-      }
-    },
-    {
-      "name": "text_harvest_line_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_harvest_line",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 85,
-          "v1": 0,
-          "t2": 115,
-          "v2": 215,
-          "start": "white_next"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4825,6 +6953,96 @@
       }
     },
     {
+      "name": "text_walk_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.walk_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "walk_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_walk_show_title"
+        }
+      }
+    },
+    {
+      "name": "text_walk_show_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
+      "name": "text_walk_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.walk_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "walk_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_walk_show_line"
+        }
+      }
+    },
+    {
+      "name": "text_walk_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk_show_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 85,
+          "v1": 0,
+          "t2": 115,
+          "v2": 215,
+          "start": "inventory_next"
+        }
+      }
+    },
+    {
       "name": "text_walk_title",
       "components": {
         "transform2d.Position": {
@@ -4838,35 +7056,14 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
             "walk"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_walk"
-        }
-      }
-    },
-    {
-      "name": "text_walk_title_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_walk",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 60,
-          "v1": 0,
-          "t2": 90,
-          "v2": 240,
-          "start": "inventory_next"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4883,25 +7080,94 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
             "walk"
           ]
         },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_jump_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.jump_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "jump_show"
+          ]
+        },
         "transform2d.Hidden": {},
         "tag.Tag": {
-          "tag": "text_walk_line"
+          "tag": "text_jump_show_title"
         }
       }
     },
     {
-      "name": "text_walk_line_comes",
+      "name": "text_jump_show_title_comes",
       "components": {
         "tween2d.Track": {
           "field": "text2d.Text.alpha",
-          "onto": "text_walk_line",
+          "onto": "text_jump_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 0,
+          "t2": 90,
+          "v2": 240,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "text_jump_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.jump_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "jump_show"
+          ]
+        },
+        "transform2d.Hidden": {},
+        "tag.Tag": {
+          "tag": "text_jump_show_line"
+        }
+      }
+    },
+    {
+      "name": "text_jump_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_jump_show_line",
           "smooth": true,
           "keys": 3,
           "t0": 0,
@@ -4910,7 +7176,7 @@
           "v1": 0,
           "t2": 115,
           "v2": 215,
-          "start": "inventory_next"
+          "start": "walk_done"
         }
       }
     },
@@ -4928,7 +7194,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 240
         },
         "phase.ShowIn": {
           "phases": [
@@ -4936,28 +7202,7 @@
             "jump_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_jump"
-        }
-      }
-    },
-    {
-      "name": "text_jump_title_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_jump",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 60,
-          "v1": 0,
-          "t2": 90,
-          "v2": 240,
-          "start": "walk_done"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -4974,7 +7219,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 0
+          "alpha": 215
         },
         "phase.ShowIn": {
           "phases": [
@@ -4982,28 +7227,55 @@
             "jump_practice"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_jump_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
-      "name": "text_jump_line_comes",
+      "name": "text_obstacles_title",
       "components": {
-        "tween2d.Track": {
-          "field": "text2d.Text.alpha",
-          "onto": "text_jump_line",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 85,
-          "v1": 0,
-          "t2": 115,
-          "v2": 215,
-          "start": "walk_done"
-        }
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.obstacles.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "obstacles"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_obstacles_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.obstacles.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "obstacles"
+          ]
+        },
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -5310,223 +7582,54 @@
       }
     },
     {
-      "name": "runaway",
+      "name": "thrown_up",
       "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "transform2d.Velocity.y",
+          "value": -1400
+        }
+      }
+    },
+    {
+      "name": "out_of_pull",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "gravity2d.Gravity.y",
+          "value": -700
+        }
+      }
+    },
+    {
+      "name": "sky_opens",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "camera",
+          "field": "camera2d.CameraFollow.bound_top",
+          "value": -100000
+        }
+      }
+    },
+    {
+      "name": "orbit_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "transform2d.Position.y",
+          "action": "exploded",
+          "max": -3000
         },
-        "tag.Tag": {
-          "tag": "runaway"
-        },
-        "transform2d.Disabled": {},
         "phase.ActiveIn": {
           "phases": [
             "end"
           ]
         },
-        "follow2d.Follow": {
-          "target": "hero",
-          "offset_y": -78,
-          "stiffness": 1
-        },
-        "attractor2d.Attractor": {
-          "start_radius": 24,
-          "grow": 150,
-          "max_radius": 1600,
-          "pull": 2600,
-          "pulls": [
-            "rock"
-          ],
-          "inner": 0.4
-        },
-        "terrain2d.Digger": {
-          "radius": 0,
-          "layers": [
-            "ground"
-          ]
-        },
-        "sprite2d.Sprite": {
-          "atlas": "black_hole",
-          "width": 2,
-          "height": 2,
-          "layer": 17,
-          "unlit": true
-        },
-        "transform2d.Scale": {
-          "factor": 0
-        },
-        "transform2d.Rotation": {}
-      }
-    },
-    {
-      "name": "runaway_digs",
-      "components": {
-        "bind.Bind": {
-          "source": "attractor2d.Attractor.heart",
-          "from": "runaway",
-          "target": "terrain2d.Digger.radius",
-          "onto": "runaway",
-          "low": 0,
-          "high": 5000,
-          "out_low": 0,
-          "out_high": 5000,
-          "power": 1
-        }
-      }
-    },
-    {
-      "name": "runaway_shows",
-      "components": {
-        "bind.Bind": {
-          "source": "attractor2d.Attractor.radius",
-          "from": "runaway",
-          "target": "transform2d.Scale.factor",
-          "onto": "runaway",
-          "low": 0,
-          "high": 5000,
-          "out_low": 0,
-          "out_high": 5000,
-          "power": 1
-        }
-      }
-    },
-    {
-      "name": "runaway_turns",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Rotation.angle",
-          "onto": "runaway",
-          "smooth": false,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 240,
-          "v1": 360,
-          "loop": true
-        }
-      }
-    },
-    {
-      "name": "runaway_rises",
-      "components": {
-        "tween2d.Track": {
-          "field": "follow2d.Follow.offset_y",
-          "onto": "runaway",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -78,
-          "t1": 300,
-          "v1": -220,
-          "start": "departure_done"
-        }
-      }
-    },
-    {
-      "name": "runaway_slips",
-      "components": {
-        "tween2d.Track": {
-          "field": "follow2d.Follow.stiffness",
-          "onto": "runaway",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1,
-          "t1": 60,
-          "v1": 0.04,
-          "start": "departure_done"
-        }
-      }
-    },
-    {
-      "name": "jump_hole_leaves",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "jump_hole",
-          "field": "sprite2d.Sprite.alpha",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "jump_hole_dark",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "jump_hole",
-          "field": "light2d.Light.intensity",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "ground_shakes",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "camera",
-          "field": "camera2d.CameraShake.strength",
-          "value": 14
-        }
-      }
-    },
-    {
-      "name": "dome_melts",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "dome",
-          "smooth": true,
-          "keys": 2,
-          "t0": 60,
-          "v0": 230,
-          "t1": 300,
-          "v1": 0,
-          "start": "departure_done"
-        }
-      }
-    },
-    {
-      "name": "blast",
-      "components": {
-        "transform2d.Position": {
-          "x": 960.0,
-          "y": 540.0
-        },
-        "tag.Tag": {
-          "tag": "blast"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "plain",
-          "width": 1984,
-          "height": 1144,
-          "screen": true,
-          "red": 255,
-          "green": 255,
-          "blue": 255,
-          "alpha": 0,
-          "unlit": true,
-          "layer": 1000
-        }
-      }
-    },
-    {
-      "name": "blast_comes",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "blast",
-          "smooth": true,
-          "keys": 2,
-          "t0": 240,
-          "v0": 0,
-          "t1": 330,
-          "v1": 255,
-          "start": "departure_done",
-          "end_action": "exploded"
-        }
+        "transform2d.Disabled": {}
       }
     },
     {
@@ -5898,55 +8001,7 @@
       }
     },
     {
-      "name": "jump_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "walk_done"
-        }
-      }
-    },
-    {
-      "name": "jump_goes_back",
+      "name": "walk_goes_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.Camera.zoom",
@@ -5962,7 +8017,7 @@
       }
     },
     {
-      "name": "jump_looks_back",
+      "name": "walk_looks_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.offset_y",
@@ -5982,7 +8037,7 @@
       }
     },
     {
-      "name": "jump_follows_back",
+      "name": "walk_follows_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.dead_y",
@@ -6630,6 +8685,327 @@
           "t4": 210,
           "v4": 0,
           "start": "awakens_jump"
+        }
+      }
+    },
+    {
+      "name": "demo_black",
+      "components": {
+        "transform2d.Position": {
+          "x": 960,
+          "y": 570
+        },
+        "tag.Tag": {
+          "tag": "demo_black"
+        },
+        "transform2d.Disabled": {},
+        "phase.ActiveIn": {
+          "phases": [
+            "black_show"
+          ]
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 6,
+          "grow": 30,
+          "max_radius": 60,
+          "shrink": 120,
+          "pull": 1500,
+          "pulls": [
+            "rock"
+          ],
+          "inner": 0.4
+        },
+        "light2d.Light": {
+          "radius": 140,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0.6
+        },
+        "particles2d.Emitter": {
+          "rate": 40,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 5,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 260,
+          "pull": 1800,
+          "swirl": 520
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {}
+      }
+    },
+    {
+      "name": "demo_black_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "demo_black",
+          "target": "transform2d.Scale.factor",
+          "onto": "demo_black",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_black_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "demo_black",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "demo_harvest",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 588
+        },
+        "tag.Tag": {
+          "tag": "demo_harvest"
+        },
+        "transform2d.Disabled": {},
+        "phase.ActiveIn": {
+          "phases": [
+            "harvest_show"
+          ]
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 10,
+          "grow": 25,
+          "max_radius": 50,
+          "shrink": 200,
+          "pull": 300,
+          "pulls": [
+            "rock"
+          ],
+          "inner": 1
+        },
+        "terrain2d.Digger": {
+          "radius": 0,
+          "layers": [
+            "ground"
+          ]
+        },
+        "sprite2d.Sprite": {
+          "atlas": "harvest",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        }
+      }
+    },
+    {
+      "name": "demo_harvest_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "demo_harvest",
+          "target": "transform2d.Scale.factor",
+          "onto": "demo_harvest",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_harvest_digs",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.heart",
+          "from": "demo_harvest",
+          "target": "terrain2d.Digger.radius",
+          "onto": "demo_harvest",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 760,
+          "y": 470
+        },
+        "tag.Tag": {
+          "tag": "demo_bubble"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 46
+        }
+      }
+    },
+    {
+      "name": "demo_wall",
+      "components": {
+        "transform2d.Position": {
+          "x": 880,
+          "y": 530
+        },
+        "tag.Tag": {
+          "tag": "demo_wall"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": false,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "end_x": 1000,
+          "end_y": 450
+        }
+      }
+    },
+    {
+      "name": "demo_bubble_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_next",
+          "source": "demo_bubble",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_bubble_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_show_done",
+          "source": "demo_bubble",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_wall_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "demo_wall_now",
+          "source": "demo_wall",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_wall_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_show_done",
+          "source": "demo_wall",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_wall_timer",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 170,
+          "v1": 1,
+          "start": "black_next",
+          "end_action": "demo_wall_now"
+        }
+      }
+    },
+    {
+      "name": "demo_walks",
+      "components": {
+        "rules.Press": {
+          "start": "inventory_next",
+          "action": "demo_walk",
+          "value": 1,
+          "delay": 70,
+          "ticks": 90
+        }
+      }
+    },
+    {
+      "name": "demo_jumps",
+      "components": {
+        "rules.Press": {
+          "start": "walk_done",
+          "action": "demo_jump",
+          "value": 1,
+          "delay": 80,
+          "ticks": 55
         }
       }
     },

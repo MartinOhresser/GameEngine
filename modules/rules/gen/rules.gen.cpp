@@ -218,13 +218,99 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
 
 constexpr std::array<::ge::app::FieldInfo, 7> component_1_fields{{{"action", "u32", "action", false}, {"source", "u32", "tag", false}, {"own", "bool", "", false}, {"field", "u32", "field", false}, {"value", "f32", "", false}, {"add", "bool", "", false}, {"link", "u32", "field", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Watch", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"OnAction", false, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
+void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    Press component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "start") {
+            component.start = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "action") {
+            component.action = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "value") {
+            component.value = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "delay") {
+            component.delay = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "ticks") {
+            component.ticks = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "times") {
+            component.times = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const Press* component = world.get<Press>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "start") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->start)};
+    }
+    if (field == "action") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->action)};
+    }
+    if (field == "value") {
+        return ::ge::app::Scalar{static_cast<double>(component->value)};
+    }
+    if (field == "delay") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->delay)};
+    }
+    if (field == "ticks") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->ticks)};
+    }
+    if (field == "times") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->times)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    Press* component = world.get<Press>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "start") {
+        component->start = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "action") {
+        component->action = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "value") {
+        component->value = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    if (field == "delay") {
+        component->delay = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "ticks") {
+        component->ticks = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "times") {
+        component->times = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 6> component_2_fields{{{"start", "u32", "action", false}, {"action", "u32", "action", false}, {"value", "f32", "", false}, {"delay", "u32", "", false}, {"ticks", "u32", "", false}, {"times", "u32", "", false}}};
+
+constexpr std::array<::ge::app::ComponentInfo, 3> components{{{"Watch", false, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"OnAction", false, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Press", false, component_2_fields, insert_component_2, read_component_2, write_component_2}}};
 
 constexpr std::array<std::string_view, 3> system_0_reads{"rules.Watch", "tag.Tag", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 1> system_0_writes{"rules.Watch"};
 constexpr std::array<std::string_view, 3> system_1_reads{"rules.OnAction", "tag.Tag", "transform2d.Disabled"};
 constexpr std::array<std::string_view, 0> system_1_writes{};
-constexpr std::array<::ge::app::SystemInfo, 2> systems{{{"rules.watch", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"rules.on_action", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}}};
+constexpr std::array<std::string_view, 1> system_2_reads{"transform2d.Disabled"};
+constexpr std::array<std::string_view, 1> system_2_writes{"rules.Press"};
+constexpr std::array<::ge::app::SystemInfo, 3> systems{{{"rules.watch", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"rules.on_action", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"rules.press", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}}};
 
 constexpr std::array<std::string_view, 2> depends{"tag", "transform2d"};
 constexpr std::array<::ge::app::ParamInfo, 0> params{};
@@ -240,6 +326,7 @@ void install(::ge::app::App& app) {
     app.add_module(info());
     app.add_system(::ge::app::Stage::FixedUpdate, &watch, "rules.watch");
     app.add_system(::ge::app::Stage::FixedUpdate, &on_action, "rules.on_action");
+    app.add_system(::ge::app::Stage::FixedUpdate, &press, "rules.press");
 }
 
 } // namespace ge::mod::rules
