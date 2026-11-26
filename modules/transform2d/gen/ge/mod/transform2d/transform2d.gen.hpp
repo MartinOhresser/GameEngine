@@ -195,8 +195,8 @@ void anchor(::ge::ecs::World& world);
 /// Runs in PreUpdate.
 void remember(::ge::ecs::World& world);
 
-/// Moves the drawn place of every Smooth entity after its true Position, share of the way for each tick that ran since it was last moved (ge/mod/transform2d/drawn.hpp draws it there).
-/// Runs in PreUpdate.
+/// Moves the drawn place of every Smooth entity after its true Position, share of the way each tick (ge/mod/transform2d/drawn.hpp draws it there). It runs at the start of each tick, on where the last tick left the entity: the glide is then always one tick behind, the same on every frame, whether a frame runs a tick or not (a 144 Hz screen draws two or three frames per tick).
+/// Runs in FixedUpdate.
 void smooth(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.

@@ -11,7 +11,7 @@
 
 namespace ge::mod::terrain2d {
 
-/// A grid of columns by rows square cells, cell units wide, whose top-left corner is the entity's Position (the grid does not move). It is built on the first tick: a cell is solid below a surface line surface cells from the top, which rises and falls by up to amplitude cells in hills about wavelength cells wide (a smooth noise drawn from seed); with round, it is a disc in the middle of the grid instead, whose top is surface cells from the top of the grid, its edge rising and falling the same way all around; with filled, every cell is solid. Shapes then add or carve what the game draws by hand. layer is what the terrain is (a set of names of the game's layer list): it stops every collision2d.Body whose Collider mask includes it, which may climb steps up to climb units high while walking. The module keeps generated, solid_cells (how many cells are solid: a rule or a test can watch the ground being dug) and revision (one more every time a cell changes).
+/// A grid of columns by rows square cells, cell units wide, whose top-left corner is the entity's Position (the grid does not move). It is built on the first tick: a cell is solid below a surface line surface cells from the top, which rises and falls by up to amplitude cells in hills about wavelength cells wide (a smooth noise drawn from seed); with round, it is a disc in the middle of the grid instead, whose top is surface cells from the top of the grid, its edge rising and falling the same way all around; with filled, every cell is solid. Shapes then add or carve what the game draws by hand. layer is what the terrain is (a set of names of the game's layer list): it stops every collision2d.Body whose Collider mask includes it, which may climb steps up to climb units high while walking. With crumble, a dig also carves the cells near it that are left mostly surrounded by open ones (fewer than half of the cells within crumble of them solid): the crumbs a drawing smoothed over that many cells (terrain2d.Look smooth) would not show, and that would stop a body where nothing is seen. With stick, a body that walks stays on the ground down a slope or a step no higher than climb, instead of falling off each step (and looking like it falls). With smooth, bodies collide with the ground as a terrain2d.Look smoothed over that many cells draws it: solid where the cells around are more than half solid, so that steps of cells are slopes walked evenly and nothing unseen stops them (hard cells, the edges of a world, stop them whatever is drawn). The module keeps generated, solid_cells (how many cells are solid: a rule or a test can watch the ground being dug) and revision (one more every time a cell changes).
 struct Terrain {
     std::uint32_t columns = 256U;
     std::uint32_t rows = 64U;
@@ -24,6 +24,9 @@ struct Terrain {
     bool round = false;
     bool filled = false;
     float climb = 12.0F;
+    std::uint32_t crumble = 0U;
+    bool stick = false;
+    std::uint32_t smooth = 0U;
     bool generated = false;
     std::uint32_t solid_cells = 0U;
     std::uint32_t revision = 0U;
@@ -40,6 +43,9 @@ struct Terrain {
         hasher.add(round);
         hasher.add(filled);
         hasher.add(climb);
+        hasher.add(crumble);
+        hasher.add(stick);
+        hasher.add(smooth);
         hasher.add(generated);
         hasher.add(solid_cells);
         hasher.add(revision);

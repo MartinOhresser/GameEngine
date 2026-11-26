@@ -70,6 +70,7 @@ void raise(ecs::World& world, Caster& caster, const transform2d::Position& at) {
     barrier->end_y = caster.end_y;
     barrier->thickness = caster.thickness;
     barrier->order = order;
+    barrier->age = 0.0F;
     if (auto* place = world.get<transform2d::Position>(entity); place != nullptr) {
         *place = at;
     }
@@ -228,6 +229,101 @@ app::DrawCommand wall_picture(std::uint32_t atlas, std::uint32_t frame, float x,
     return command;
 }
 
+constexpr float turn = 2.0F * std::numbers::pi_v<float>;
+
+/// How much of its size a barrier raised `age` seconds ago is drawn at: from nothing to a little
+/// past all of it, then all of it (it springs up), over `appear` seconds.
+float springing(float age, float appear) {
+    if (appear <= 0.0F || age >= appear) {
+        return 1.0F;
+    }
+    constexpr float back = 1.70158F;
+    const float u = (age / appear) - 1.0F;
+    return std::max(1.0F + ((back + 1.0F) * u * u * u) + (back * u * u), 0.0F);
+}
+
+/// Its size breathing once up: a slow wave of the share wobble.
+float breathing(float age, float wobble) {
+    return 1.0F + (wobble * std::sin(age * turn * 0.45F)) +
+           (wobble * 0.4F * std::sin((age * turn * 1.1F) + 1.3F));
+}
+
+/// A number in [0, 1) for a barrier's spark: the same for the same raising and spark.
+float chance(std::uint32_t order, std::uint32_t spark, std::uint32_t salt) {
+    std::uint64_t value = (static_cast<std::uint64_t>(order) << 32U) ^
+                          (static_cast<std::uint64_t>(spark) * 0x9E3779B97F4A7C15ULL) ^
+                          (static_cast<std::uint64_t>(salt) * 0xC2B2AE3D27D4EB4FULL);
+    value ^= value >> 30U;
+    value *= 0xBF58476D1CE4E5B9ULL;
+    value ^= value >> 27U;
+    value *= 0x94D049BB133111EBULL;
+    value ^= value >> 31U;
+    return static_cast<float>(value >> 40U) / static_cast<float>(1U << 24U);
+}
+
+/// The glints a barrier lets fly as it appears, `age` seconds after: from its edge (a bubble) or
+/// its length (a wall), outwards, slowing down, shrinking and fading.
+void add_sparks(sprite2d::LayeredDraws& draws, const Barrier& barrier,
+                const transform2d::Position& at, float age) {
+    if (barrier.sparks == 0U || barrier.spark_life <= 0.0F || age >= barrier.spark_life) {
+        return;
+    }
+    const float left = 1.0F - (age / barrier.spark_life);
+    for (std::uint32_t spark = 0; spark < barrier.sparks; spark += 1) {
+        const float a = chance(barrier.order, spark, 1U);
+        const float speed = barrier.spark_speed * (0.5F + chance(barrier.order, spark, 2U));
+        const float gone = speed * age * (1.0F - (0.5F * age / barrier.spark_life));
+        float x = 0.0F;
+        float y = 0.0F;
+        float out_x = 0.0F;
+        float out_y = 0.0F;
+        if (barrier.round) {
+            out_x = std::cos(a * turn);
+            out_y = std::sin(a * turn);
+            x = at.x + (out_x * barrier.radius);
+            y = at.y + (out_y * barrier.radius);
+        } else {
+            const float dx = barrier.end_x - at.x;
+            const float dy = barrier.end_y - at.y;
+            const float long_way = std::max(length(dx, dy), 0.001F);
+            const float side = chance(barrier.order, spark, 3U) < 0.5F ? -1.0F : 1.0F;
+            out_x = -dy / long_way * side;
+            out_y = dx / long_way * side;
+            x = at.x + (dx * a);
+            y = at.y + (dy * a);
+        }
+        app::DrawCommand glint;
+        glint.what = "glow";
+        glint.x = x + (out_x * gone);
+        glint.y = y + (out_y * gone);
+        glint.size = barrier.spark_size * left * (0.6F + (0.8F * chance(barrier.order, spark, 4U)));
+        const auto alpha = static_cast<std::uint32_t>(
+            std::lround(static_cast<float>(barrier.spark_color & 0xFFU) * left));
+        glint.color = (barrier.spark_color & 0xFFFFFF00U) | std::min(alpha, 255U);
+        glint.blend = app::Blend::Add;
+        glint.lit = false;
+        draws.add(barrier.draw_layer, glint);
+    }
+}
+
+/// The picture of a raised barrier as it is drawn now, `age` seconds after it went up.
+app::DrawCommand barrier_picture(const Barrier& barrier, const transform2d::Position& at,
+                                 float age) {
+    const float grown = springing(age, barrier.appear);
+    const float alive = breathing(age, barrier.wobble);
+    if (barrier.round) {
+        return bubble_picture(barrier.atlas, barrier.bubble, at.x, at.y,
+                              barrier.radius * grown * alive);
+    }
+    // A wall opens from its middle to its ends.
+    const float mid_x = (at.x + barrier.end_x) / 2.0F;
+    const float mid_y = (at.y + barrier.end_y) / 2.0F;
+    const float half_x = (barrier.end_x - at.x) / 2.0F * grown;
+    const float half_y = (barrier.end_y - at.y) / 2.0F * grown;
+    return wall_picture(barrier.atlas, barrier.wall, mid_x - half_x, mid_y - half_y,
+                        mid_x + half_x, mid_y + half_y, barrier.thickness * grown * alive);
+}
+
 } // namespace
 
 void cast(ecs::World& world) {
@@ -252,12 +348,15 @@ void cast(ecs::World& world) {
 }
 
 void block(ecs::World& world) {
+    const float tick = world.resource<app::Time>()->fixed_delta *
+                       world.resource<transform2d::Params>()->speed_scale;
+    world.each<Barrier>([tick](ecs::Entity, Barrier& barrier) {
+        barrier.age = barrier.up ? barrier.age + tick : 0.0F;
+    });
     const std::vector<Up> up = barriers_up(world);
     if (up.empty()) {
         return;
     }
-    const float tick = world.resource<app::Time>()->fixed_delta *
-                       world.resource<transform2d::Params>()->speed_scale;
     world.each<const collision2d::Body, const collision2d::Collider, transform2d::Position,
                transform2d::Velocity>([&](ecs::Entity entity, const collision2d::Body&,
                                           const collision2d::Collider& collider,
@@ -285,17 +384,20 @@ void block(ecs::World& world) {
 
 void draw(ecs::World& world) {
     auto& draws = sprite2d::layered_draws(world);
+    // Between two ticks on a screen faster than the game: the age of now, not of the last tick.
+    const auto* time = world.resource<app::Time>();
+    const float since_tick = time != nullptr && time->interpolate
+                                 ? time->alpha * time->fixed_delta *
+                                       world.resource<transform2d::Params>()->speed_scale
+                                 : 0.0F;
     world.each<const Barrier, const transform2d::Position>(
         [&](ecs::Entity entity, const Barrier& barrier, const transform2d::Position& at) {
             if (!barrier.up || barrier.atlas == none || world.has<transform2d::Hidden>(entity)) {
                 return;
             }
-            draws.add(barrier.draw_layer,
-                      barrier.round
-                          ? bubble_picture(barrier.atlas, barrier.bubble, at.x, at.y,
-                                           barrier.radius)
-                          : wall_picture(barrier.atlas, barrier.wall, at.x, at.y, barrier.end_x,
-                                         barrier.end_y, barrier.thickness));
+            const float age = barrier.age + since_tick;
+            draws.add(barrier.draw_layer, barrier_picture(barrier, at, age));
+            add_sparks(draws, barrier, at, age);
         });
     world.each<const Caster, const transform2d::Position>(
         [&](ecs::Entity, const Caster& caster, const transform2d::Position& at) {

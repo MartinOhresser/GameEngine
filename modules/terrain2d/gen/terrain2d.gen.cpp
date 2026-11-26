@@ -40,6 +40,12 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.filled = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "climb") {
             component.climb = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "crumble") {
+            component.crumble = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "stick") {
+            component.stick = ::ge::app::scalar_as<bool>(field.value);
+        } else if (field.name == "smooth") {
+            component.smooth = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "generated") {
             component.generated = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "solid_cells") {
@@ -89,6 +95,15 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "climb") {
         return ::ge::app::Scalar{static_cast<double>(component->climb)};
+    }
+    if (field == "crumble") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->crumble)};
+    }
+    if (field == "stick") {
+        return ::ge::app::Scalar{static_cast<bool>(component->stick)};
+    }
+    if (field == "smooth") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->smooth)};
     }
     if (field == "generated") {
         return ::ge::app::Scalar{static_cast<bool>(component->generated)};
@@ -153,6 +168,18 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->climb = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "crumble") {
+        component->crumble = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
+    if (field == "stick") {
+        component->stick = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
+    if (field == "smooth") {
+        component->smooth = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     if (field == "generated") {
         component->generated = ::ge::app::scalar_as<bool>(value);
         return true;
@@ -168,7 +195,7 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 14> component_0_fields{{{"columns", "u32", "", false}, {"rows", "u32", "", false}, {"cell", "f32", "", false}, {"layer", "u32", "layer", true}, {"surface", "f32", "", false}, {"amplitude", "f32", "", false}, {"wavelength", "f32", "", false}, {"seed", "u32", "", false}, {"round", "bool", "", false}, {"filled", "bool", "", false}, {"climb", "f32", "", false}, {"generated", "bool", "", false}, {"solid_cells", "u32", "", false}, {"revision", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 17> component_0_fields{{{"columns", "u32", "", false}, {"rows", "u32", "", false}, {"cell", "f32", "", false}, {"layer", "u32", "layer", true}, {"surface", "f32", "", false}, {"amplitude", "f32", "", false}, {"wavelength", "f32", "", false}, {"seed", "u32", "", false}, {"round", "bool", "", false}, {"filled", "bool", "", false}, {"climb", "f32", "", false}, {"crumble", "u32", "", false}, {"stick", "bool", "", false}, {"smooth", "u32", "", false}, {"generated", "bool", "", false}, {"solid_cells", "u32", "", false}, {"revision", "u32", "", false}}};
 
 void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

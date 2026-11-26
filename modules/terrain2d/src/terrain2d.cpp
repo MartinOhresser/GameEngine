@@ -137,7 +137,7 @@ struct Box {
 
 bool free_at(const std::vector<const Grid*>& grids, const Box& box, float x, float y) {
     return std::ranges::none_of(grids, [&](const Grid* grid) {
-        return grid->any_in(x - box.half_w, y - box.half_h, x + box.half_w, y + box.half_h);
+        return grid->blocks(x - box.half_w, y - box.half_h, x + box.half_w, y + box.half_h);
     });
 }
 
@@ -172,8 +172,15 @@ void move_x(const std::vector<const Grid*>& grids, Box& box, float dx, float cli
         bool climbed = false;
         for (float lift = 1.0F; standing && lift <= climb; lift += 1.0F) {
             if (free_at(grids, box, next, box.y - lift)) {
+                // As little as it takes (a slope of smoothed ground is climbed evenly).
+                float low = lift;
+                float high = lift - 1.0F;
+                for (int round = 0; round < 10; round += 1) {
+                    const float middle = (low + high) / 2.0F;
+                    (free_at(grids, box, next, box.y - middle) ? low : high) = middle;
+                }
                 box.x = next;
-                box.y -= lift;
+                box.y -= low;
                 climbed = true;
                 break;
             }
@@ -214,6 +221,25 @@ void move_y(const std::vector<const Grid*>& grids, Box& box, float dy, Stops& st
     }
 }
 
+/// Puts a box that walked off a low step (down a slope, down a stair) back on the ground under it,
+/// if that ground is no more than climb below; false when it is further (the body falls).
+bool step_down(const std::vector<const Grid*>& grids, Box& box, float climb) {
+    for (float drop = 1.0F; drop <= climb + 1.0F; drop += 1.0F) {
+        if (free_at(grids, box, box.x, box.y + drop)) {
+            continue;
+        }
+        float low = box.y + drop - 1.0F;
+        float high = box.y + drop;
+        for (int round = 0; round < 12; round += 1) {
+            const float middle = (low + high) / 2.0F;
+            (free_at(grids, box, box.x, middle) ? low : high) = middle;
+        }
+        box.y = low;
+        return true;
+    }
+    return false;
+}
+
 /// Lifts a box that is inside the ground up to the first free place, a cell at a time.
 bool lift_out(const std::vector<const Grid*>& grids, Box& box) {
     if (free_at(grids, box, box.x, box.y)) {
@@ -252,6 +278,7 @@ void note(collision2d::Blocked* blocked, const Stops& stops) {
 void build(ecs::World& world) {
     Cells& cells = cells_of(world);
     std::vector<std::uint64_t> alive;
+    std::vector<std::uint64_t> touched; // built or shaped this tick: their smoothing is redone
     world.each<Terrain, const transform2d::Position>(
         [&](ecs::Entity entity, Terrain& terrain, const transform2d::Position& at) {
             const std::uint64_t link = entity.to_link();
@@ -266,6 +293,7 @@ void build(ecs::World& world) {
             grid.x = at.x;
             grid.y = at.y;
             grid.layer = terrain.layer;
+            grid.blur = terrain.smooth;
             grid.solid.assign(static_cast<std::size_t>(grid.columns) * grid.rows, 0U);
             if (terrain.filled) {
                 std::ranges::fill(grid.solid, std::uint8_t{1});
@@ -275,6 +303,7 @@ void build(ecs::World& world) {
                 generate_flat(terrain, grid);
             }
             cells.grids[link] = std::move(grid);
+            touched.push_back(link);
             terrain.generated = true;
             terrain.revision += 1U;
         });
@@ -290,6 +319,7 @@ void build(ecs::World& world) {
             for (auto& [link, grid] : cells.grids) {
                 if ((grid.layer & shape.layers) != 0U) {
                     apply_shape(shape, at, grid);
+                    touched.push_back(link);
                     if (auto* terrain = world.get<Terrain>(ecs::Entity::from_link(link));
                         terrain != nullptr) {
                         terrain->revision += 1U;
@@ -298,6 +328,11 @@ void build(ecs::World& world) {
             }
             shape.applied = true;
         });
+    for (const std::uint64_t link : touched) {
+        if (const auto found = cells.grids.find(link); found != cells.grids.end()) {
+            found->second.refresh_all();
+        }
+    }
     world.each<Terrain>([&](ecs::Entity entity, Terrain& terrain) {
         if (const auto found = cells.grids.find(entity.to_link()); found != cells.grids.end()) {
             terrain.solid_cells = count_solid(found->second);
@@ -317,13 +352,16 @@ void dig(ecs::World& world) {
                 if ((grid.layer & digger.layers) == 0U) {
                     continue;
                 }
-                const std::uint32_t carved = grid.carve(at.x, at.y, digger.radius);
+                std::uint32_t carved = grid.carve(at.x, at.y, digger.radius);
                 if (carved == 0U) {
                     continue;
                 }
+                auto* terrain = world.get<Terrain>(ecs::Entity::from_link(link));
+                if (terrain != nullptr) {
+                    carved += grid.crumble(at.x, at.y, digger.radius, terrain->crumble);
+                }
                 digger.last += carved;
-                if (auto* terrain = world.get<Terrain>(ecs::Entity::from_link(link));
-                    terrain != nullptr) {
+                if (terrain != nullptr) {
                     terrain->solid_cells -= std::min(terrain->solid_cells, carved);
                     terrain->revision += 1U;
                 }
@@ -349,9 +387,11 @@ void collide(ecs::World& world) {
             return;
         }
         float climb = 0.0F;
+        bool stick = false;
         world.each<const Terrain>([&](ecs::Entity, const Terrain& terrain) {
             if ((terrain.layer & collider.mask) != 0U) {
                 climb = std::max(climb, terrain.climb);
+                stick = stick || terrain.stick;
             }
         });
         const float scale = world.has<transform2d::SpeedScale>(entity)
@@ -362,8 +402,12 @@ void collide(ecs::World& world) {
         Box box{position.x - dx, position.y - dy, collider.width / 2.0F, collider.height / 2.0F};
         Stops stops;
         stops.below = lift_out(grids, box);
+        const bool standing = !free_at(grids, box, box.x, box.y + 1.0F);
         move_x(grids, box, dx, climb, stops);
         move_y(grids, box, dy, stops);
+        if (stick && standing && !stops.below && velocity.y >= 0.0F && dx != 0.0F) {
+            stops.below = step_down(grids, box, climb);
+        }
         if (stops.below && velocity.y > 0.0F) {
             velocity.y = 0.0F;
         }

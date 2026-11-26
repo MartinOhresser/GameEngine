@@ -6,11 +6,11 @@ Phases 1 et 2 de la [roadmap globale](ROADMAP.md), jusqu'au jalon **J1 « Tutori
 
 ### Le lieu
 
-Une seule planète, enfermée dans l'immense barrière du début :
+Une seule planète, sans barrière autour (D27) :
 
-- **Vue de l'espace** (cinématiques), elle est ronde, sous un dôme qui brille faiblement.
-- **En jouant**, son sol est plat (D1, P6). Il fait environ quatre écrans de large, et on le voit de côté, comme dans Ori : un peu du dessus du sol, des plans de décor en profondeur, et le dôme en arc dans le ciel.
-- **En noir, blanc et gris.** La seule lumière est celle des étoiles, à travers le dôme.
+- **Vue de l'espace** (cinématiques), elle est ronde.
+- **En jouant**, son sol est plat (D1, P6). Il fait environ quatre écrans de large, et on le voit de côté, comme dans Ori : un peu du dessus du sol et des plans de décor en profondeur.
+- **En noir, blanc et gris.** La seule lumière est celle des étoiles.
 
 De gauche à droite :
 
@@ -19,7 +19,7 @@ De gauche à droite :
 | A — l'atterrissage | Le point d'arrivée, à portée de main : deux rochers (matière), un fossile (carbone) et un petit objet à protéger | 1 à 5 |
 | B — le chemin | Un sol à suivre, une marche, puis un fossé et un rebord en hauteur | 6 et 7 |
 | C — la cuvette | Gisements de carbone, puis de matière, assez loin les uns des autres pour qu'il faille bouger | 8 et 9 |
-| D — le bord | Un espace dégagé sous le sommet du dôme | 10 |
+| D — le bord | Un espace dégagé au bout de la planète | 10 |
 
 ### Les contrôles
 
@@ -116,7 +116,7 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 **U6 — Le Blanc (`barrier2d`).**
 
 - Une bulle qui grossit tant qu'on maintient, ou un segment par clic glissé.
-- Coût en carbone à la pose, 3 barrières au plus (la plus ancienne disparaît).
+- Coût en carbone à la pose, une seule barrière à la fois : la nouvelle remplace l'ancienne (D29). Elle apparaît en grandissant, lâche des éclats de verre, puis respire légèrement.
 - Solide pour l'extérieur (P4), elle bloque les effets venus de dehors et fige le temps de ce qu'elle contient.
 - Scénarios : `barrier_blocks_rock`, `barrier_max_three`, `barrier_freezes_inside`.
 
@@ -145,7 +145,7 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 
 **U10 — La planète et la séquence.**
 
-- La scène `tutorial`, générée par `make_assets.py` : zones A à D et dôme.
+- La scène `tutorial`, générée par `make_assets.py` : zones A à D.
 - Les dix étapes en phases (`phase`), leurs conditions (`rules.Watch`) et leurs textes (`text2d`, `phase.ShowIn`).
 - Le déplacement est verrouillé jusqu'à l'étape 6 (D4), par un verrou d'actions selon la phase. C'est une petite extension générique de `phase` ou d'`action_control`.
 - Scénarios :
@@ -155,9 +155,9 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 
 **U11 — Les cinématiques.**
 
-- L'ouverture (D23, D24) : noir, un point qui grossit et tremble, puis l'explosion (rayons, reflets, nuages de gaz colorés, lueurs, astéroïdes) ; couleurs qui s'éteignent, le ciel qui se construit ; la lumière du centre s'évanouit et laisse voir le personnage au loin, qui grandit et erre vers la planète ; elle grossit derrière lui jusqu'à couvrir le fond, puis glisse vers le bas (pivot), le ciel se fige, et il tombe sur le sol du tutoriel, sans coupure (scène « arrival »). Échap pour passer.
+- L'ouverture (D23, D24, D30) : noir quelques secondes, un point qui vient lentement, reste immobile, tremble de plus en plus, puis l'explosion (rayons, reflets, nuages de gaz colorés, lueurs) ; couleurs qui s'éteignent, le ciel qui se construit ; la lumière du centre s'évanouit et laisse voir le personnage au loin, qui grandit et erre vers la planète ; elle grossit derrière lui jusqu'à couvrir le fond, puis glisse vers le bas (pivot), le ciel se fige, et il tombe sur le sol du tutoriel, sans coupure (scène « arrival »). Échap pour passer.
 - La mini-cinématique de chaque étape : cadrage, geste, texte.
-- Le départ (D19, D20) : grand saut vers le ciel, le dôme se dissout ; l'attraction le ralentit et le dévie ; il se recroqueville dans une bulle et dérive, sans coupure, vers la planète suivante, puis « à suivre ». La planète quittée disparaît une fois hors de vue.
+- Le départ (D19, D20) : grand saut vers le ciel ; l'attraction le ralentit et le dévie ; il se recroqueville dans une bulle et dérive, sans coupure, vers la planète suivante, puis « à suivre ». La planète quittée disparaît une fois hors de vue.
 - Outils : `tween2d`, `camera2d`, `particles2d`, `postfx` et `terrain2d`.
 - Scénarios : `opening`, `opening_skips`, `departure`.
 
@@ -172,7 +172,7 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 
 - Les images définitives, générées par `make_assets.py` :
   - le personnage d'ovales, de profil, le torse un peu tourné vers nous et coupé en deux (D2). Ses animations sont fluides comme dans Ori. Ses bras portent des motifs : une spirale pour le Noir, des hexagones pour le Blanc ;
-  - le sol, dont on voit un peu le dessus, les plans de décor, le dôme, les étoiles ;
+  - le sol, dont on voit un peu le dessus, les plans de décor, les étoiles ;
   - les trous noirs et les bulles.
 - Lumière et particules dans l'esprit Limbo : gris, contre-jours, poussière.
 - Le module `sound` : un son par pouvoir (grave qui aspire, cristallin) et une musique d'ambiance.

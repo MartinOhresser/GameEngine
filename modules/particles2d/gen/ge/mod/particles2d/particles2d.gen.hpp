@@ -82,7 +82,7 @@ struct Emitter {
     [[nodiscard]] friend bool operator==(const Emitter&, const Emitter&) = default;
 };
 
-/// Lets out the particles of every Emitter and moves every particle by one tick (slowed with the world, transform2d.WorldSpeed); particles at the end of their lives are removed.
+/// Lets out the particles of every Emitter and moves every particle by one tick (slowed with the world, transform2d.WorldSpeed); particles at the end of their lives are removed. The particles of a scene that was left (app::CurrentScene) go with it: they live on after their emitter, not over the next scene.
 /// Runs in FixedUpdate.
 void advance(::ge::ecs::World& world);
 

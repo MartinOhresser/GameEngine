@@ -1,4 +1,5 @@
 #include "ge/app/app.hpp"
+#include "ge/app/render.hpp"
 #include "ge/mod/barrier2d/barrier2d.gen.hpp"
 #include "ge/mod/collision2d/collision2d.gen.hpp"
 #include "ge/mod/gravity2d/gravity2d.gen.hpp"
@@ -10,6 +11,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -151,4 +153,44 @@ TEST_CASE("barrier2d: bodies stand on a wall and on a bubble; inside a bubble, t
     // Frozen where it was, its speed kept for when the bubble goes.
     CHECK(std::abs(bubble.world().get<transform2d::Position>(inside)->x) < 1.0F);
     CHECK(std::abs(bubble.world().get<transform2d::Velocity>(inside)->x - 30.0F) < 0.01F);
+}
+
+TEST_CASE("barrier2d: a barrier springs up when raised, lets glints fly, then breathes") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game();
+    app.world().insert_resource(ge::app::RenderBackend{renderer});
+    const ge::ecs::Entity bubble = app.world().spawn();
+    CHECK(app.world().insert(bubble, transform2d::Position{100.0F, 100.0F}));
+    barrier2d::Barrier made;
+    made.radius = 40.0F;
+    made.atlas = 0U;
+    made.appear = 0.5F;
+    made.wobble = 0.05F;
+    made.sparks = 6U;
+    CHECK(app.world().insert(bubble, made));
+    const auto drawn = [&](std::uint32_t ticks, std::size_t& glints) {
+        app.run_frames(ticks - 1U);
+        renderer->clear(); // what the last frame draws
+        app.run_frames(1U);
+        float width = 0.0F;
+        glints = 0U;
+        for (const ge::app::DrawCommand& command : renderer->commands()) {
+            if (command.what == "sprite") {
+                width = command.width;
+            } else if (command.what == "glow") {
+                glints += 1U;
+            }
+        }
+        return width;
+    };
+    std::size_t glints = 0U;
+    app.world().get<barrier2d::Barrier>(bubble)->up = true;
+    const float first = drawn(2U, glints);
+    CHECK(first < 40.0F); // small at first
+    CHECK(glints == 6U);
+    const float later = drawn(60U, glints); // a second after: about its size, no glints left
+    CHECK(glints == 0U);
+    CHECK(std::abs(later - 80.0F) < 80.0F * 0.08F);
+    CHECK(app.world().get<barrier2d::Barrier>(bubble)->age > 0.9F);
+    // It still stops what it stops from the first tick: only the drawing springs up.
 }

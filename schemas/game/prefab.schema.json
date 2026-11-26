@@ -327,10 +327,38 @@
               "minimum": -2147483648,
               "maximum": 2147483647
             },
+            "appear": {
+              "type": "number"
+            },
+            "wobble": {
+              "type": "number"
+            },
+            "sparks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "spark_speed": {
+              "type": "number"
+            },
+            "spark_life": {
+              "type": "number"
+            },
+            "spark_size": {
+              "type": "number"
+            },
+            "spark_color": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
             "order": {
               "type": "integer",
               "minimum": 0,
               "maximum": 4294967295
+            },
+            "age": {
+              "type": "number"
             }
           },
           "additionalProperties": false
@@ -3390,6 +3418,9 @@
               "minimum": 0,
               "maximum": 4294967295
             },
+            "finish": {
+              "type": "boolean"
+            },
             "clip": {
               "type": "integer",
               "minimum": 0,
@@ -3551,6 +3582,19 @@
             },
             "climb": {
               "type": "number"
+            },
+            "crumble": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "stick": {
+              "type": "boolean"
+            },
+            "smooth": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
             },
             "generated": {
               "type": "boolean"

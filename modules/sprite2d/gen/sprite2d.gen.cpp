@@ -419,6 +419,8 @@ void insert_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "set") {
             component.set = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "finish") {
+            component.finish = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "clip") {
             component.clip = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "transition") {
@@ -436,6 +438,9 @@ std::optional<::ge::app::Scalar> read_component_4(const ::ge::ecs::World& world,
     }
     if (field == "set") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->set)};
+    }
+    if (field == "finish") {
+        return ::ge::app::Scalar{static_cast<bool>(component->finish)};
     }
     if (field == "clip") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->clip)};
@@ -457,6 +462,10 @@ bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->set = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "finish") {
+        component->finish = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     if (field == "clip") {
         component->clip = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
@@ -468,7 +477,7 @@ bool write_component_4(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 3> component_4_fields{{{"set", "u32", "animation_set", false}, {"clip", "u32", "", false}, {"transition", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_4_fields{{{"set", "u32", "animation_set", false}, {"finish", "bool", "", false}, {"clip", "u32", "", false}, {"transition", "u32", "", false}}};
 
 void insert_component_5(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {

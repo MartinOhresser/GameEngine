@@ -589,7 +589,7 @@ constexpr std::array<std::string_view, 1> system_4_reads{"transform2d.Position"}
 constexpr std::array<std::string_view, 0> system_4_writes{};
 constexpr std::array<std::string_view, 1> system_5_reads{"transform2d.Position"};
 constexpr std::array<std::string_view, 1> system_5_writes{"transform2d.Smooth"};
-constexpr std::array<::ge::app::SystemInfo, 6> systems{{{"transform2d.integrate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"transform2d.attach", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"transform2d.wear_off", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"transform2d.anchor", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}, {"transform2d.remember", ::ge::app::Stage::PreUpdate, system_4_reads, system_4_writes}, {"transform2d.smooth", ::ge::app::Stage::PreUpdate, system_5_reads, system_5_writes}}};
+constexpr std::array<::ge::app::SystemInfo, 6> systems{{{"transform2d.integrate", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}, {"transform2d.attach", ::ge::app::Stage::FixedUpdate, system_1_reads, system_1_writes}, {"transform2d.wear_off", ::ge::app::Stage::FixedUpdate, system_2_reads, system_2_writes}, {"transform2d.anchor", ::ge::app::Stage::FixedUpdate, system_3_reads, system_3_writes}, {"transform2d.remember", ::ge::app::Stage::PreUpdate, system_4_reads, system_4_writes}, {"transform2d.smooth", ::ge::app::Stage::FixedUpdate, system_5_reads, system_5_writes}}};
 
 constexpr std::array<std::string_view, 0> depends{};
 constexpr std::array<::ge::app::ParamInfo, 2> params{{{"speed_scale", "f32", 0.0, 10.0}, {"snap_distance", "f32", 0.0, 100000.0}}};
@@ -623,7 +623,7 @@ void install(::ge::app::App& app) {
     app.add_system(::ge::app::Stage::FixedUpdate, &wear_off, "transform2d.wear_off", ::ge::app::Order::between({"transform2d.integrate"}, {}));
     app.add_system(::ge::app::Stage::FixedUpdate, &anchor, "transform2d.anchor", ::ge::app::Order::between({"transform2d.attach"}, {}));
     app.add_system(::ge::app::Stage::PreUpdate, &remember, "transform2d.remember");
-    app.add_system(::ge::app::Stage::PreUpdate, &smooth, "transform2d.smooth", ::ge::app::Order::between({"transform2d.remember"}, {}));
+    app.add_system(::ge::app::Stage::FixedUpdate, &smooth, "transform2d.smooth", ::ge::app::Order::between({}, {"transform2d.integrate"}));
 }
 
 } // namespace ge::mod::transform2d

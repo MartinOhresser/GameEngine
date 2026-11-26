@@ -67,10 +67,11 @@
     },
     {
       "name": "Animator",
-      "description": "Chooses the entity's animation from its state, among the AnimationClips of its set (an item of the game's animation_set list): every tick, the clip with the highest priority whose condition holds for this entity is played by its SpriteAnimation (one is added when it has none). Switching to another clip starts it from its first cell; staying on the same one lets it run on. Many entities can share one set: every enemy of a kind, every copy of a prefab. When it goes from one clip to another and a transition clip of the set joins them, the transition plays first, once, then the new clip (a turn between running left and running right, a landing between falling and standing). clip (the id of the clip it is on) and transition (the ticks of transition left) are kept for you.",
+      "description": "Chooses the entity's animation from its state, among the AnimationClips of its set (an item of the game's animation_set list): every tick, the clip with the highest priority whose condition holds for this entity is played by its SpriteAnimation (one is added when it has none). Switching to another clip starts it from its first cell; staying on the same one lets it run on. Many entities can share one set: every enemy of a kind, every copy of a prefab. When it goes from one clip to another and a transition clip of the set joins them, the transition plays first, once, then the new clip (a turn between running left and running right, a landing between falling and standing). With finish, a transition always plays to its end: a change of state during it waits, then goes from the clip it led to (by its own transition, if there is one), so that quick changes (a fall that stops at once, a turn in the air) are passages one after the other, never a jump from the middle of one. clip (the id of the clip it is on, or that its transition leads to) and transition (the ticks of transition left) are kept for you.",
       "replicable": false,
       "fields": [
         { "name": "set", "type": "u32", "default": 0, "ref": "animation_set" },
+        { "name": "finish", "type": "bool", "default": false },
         { "name": "clip", "type": "u32", "default": 4294967295 },
         { "name": "transition", "type": "u32", "default": 0 }
       ]

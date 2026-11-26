@@ -68,6 +68,8 @@
       "demo_wall_now",
       "charge_full",
       "charge_lost",
+      "seed_trembles",
+      "seed_trembles_more",
       "pause",
       "resume",
       "to_title",
@@ -189,8 +191,8 @@
       "nebula",
       "nebula_colour",
       "flash",
-      "great_barrier",
       "planet",
+      "planet_dot",
       "sleeper",
       "wanderer",
       "void",
@@ -222,7 +224,6 @@
       "sleeper_bubble",
       "whiteout",
       "whitein",
-      "dome",
       "runaway",
       "blast",
       "to_follow",
@@ -260,15 +261,7 @@
       "burst_yellow",
       "burst_green",
       "burst_blue",
-      "burst_grey",
-      "rocks_0",
-      "rocks_1",
-      "rocks_2",
-      "rocks_3",
-      "rocks_4",
-      "rocks_5",
-      "rocks_near_1",
-      "rocks_near_4"
+      "burst_grey"
     ],
     "resource": [
       "matter",
@@ -338,6 +331,7 @@
   "atlases": [
     "art/sky.json",
     "art/sky_colour.json",
+    "art/sky_big.json",
     "art/stars_1.json",
     "art/stars_2.json",
     "art/stars_3.json",
@@ -349,7 +343,6 @@
     "art/hills_far.json",
     "art/hills_near.json",
     "art/cave.json",
-    "art/dome.json",
     "art/mountains.json",
     "art/mist.json",
     "art/ground_far.json",
@@ -373,12 +366,10 @@
     "art/cave_far.json",
     "art/ore.json",
     "art/planet_near.json",
-    "art/great_barrier.json",
     "art/bang_rays.json",
     "art/bang_core.json",
     "art/flares.json",
-    "art/clouds.json",
-    "art/asteroids.json"
+    "art/clouds.json"
   ],
   "prefabs": [
     "prefabs/fade_white.json",

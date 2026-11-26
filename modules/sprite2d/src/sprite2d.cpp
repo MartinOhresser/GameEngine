@@ -177,6 +177,14 @@ SpriteAnimation animation_of(const AnimationClip& clip) {
 std::optional<SpriteAnimation> next_animation(Animator& animator, const AnimationClip& clip,
                                               const SpriteAnimation* playing,
                                               const std::vector<AnimationClip>& clips) {
+    if (animator.finish && playing != nullptr && animator.transition > 0U) {
+        // A passage goes to its end whatever the state asks meanwhile; then on from the clip it
+        // led to (animator.clip): to the clip asked for now, by its own passage if there is one.
+        animator.transition -= 1U;
+        if (animator.transition > 0U) {
+            return std::nullopt;
+        }
+    }
     if (playing != nullptr && clip.id != animator.clip) {
         const std::uint32_t from = animator.clip;
         animator.clip = clip.id;
