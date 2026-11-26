@@ -74,6 +74,26 @@ TEST_CASE("particles2d: a burst comes out at once, and particles end with their 
     CHECK(drawn(app, renderer).empty());       // 0.5 s: gone, and no second burst
 }
 
+TEST_CASE("particles2d: an emitter created inactive bursts when it is made active") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    particles2d::Emitter waiting;
+    waiting.rate = 0.0F;
+    waiting.burst = 5;
+    waiting.active = false;
+    waiting.lifetime = 100.0F;
+    waiting.lifetime_spread = 0.0F;
+    const ge::ecs::Entity entity = spawn_emitter(app, 0.0F, 0.0F, waiting);
+    app.run_frames(3);
+    CHECK(drawn(app, renderer).empty());
+    app.world().get<particles2d::Emitter>(entity)->active = true;
+    CHECK(drawn(app, renderer).size() == 5U);
+    app.world().get<particles2d::Emitter>(entity)->active = false;
+    app.run_frames(1);
+    app.world().get<particles2d::Emitter>(entity)->active = true;
+    CHECK(drawn(app, renderer).size() == 5U); // once only
+}
+
 TEST_CASE("particles2d: particles fly from the emitter and fall with their gravity") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);

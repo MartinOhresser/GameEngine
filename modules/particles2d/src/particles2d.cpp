@@ -92,11 +92,11 @@ void let_out(Cloud& cloud, const transform2d::Position& at) {
     cloud.particles.push_back(particle);
 }
 
-/// Lets out what the emitter owes this tick: its burst when it starts, then its rate.
+/// Lets out what the emitter owes this tick: its burst the first tick it is active, then its rate.
 void emit(Cloud& cloud, const transform2d::Position& at, float step) {
     const Emitter& e = cloud.emitter;
     std::uint32_t count = 0;
-    if (!cloud.started) {
+    if (!cloud.started && e.active) {
         cloud.started = true;
         count = e.burst;
     }
