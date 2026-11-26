@@ -1,5 +1,6 @@
-// The opening plays by itself: the explosion's flash grows and fades, the stars come, the camera
-// goes over to the planet in its barrier; then the tutorial starts, with the hero falling to the
+// The opening plays by itself: the explosion's flash grows and fades, black, then the sky builds
+// up (a few stars first, then more and more, the gas in colours then in grey), the camera goes
+// over to the planet in its barrier; then the tutorial starts, with the hero falling to the
 // ground.
 {
   "schema_version": 1,
@@ -8,8 +9,13 @@
   "ticks": 1100,
   "expect": [
     { "at": 20, "check": "flash.transform2d.Scale.factor > 4" },
+    { "at": 75, "check": "stars_1.sprite2d.Sprite.alpha == 0" },
     { "at": 100, "check": "flash.sprite2d.Sprite.alpha == 0" },
-    { "at": 480, "check": "stars.sprite2d.Sprite.alpha == 255" },
+    { "at": 200, "check": "stars_1.sprite2d.Sprite.alpha == 255" },
+    { "at": 200, "check": "stars_3.sprite2d.Sprite.alpha == 0" },
+    { "at": 485, "check": "stars_4.sprite2d.Sprite.alpha == 230" },
+    { "at": 485, "check": "gas.sprite2d.Sprite.alpha == 255" },
+    { "at": 485, "check": "gas_colour.sprite2d.Sprite.alpha == 0" },
     { "at": 622, "check": "camera.transform2d.Position.x > 699.5" },
     { "at": 810, "check": "camera.camera2d.Camera.zoom == 3.9" },
     "story.phase.Phase.current == 1",

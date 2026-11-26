@@ -204,6 +204,41 @@ TEST_CASE("terrain2d: a Look terrain is drawn as pictures, remade only where it 
     CHECK(renderer->images().empty());
 }
 
+TEST_CASE("terrain2d: a smoothed Look draws a step of one cell as a slope") {
+    // A ground solid from row 10 on its left half, from row 11 on its right half: a step of one
+    // cell at column 32. Drawn as it is, the cell just after the step, in row 10, is open; drawn
+    // smoothed over 3 cells, the step becomes a slope that reaches into it.
+    const auto open_after_step = [](std::uint32_t smooth) {
+        auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+        ge::app::App app = game();
+        app.world().insert_resource(ge::app::RenderBackend{renderer});
+        terrain2d::Terrain terrain;
+        terrain.columns = 64U;
+        terrain.rows = 32U;
+        terrain.surface = 10.0F;
+        const ge::ecs::Entity land = app.world().spawn();
+        CHECK(app.world().insert(land, transform2d::Position{0.0F, 0.0F}));
+        CHECK(app.world().insert(land, terrain));
+        terrain2d::Look look;
+        look.smooth = smooth;
+        CHECK(app.world().insert(land, look));
+        terrain2d::Shape step;
+        step.width = 32.0F * 8.0F;
+        step.height = 8.0F;
+        step.fill = false;
+        shape(app, 48.0F * 8.0F, 10.5F * 8.0F, step);
+        app.run_frames(1);
+        CHECK(renderer->images().size() == 1U);
+        const auto& picture = renderer->images().begin()->second;
+        // The middle of cell (33, 10): 4 pixels a cell, a pixel more on the left and the top.
+        const std::size_t at = static_cast<std::size_t>((10 * 4 + 2 + 1) * picture.width +
+                                                        33 * 4 + 2 + 1);
+        return picture.pixels[at] & 0xFFU;
+    };
+    CHECK(open_after_step(0U) == 0U);
+    CHECK(open_after_step(3U) > 0U);
+}
+
 TEST_CASE("terrain2d: the cells of a hard shape cannot be dug") {
     ge::app::App app = game();
     const ge::ecs::Entity land = ground(app);

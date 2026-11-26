@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "gas",
+  "image": "gas.png",
+  "cell_width": 1920,
+  "cell_height": 1080,
+  "filter": "linear"
+}

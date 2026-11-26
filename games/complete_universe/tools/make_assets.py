@@ -1007,7 +1007,7 @@ def planet():
         value -= np.where(d < 1, 34 * (1 - d) * light, 0)
         value += np.where((d > 0.85) & (d < 1.1), 20 * light, 0)
     rim = np.exp(-((r - 1) / 0.015) ** 2) * np.clip(light * 2 + 0.15, 0, 1)
-    alpha = np.clip(np.where(inside, np.clip((1 - r) * 200, 0, 1), 0) + rim, 0, 1)
+    alpha = np.clip(np.where(inside, np.clip((1 - r) * 70, 0, 1), 0) + rim, 0, 1)
     value = np.where(inside, value, 255)
     rgb = np.dstack([value, value, value * 1.04])
     return to_image(rgb, alpha)
@@ -1169,6 +1169,31 @@ def sky(coloured=False):
     return to_image(picture, np.ones((h, w)))
 
 
+def star_layers():
+    """The stars of the opening's sky in four pictures, the brightest first: after the explosion
+    the sky is black, then it builds up, a few stars, then more and more (D20). Transparent, drawn
+    added."""
+    w, h = SCREEN_W, SCREEN_H
+    made = []
+    for seed, count in ((71, 500), (72, 1600), (73, 4000), (74, 9000)):
+        light = stars(w, h, seed, count)
+        alpha = np.clip(light.max(axis=2), 0, 1)
+        made.append(to_image(light * 255 / np.maximum(alpha[..., None], 1e-4), alpha))
+    return made
+
+
+def gas(coloured=False):
+    """The gas of the sky alone, without its stars: in colour first, then grey (the opening)."""
+    w, h = SCREEN_W, SCREEN_H
+    if coloured:
+        rgb, cover = nebula(w, h, 31, [(8, 30, 48), (14, 70, 90), (30, 130, 140), (60, 150, 210),
+                                       (150, 140, 235), (240, 200, 245)], 1.3)
+    else:
+        rgb, cover = nebula(w, h, 31, [(40, 41, 48), (78, 80, 90), (122, 124, 136),
+                                       (170, 172, 184), (220, 222, 232)], 0.85)
+    return to_image(rgb, cover)
+
+
 def nebula_veil(coloured=False):
     """A veil of gas that drifts before the sky (a little parallax): more depth."""
     w, h = 1600, 900
@@ -1318,10 +1343,16 @@ def foreground():
             draw.line([(cx - 20, h - r), (cx + 90, h - r - 140)], fill=255, width=9)
             draw.line([(cx + 50, h - r - 80), (cx + 110, h - r - 100)], fill=255, width=6)
     alpha = np.asarray(picture.filter(ImageFilter.GaussianBlur(3.5)), dtype=np.float64) / 255
+    # Their feet melt away, along a ragged line: the bottom of the band never shows as an edge,
+    # whatever the camera does.
+    ys = np.arange(h)[:, None].astype(np.float64)
+    feet = 30 + 80 * ragged(w, 30, 128)[None, :]
+    alpha = alpha * np.clip((h - ys - feet) / 70.0, 0, 1)
     return to_image(np.full((h, w, 3), 5.0), alpha)
 
 
 CAVE_W, CAVE_H = 1024, 1536  # world units of the inside of the ground, behind what is dug
+CAVE_TOP = 40  # how far under the ground's surface its picture starts (it fades in, ragged)
 
 
 def wrap_x(field):
@@ -1331,6 +1362,15 @@ def wrap_x(field):
     shifted = np.roll(field, w // 2, axis=1)
     weight = np.abs(np.linspace(-1, 1, w))[None, :]
     return field * (1 - weight) + shifted * weight
+
+
+def ragged(width, seed, scale=96):
+    """A line along x, 0 to 1, that wanders slowly with small bumps on it; its two ends meet (for
+    a picture repeated side by side)."""
+    line = wrap_x(noise(width, 8, seed, ((scale, 1.0), (max(2, scale // 4), 0.35),
+                                         (max(2, scale // 12), 0.12))))[0]
+    low, high = line.min(), line.max()
+    return (line - low) / max(high - low, 1e-6)
 
 
 def cave_pictures():
@@ -1346,21 +1386,30 @@ def cave_pictures():
     strata = np.sin(y / 34.0 + warp * 9.0) * 0.5 + 0.5
     cracks = wrap_x(ridged(w, h, 19, 160, 5, 0.55, warp=30))
     value = 26 + 22 * soft + 9 * strata - 14 * np.clip((cracks - 0.62) * 4, 0, 1)
-    # Near the surface: soil, lighter and finer, with roots hanging into it.
-    soil = np.clip(1 - y / 140.0, 0, 1)
+    # Near the surface: soil, lighter and finer, with roots hanging into it. Its top is ragged
+    # and soft (the soil of the ground's back wall shows through it): never a straight line.
+    top_line = 34 + 60 * ragged(w, 27, 160)
+    fuzz = wrap_x(noise(w, h, 28, ((24, 1.0), (8, 0.5))))
+    top_alpha = np.clip((y - top_line[None, :] + 40 + 24 * (fuzz - 0.5)) / 40.0, 0, 1)
+    soil = np.clip(1 - (y - top_line[None, :]) / 140.0, 0, 1)
     value = value + 10 * soil
-    picture = Image.new("L", (w, h), 0)
+    # The roots, drawn bigger then reduced: smooth, thinner and thinner towards their tips.
+    picture = Image.new("L", (w * SUPER, h * SUPER), 0)
     draw = ImageDraw.Draw(picture)
-    for _ in range(70):
+    for _ in range(90):
         x = rng.uniform(0, w)
-        length = rng.uniform(40, 170)
-        px, py = x, 0.0
-        for step in range(int(length / 6)):
+        length = rng.uniform(40, 190)
+        px, py = x, top_line[int(x) % w] - rng.uniform(14, 40)
+        steps = int(length / 6)
+        for step in range(steps):
             nx_ = px + rng.uniform(-4, 4)
             ny_ = py + 6
-            draw.line([(px, py), (nx_, ny_)], fill=255, width=max(1, 3 - step // 8))
+            width = max(1, int(round(SUPER * (2.6 - 2.0 * step / steps))))
+            draw.line([(px * SUPER, py * SUPER), (nx_ * SUPER, ny_ * SUPER)], fill=255,
+                      width=width, joint="curve")
             px, py = nx_, ny_
-    roots = np.asarray(picture, dtype=np.float64) / 255.0
+    picture = picture.resize((w, h), Image.LANCZOS)
+    roots = np.clip(np.asarray(picture, dtype=np.float64) / 255.0, 0, 1)
     value = value * (1 - 0.6 * roots)
     rgb = np.dstack([value, value * 1.0, value * 1.07])
     glints = np.zeros((h, w))
@@ -1403,8 +1452,9 @@ def cave_pictures():
     open_ = np.clip((voids - 0.6) * 9, 0, 1) * depth_in
     rim = np.clip(blur(open_, 6) * 2.2 - open_, 0, 1)
     rgb = rgb * (1 - 0.55 * rim[..., None])
-    alpha = 1 - open_
+    alpha = np.maximum(top_alpha, roots * 0.9) * (1 - open_)
     rock = to_image(np.clip(rgb, 0, 255), alpha)
+    glints = glints * top_alpha
     glow = blur(glints, 3) * 1.6 + glints
     glints_picture = to_image(np.dstack([np.full((h, w), 230.0), np.full((h, w), 238.0),
                                          np.full((h, w), 255.0)]), np.clip(glow, 0, 1) * 0.9)
@@ -1438,7 +1488,12 @@ def cave_far():
     seams = blur(seams, 4) * 60 + blur(seams, 1.2) * 6
     value = value + 140 * np.clip(seams, 0, 1)
     rgb = np.dstack([value, value * 1.02, value * 1.1])
-    return to_image(rgb, np.ones((h, w))).resize((CAVE_FAR_W, CAVE_FAR_H), Image.BICUBIC)
+    # Its top and bottom fade along ragged lines: no edge shows through the caverns.
+    top = h * (0.03 + 0.1 * ragged(w, 33, 64))[None, :]
+    bottom = h * (0.03 + 0.1 * ragged(w, 34, 64))[None, :]
+    alpha = (np.clip((y - top) / (h * 0.06), 0, 1) *
+             np.clip((h - 1 - y - bottom) / (h * 0.06), 0, 1))
+    return to_image(rgb, alpha).resize((CAVE_FAR_W, CAVE_FAR_H), Image.BICUBIC)
 
 
 ORE = 96  # pixels of a buried stone of matter
@@ -1997,9 +2052,13 @@ def camera(bound_right, bound_bottom):
 def sky_entity(coloured=False):
     return [
         entity("sky", 0, 0, {
+            "tag.Tag": {"tag": "sky"},
             "sprite2d.Sprite": {"atlas": "sky_colour" if coloured else "sky", "width": VIEW_W,
                                 "height": VIEW_H, "layer": LAYERS["sky"], "unlit": True},
-            "sprite2d.Parallax": {"x": 0, "y": 0}}),
+            "sprite2d.Parallax": {"x": 0, "y": 0}, "transform2d.Scale": {"factor": 1}}),
+        # The camera going back (the voyage), the sky grows with it: it always covers the screen.
+        bind("sky_covers", "camera", "camera2d.Camera.zoom", "transform2d.Scale.factor",
+             0.9, ZOOM, ZOOM / 0.9, 1.0, 1, onto="sky"),
         entity("veil", 0, 0, {
             "sprite2d.Sprite": {"atlas": "veil_colour" if coloured else "veil",
                                 "width": 1600 * 1.6, "height": 900 * 1.6,
@@ -2065,7 +2124,7 @@ def scenery(ground_y):
     # (lit: the hero's light shows it), its crystals glowing on their own; through its caverns,
     # far caves that move less (depth). They go deep enough for the deepest dig.
     for index in range(2):
-        top = ground_y + 16 + index * CAVE_H
+        top = ground_y + CAVE_TOP + index * CAVE_H
         made.append(entity(f"inside_{index}", 0, top + CAVE_H / 2, {
             "sprite2d.Sprite": {"atlas": "cave", "width": CAVE_W, "height": CAVE_H,
                                 "layer": LAYERS["ground"] - 5},
@@ -2101,6 +2160,7 @@ def scenery(ground_y):
             "max": 90}}))
     # Ash falling slowly through the light, some near the camera (big and soft).
     made.append(entity("ash", 0, -500, {
+        "tag.Tag": {"tag": "ash"},
         "follow2d.Follow": {"target": "camera", "offset_y": -500, "stiffness": 1},
         "particles2d.Emitter": {
             "rate": 16, "lifetime": 14, "lifetime_spread": 4, "speed": 10, "speed_spread": 8,
@@ -2124,11 +2184,42 @@ def terrain_entity(name, left, top, width, height, surface_y, extra=None):
                               "surface": (surface_y - top) / TERRAIN_CELL},
         "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 6, "red": 12, "green": 12,
                            "blue": 14, "top_red": 176, "top_green": 180, "top_blue": 190,
-                           "lip": 10, "grain": 0.08},
+                           "lip": 10, "grain": 0.08, "smooth": 2},
     }
     if extra:
         components["terrain2d.Terrain"].update(extra)
     return entity(name, left, top, components)
+
+
+# The relief of the tutorial's ground (D20): over the small bumps of its noise, gentle hills
+# (height above 0) and hollows (below), each a big disc's arc: (x, height, half width).
+RELIEF = [(100, 30, 100), (1300, -30, 260), (5300, 55, 380), (5800, -30, 220),
+          (6280, 60, 250)]
+TERRAIN_RELIEF = {"amplitude": 2.0, "wavelength": 40, "seed": 3}  # +/- 16 units of bumps
+
+
+def relief_shapes(ground_y):
+    """The hills and hollows of RELIEF: a disc filled under a hill, carved over a hollow."""
+    made = []
+    for index, (x, height, half) in enumerate(RELIEF):
+        depth = (half * half - height * height) / (2 * abs(height))
+        radius = depth + abs(height)
+        centre = ground_y + depth if height > 0 else ground_y - depth
+        made.append(entity(f"relief_{index}", x, centre, {"terrain2d.Shape": {
+            "radius": radius, "fill": height > 0}}))
+    return made
+
+
+def surface_at(x, ground_y=None):
+    """The top of the ground at x, from RELIEF (the small bumps of the noise left aside)."""
+    ground_y = GROUND_Y if ground_y is None else ground_y
+    for centre_x, height, half in RELIEF:
+        if abs(x - centre_x) < half:
+            depth = (half * half - height * height) / (2 * abs(height))
+            radius = depth + abs(height)
+            rise = math.sqrt(radius * radius - (x - centre_x) ** 2) - depth
+            return ground_y - rise if height > 0 else ground_y + rise
+    return ground_y
 
 
 def shape(name, x, y, width, height, fill, hard=False):
@@ -2709,9 +2800,21 @@ def tutorial():
     bottom = GROUND_Y + TUTORIAL_DEPTH
     height = bottom - TUTORIAL_TOP
     ground = terrain_entity("ground", 0, TUTORIAL_TOP, TUTORIAL_W, height, GROUND_Y,
-                            {"amplitude": 1.2, "wavelength": 40, "seed": 3, "climb": 20})
+                            {**TERRAIN_RELIEF, "climb": 20})
+    # The back wall of the ground, as deep as the inside's pictures start: the same relief, never
+    # dug, nothing stands on it. What is dug near the surface shows it, not the far planes.
+    back = terrain_entity("ground_back", 0, TUTORIAL_TOP, TUTORIAL_W,
+                          GROUND_Y + CAVE_TOP + 160 - TUTORIAL_TOP, GROUND_Y,
+                          {**TERRAIN_RELIEF, "layer": ["back"]})
+    back["components"]["terrain2d.Look"].update({
+        "layer": LAYERS["ground"] - 6, "pixels": 3, "red": 40, "green": 40, "blue": 45,
+        "top_red": 50, "top_green": 50, "top_blue": 56, "lip": 4, "grain": 0.18, "smooth": 3})
+    # Once the planet is far below, out of sight, it is gone (D19).
+    for made in (ground, back):
+        made["components"]["bounds2d.OutOfView"] = {"side_x": 0, "side_y": 1, "margin": 600,
+                                                    "despawn": True}
     rock_w = LANDING_ROCK[1] - LANDING_ROCK[0]
-    shapes = [
+    shapes = relief_shapes(GROUND_Y) + [
         # Walls at both ends, up to the top of the grid: the barrier holds the planet.
         shape("wall_left", 8, (TUTORIAL_TOP + bottom) / 2, 16, height, True, hard=True),
         shape("wall_right", TUTORIAL_W - 8, (TUTORIAL_TOP + bottom) / 2, 16, height, True,
@@ -2752,17 +2855,17 @@ def tutorial():
     # the cut of the ground, found by digging (D19).
     things += buried(GROUND_Y, TUTORIAL_W)
     # Deposits of carbon all along: the white never lacks food for long.
-    for index, (x, y) in enumerate(((1100, GROUND_Y), (1500, GROUND_Y),
+    for index, (x, y) in enumerate(((1100, surface_at(1100)), (1500, surface_at(1500)),
                                     (2350, GROUND_Y - LEDGE[2]), (4250, basin_floor),
-                                    (5400, GROUND_Y), (6100, GROUND_Y))):
+                                    (5400, surface_at(5400)), (6100, surface_at(6100)))):
         things += deposit(f"deposit_{index + 1}", x, y)
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
-    return (sky_entity() + scenery(GROUND_Y) + [ground] + shapes + things +
+    return (sky_entity() + scenery(GROUND_Y) + [ground, back] + shapes + things +
             [hero_entity(LANDING_X, 220, locked=True), camera(TUTORIAL_W, bottom)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
-            landing() + departure() + awakenings() + demonstrations() + pause_menu())
+            landing() + awakenings() + demonstrations() + pause_menu() + departure())
 
 
 def landing():
@@ -2777,21 +2880,104 @@ def landing():
     ]
 
 
-ORBIT_Y = -3000  # high enough above the planet: it is out of sight, the next scene comes
+LEAVING_Y = GROUND_Y - 1900  # this high, the planet's pull slows him and bends his way
+ORBIT_SPEED = 320  # ... down to this speed upwards: he is out of the pull, he drifts
+VOYAGE_TICKS = 600  # the drift to the next planet (GDD: 5 to 10 seconds, no control)
+VOYAGE_SPEED = ((290, -320), (30, -20))  # his speed as the drift starts, and once there
+NEXT_PLANET = (2300, -2380)  # where the next planet is, from where the drift starts
+NEXT_PLANET_SIZE = 1400
 
 
 def departure():
-    """The end of the tutorial: the jump held five seconds throws him up out of the planet, into
-    orbit (D19). The camera lets him go up; once the planet is far below and out of sight, the
-    next scene (space) comes, and the planet is gone with the scene."""
+    """The end of the tutorial (D19, D20): the jump held five seconds throws him up out of the
+    planet; high above, its pull slows him down and bends his way; out of it, he curls up in a
+    bubble and drifts, without control, to the next planet, seen growing ahead (GDD: "voyage
+    spatial"). No other scene: the planet's ground is gone once it is out of sight below."""
+    sleeper = entity("sleeper", 0, 0, {
+        "tag.Tag": {"tag": "sleeper"},
+        "sprite2d.Sprite": {"atlas": "hero_curled", "width": 80, "height": 80,
+                            "layer": LAYERS["hero"], "alpha": 0, "unlit": True},
+        "follow2d.Follow": {"target": "hero", "stiffness": 1}, "transform2d.Rotation": {}})
+    bubble = entity("voyage_bubble", 0, 0, {
+        "tag.Tag": {"tag": "voyage_bubble"},
+        "sprite2d.Sprite": {"atlas": "barrier", "frame": 0, "width": 120, "height": 120,
+                            "layer": LAYERS["hero"] + 1, "alpha": 0, "unlit": True},
+        "follow2d.Follow": {"target": "hero", "stiffness": 1}})
+    planet_ahead = entity("next_planet", 0, 0, {
+        "tag.Tag": {"tag": "next_planet"},
+        "sprite2d.Sprite": {"atlas": "planet", "width": NEXT_PLANET_SIZE,
+                            "height": NEXT_PLANET_SIZE, "layer": LAYERS["far"], "alpha": 0,
+                            "unlit": True},
+        "transform2d.Scale": {"factor": 0.75},
+        # Kept ahead of him until the drift starts; then it stays where it is.
+        "follow2d.Follow": {"target": "hero", "offset_x": NEXT_PLANET[0],
+                            "offset_y": NEXT_PLANET[1], "stiffness": 1}})
+    air = entity("next_planet_air", 0, 0, {
+        "tag.Tag": {"tag": "next_planet_air"},
+        "sprite2d.Sprite": {"atlas": "glow", "width": NEXT_PLANET_SIZE * 1.5,
+                            "height": NEXT_PLANET_SIZE * 1.5, "layer": LAYERS["far"] - 1,
+                            "alpha": 0, "additive": True, "unlit": True},
+        "transform2d.Scale": {"factor": 0.75},
+        "follow2d.Follow": {"target": "next_planet", "stiffness": 1}})
+    to_follow = entity("to_follow", SCREEN_W / 2, SCREEN_H - 150, {
+        "tag.Tag": {"tag": "to_follow"},
+        "text2d.Text": {"string": "tutorial.next", "font": "font", "size": 44, "pivot_x": 0.5,
+                        "pivot_y": 0.5, "screen": True, "alpha": 0}})
+    (vx0, vy0), (vx1, vy1) = VOYAGE_SPEED
     return [
+        sleeper, bubble, planet_ahead, air, to_follow,
+        # Thrown up, faster and faster (as fast as his fall can be), without control or powers.
         on("thrown_up", "departure_done", "hero", "transform2d.Velocity.y", -1400),
-        # Then he keeps rising, faster and faster: out of the planet's pull.
-        on("out_of_pull", "departure_done", "hero", "gravity2d.Gravity.y", -700),
+        on("out_of_pull", "departure_done", "hero", "gravity2d.Gravity.y", -300),
+        on("no_steering", "departure_done", "hero", "action_control.Controlled.horizontal", 0),
+        on("no_powers", "departure_done", "kit", "loadout.Kit.unlocked", 0),
+        on("no_dust", "departure_done", "hero_dust", "particles2d.Emitter.max", 0),
+        on("matter_kept", "departure_done", "matter", "reserve.Reserve.drain", 0),
+        on("carbon_kept", "departure_done", "carbon", "reserve.Reserve.drain", 0),
+        on("no_ash", "departure_done", "ash", "particles2d.Emitter.rate", 0),
         on("sky_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_top", -100000),
-        watch("orbit_watch", "end", "hero", "transform2d.Position.y", "exploded", high=ORBIT_Y),
-        entity("to_drift", 0, 0, {"scene_switch.GoToScene": {
-            "scene": "drift", "use_action": True, "action": "exploded"}}),
+        on("space_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_right",
+           100000),
+        # The great barrier around the planet lets him through, and dissolves.
+        track("dome_dissolves", "dome", "sprite2d.Sprite.alpha", [(0, 230), (240, 0)],
+              start="departure_done"),
+        # High above, the pull slows him down and bends his way; out of it, he drifts.
+        watch("leaving_watch", "end", "hero", "transform2d.Position.y", "leaving",
+              high=LEAVING_Y),
+        on("slowed", "leaving", "hero", "gravity2d.Gravity.y", 380),
+        on("bent", "leaving", "hero", "gravity2d.Gravity.x", 140),
+        watch("orbit_watch", "end", "hero", "transform2d.Velocity.y", "in_orbit",
+              low=-ORBIT_SPEED, inside=True),
+        on("floats", "in_orbit", "hero", "gravity2d.Gravity.y", 0),
+        on("floats_x", "in_orbit", "hero", "gravity2d.Gravity.x", 0),
+        track("drift_x", "hero", "transform2d.Velocity.x", [(0, vx0), (VOYAGE_TICKS, vx1)],
+              start="in_orbit"),
+        track("drift_y", "hero", "transform2d.Velocity.y", [(0, vy0), (VOYAGE_TICKS, vy1)],
+              start="in_orbit"),
+        on("planet_stays", "in_orbit", "next_planet", "follow2d.Follow.stiffness", 0),
+        # He curls up in a bubble, as in the opening.
+        track("hero_curls", "hero", "sprite2d.Sprite.alpha", [(0, 255), (40, 0)],
+              start="in_orbit"),
+        track("sleeper_shows", "sleeper", "sprite2d.Sprite.alpha", [(0, 0), (40, 255)],
+              start="in_orbit"),
+        track("sleeper_turns", "sleeper", "transform2d.Rotation.angle",
+              [(0, 0), (VOYAGE_TICKS * 2, 70)], start="in_orbit"),
+        track("bubble_forms", "voyage_bubble", "sprite2d.Sprite.alpha", [(20, 0), (90, 190)],
+              start="in_orbit"),
+        # The next planet ahead, coming closer; the camera goes back to show it, then nearer.
+        track("planet_shows", "next_planet", "sprite2d.Sprite.alpha", [(0, 0), (160, 255)],
+              start="in_orbit"),
+        track("planet_air_shows", "next_planet_air", "sprite2d.Sprite.alpha",
+              [(0, 0), (160, 70)], start="in_orbit"),
+        track("planet_nears", "next_planet", "transform2d.Scale.factor",
+              [(0, 0.75), (VOYAGE_TICKS, 1.0)], start="in_orbit"),
+        track("planet_air_nears", "next_planet_air", "transform2d.Scale.factor",
+              [(0, 0.75), (VOYAGE_TICKS, 1.0)], start="in_orbit"),
+        track("voyage_zoom", "camera", "camera2d.Camera.zoom",
+              [(0, ZOOM), (240, 0.72 * ZOOM), (VOYAGE_TICKS - 60, 0.72 * ZOOM),
+               (VOYAGE_TICKS + 120, 0.9 * ZOOM)], start="in_orbit"),
+        track("to_follow_shows", "to_follow", "text2d.Text.alpha",
+              [(0, 0), (VOYAGE_TICKS - 60, 0), (VOYAGE_TICKS + 60, 230)], start="in_orbit"),
     ]
 
 
@@ -2811,14 +2997,12 @@ def opening():
     fewer, down to black and white and a sky like ours. The camera finds the hero curled up in an
     immense barrier, far, then drifting down to a planet, and comes close: white, and the game."""
     made = [
-        # The skies stay on the screen; big enough for the camera's widest view.
-        entity("stars", 0, 0, {"tag.Tag": {"tag": "stars"}, "sprite2d.Sprite": {
-            "atlas": "sky", "width": OPENING_SKY[0], "height": OPENING_SKY[1], "layer": -110, "alpha": 0,
-            "unlit": True}, "sprite2d.Parallax": {"x": 0, "y": 0}}),
-        entity("colours", 0, 0, {"tag.Tag": {"tag": "colours"}, "sprite2d.Sprite": {
-            "atlas": "sky_colour", "width": OPENING_SKY[0], "height": OPENING_SKY[1],
-            "layer": -108,
-            "alpha": 0, "unlit": True}, "sprite2d.Parallax": {"x": 0, "y": 0}}),
+        # The skies stay on the screen; big enough for the camera's widest view. Black after
+        # the flash (nothing behind: true black); the gas and the stars come in turn.
+        entity("void", 0, 0, {"sprite2d.Sprite": {
+            "atlas": "plain", "width": OPENING_SKY[0] * 2, "height": OPENING_SKY[1] * 2,
+            "layer": -120, "unlit": True, "red": 0, "green": 0, "blue": 0},
+            "sprite2d.Parallax": {"x": 0, "y": 0}}),
         entity("nebula", 200, 0, {"tag.Tag": {"tag": "nebula"}, "sprite2d.Sprite": {
             "atlas": "veil", "width": 2600, "height": 1460, "layer": -105, "alpha": 0,
             "unlit": True}, "sprite2d.Parallax": {"x": 0.25, "y": 0.25}}),
@@ -2854,6 +3038,24 @@ def opening():
             "scene": "tutorial", "after_ticks": OPENING_TICKS, "use_action": True,
             "action": "skip"}}),
     ]
+    for name, atlas, layer, additive in (("gas", "gas", -112, False),
+                                         ("gas_colour", "gas_colour", -111, False),
+                                         ("stars_4", "stars_4", -110, True),
+                                         ("stars_3", "stars_3", -109, True),
+                                         ("stars_2", "stars_2", -108, True),
+                                         ("stars_1", "stars_1", -107, True)):
+        sprite = {"atlas": atlas, "width": OPENING_SKY[0], "height": OPENING_SKY[1],
+                  "layer": layer, "alpha": 0, "unlit": True}
+        if additive:
+            sprite["additive"] = True
+        made.append(entity(name, 0, 0, {"tag.Tag": {"tag": name}, "sprite2d.Sprite": sprite,
+                                        "sprite2d.Parallax": {"x": 0, "y": 0}}))
+    # New stars light up one by one all over the black, and fade into the sky that builds.
+    made.append(entity("births", 0, 0, {"tag.Tag": {"tag": "births"}, "particles2d.Emitter": {
+        "rate": 0, "lifetime": 3.5, "lifetime_spread": 1.5, "speed": 0, "size": 5,
+        "end_size": 2, "red": 240, "green": 244, "blue": 255, "alpha": 255, "fade": True,
+        "additive": True, "unlit": True, "layer": -100, "area_width": OPENING_SKY[0] * 1.6,
+        "area_height": OPENING_SKY[1] * 1.6, "max": 400}}))
     # The explosion: every colour flies out, and goes out in turn; the grey stays longest.
     for index, (name, colour) in enumerate(FRAGMENT_COLOURS + [("grey", (200, 200, 200))]):
         made.append(entity(f"burst_{name}", 0, 0, {"particles2d.Emitter": {
@@ -2865,13 +3067,21 @@ def opening():
     made += [
         track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 9)]),
         track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (80, 0)]),
-        # The colours of the universe come, then go: black and white is left.
-        track("colours_come", "colours", "sprite2d.Sprite.alpha",
-              [(40, 0), (160, 255), (300, 255), (470, 0)]),
+        # Black, then the sky builds up: a few bright stars, then more and more, new ones
+        # lighting up all over; the gas of the universe in colours, which then go out: black
+        # and white is left.
+        track("births_come", "births", "particles2d.Emitter.rate",
+              [(70, 0), (110, 60), (380, 60), (470, 0)]),
+        track("stars_1_come", "stars_1", "sprite2d.Sprite.alpha", [(80, 0), (170, 255)]),
+        track("stars_2_come", "stars_2", "sprite2d.Sprite.alpha", [(150, 0), (250, 255)]),
+        track("stars_3_come", "stars_3", "sprite2d.Sprite.alpha", [(230, 0), (340, 255)]),
+        track("stars_4_come", "stars_4", "sprite2d.Sprite.alpha", [(310, 0), (440, 230)]),
+        track("gas_colour_comes", "gas_colour", "sprite2d.Sprite.alpha",
+              [(170, 0), (290, 255), (340, 255), (480, 0)]),
         track("nebula_colour_comes", "nebula_colour", "sprite2d.Sprite.alpha",
-              [(60, 0), (200, 230), (320, 230), (480, 0)]),
-        track("stars_come", "stars", "sprite2d.Sprite.alpha", [(260, 0), (470, 255)]),
-        track("dust_comes", "nebula", "sprite2d.Sprite.alpha", [(300, 0), (520, 210)]),
+              [(200, 0), (300, 230), (350, 230), (490, 0)]),
+        track("gas_comes", "gas", "sprite2d.Sprite.alpha", [(330, 0), (480, 255)]),
+        track("dust_comes", "nebula", "sprite2d.Sprite.alpha", [(340, 0), (520, 210)]),
         # The camera: back from the explosion, still, then over to the barrier and down to it.
         track("camera_zoom", "camera", "camera2d.Camera.zoom",
               [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (440, 0.55 * ZOOM), (580, 0.75 * ZOOM),
@@ -2895,39 +3105,12 @@ def opening():
     return made
 
 
-def drift():
-    """After the tutorial (its end, until the space of the next steps): the hero curled up again,
-    drifting among what is left of the planet; 'À suivre'."""
-    return sky_entity() + [
-        entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"},
-                                "camera2d.Camera": {"zoom": 1.6 * ZOOM},
-                                "postfx.Effects": {"bloom": 0.5, "vignette": 0.55,
-                                                   "vignette_size": 0.35, "grain": 0.05}}),
-        entity("sleeper", -40, 10, {"tag.Tag": {"tag": "sleeper"}, "sprite2d.Sprite": {
-            "atlas": "hero_curled", "width": 72, "height": 72, "layer": 30, "unlit": True},
-            "transform2d.Velocity": {"x": 6, "y": -2}, "transform2d.Rotation": {}}),
-        track("sleeper_turns", "sleeper", "transform2d.Rotation.angle", [(0, 0), (1200, 40)],
-              smooth=False),
-        # What is left of the planet: grey dust flying out.
-        entity("debris", -300, 120, {"particles2d.Emitter": {
-            "rate": 40, "lifetime": 7, "speed": 60, "speed_spread": 40, "angle": -160,
-            "spread": 60, "wander": 8, "size": 3.5, "end_size": 1.5, "red": 190, "green": 190,
-            "blue": 196, "alpha": 220, "fade": True, "unlit": True, "layer": 20,
-            "area_width": 160, "area_height": 160, "max": 300}}),
-        entity("to_follow", SCREEN_W / 2, SCREEN_H - 150, {"tag.Tag": {"tag": "to_follow"},
-                                                          "text2d.Text": {
-            "string": "tutorial.next", "font": "font", "size": 44, "pivot_x": 0.5,
-            "pivot_y": 0.5, "screen": True, "alpha": 0}}),
-        track("to_follow_shows", "to_follow", "text2d.Text.alpha", [(120, 0), (240, 230)]),
-    ]
-
-
 # ---------------------------------------------------------------------------------------------
 # The manifest
 
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
-           "locked", "skip", "exploded", "refill", "awakens_black", "awakens_white",
+           "locked", "skip", "leaving", "in_orbit", "refill", "awakens_black", "awakens_white",
            "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
@@ -2941,14 +3124,15 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "text_white_show_line", "text_harvest_show_line", "text_walk_show_line",
         "text_jump_show_line", "demo_black", "demo_harvest", "demo_bubble", "demo_wall", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
-        "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars",
-        "colours", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
+        "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
+        "stars_2", "stars_3", "stars_4", "sky", "gas", "gas_colour", "births", "ash", "voyage_bubble",
+        "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
-ATLASES = ["sky", "sky_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
+ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
            "cave_far", "ore"]
-SCENE_NAMES = ["title", "opening", "tutorial", "drift", "sandbox", "sandbox_low"]
+SCENE_NAMES = ["title", "opening", "tutorial", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
              "inventory_opens", "walking_costs", "charged_jump", "dies_and_restarts",
@@ -2974,7 +3158,7 @@ def write_manifest():
             "scene_switch", "ui", "host"],
         "lists": {
             "action": ACTIONS,
-            "layer": ["hero", "ground", "rock", "barrier"],
+            "layer": ["hero", "ground", "rock", "barrier", "back"],
             "tag": TAGS,
             "resource": ["matter", "carbon"],
             "phase": STEPS,
@@ -3042,7 +3226,6 @@ def write_scenes():
     write_scene("tutorial", tutorial())
     write_scene("opening", opening())
     write_scene("title", title())
-    write_scene("drift", drift())
 
 
 def write_pictures():
@@ -3050,6 +3233,10 @@ def write_pictures():
     save(hero_curled(), "hero_curled")
     save(sky(), "sky")
     save(sky(coloured=True), "sky_colour")
+    for index, picture in enumerate(star_layers()):
+        save(picture, f"stars_{index + 1}")
+    save(gas(), "gas")
+    save(gas(coloured=True), "gas_colour")
     save(nebula_veil(), "veil")
     save(nebula_veil(coloured=True), "veil_colour")
     save(hills(12, 170, 30, 9, 30), "hills_far")

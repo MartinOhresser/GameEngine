@@ -54,7 +54,7 @@
     },
     {
       "name": "Look",
-      "description": "How the Terrain of the same entity is drawn, among the sprites on layer: its cells become smooth pictures (pixels pixels to a cell side), rounded along their edges rather than square. The ground is red, green and blue (0 to 255); every surface that faces up shows its top, lit, in top_red, top_green and top_blue, fading into the ground lip units down (the edge of a cliff, a lawn, the lit rim of a rock), so that a little of the top of the ground shows, as from slightly above. grain (0 to 1) speckles it. unlit keeps its colours whatever the light. Pictures are remade only where cells change.",
+      "description": "How the Terrain of the same entity is drawn, among the sprites on layer: its cells become smooth pictures (pixels pixels to a cell side), rounded along their edges rather than square. The ground is red, green and blue (0 to 255); every surface that faces up shows its top, lit, in top_red, top_green and top_blue, fading into the ground lip units down (the edge of a cliff, a lawn, the lit rim of a rock), so that a little of the top of the ground shows, as from slightly above. grain (0 to 1) speckles it. smooth evens the drawing out over that many cells around each one: a gentle slope, which the cells make into small steps, is drawn as a slope, and corners are rounder (0: each cell as it is). unlit keeps its colours whatever the light. Pictures are remade only where cells change.",
       "replicable": false,
       "fields": [
         { "name": "layer", "type": "i32", "default": 0 },
@@ -67,6 +67,7 @@
         { "name": "top_blue", "type": "u32", "default": 134 },
         { "name": "lip", "type": "f32", "default": 10 },
         { "name": "grain", "type": "f32", "default": 0.05 },
+        { "name": "smooth", "type": "u32", "default": 0 },
         { "name": "unlit", "type": "bool", "default": false }
       ]
     }

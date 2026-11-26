@@ -10,6 +10,9 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "sky"
+        },
         "sprite2d.Sprite": {
           "atlas": "sky_colour",
           "width": 1280,
@@ -20,6 +23,25 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        }
+      }
+    },
+    {
+      "name": "sky_covers",
+      "components": {
+        "bind.Bind": {
+          "source": "camera2d.Camera.zoom",
+          "from": "camera",
+          "target": "transform2d.Scale.factor",
+          "onto": "sky",
+          "low": 0.9,
+          "high": 1.5,
+          "out_low": 1.6666666666666665,
+          "out_high": 1.0,
+          "power": 1
         }
       }
     },

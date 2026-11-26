@@ -88,7 +88,7 @@ struct Digger {
     [[nodiscard]] friend bool operator==(const Digger&, const Digger&) = default;
 };
 
-/// How the Terrain of the same entity is drawn, among the sprites on layer: its cells become smooth pictures (pixels pixels to a cell side), rounded along their edges rather than square. The ground is red, green and blue (0 to 255); every surface that faces up shows its top, lit, in top_red, top_green and top_blue, fading into the ground lip units down (the edge of a cliff, a lawn, the lit rim of a rock), so that a little of the top of the ground shows, as from slightly above. grain (0 to 1) speckles it. unlit keeps its colours whatever the light. Pictures are remade only where cells change.
+/// How the Terrain of the same entity is drawn, among the sprites on layer: its cells become smooth pictures (pixels pixels to a cell side), rounded along their edges rather than square. The ground is red, green and blue (0 to 255); every surface that faces up shows its top, lit, in top_red, top_green and top_blue, fading into the ground lip units down (the edge of a cliff, a lawn, the lit rim of a rock), so that a little of the top of the ground shows, as from slightly above. grain (0 to 1) speckles it. smooth evens the drawing out over that many cells around each one: a gentle slope, which the cells make into small steps, is drawn as a slope, and corners are rounder (0: each cell as it is). unlit keeps its colours whatever the light. Pictures are remade only where cells change.
 struct Look {
     std::int32_t layer = 0;
     std::uint32_t pixels = 4U;
@@ -100,6 +100,7 @@ struct Look {
     std::uint32_t top_blue = 134U;
     float lip = 10.0F;
     float grain = 0.05F;
+    std::uint32_t smooth = 0U;
     bool unlit = false;
 
     void hash(::ge::Hasher& hasher) const {
@@ -113,6 +114,7 @@ struct Look {
         hasher.add(top_blue);
         hasher.add(lip);
         hasher.add(grain);
+        hasher.add(smooth);
         hasher.add(unlit);
     }
 

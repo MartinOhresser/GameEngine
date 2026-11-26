@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "stars_2",
+  "image": "stars_2.png",
+  "cell_width": 1920,
+  "cell_height": 1080,
+  "filter": "linear"
+}

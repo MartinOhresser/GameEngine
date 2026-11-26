@@ -5,7 +5,7 @@
   "schema_version": 1,
   "name": "tutorial_through",
   "scene": "tutorial",
-  "ticks": 6500,
+  "ticks": 7300,
   "inputs": [
     { "tick": 535, "action": "pointer_x", "value": 1215 },
     { "tick": 535, "action": "pointer_y", "value": 542 },
@@ -133,7 +133,15 @@
     { "at": 6180, "check": "story.phase.Phase.current == 22" },
     { "at": 6240, "check": "story.phase.Phase.current == 23" },
     { "at": 6400, "check": "hero.transform2d.Position.y < -2000" },
-    // Then space, another scene: its sleeper.
-    "sleeper alive",
+    // Out of sight, the planet's ground is gone; out of its pull, he curls up in a bubble and drifts, without a cut, to the next planet; then 'to be continued'.
+    { "at": 6450, "check": "ground gone" },
+    { "at": 6450, "check": "ground_back gone" },
+    { "at": 6650, "check": "hero.sprite2d.Sprite.alpha == 0" },
+    { "at": 6650, "check": "sleeper.sprite2d.Sprite.alpha == 255" },
+    { "at": 6700, "check": "next_planet.sprite2d.Sprite.alpha == 255" },
+    { "at": 7250, "check": "to_follow.text2d.Text.alpha > 200" },
+    { "at": 7250, "check": "hero.transform2d.Velocity.x == 30" },
+    // Still there, ahead of him.
+    "next_planet alive",
   ],
 }

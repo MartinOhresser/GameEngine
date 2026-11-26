@@ -353,6 +353,8 @@ void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.lip = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "grain") {
             component.grain = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "smooth") {
+            component.smooth = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "unlit") {
             component.unlit = ::ge::app::scalar_as<bool>(field.value);
         }
@@ -395,6 +397,9 @@ std::optional<::ge::app::Scalar> read_component_3(const ::ge::ecs::World& world,
     }
     if (field == "grain") {
         return ::ge::app::Scalar{static_cast<double>(component->grain)};
+    }
+    if (field == "smooth") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->smooth)};
     }
     if (field == "unlit") {
         return ::ge::app::Scalar{static_cast<bool>(component->unlit)};
@@ -449,6 +454,10 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->grain = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "smooth") {
+        component->smooth = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     if (field == "unlit") {
         component->unlit = ::ge::app::scalar_as<bool>(value);
         return true;
@@ -456,7 +465,7 @@ bool write_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 11> component_3_fields{{{"layer", "i32", "", false}, {"pixels", "u32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"top_red", "u32", "", false}, {"top_green", "u32", "", false}, {"top_blue", "u32", "", false}, {"lip", "f32", "", false}, {"grain", "f32", "", false}, {"unlit", "bool", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 12> component_3_fields{{{"layer", "i32", "", false}, {"pixels", "u32", "", false}, {"red", "u32", "", false}, {"green", "u32", "", false}, {"blue", "u32", "", false}, {"top_red", "u32", "", false}, {"top_green", "u32", "", false}, {"top_blue", "u32", "", false}, {"lip", "f32", "", false}, {"grain", "f32", "", false}, {"smooth", "u32", "", false}, {"unlit", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 4> components{{{"Terrain", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Shape", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Digger", true, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Look", false, component_3_fields, insert_component_3, read_component_3, write_component_3}}};
 

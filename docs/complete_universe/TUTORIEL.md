@@ -68,7 +68,7 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 | 14 | **La matière s'épuise** | récolte les pierres, ou creuse le sol | la matière au-dessus de la moitié |
 | 15 | **La mort** | la matière baisse quoi qu'il fasse | il revient |
 | 16 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil | six secondes |
-| 17 | **Le départ** | maintient Espace cinq secondes : il est propulsé en orbite | « à suivre » |
+| 17 | **Le départ** | maintient Espace cinq secondes : il est propulsé en orbite, puis dérive vers la planète suivante | « à suivre » |
 
 La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle, tout s'arrête (la consommation aussi), le monde devient flou, et le menu (Reprendre, Retour au titre) s'affiche dans la bulle (D6, T8). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 
@@ -153,9 +153,9 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 
 **U11 — Les cinématiques.**
 
-- L'ouverture : explosion, couleurs qui s'éteignent, plan large sur la barrière, dérive, zoom, atterrissage. Maintenir Échap pour passer.
+- L'ouverture : explosion, noir, le ciel qui se construit étoile par étoile, couleurs qui s'éteignent, plan large sur la barrière, dérive, zoom, atterrissage. Maintenir Échap pour passer.
 - La mini-cinématique de chaque étape : cadrage, geste, texte.
-- Le départ : trou noir qui échappe au contrôle, secousses, sol aspiré, explosion, dôme dissous, dérive, puis « à suivre ».
+- Le départ (D19, D20) : grand saut vers le ciel, le dôme se dissout ; l'attraction le ralentit et le dévie ; il se recroqueville dans une bulle et dérive, sans coupure, vers la planète suivante, puis « à suivre ». La planète quittée disparaît une fois hors de vue.
 - Outils : `tween2d`, `camera2d`, `particles2d`, `postfx` et `terrain2d`.
 - Scénarios : `opening`, `opening_skips`, `departure`.
 
