@@ -95,6 +95,53 @@ struct Grid {
         return carved;
     }
 
+    /// After a dig around (cx, cy) within radius: the cells near it that are mostly surrounded by
+    /// open ones (fewer than half of the cells within reach of them solid, the square a smoothed
+    /// drawing averages) are carved too, as a drawing smoothed over reach cells would not show
+    /// them and they must not stop anything. Hard cells stay. Returns how many went.
+    std::uint32_t crumble(float cx, float cy, float radius, std::uint32_t reach) noexcept {
+        if (reach == 0U || radius <= 0.0F) {
+            return 0U;
+        }
+        const auto span = static_cast<std::int64_t>(reach);
+        const float around = radius + static_cast<float>(span + 1) * cell;
+        const std::int64_t first_column = std::max<std::int64_t>(column_of(cx - around), 0);
+        const std::int64_t last_column =
+            std::min<std::int64_t>(column_of(cx + around), static_cast<std::int64_t>(columns) - 1);
+        const std::int64_t first_row = std::max<std::int64_t>(row_of(cy - around), 0);
+        const std::int64_t last_row =
+            std::min<std::int64_t>(row_of(cy + around), static_cast<std::int64_t>(rows) - 1);
+        const std::int64_t side = (2 * span) + 1;
+        const std::int64_t needed = (side * side + 1) / 2; // at least half of the square
+        std::uint32_t removed = 0U;
+        // Twice: what one crumb held up may crumble once it is gone.
+        for (int pass = 0; pass < 2; pass += 1) {
+            for (std::int64_t row = first_row; row <= last_row; row += 1) {
+                for (std::int64_t column = first_column; column <= last_column; column += 1) {
+                    std::uint8_t& value = solid[index(column, row)];
+                    if (value != 1U || solid_around(column, row, span) >= needed) {
+                        continue;
+                    }
+                    value = 0U;
+                    removed += 1U;
+                }
+            }
+        }
+        return removed;
+    }
+
+    /// How many cells are solid in the square of cells within span of (column, row).
+    [[nodiscard]] std::int64_t solid_around(std::int64_t column, std::int64_t row,
+                                            std::int64_t span) const noexcept {
+        std::int64_t count = 0;
+        for (std::int64_t r = row - span; r <= row + span; r += 1) {
+            for (std::int64_t c = column - span; c <= column + span; c += 1) {
+                count += at(c, r) ? 1 : 0;
+            }
+        }
+        return count;
+    }
+
     void hash(Hasher& hasher) const {
         hasher.add(columns);
         hasher.add(rows);

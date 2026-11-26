@@ -1,4 +1,5 @@
 #include "ge/app/render.hpp"
+#include "ge/app/scene.hpp"
 #include "ge/app/time.hpp"
 #include "ge/core/hash.hpp"
 #include "ge/mod/particles2d/particles2d.gen.hpp"
@@ -62,6 +63,9 @@ struct Cloud {
 /// Every cloud, by emitter. Presentation only: left out of the world fingerprint.
 struct Clouds {
     std::map<std::uint64_t, Cloud> clouds;
+    /// The scene they were let out in: another scene starts without them.
+    std::uint32_t scene = 0;
+    bool scene_known = false;
 
     void hash(Hasher& /*hasher*/) const noexcept {}
 };
@@ -196,6 +200,14 @@ app::DrawCommand command_for(const Emitter& e, const Particle& p, float alpha) {
 
 void advance(ecs::World& world) {
     Clouds& all = clouds_of(world);
+    // The particles of a scene that was left go with it (they would float over the next one).
+    const auto* current = world.resource<app::CurrentScene>();
+    const std::uint32_t scene = current != nullptr ? current->index : 0U;
+    if (all.scene_known && all.scene != scene) {
+        all.clouds.clear();
+    }
+    all.scene = scene;
+    all.scene_known = true;
     const float step = world.resource<app::Time>()->fixed_delta * transform2d::world_speed(world);
     for (auto& [key, cloud] : all.clouds) {
         cloud.seen = false;

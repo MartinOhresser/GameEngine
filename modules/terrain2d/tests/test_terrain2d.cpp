@@ -259,3 +259,45 @@ TEST_CASE("terrain2d: the cells of a hard shape cannot be dug") {
     CHECK(grid.at(grid.column_of(100.0F), grid.row_of(140.0F)));
     static_cast<void>(land);
 }
+
+TEST_CASE("terrain2d: with crumble, a dig takes the crumbs a smoothed drawing would not show") {
+    for (const std::uint32_t reach : {0U, 2U}) {
+        ge::app::App app = game();
+        terrain2d::Terrain made;
+        made.crumble = reach;
+        ground(app, made);
+        // Four cells in the air just over the ground, too few to be drawn smoothed over 2 cells.
+        shape(app, 200.0F, 104.0F, terrain2d::Shape{16.0F, 16.0F, 0.0F, true});
+        app.run_frames(1);
+        const ge::ecs::Entity drill = app.world().spawn();
+        CHECK(app.world().insert(drill, transform2d::Position{200.0F, 130.0F}));
+        CHECK(app.world().insert(drill, terrain2d::Digger{10.0F}));
+        app.run_frames(1);
+        const terrain2d::Grid& grid =
+            app.world().resource<terrain2d::Cells>()->grids.begin()->second;
+        CHECK(grid.at(grid.column_of(200.0F), grid.row_of(104.0F)) == (reach == 0U));
+        CHECK(grid.at(grid.column_of(400.0F), grid.row_of(140.0F))); // far from the dig: kept
+        CHECK(grid.at(grid.column_of(200.0F), grid.row_of(180.0F))); // deep in the ground: kept
+    }
+}
+
+TEST_CASE("terrain2d: with stick, a walking body stays on the ground down a low step") {
+    for (const bool stick : {false, true}) {
+        ge::app::App app = game();
+        terrain2d::Terrain made;
+        made.stick = stick;
+        ground(app, made);
+        shape(app, 300.0F, 132.0F, terrain2d::Shape{200.0F, 8.0F, 0.0F, false}); // one cell lower
+        const ge::ecs::Entity walker = body(app, 150.0F, 118.0F);
+        app.run_frames(10);
+        bool left_the_ground = false;
+        for (int tick = 0; tick < 100; tick += 1) {
+            app.world().get<transform2d::Velocity>(walker)->x = 120.0F;
+            app.run_frames(1);
+            left_the_ground =
+                left_the_ground || !app.world().get<collision2d::Blocked>(walker)->below;
+        }
+        CHECK(left_the_ground == !stick); // without stick, it falls off the step
+        CHECK(near(app.world().get<transform2d::Position>(walker)->y, 126.0F));
+    }
+}

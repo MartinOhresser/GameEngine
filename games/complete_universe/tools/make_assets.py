@@ -674,6 +674,64 @@ HERO_TRANSITIONS = [
 ]
 
 
+
+def passages():
+    """Every other passage he can make between two clips (D29): from standing or walking into a
+    fall, a landing that goes on walking, a turn to the other side in the air, a jump that comes
+    down on the other side... each from the pose the first clip starts with (ends with, for a
+    charge) to the one the second starts with, eased, as the walk's are. With the Animator's
+    finish, each plays to its end: no jump from the middle of one."""
+    clips = {name: poses for name, poses, _ in HERO_CLIPS}
+    start = {name: poses[0] for name, poses in clips.items()}
+    end = {name: poses[-1] for name, poses in clips.items()}
+    crouch = Pose(squash=0.8, bob=3, leg_w=-24, leg_b=24, leg_len_w=LEG_L * 0.78,
+                  leg_len_b=LEG_L * 0.78, arm_w=-62, arm_b=62, look_y=1.5, tilt=0)
+
+    def landing_into(source, target):
+        """The body gives as he lands, then he goes on into the target (walking, standing)."""
+        low = between(crouch, target, 3)[1]
+        return between(source, low, 6) + between(low, target, 11)[1:]
+
+    ground, rise = ["idle", "walk_right", "walk_left"], ["rise", "rise_right", "rise_left"]
+    fall, charge = ["fall", "fall_right", "fall_left"], ["charge", "charge_right", "charge_left"]
+    known = {(source, target) for _, _, _, source, target in HERO_TRANSITIONS}
+    made = []
+
+    def add(source, target, poses):
+        if (source, target) not in known:
+            made.append((f"{source}_to_{target}", follow_through(poses, False), 1, source,
+                         target))
+            known.add((source, target))
+
+    for source in ground:
+        for target in fall:
+            add(source, target, between(start[source], start[target], 10))
+        for target in charge:
+            add(source, target, between(start[source], start[target], 6))
+    for source in fall:
+        for target in ("walk_right", "walk_left"):
+            add(source, target, landing_into(start[source], start[target]))
+        for target in fall:
+            if target != source:
+                add(source, target, between(start[source], start[target], 10))
+    for source in rise:
+        for target in ground:
+            add(source, target, landing_into(start[source], start[target]))
+        for target in rise:
+            if target != source:
+                add(source, target, between(start[source], start[target], 10))
+        for target in fall:
+            add(source, target, between(start[source], start[target], 12))
+    for source in charge:
+        for target in rise:
+            add(source, target, between(end[source], start[target], 8,
+                                        lambda k: {"squash": 0.1 * bump(k)}))
+    return made
+
+
+HERO_TRANSITIONS += passages()
+
+
 # In space (D26): its own set of animations, floating when he hardly moves, flying (the arms
 # of the fall) when he goes; passages between them, and from his flight up into orbit.
 SPACE_FLOAT = follow_through(float_poses())
@@ -691,7 +749,7 @@ SPACE_TRANSITIONS = [
 SPACE_IDS = {"float": 101, "fly": 102}
 SPACE_STILL = 70  # slower than this along both axes: he floats
 
-HERO_COLUMNS = 25  # 4000 pixels wide
+HERO_COLUMNS = 36  # 5760 pixels wide (under 8192 both ways)
 
 
 def hero_sheet():
@@ -753,33 +811,45 @@ HOLE = 512  # the picture of a black hole, drawn for a radius of 1 (a sprite 2 u
 HEART = 0.4  # the share of the radius that swallows (attractor2d inner)
 
 
-def swirl(r, theta, seed, arms=40):
-    """Streaks turning around a centre, 0 to 1, as matter falling into a black hole."""
+def swirl(r, theta, seed, arms=120, t=0.0, wind=1.6):
+    """Streaks turning around a centre, 0 to 1, as matter falling into a black hole: many thin
+    ones wound tight around it. At t (0 to 1, a loop) each streak swells and fades in its own
+    time, so that they seem to come and go as they turn."""
     rng = np.random.default_rng(seed)
     total = np.zeros_like(r)
     log_r = np.log(np.maximum(r, 1e-3))
-    for k in range(3, arms):
-        total += rng.uniform(0.2, 1.0) / math.sqrt(k) * np.sin(
-            k * theta + 2.2 * k * log_r * 0.35 + rng.uniform(0, 2 * math.pi))
+    for k in range(8, arms):
+        breathe = 0.55 + 0.45 * math.sin(2 * math.pi * (t * rng.integers(1, 3)) +
+                                         rng.uniform(0, 2 * math.pi))
+        total += rng.uniform(0.2, 1.0) * breathe / math.sqrt(k) * np.sin(
+            k * theta + wind * k * log_r + rng.uniform(0, 2 * math.pi))
     total /= np.abs(total).max()
     return np.clip(0.5 + 0.5 * total, 0, 1)
 
 
-def black_hole():
+HOLE_FRAMES = 24  # the black hole's loop: its streaks breathe as it turns (D29)
+HOLE_CELL = 384  # ... each frame this many pixels
+
+
+def black_hole(t=0.0, size=HOLE):
     """A black hole (docs: "Les trous noirs"): a black heart, a thin ring of light hugging it,
-    a disc of bright streaks turning in, and a faint halo out to the edge of its pull. It is
-    turned as it plays, so the streaks spin."""
-    size = HOLE
+    fine bright streaks wound tight around it, close to the ring (D29), and a faint halo out to
+    the edge of its pull. At t (0 to 1, a loop), the streaks reach out and draw back, each in
+    its own time. It is turned as it plays, so the streaks spin."""
     y, x = np.mgrid[0:size, 0:size].astype(np.float64)
     dx, dy = x - size / 2 + 0.5, y - size / 2 + 0.5
     r = np.hypot(dx, dy) / (size / 2)
     theta = np.arctan2(dy, dx)
-    streaks = swirl(r, theta, 5)
+    streaks = swirl(r, theta, 5, t=t)
+    # How far the streaks reach, all round: it wavers along the ring and in time.
+    reach = (1 + 0.3 * np.sin(3 * theta + 2 * math.pi * t) +
+             0.18 * np.sin(5 * theta - 4 * math.pi * t + 1.0) +
+             0.12 * np.sin(8 * theta + 2 * math.pi * t + 2.0))
     core = np.clip((HEART - r) / 0.012, 0, 1)
-    photon = np.exp(-((r - HEART - 0.012) / 0.012) ** 2)
-    disc = np.exp(-((r - HEART - 0.07) / 0.075) ** 2) * (0.25 + 0.95 * streaks ** 2.2)
-    outer = np.exp(-((r - HEART - 0.2) / 0.12) ** 2) * streaks ** 4 * 0.45
-    halo = np.clip(1 - (r - HEART) / (1 - HEART), 0, 1) ** 2.6 * 0.42
+    photon = np.exp(-((r - HEART - 0.01) / 0.01) ** 2)
+    disc = np.exp(-((r - HEART - 0.035) / (0.04 * reach)) ** 2) * (0.2 + 1.0 * streaks ** 3)
+    outer = np.exp(-((r - HEART - 0.085) / (0.05 * reach)) ** 2) * streaks ** 5 * 0.45
+    halo = np.clip(1 - (r - HEART) / (1 - HEART), 0, 1) ** 2.6 * 0.38
     # One side of the disc a little brighter, as it comes towards us.
     side = 1 + 0.25 * np.cos(theta + 2.3)
     light = np.clip((photon * 1.1 + disc * side + outer) * (1 - core), 0, 1.4)
@@ -794,6 +864,17 @@ def black_hole():
     rgb = np.minimum(rgb + 255 * np.clip(photon - 0.6, 0, 1)[..., None], 255)
     rgb = rgb * (1 - core[..., None])
     return to_image(rgb, alpha)
+
+
+def black_holes():
+    """The loop of a black hole, HOLE_FRAMES frames (cells of the black_hole atlas)."""
+    frames = [black_hole(index / HOLE_FRAMES, HOLE_CELL) for index in range(HOLE_FRAMES)]
+    return sheet_of(frames, 6, HOLE_CELL, HOLE_CELL)
+
+
+# Every black hole drawn plays the loop (sprite2d).
+HOLE_LOOP = {"sprite2d.SpriteAnimation": {"first_frame": 0, "frame_count": HOLE_FRAMES,
+                                          "ticks_per_frame": 3, "looping": True}}
 
 
 BARRIER = 512  # a cell of the barrier atlas
@@ -1797,7 +1878,8 @@ def hero_entity(x, y, locked=False, falling=0):
     hero = entity("hero", x, y, {
         "sprite2d.Sprite": {"atlas": "hero", "width": CELL, "height": CELL,
                             "layer": LAYERS["hero"], "unlit": True},
-        "sprite2d.Animator": {"set": "hero"},
+        # Each passage between two animations plays to its end (D29).
+        "sprite2d.Animator": {"set": "hero", "finish": True},
         # His white half lights what is around him (Ori's glow in Limbo's dark).
         "light2d.Light": {"radius": 340, "red": 232, "green": 236, "blue": 246,
                           "intensity": 0.95, "offset_y": -24, "flicker": 0.05,
@@ -1962,6 +2044,7 @@ def jump_hole():
             "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
                                 "layer": LAYERS["hero"] + 5, "unlit": True},
             "transform2d.Scale": {"factor": 0},
+            **HOLE_LOOP,
             "transform2d.Rotation": {},
             "follow2d.Follow": {"target": "hero", "offset_y": JUMP_HOLE_Y, "stiffness": 1},
             "reserve.Drain": {"kind": "matter", "field": "transform2d.Scale.factor",
@@ -2068,6 +2151,7 @@ def powers(harvest_locked=False):
         "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
                             "layer": LAYERS["hero"] + 5, "unlit": True},
         "transform2d.Scale": {"factor": 0},
+        **HOLE_LOOP,
         "transform2d.Rotation": {},
         # Its ring lights the ground; dust spirals into it.
         "light2d.Light": {"radius": 0, "red": 190, "green": 210, "blue": 255, "intensity": 0},
@@ -2075,7 +2159,7 @@ def powers(harvest_locked=False):
     })
     # The white (GDD, Blanc): pressed, a bubble grows where the pointer was; dragged further than
     # wall_drag, it becomes a wall to the pointer. Let go, the barrier is raised and paid in carbon
-    # for its size; three at most (the oldest gives way).
+    # for its size; one at a time (a new one takes its place, D29).
     white = entity("white_caster", 0, 0, {
         "tag.Tag": {"tag": "white_caster"},
         "transform2d.Disabled": {},
@@ -2122,9 +2206,10 @@ def powers(harvest_locked=False):
         # Locked, the key does nothing until the tutorial gives it.
         "loadout.Shortcut": {"action": "locked" if harvest_locked else "harvest",
                              "first": "black", "second": "white"}}}
-    walls = [entity(f"barrier_{index}", 0, 0, {"barrier2d.Barrier": {
+    # One barrier at a time (D29): a new one takes the place of the last.
+    walls = [entity("barrier_1", 0, 0, {"barrier2d.Barrier": dict({
         "pool": 0, "layer": ["barrier"], "freezes": ["rock"], "atlas": "barrier", "bubble": 0,
-        "wall": 1, "draw_layer": LAYERS["hero"] + 4}}) for index in (1, 2, 3)]
+        "wall": 1, "draw_layer": LAYERS["hero"] + 4}, **BARRIER_LOOK)})]
     return [
         white,
         bind("white_reaches_x", "white_caster", "aim2d.Aim.reach_x", "barrier2d.Caster.end_x",
@@ -2183,6 +2268,10 @@ def power_glow(name, holder, size_field, size_high, radius, rate, area):
              size_high, 0, area, 1, onto=holder),
     ]
 
+
+# How a barrier shows (D29): it springs up, glass glints fly off it, then it breathes a little.
+BARRIER_LOOK = {"appear": 0.35, "wobble": 0.025, "sparks": 16, "spark_speed": 70,
+                "spark_life": 0.7, "spark_size": 5, "spark_color": 0xD2FAF5E6}
 
 VORTEX_EMITTER = {"rate": 0, "lifetime": 1.6, "lifetime_spread": 0.4, "speed": 0,
                   "speed_spread": 20, "drag": 1.6, "size": 5, "end_size": 1.5, "red": 205, "green": 220,
@@ -2457,7 +2546,12 @@ def terrain_entity(name, left, top, width, height, surface_y, extra=None):
         "terrain2d.Terrain": {"columns": int(width // TERRAIN_CELL),
                               "rows": int(height // TERRAIN_CELL), "cell": TERRAIN_CELL,
                               "layer": ["ground"],
-                              "surface": (surface_y - top) / TERRAIN_CELL},
+                              "surface": (surface_y - top) / TERRAIN_CELL,
+                              # Dug, no crumb left that its drawing (smoothed over 2 cells)
+                              # would not show: nothing unseen stops him.
+                              "crumble": 2,
+                              # Walking down a slope or a step, he stays on the ground.
+                              "stick": True},
         "terrain2d.Look": {"layer": LAYERS["ground"], "pixels": 6, "red": 12, "green": 12,
                            "blue": 14, "top_red": 176, "top_green": 180, "top_blue": 190,
                            "lip": 10, "grain": 0.08, "smooth": 2},
@@ -2875,7 +2969,7 @@ def demonstrations():
     a rock, a bubble and a wall, a harvest that swallows a fossil; he walks, then jumps."""
     hole_look = {"sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
                                      "layer": LAYERS["hero"] + 5, "unlit": True},
-                 "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}}
+                 "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}, **HOLE_LOOP}
     made = [
         entity("demo_black", 960, GROUND_Y - 30, dict({
             "tag.Tag": {"tag": "demo_black"},
@@ -2913,7 +3007,7 @@ def demonstrations():
         made.append(entity(name, x, y, {"tag.Tag": {"tag": name}, "barrier2d.Barrier": dict({
             "pool": 7, "round": round_, "layer": ["barrier"], "freezes": ["rock"],
             "atlas": "barrier", "bubble": 0, "wall": 1, "draw_layer": LAYERS["hero"] + 4,
-            "thickness": 14}, **extra)}))
+            "thickness": 14}, **extra, **BARRIER_LOOK)}))
     made += [
         on("demo_bubble_up", "black_next", "demo_bubble", "barrier2d.Barrier.up", 1),
         on("demo_bubble_down", "white_show_done", "demo_bubble", "barrier2d.Barrier.up", 0),
@@ -3279,6 +3373,7 @@ def departure():
         "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
                             "layer": LAYERS["hero"] + 5, "alpha": 0, "unlit": True},
         "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {},
+        **HOLE_LOOP,
         # Ahead of him, the way he goes, always as far.
         "follow2d.Follow": {"target": "hero", "ahead": SPACE_HOLE_AHEAD, "stiffness": 1,
                             "way_x": ACTIONS.index("move_x"), "way_y": ACTIONS.index("move_y"),
@@ -3902,7 +3997,8 @@ def write_strings():
         out.write("\n")
 
 
-HERO_SMOOTH = {"share": 0.3, "most": 20, "snap": 300}
+# A climbed step of ground (a cell, 8 units, at once) glides over a few ticks (D29).
+HERO_SMOOTH = {"share": 0.22, "most": 24, "snap": 300}
 
 
 def smoothed(entities):
@@ -3961,7 +4057,7 @@ def write_pictures():
     save(mist(51), "mist")
     save(ground_far(), "ground_far")
     save(foreground(), "front")
-    save(black_hole(), "black_hole")
+    save(black_holes(), "black_hole", cell=(HOLE_CELL, HOLE_CELL))
     save(rock(5), "rock")
     save(rock(9, colour=(120, 118, 110), light=(226, 224, 214), spiral=True), "fossil")
     save(barriers(), "barrier", cell=(BARRIER, BARRIER))

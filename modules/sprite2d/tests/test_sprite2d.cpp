@@ -484,6 +484,34 @@ TEST_CASE("sprite2d: a transition plays once between two clips, then the new cli
     CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 50U); // cut short: standing to running again
 }
 
+TEST_CASE("sprite2d: with finish, a transition plays to its end, then the next one") {
+    Walker walker;
+    auto& world = walker.app.world();
+    int index = 0;
+    world.each<sprite2d::AnimationClip>([&index](ge::ecs::Entity, sprite2d::AnimationClip& c) {
+        index += 1;
+        c.id = static_cast<std::uint32_t>(index);
+    });
+    world.get<sprite2d::Animator>(walker.entity)->finish = true;
+    // Standing to running: cells 50-51; running to standing: cells 55-56.
+    sprite2d::AnimationClip start = clip(0, 50U, 2U);
+    start.from_id = 1U;
+    start.to_id = 2U;
+    start.looping = false;
+    add(walker.app, start);
+    sprite2d::AnimationClip stop = clip(0, 55U, 2U);
+    stop.from_id = 2U;
+    stop.to_id = 1U;
+    stop.looping = false;
+    add(walker.app, stop);
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 0U);
+    CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 50U); // the start
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 51U);  // standing again: the start goes on
+    CHECK(walker.frame_after(2U, 0.0F, 0.0F) == 51U);  // (not the stop, 55)
+    CHECK(walker.frame_after(1U, 0.0F, 0.0F) == 55U); // then the stop, from running, at once
+    CHECK(walker.frame_after(4U, 0.0F, 0.0F) == 0U);  // then standing
+}
+
 TEST_CASE("sprite2d: a clip with a second condition needs both") {
     Walker walker;
     // Going up and to the right: cell 70, above going up.

@@ -1,5 +1,6 @@
 #include "ge/app/app.hpp"
 #include "ge/app/render.hpp"
+#include "ge/app/scene.hpp"
 #include "ge/mod/particles2d/particles2d.gen.hpp"
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -148,6 +149,22 @@ TEST_CASE("particles2d: particles outlive their emitter, and new ones wait under
     CHECK(drawn(app, renderer).size() == 5U); // still there, none new
     app.run_frames(2);
     CHECK(drawn(app, renderer).empty());
+}
+
+TEST_CASE("particles2d: the particles of a scene that was left go with it") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    particles2d::Emitter lasting;
+    lasting.rate = 100.0F;
+    lasting.max = 5;
+    lasting.lifetime = 10.0F;
+    lasting.lifetime_spread = 0.0F;
+    const ge::ecs::Entity source = spawn_emitter(app, 0.0F, 0.0F, lasting);
+    CHECK(drawn(app, renderer).size() == 5U);
+    CHECK(app.world().despawn(source));
+    CHECK(drawn(app, renderer).size() == 5U); // the same scene: they live on
+    app.world().insert_resource(ge::app::CurrentScene{1U});
+    CHECK(drawn(app, renderer).empty()); // another scene: gone
 }
 
 namespace {

@@ -32,7 +32,7 @@
     },
     {
       "name": "Barrier",
-      "description": "A barrier of pool, raised by a Caster (or by the game: put up, round, radius...). While up, it is a bubble of radius around its Position, or with round off a wall from its Position to (end_x, end_y), thickness units thick. It stops, from outside, every collision2d.Body whose Collider mask meets layer: pushed out, it loses the speed that went into it, and its collision2d.Blocked notes the side (a body stands on top of it). Every entity with a Velocity and a Collider whose layer meets freezes, and whose middle is inside a bubble, is frozen in time (a transform2d.SpeedScale of 0, renewed each tick). Drawn with cell bubble (a bubble) or cell wall (a wall, stretched) of atlas, on layer. order says which was raised last.",
+      "description": "A barrier of pool, raised by a Caster (or by the game: put up, round, radius...). While up, it is a bubble of radius around its Position, or with round off a wall from its Position to (end_x, end_y), thickness units thick. It stops, from outside, every collision2d.Body whose Collider mask meets layer: pushed out, it loses the speed that went into it, and its collision2d.Blocked notes the side (a body stands on top of it). Every entity with a Velocity and a Collider whose layer meets freezes, and whose middle is inside a bubble, is frozen in time (a transform2d.SpeedScale of 0, renewed each tick). Drawn with cell bubble (a bubble) or cell wall (a wall, stretched) of atlas, on layer. Raised, it is drawn springing up in appear seconds (a bubble grows from nothing a little past its size and settles; a wall opens from its middle to its ends), while sparks glints (soft discs of spark_size, coloured spark_color 0xRRGGBBAA) fly off it at about spark_speed units a second and fade out in spark_life seconds; up, it breathes: its drawn size (a wall's thickness) wavers by the share wobble. Only the drawing: it stops what it stops from the first tick. The module keeps order (which was raised last) and age (seconds since it went up).",
       "replicable": true,
       "fields": [
         { "name": "pool", "type": "u32", "default": 0 },
@@ -48,7 +48,15 @@
         { "name": "bubble", "type": "u32", "default": 0 },
         { "name": "wall", "type": "u32", "default": 1 },
         { "name": "draw_layer", "type": "i32", "default": 0 },
-        { "name": "order", "type": "u32", "default": 0 }
+        { "name": "appear", "type": "f32", "default": 0 },
+        { "name": "wobble", "type": "f32", "default": 0 },
+        { "name": "sparks", "type": "u32", "default": 0 },
+        { "name": "spark_speed", "type": "f32", "default": 90 },
+        { "name": "spark_life", "type": "f32", "default": 0.8 },
+        { "name": "spark_size", "type": "f32", "default": 4 },
+        { "name": "spark_color", "type": "u32", "default": 4294967295 },
+        { "name": "order", "type": "u32", "default": 0 },
+        { "name": "age", "type": "f32", "default": 0 }
       ]
     }
   ],

@@ -116,7 +116,7 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 **U6 — Le Blanc (`barrier2d`).**
 
 - Une bulle qui grossit tant qu'on maintient, ou un segment par clic glissé.
-- Coût en carbone à la pose, 3 barrières au plus (la plus ancienne disparaît).
+- Coût en carbone à la pose, une seule barrière à la fois : la nouvelle remplace l'ancienne (D29). Elle apparaît en grandissant, lâche des éclats de verre, puis respire légèrement.
 - Solide pour l'extérieur (P4), elle bloque les effets venus de dehors et fige le temps de ce qu'elle contient.
 - Scénarios : `barrier_blocks_rock`, `barrier_max_three`, `barrier_freezes_inside`.
 
