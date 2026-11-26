@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "bang_rays",
+  "image": "bang_rays.png",
+  "cell_width": 1024,
+  "cell_height": 1024,
+  "filter": "linear"
+}

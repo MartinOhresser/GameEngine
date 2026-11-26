@@ -155,7 +155,7 @@ Chaque étape est une PR vers `complete-universe`, vérifiée comme le dit la [r
 
 **U11 — Les cinématiques.**
 
-- L'ouverture : explosion, noir, le ciel qui se construit étoile par étoile, couleurs qui s'éteignent, plan large sur la barrière, dérive, zoom, atterrissage. Maintenir Échap pour passer.
+- L'ouverture (D23) : explosion (rayons, reflets, nuages de gaz colorés, lueurs, astéroïdes), couleurs qui s'éteignent, le ciel qui se construit étoile par étoile ; la lumière du centre s'évanouit et laisse voir le personnage au loin, qui grandit, erre dans l'espace sans bulle et descend vers la planète ; blanc, atterrissage. Échap pour passer.
 - La mini-cinématique de chaque étape : cadrage, geste, texte.
 - Le départ (D19, D20) : grand saut vers le ciel, le dôme se dissout ; l'attraction le ralentit et le dévie ; il se recroqueville dans une bulle et dérive, sans coupure, vers la planète suivante, puis « à suivre ». La planète quittée disparaît une fois hors de vue.
 - Outils : `tween2d`, `camera2d`, `particles2d`, `postfx` et `terrain2d`.

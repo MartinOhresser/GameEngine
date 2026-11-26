@@ -10,10 +10,13 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "void"
+        },
         "sprite2d.Sprite": {
           "atlas": "plain",
-          "width": 4800,
-          "height": 2700,
+          "width": 3840,
+          "height": 2160,
           "layer": -120,
           "unlit": true,
           "red": 0,
@@ -23,6 +26,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -30,7 +36,7 @@
       "name": "nebula",
       "components": {
         "transform2d.Position": {
-          "x": 200,
+          "x": 0,
           "y": 0
         },
         "tag.Tag": {
@@ -38,15 +44,18 @@
         },
         "sprite2d.Sprite": {
           "atlas": "veil",
-          "width": 2600,
-          "height": 1460,
+          "width": 2688.0,
+          "height": 1512.0,
           "layer": -105,
           "alpha": 0,
           "unlit": true
         },
         "sprite2d.Parallax": {
-          "x": 0.25,
-          "y": 0.25
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -54,7 +63,7 @@
       "name": "nebula_colour",
       "components": {
         "transform2d.Position": {
-          "x": 200,
+          "x": 0,
           "y": 0
         },
         "tag.Tag": {
@@ -62,15 +71,18 @@
         },
         "sprite2d.Sprite": {
           "atlas": "veil_colour",
-          "width": 2600,
-          "height": 1460,
+          "width": 2688.0,
+          "height": 1512.0,
           "layer": -104,
           "alpha": 0,
           "unlit": true
         },
         "sprite2d.Parallax": {
-          "x": 0.25,
-          "y": 0.25
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -88,7 +100,7 @@
           "atlas": "glow",
           "width": 300,
           "height": 300,
-          "layer": 50,
+          "layer": 51,
           "additive": true,
           "unlit": true
         },
@@ -110,6 +122,10 @@
         "camera2d.Camera": {
           "zoom": 1.9500000000000002
         },
+        "follow2d.Follow": {
+          "target": "wanderer",
+          "stiffness": 0.06
+        },
         "postfx.Effects": {
           "bloom": 0.8,
           "vignette": 0.5,
@@ -122,8 +138,8 @@
       "name": "great_barrier",
       "components": {
         "transform2d.Position": {
-          "x": 700,
-          "y": -120
+          "x": 2400,
+          "y": 1500
         },
         "tag.Tag": {
           "tag": "great_barrier"
@@ -131,8 +147,8 @@
         "sprite2d.Sprite": {
           "atlas": "barrier",
           "frame": 0,
-          "width": 820,
-          "height": 820,
+          "width": 3300,
+          "height": 3300,
           "layer": 20,
           "alpha": 0,
           "unlit": true
@@ -143,16 +159,16 @@
       "name": "planet",
       "components": {
         "transform2d.Position": {
-          "x": 700,
-          "y": -50
+          "x": 2400,
+          "y": 1845
         },
         "tag.Tag": {
           "tag": "planet"
         },
         "sprite2d.Sprite": {
           "atlas": "planet",
-          "width": 300,
-          "height": 300,
+          "width": 1500,
+          "height": 1500,
           "layer": 10,
           "alpha": 0,
           "unlit": true
@@ -160,48 +176,34 @@
       }
     },
     {
-      "name": "sleeper",
+      "name": "wanderer",
       "components": {
         "transform2d.Position": {
-          "x": 470,
-          "y": -330
+          "x": 0,
+          "y": 0
         },
         "tag.Tag": {
-          "tag": "sleeper"
+          "tag": "wanderer"
         },
         "sprite2d.Sprite": {
-          "atlas": "hero_curled",
-          "width": 56,
-          "height": 56,
-          "layer": 30,
-          "alpha": 0,
+          "atlas": "hero",
+          "frame": 312,
+          "width": 128,
+          "height": 128,
+          "layer": 45,
           "unlit": true
         },
-        "transform2d.Rotation": {}
-      }
-    },
-    {
-      "name": "sleeper_bubble",
-      "components": {
-        "transform2d.Position": {
-          "x": 470,
-          "y": -330
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 312,
+          "frame_count": 24,
+          "ticks_per_frame": 3,
+          "looping": true
         },
-        "tag.Tag": {
-          "tag": "sleeper_bubble"
+        "transform2d.Scale": {
+          "factor": 0.02
         },
-        "sprite2d.Sprite": {
-          "atlas": "barrier",
-          "frame": 0,
-          "width": 64,
-          "height": 64,
-          "layer": 31,
-          "alpha": 0,
-          "unlit": true
-        },
-        "follow2d.Follow": {
-          "target": "sleeper",
-          "stiffness": 1
+        "transform2d.Rotation": {
+          "angle": -20
         }
       }
     },
@@ -238,7 +240,7 @@
         },
         "scene_switch.GoToScene": {
           "scene": "tutorial",
-          "after_ticks": 900,
+          "after_ticks": 1430,
           "use_action": true,
           "action": "skip"
         }
@@ -256,8 +258,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "gas",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -112,
           "alpha": 0,
           "unlit": true
@@ -265,6 +267,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -280,8 +285,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "gas_colour",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -111,
           "alpha": 0,
           "unlit": true
@@ -289,6 +294,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -304,8 +312,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "stars_4",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -110,
           "alpha": 0,
           "unlit": true,
@@ -314,6 +322,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -329,8 +340,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "stars_3",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -109,
           "alpha": 0,
           "unlit": true,
@@ -339,6 +350,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -354,8 +368,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "stars_2",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -108,
           "alpha": 0,
           "unlit": true,
@@ -364,6 +378,9 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
         }
       }
     },
@@ -379,8 +396,8 @@
         },
         "sprite2d.Sprite": {
           "atlas": "stars_1",
-          "width": 2400,
-          "height": 1350,
+          "width": 2073.6000000000004,
+          "height": 1166.4,
           "layer": -107,
           "alpha": 0,
           "unlit": true,
@@ -389,6 +406,216 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        }
+      }
+    },
+    {
+      "name": "void_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "void",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "nebula_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "nebula",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "nebula_colour_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "nebula_colour",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "gas_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "gas",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "gas_colour_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "gas_colour",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "stars_1_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "stars_1",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "stars_2_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "stars_2",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "stars_3_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "stars_3",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
+        }
+      }
+    },
+    {
+      "name": "stars_4_covers",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "stars_4",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": 0.5128,
+          "t1": 240,
+          "v1": 1.2121,
+          "t2": 720,
+          "v2": 0.4167,
+          "t3": 880,
+          "v3": 0.7407,
+          "t4": 1100,
+          "v4": 1.5873,
+          "t5": 1380,
+          "v5": 0.2778
         }
       }
     },
@@ -417,8 +644,8 @@
           "additive": true,
           "unlit": true,
           "layer": -100,
-          "area_width": 3840.0,
-          "area_height": 2160.0,
+          "area_width": 2688.0,
+          "area_height": 1512.0,
           "max": 400
         }
       }
@@ -672,6 +899,2756 @@
       }
     },
     {
+      "name": "core",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "core"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "bang_core",
+          "width": 700,
+          "height": 700,
+          "layer": 50,
+          "additive": true,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0.5
+        }
+      }
+    },
+    {
+      "name": "core_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "core",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 20,
+          "v1": 1.1,
+          "t2": 170,
+          "v2": 1.25,
+          "t3": 470,
+          "v3": 0.5
+        }
+      }
+    },
+    {
+      "name": "core_fades",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "core",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 255,
+          "t1": 170,
+          "v1": 255,
+          "t2": 470,
+          "v2": 0
+        }
+      }
+    },
+    {
+      "name": "rays_a",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "rays_a"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "bang_rays",
+          "width": 1600,
+          "height": 1600,
+          "layer": 49,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 255,
+          "blue": 255
+        },
+        "transform2d.Scale": {
+          "factor": 0.15
+        },
+        "transform2d.Rotation": {}
+      }
+    },
+    {
+      "name": "rays_a_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "rays_a",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.15,
+          "t1": 30,
+          "v1": 1.0,
+          "t2": 320,
+          "v2": 2.6
+        }
+      }
+    },
+    {
+      "name": "rays_a_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "rays_a",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 6,
+          "v1": 200,
+          "t2": 140,
+          "v2": 150,
+          "t3": 380,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "rays_a_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "rays_a",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 9000,
+          "v1": 360
+        }
+      }
+    },
+    {
+      "name": "rays_b",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "rays_b"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "bang_rays",
+          "width": 1600,
+          "height": 1600,
+          "layer": 48,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 200,
+          "blue": 160
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {}
+      }
+    },
+    {
+      "name": "rays_b_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "rays_b",
+          "smooth": true,
+          "keys": 3,
+          "t0": 10,
+          "v0": 0.3,
+          "t1": 60,
+          "v1": 1.4,
+          "t2": 380,
+          "v2": 3.4
+        }
+      }
+    },
+    {
+      "name": "rays_b_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "rays_b",
+          "smooth": true,
+          "keys": 4,
+          "t0": 10,
+          "v0": 0,
+          "t1": 35,
+          "v1": 130,
+          "t2": 210,
+          "v2": 90,
+          "t3": 430,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "rays_b_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "rays_b",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 9000,
+          "v1": -360
+        }
+      }
+    },
+    {
+      "name": "streak",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "streak"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "flares",
+          "frame": 0,
+          "width": 3200,
+          "height": 200,
+          "layer": 52,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0.4
+        }
+      }
+    },
+    {
+      "name": "streak_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "streak",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.4,
+          "t1": 40,
+          "v1": 1.0,
+          "t2": 420,
+          "v2": 1.3
+        }
+      }
+    },
+    {
+      "name": "streak_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "streak",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 12,
+          "v1": 255,
+          "t2": 200,
+          "v2": 170,
+          "t3": 430,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "ghost_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 190,
+          "y": 105
+        },
+        "tag.Tag": {
+          "tag": "ghost_0"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "flares",
+          "frame": 1,
+          "width": 440,
+          "height": 110,
+          "layer": 53,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 255,
+          "blue": 255
+        }
+      }
+    },
+    {
+      "name": "ghost_0_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "ghost_0",
+          "smooth": true,
+          "keys": 4,
+          "t0": 8,
+          "v0": 0,
+          "t1": 40,
+          "v1": 120,
+          "t2": 180,
+          "v2": 90,
+          "t3": 320,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "ghost_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 340,
+          "y": 190
+        },
+        "tag.Tag": {
+          "tag": "ghost_1"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "flares",
+          "frame": 2,
+          "width": 240,
+          "height": 60,
+          "layer": 53,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 200,
+          "green": 220,
+          "blue": 255
+        }
+      }
+    },
+    {
+      "name": "ghost_1_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "ghost_1",
+          "smooth": true,
+          "keys": 4,
+          "t0": 8,
+          "v0": 0,
+          "t1": 40,
+          "v1": 120,
+          "t2": 180,
+          "v2": 90,
+          "t3": 320,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "ghost_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -280,
+          "y": -155
+        },
+        "tag.Tag": {
+          "tag": "ghost_2"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "flares",
+          "frame": 1,
+          "width": 680,
+          "height": 170,
+          "layer": 53,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 200,
+          "blue": 170
+        }
+      }
+    },
+    {
+      "name": "ghost_2_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "ghost_2",
+          "smooth": true,
+          "keys": 4,
+          "t0": 8,
+          "v0": 0,
+          "t1": 40,
+          "v1": 120,
+          "t2": 180,
+          "v2": 90,
+          "t3": 320,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "ghost_3",
+      "components": {
+        "transform2d.Position": {
+          "x": -130,
+          "y": -72
+        },
+        "tag.Tag": {
+          "tag": "ghost_3"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "flares",
+          "frame": 2,
+          "width": 184,
+          "height": 46,
+          "layer": 53,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 220,
+          "green": 190,
+          "blue": 255
+        }
+      }
+    },
+    {
+      "name": "ghost_3_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "ghost_3",
+          "smooth": true,
+          "keys": 4,
+          "t0": 8,
+          "v0": 0,
+          "t1": 40,
+          "v1": 120,
+          "t2": 180,
+          "v2": 90,
+          "t3": 320,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 320,
+          "y": 44
+        },
+        "tag.Tag": {
+          "tag": "cloud_0"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 813,
+          "height": 813,
+          "layer": -98,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 150,
+          "blue": 70,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 51.1,
+          "y": 7.0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 235
+        }
+      }
+    },
+    {
+      "name": "cloud_0_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_0",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 39,
+          "v1": 247,
+          "t2": 336,
+          "v2": 198,
+          "t3": 496,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_0_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_0",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_0_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_0",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 235,
+          "t1": 1430,
+          "v1": 250
+        }
+      }
+    },
+    {
+      "name": "cloud_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -190,
+          "y": 181
+        },
+        "tag.Tag": {
+          "tag": "cloud_1"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 785,
+          "height": 785,
+          "layer": -97,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 110,
+          "blue": 190,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -51.7,
+          "y": 49.3
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 164
+        }
+      }
+    },
+    {
+      "name": "cloud_1_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_1",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 52,
+          "v1": 217,
+          "t2": 387,
+          "v2": 174,
+          "t3": 547,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_1_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_1",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_1_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_1",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 164,
+          "t1": 1430,
+          "v1": 177
+        }
+      }
+    },
+    {
+      "name": "cloud_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 61,
+          "y": -345
+        },
+        "tag.Tag": {
+          "tag": "cloud_2"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 2,
+          "width": 1110,
+          "height": 1110,
+          "layer": -96,
+          "alpha": 0,
+          "unlit": true,
+          "red": 180,
+          "green": 110,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 7.2,
+          "y": -41.0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 195
+        }
+      }
+    },
+    {
+      "name": "cloud_2_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_2",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 31,
+          "v1": 247,
+          "t2": 448,
+          "v2": 198,
+          "t3": 608,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_2_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_2",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_2_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_2",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 195,
+          "t1": 1430,
+          "v1": 218
+        }
+      }
+    },
+    {
+      "name": "cloud_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 234,
+          "y": 216
+        },
+        "tag.Tag": {
+          "tag": "cloud_3"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 3,
+          "width": 1216,
+          "height": 1216,
+          "layer": -95,
+          "alpha": 0,
+          "unlit": true,
+          "red": 90,
+          "green": 140,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 80.0,
+          "y": 73.7
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 339
+        }
+      }
+    },
+    {
+      "name": "cloud_3_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_3",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 50,
+          "v1": 235,
+          "t2": 491,
+          "v2": 188,
+          "t3": 651,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_3_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_3",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_3_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_3",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 339,
+          "t1": 1430,
+          "v1": 320
+        }
+      }
+    },
+    {
+      "name": "cloud_4",
+      "components": {
+        "transform2d.Position": {
+          "x": -284,
+          "y": 18
+        },
+        "tag.Tag": {
+          "tag": "cloud_4"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 997,
+          "height": 997,
+          "layer": -94,
+          "alpha": 0,
+          "unlit": true,
+          "red": 80,
+          "green": 210,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -106.9,
+          "y": 6.7
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 245
+        }
+      }
+    },
+    {
+      "name": "cloud_4_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_4",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 49,
+          "v1": 207,
+          "t2": 539,
+          "v2": 166,
+          "t3": 699,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_4_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_4",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_4_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_4",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 245,
+          "t1": 1430,
+          "v1": 268
+        }
+      }
+    },
+    {
+      "name": "cloud_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 331,
+          "y": -143
+        },
+        "tag.Tag": {
+          "tag": "cloud_5"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 811,
+          "height": 811,
+          "layer": -93,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 210,
+          "blue": 140,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 68.4,
+          "y": -29.5
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 164
+        }
+      }
+    },
+    {
+      "name": "cloud_5_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_5",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 70,
+          "v1": 218,
+          "t2": 567,
+          "v2": 174,
+          "t3": 727,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_5_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_5",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_5_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_5",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 164,
+          "t1": 1430,
+          "v1": 151
+        }
+      }
+    },
+    {
+      "name": "cloud_6",
+      "components": {
+        "transform2d.Position": {
+          "x": -86,
+          "y": 175
+        },
+        "tag.Tag": {
+          "tag": "cloud_6"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 2,
+          "width": 941,
+          "height": 941,
+          "layer": -92,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 150,
+          "blue": 70,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -41.4,
+          "y": 83.8
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 87
+        }
+      }
+    },
+    {
+      "name": "cloud_6_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_6",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 53,
+          "v1": 222,
+          "t2": 358,
+          "v2": 178,
+          "t3": 518,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_6_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_6",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_6_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_6",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 87,
+          "t1": 1430,
+          "v1": 88
+        }
+      }
+    },
+    {
+      "name": "cloud_7",
+      "components": {
+        "transform2d.Position": {
+          "x": -76,
+          "y": -276
+        },
+        "tag.Tag": {
+          "tag": "cloud_7"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 3,
+          "width": 822,
+          "height": 822,
+          "layer": -91,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 110,
+          "blue": 190,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -13.3,
+          "y": -48.3
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 259
+        }
+      }
+    },
+    {
+      "name": "cloud_7_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_7",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 69,
+          "v1": 226,
+          "t2": 381,
+          "v2": 181,
+          "t3": 541,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_7_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_7",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_7_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_7",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 259,
+          "t1": 1430,
+          "v1": 243
+        }
+      }
+    },
+    {
+      "name": "cloud_8",
+      "components": {
+        "transform2d.Position": {
+          "x": 201,
+          "y": 122
+        },
+        "tag.Tag": {
+          "tag": "cloud_8"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 1040,
+          "height": 1040,
+          "layer": -90,
+          "alpha": 0,
+          "unlit": true,
+          "red": 180,
+          "green": 110,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 91.5,
+          "y": 55.7
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 13
+        }
+      }
+    },
+    {
+      "name": "cloud_8_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_8",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 47,
+          "v1": 239,
+          "t2": 429,
+          "v2": 191,
+          "t3": 589,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_8_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_8",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_8_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_8",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 13,
+          "t1": 1430,
+          "v1": 28
+        }
+      }
+    },
+    {
+      "name": "cloud_9",
+      "components": {
+        "transform2d.Position": {
+          "x": -270,
+          "y": 13
+        },
+        "tag.Tag": {
+          "tag": "cloud_9"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 1017,
+          "height": 1017,
+          "layer": -89,
+          "alpha": 0,
+          "unlit": true,
+          "red": 90,
+          "green": 140,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -100.4,
+          "y": 4.7
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 240
+        }
+      }
+    },
+    {
+      "name": "cloud_9_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_9",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 36,
+          "v1": 209,
+          "t2": 495,
+          "v2": 167,
+          "t3": 655,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_9_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_9",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_9_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_9",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 240,
+          "t1": 1430,
+          "v1": 252
+        }
+      }
+    },
+    {
+      "name": "cloud_10",
+      "components": {
+        "transform2d.Position": {
+          "x": 23,
+          "y": -172
+        },
+        "tag.Tag": {
+          "tag": "cloud_10"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 2,
+          "width": 1162,
+          "height": 1162,
+          "layer": -88,
+          "alpha": 0,
+          "unlit": true,
+          "red": 80,
+          "green": 210,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 15.8,
+          "y": -117.6
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 35
+        }
+      }
+    },
+    {
+      "name": "cloud_10_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_10",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 67,
+          "v1": 215,
+          "t2": 512,
+          "v2": 172,
+          "t3": 672,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_10_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_10",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_10_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_10",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 35,
+          "t1": 1430,
+          "v1": 59
+        }
+      }
+    },
+    {
+      "name": "cloud_11",
+      "components": {
+        "transform2d.Position": {
+          "x": 38,
+          "y": 336
+        },
+        "tag.Tag": {
+          "tag": "cloud_11"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 3,
+          "width": 768,
+          "height": 768,
+          "layer": -87,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 210,
+          "blue": 140,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 11.3,
+          "y": 99.9
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 20
+        }
+      }
+    },
+    {
+      "name": "cloud_11_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_11",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 63,
+          "v1": 217,
+          "t2": 572,
+          "v2": 174,
+          "t3": 732,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_11_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_11",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_11_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_11",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 20,
+          "t1": 1430,
+          "v1": 16
+        }
+      }
+    },
+    {
+      "name": "cloud_12",
+      "components": {
+        "transform2d.Position": {
+          "x": -302,
+          "y": -110
+        },
+        "tag.Tag": {
+          "tag": "cloud_12"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 1017,
+          "height": 1017,
+          "layer": -86,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 150,
+          "blue": 70,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -118.1,
+          "y": -42.9
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 202
+        }
+      }
+    },
+    {
+      "name": "cloud_12_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_12",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 36,
+          "v1": 216,
+          "t2": 353,
+          "v2": 173,
+          "t3": 513,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_12_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_12",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_12_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_12",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 202,
+          "t1": 1430,
+          "v1": 214
+        }
+      }
+    },
+    {
+      "name": "cloud_13",
+      "components": {
+        "transform2d.Position": {
+          "x": 304,
+          "y": -134
+        },
+        "tag.Tag": {
+          "tag": "cloud_13"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 1204,
+          "height": 1204,
+          "layer": -85,
+          "alpha": 0,
+          "unlit": true,
+          "red": 255,
+          "green": 110,
+          "blue": 190,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": 78.0,
+          "y": -34.3
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 204
+        }
+      }
+    },
+    {
+      "name": "cloud_13_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_13",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 31,
+          "v1": 250,
+          "t2": 389,
+          "v2": 200,
+          "t3": 549,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_13_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_13",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_13_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_13",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 204,
+          "t1": 1430,
+          "v1": 237
+        }
+      }
+    },
+    {
+      "name": "cloud_14",
+      "components": {
+        "transform2d.Position": {
+          "x": -266,
+          "y": 260
+        },
+        "tag.Tag": {
+          "tag": "cloud_14"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 2,
+          "width": 819,
+          "height": 819,
+          "layer": -84,
+          "alpha": 0,
+          "unlit": true,
+          "red": 180,
+          "green": 110,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -82.0,
+          "y": 79.9
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 315
+        }
+      }
+    },
+    {
+      "name": "cloud_14_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_14",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 36,
+          "v1": 205,
+          "t2": 429,
+          "v2": 164,
+          "t3": 589,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_14_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_14",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_14_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_14",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 315,
+          "t1": 1430,
+          "v1": 314
+        }
+      }
+    },
+    {
+      "name": "cloud_15",
+      "components": {
+        "transform2d.Position": {
+          "x": -71,
+          "y": -195
+        },
+        "tag.Tag": {
+          "tag": "cloud_15"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 3,
+          "width": 839,
+          "height": 839,
+          "layer": -83,
+          "alpha": 0,
+          "unlit": true,
+          "red": 90,
+          "green": 140,
+          "blue": 255,
+          "additive": true
+        },
+        "transform2d.Velocity": {
+          "x": -31.4,
+          "y": -86.6
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 173
+        }
+      }
+    },
+    {
+      "name": "cloud_15_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_15",
+          "smooth": true,
+          "keys": 4,
+          "t0": 4,
+          "v0": 0,
+          "t1": 65,
+          "v1": 238,
+          "t2": 465,
+          "v2": 190,
+          "t3": 625,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "cloud_15_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_15",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_15_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_15",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 173,
+          "t1": 1430,
+          "v1": 191
+        }
+      }
+    },
+    {
+      "name": "cloud_16",
+      "components": {
+        "transform2d.Position": {
+          "x": 370,
+          "y": 442
+        },
+        "tag.Tag": {
+          "tag": "cloud_16"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 972,
+          "height": 972,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": 81.2,
+          "y": 97.0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 30
+        }
+      }
+    },
+    {
+      "name": "cloud_16_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_16",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 509,
+          "v1": 71
+        }
+      }
+    },
+    {
+      "name": "cloud_16_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_16",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_16_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_16",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 30,
+          "t1": 1430,
+          "v1": 39
+        }
+      }
+    },
+    {
+      "name": "cloud_17",
+      "components": {
+        "transform2d.Position": {
+          "x": -665,
+          "y": -28
+        },
+        "tag.Tag": {
+          "tag": "cloud_17"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 1076,
+          "height": 1076,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": -48.8,
+          "y": -2.1
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 273
+        }
+      }
+    },
+    {
+      "name": "cloud_17_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_17",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 478,
+          "v1": 85
+        }
+      }
+    },
+    {
+      "name": "cloud_17_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_17",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_17_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_17",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 273,
+          "t1": 1430,
+          "v1": 251
+        }
+      }
+    },
+    {
+      "name": "cloud_18",
+      "components": {
+        "transform2d.Position": {
+          "x": 212,
+          "y": -439
+        },
+        "tag.Tag": {
+          "tag": "cloud_18"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 2,
+          "width": 1135,
+          "height": 1135,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": 19.9,
+          "y": -41.2
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 264
+        }
+      }
+    },
+    {
+      "name": "cloud_18_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_18",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 483,
+          "v1": 100
+        }
+      }
+    },
+    {
+      "name": "cloud_18_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_18",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_18_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_18",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 264,
+          "t1": 1430,
+          "v1": 296
+        }
+      }
+    },
+    {
+      "name": "cloud_19",
+      "components": {
+        "transform2d.Position": {
+          "x": 97,
+          "y": 531
+        },
+        "tag.Tag": {
+          "tag": "cloud_19"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 3,
+          "width": 1154,
+          "height": 1154,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": 18.0,
+          "y": 98.6
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 123
+        }
+      }
+    },
+    {
+      "name": "cloud_19_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_19",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 463,
+          "v1": 89
+        }
+      }
+    },
+    {
+      "name": "cloud_19_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_19",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_19_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_19",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 123,
+          "t1": 1430,
+          "v1": 127
+        }
+      }
+    },
+    {
+      "name": "cloud_20",
+      "components": {
+        "transform2d.Position": {
+          "x": -134,
+          "y": -348
+        },
+        "tag.Tag": {
+          "tag": "cloud_20"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 0,
+          "width": 1293,
+          "height": 1293,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": -42.2,
+          "y": -109.4
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 132
+        }
+      }
+    },
+    {
+      "name": "cloud_20_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_20",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 496,
+          "v1": 71
+        }
+      }
+    },
+    {
+      "name": "cloud_20_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_20",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_20_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_20",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 132,
+          "t1": 1430,
+          "v1": 166
+        }
+      }
+    },
+    {
+      "name": "cloud_21",
+      "components": {
+        "transform2d.Position": {
+          "x": 317,
+          "y": 40
+        },
+        "tag.Tag": {
+          "tag": "cloud_21"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "clouds",
+          "frame": 1,
+          "width": 1336,
+          "height": 1336,
+          "layer": -103,
+          "alpha": 0,
+          "unlit": true,
+          "red": 130,
+          "green": 134,
+          "blue": 146
+        },
+        "transform2d.Velocity": {
+          "x": 110.5,
+          "y": 14.0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        },
+        "transform2d.Rotation": {
+          "angle": 265
+        }
+      }
+    },
+    {
+      "name": "cloud_21_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "cloud_21",
+          "smooth": true,
+          "keys": 2,
+          "t0": 250,
+          "v0": 0,
+          "t1": 529,
+          "v1": 84
+        }
+      }
+    },
+    {
+      "name": "cloud_21_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "cloud_21",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0.3,
+          "t1": 220,
+          "v1": 1.0,
+          "t2": 1430,
+          "v2": 1.9
+        }
+      }
+    },
+    {
+      "name": "cloud_21_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "cloud_21",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 265,
+          "t1": 1430,
+          "v1": 269
+        }
+      }
+    },
+    {
+      "name": "glow_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 107,
+          "y": 90
+        },
+        "tag.Tag": {
+          "tag": "glow_0"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 1100,
+          "height": 1100,
+          "layer": -97,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 150,
+          "blue": 70
+        },
+        "transform2d.Velocity": {
+          "x": 34.5,
+          "y": 28.9
+        }
+      }
+    },
+    {
+      "name": "glow_0_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "glow_0",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 25,
+          "v1": 170,
+          "t2": 160,
+          "v2": 120,
+          "t3": 330,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "glow_1",
+      "components": {
+        "transform2d.Position": {
+          "x": -99,
+          "y": 99
+        },
+        "tag.Tag": {
+          "tag": "glow_1"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 1100,
+          "height": 1100,
+          "layer": -97,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 255,
+          "green": 110,
+          "blue": 190
+        },
+        "transform2d.Velocity": {
+          "x": -31.8,
+          "y": 31.8
+        }
+      }
+    },
+    {
+      "name": "glow_1_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "glow_1",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 35,
+          "v1": 170,
+          "t2": 210,
+          "v2": 120,
+          "t3": 390,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "glow_2",
+      "components": {
+        "transform2d.Position": {
+          "x": -90,
+          "y": -107
+        },
+        "tag.Tag": {
+          "tag": "glow_2"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 1100,
+          "height": 1100,
+          "layer": -97,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 180,
+          "green": 110,
+          "blue": 255
+        },
+        "transform2d.Velocity": {
+          "x": -28.9,
+          "y": -34.5
+        }
+      }
+    },
+    {
+      "name": "glow_2_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "glow_2",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 170,
+          "t2": 260,
+          "v2": 120,
+          "t3": 450,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "glow_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 115,
+          "y": -80
+        },
+        "tag.Tag": {
+          "tag": "glow_3"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 1100,
+          "height": 1100,
+          "layer": -97,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 90,
+          "green": 140,
+          "blue": 255
+        },
+        "transform2d.Velocity": {
+          "x": 36.9,
+          "y": -25.8
+        }
+      }
+    },
+    {
+      "name": "glow_3_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "glow_3",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 55,
+          "v1": 170,
+          "t2": 310,
+          "v2": 120,
+          "t3": 510,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "rocks_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 0,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 1,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 2,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 3,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 4,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_5",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 7,
+          "lifetime": 10,
+          "lifetime_spread": 3,
+          "speed": 170,
+          "speed_spread": 150,
+          "spread": 360,
+          "drag": 0.02,
+          "size": 14,
+          "end_size": 70,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 55,
+          "atlas": "asteroids",
+          "frame": 5,
+          "max": 7
+        }
+      }
+    },
+    {
+      "name": "rocks_near_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 2,
+          "lifetime": 6,
+          "lifetime_spread": 1,
+          "speed": 520,
+          "speed_spread": 120,
+          "spread": 360,
+          "size": 8,
+          "end_size": 320,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 60,
+          "atlas": "asteroids",
+          "frame": 1,
+          "max": 2
+        }
+      }
+    },
+    {
+      "name": "rocks_near_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "burst": 2,
+          "lifetime": 6,
+          "lifetime_spread": 1,
+          "speed": 520,
+          "speed_spread": 120,
+          "spread": 360,
+          "size": 8,
+          "end_size": 320,
+          "red": 255,
+          "green": 255,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "unlit": true,
+          "layer": 60,
+          "atlas": "asteroids",
+          "frame": 4,
+          "max": 2
+        }
+      }
+    },
+    {
       "name": "flash_grows",
       "components": {
         "tween2d.Track": {
@@ -682,7 +3659,7 @@
           "t0": 0,
           "v0": 0.2,
           "t1": 30,
-          "v1": 9
+          "v1": 5
         }
       }
     },
@@ -696,7 +3673,7 @@
           "keys": 2,
           "t0": 0,
           "v0": 255,
-          "t1": 80,
+          "t1": 60,
           "v1": 0
         }
       }
@@ -849,57 +3826,145 @@
       }
     },
     {
+      "name": "wanderer_nears",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "wanderer",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0.02,
+          "t1": 170,
+          "v1": 0.02,
+          "t2": 470,
+          "v2": 0.25,
+          "t3": 720,
+          "v3": 1.0
+        }
+      }
+    },
+    {
+      "name": "wanderer_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "wanderer",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": -20,
+          "t1": 720,
+          "v1": 15,
+          "t2": 1000,
+          "v2": -12,
+          "t3": 1200,
+          "v3": 8,
+          "t4": 1380,
+          "v4": 0
+        }
+      }
+    },
+    {
+      "name": "wanderer_x",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "onto": "wanderer",
+          "smooth": true,
+          "keys": 5,
+          "t0": 720,
+          "v0": 0,
+          "t1": 900,
+          "v1": 300,
+          "t2": 1080,
+          "v2": 900,
+          "t3": 1250,
+          "v3": 1800,
+          "t4": 1380,
+          "v4": 2390
+        }
+      }
+    },
+    {
+      "name": "wanderer_y",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "wanderer",
+          "smooth": true,
+          "keys": 5,
+          "t0": 720,
+          "v0": 0,
+          "t1": 900,
+          "v1": 80,
+          "t2": 1080,
+          "v2": 380,
+          "t3": 1250,
+          "v3": 760,
+          "t4": 1380,
+          "v4": 1025
+        }
+      }
+    },
+    {
       "name": "camera_zoom",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 0,
           "v0": 1.9500000000000002,
           "t1": 240,
           "v1": 0.8250000000000001,
-          "t2": 440,
-          "v2": 0.8250000000000001,
-          "t3": 580,
-          "v3": 1.125,
-          "t4": 800,
-          "v4": 3.9000000000000004
+          "t2": 720,
+          "v2": 2.4000000000000004,
+          "t3": 880,
+          "v3": 1.35,
+          "t4": 1100,
+          "v4": 0.63,
+          "t5": 1380,
+          "v5": 3.5999999999999996
         }
       }
     },
     {
-      "name": "camera_x",
+      "name": "camera_ahead_x",
       "components": {
         "tween2d.Track": {
-          "field": "transform2d.Position.x",
+          "field": "follow2d.Follow.offset_x",
           "onto": "camera",
           "smooth": true,
-          "keys": 3,
-          "t0": 440,
+          "keys": 4,
+          "t0": 720,
           "v0": 0,
-          "t1": 620,
+          "t1": 950,
           "v1": 700,
-          "t2": 800,
-          "v2": 690
+          "t2": 1150,
+          "v2": 500,
+          "t3": 1380,
+          "v3": 0
         }
       }
     },
     {
-      "name": "camera_y",
+      "name": "camera_ahead_y",
       "components": {
         "tween2d.Track": {
-          "field": "transform2d.Position.y",
+          "field": "follow2d.Follow.offset_y",
           "onto": "camera",
           "smooth": true,
-          "keys": 3,
-          "t0": 440,
+          "keys": 4,
+          "t0": 720,
           "v0": 0,
-          "t1": 620,
-          "v1": -120,
-          "t2": 800,
-          "v2": -210
+          "t1": 950,
+          "v1": 700,
+          "t2": 1150,
+          "v2": 350,
+          "t3": 1380,
+          "v3": 0
         }
       }
     },
@@ -911,10 +3976,10 @@
           "onto": "great_barrier",
           "smooth": true,
           "keys": 2,
-          "t0": 450,
+          "t0": 860,
           "v0": 0,
-          "t1": 560,
-          "v1": 220
+          "t1": 1000,
+          "v1": 150
         }
       }
     },
@@ -926,85 +3991,10 @@
           "onto": "planet",
           "smooth": true,
           "keys": 2,
-          "t0": 450,
+          "t0": 860,
           "v0": 0,
-          "t1": 540,
+          "t1": 980,
           "v1": 255
-        }
-      }
-    },
-    {
-      "name": "sleeper_shows",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 490,
-          "v0": 0,
-          "t1": 560,
-          "v1": 255
-        }
-      }
-    },
-    {
-      "name": "sleeper_bubble_shows",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "sleeper_bubble",
-          "smooth": true,
-          "keys": 2,
-          "t0": 490,
-          "v0": 0,
-          "t1": 560,
-          "v1": 200
-        }
-      }
-    },
-    {
-      "name": "sleeper_x",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Position.x",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 500,
-          "v0": 470,
-          "t1": 820,
-          "v1": 688
-        }
-      }
-    },
-    {
-      "name": "sleeper_y",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Position.y",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 500,
-          "v0": -330,
-          "t1": 820,
-          "v1": -202
-        }
-      }
-    },
-    {
-      "name": "sleeper_turns",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Rotation.angle",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 500,
-          "v0": -30,
-          "t1": 820,
-          "v1": 20
         }
       }
     },
@@ -1016,9 +4006,9 @@
           "onto": "whiteout",
           "smooth": true,
           "keys": 2,
-          "t0": 780,
+          "t0": 1330,
           "v0": 0,
-          "t1": 880,
+          "t1": 1420,
           "v1": 255
         }
       }
