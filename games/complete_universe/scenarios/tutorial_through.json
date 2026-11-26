@@ -1,11 +1,11 @@
 // The whole tutorial, played by a script: the steps are numbered in story.phase.Phase.current
-// in the order of the game's phase list (landing 0, black_show 1 ... departure 22, end 23).
+// in the order of the game's phase list (landing 0, black_show 1 ... departure 22, end 23, orbit 24).
 // Each step is shown first (x_show), seen close, then done by the player.
 {
   "schema_version": 1,
   "name": "tutorial_through",
   "scene": "tutorial",
-  "ticks": 7300,
+  "ticks": 7700,
   "inputs": [
     { "tick": 535, "action": "pointer_x", "value": 1215 },
     { "tick": 535, "action": "pointer_y", "value": 542 },
@@ -70,8 +70,14 @@
     { "tick": 5075, "action": "pointer_y", "value": 736 },
     { "tick": 5080, "action": "harvest", "value": 1 },
     { "tick": 5200, "action": "harvest", "value": 0 },
-    { "tick": 5900, "action": "jump", "value": 1 },
-    { "tick": 6400, "action": "jump", "value": 0 },
+    { "tick": 5860, "action": "move_x", "value": -1 },
+    { "tick": 5910, "action": "move_x", "value": 0 },
+    { "tick": 5930, "action": "jump", "value": 1 },
+    { "tick": 6250, "action": "jump", "value": 0 },
+    { "tick": 6270, "action": "move_x", "value": 1 },
+    { "tick": 6330, "action": "move_x", "value": 0 },
+    { "tick": 6350, "action": "jump", "value": 1 },
+    { "tick": 6900, "action": "jump", "value": 0 },
   ],
   "expect": [
     // Nothing happens before its step: the hero cannot walk yet.
@@ -128,19 +134,24 @@
     { "at": 5470, "check": "story.phase.Phase.current == 21" },
     { "at": 5470, "check": "checkpoint.checkpoint.Checkpoint.loads == 1" },
     { "at": 5470, "check": "matter.reserve.Reserve.amount > 50" },
-    // The departure: the jump held five seconds, not less; then he is thrown up into orbit.
-    { "at": 5840, "check": "story.phase.Phase.current == 22" },
-    { "at": 6180, "check": "story.phase.Phase.current == 22" },
-    { "at": 6240, "check": "story.phase.Phase.current == 23" },
-    { "at": 6400, "check": "hero.transform2d.Position.y < -2000" },
+    // The departure, under the overhang of the hole he dug: the jump held five seconds, its black hole growing; thrown up, he hits the ground over his head and falls back: to be done again.
+    { "at": 5990, "check": "story.phase.Phase.current == 22" },
+    { "at": 6200, "check": "departure_hole.transform2d.Scale.factor > 55" },
+    { "at": 6250, "check": "story.phase.Phase.current == 22" },
+    { "at": 6250, "check": "hero.transform2d.Position.y > 700" },
+    // Under the open sky, again: thrown up; in orbit only once out of the atmosphere.
+    { "at": 6640, "check": "story.phase.Phase.current == 22" },
+    { "at": 6700, "check": "story.phase.Phase.current == 23" },
+    { "at": 6760, "check": "story.phase.Phase.current == 23" },
+    { "at": 6820, "check": "story.phase.Phase.current == 24" },
     // Out of sight, the planet's ground is gone; out of its pull, he curls up in a bubble and drifts, without a cut, to the next planet; then 'to be continued'.
-    { "at": 6450, "check": "ground gone" },
-    { "at": 6450, "check": "ground_back gone" },
-    { "at": 6650, "check": "hero.sprite2d.Sprite.alpha == 0" },
-    { "at": 6650, "check": "sleeper.sprite2d.Sprite.alpha == 255" },
-    { "at": 6700, "check": "next_planet.sprite2d.Sprite.alpha == 255" },
-    { "at": 7250, "check": "to_follow.text2d.Text.alpha > 200" },
-    { "at": 7250, "check": "hero.transform2d.Velocity.x == 30" },
+    { "at": 6900, "check": "ground gone" },
+    { "at": 6900, "check": "ground_back gone" },
+    { "at": 7000, "check": "hero.sprite2d.Sprite.alpha == 0" },
+    { "at": 7000, "check": "sleeper.sprite2d.Sprite.alpha == 255" },
+    { "at": 7100, "check": "next_planet.sprite2d.Sprite.alpha == 255" },
+    { "at": 7600, "check": "to_follow.text2d.Text.alpha > 200" },
+    { "at": 7600, "check": "hero.transform2d.Velocity.x == 30" },
     // Still there, ahead of him.
     "next_planet alive",
   ],

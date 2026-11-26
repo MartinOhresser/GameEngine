@@ -57,6 +57,7 @@
       "skip",
       "leaving",
       "in_orbit",
+      "launch_blocked",
       "refill",
       "awakens_black",
       "awakens_white",
@@ -112,7 +113,9 @@
       "after_death_done",
       "after_death_next",
       "departure_done",
-      "departure_next"
+      "departure_next",
+      "end_done",
+      "end_next"
     ],
     "layer": [
       "hero",
@@ -175,6 +178,9 @@
       "stars_3",
       "stars_4",
       "sky",
+      "hold",
+      "departure_hole",
+      "blocked_watch",
       "gas",
       "gas_colour",
       "births",
@@ -225,7 +231,8 @@
       "death",
       "after_death",
       "departure",
-      "end"
+      "end",
+      "orbit"
     ],
     "power": [
       "black",

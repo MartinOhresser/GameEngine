@@ -1690,6 +1690,7 @@ def hero_clips():
 
 JUMP_HOLE_Y = -78  # the jump's black hole, over his head
 JUMP_HOLE_SIZE = 24  # its scale (and radius) at a full charge
+DEPARTURE_HOLE_SIZE = 70  # ... and once the departure's jump has been held long enough
 
 
 def jump_hole():
@@ -1720,6 +1721,37 @@ def jump_hole():
         bind("jump_hole_grows", "hero", "jump.Jumper.charge", "transform2d.Scale.factor",
              0, 1, 0, JUMP_HOLE_SIZE, 1, onto="jump_hole"),
         spin("jump_hole_turns", "jump_hole", 150),
+        # The departure (D21): held full, the hole goes on growing, as big as it can get, higher
+        # over his head; let go or gone, it is nothing again.
+        entity("departure_hole", 0, 0, {
+            "tag.Tag": {"tag": "departure_hole"},
+            "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                                "layer": LAYERS["hero"] + 6, "unlit": True},
+            "transform2d.Scale": {"factor": 0},
+            "transform2d.Rotation": {},
+            "follow2d.Follow": {"target": "hero", "offset_y": JUMP_HOLE_Y, "stiffness": 1},
+            "light2d.Light": {"radius": 0, "red": 190, "green": 210, "blue": 255,
+                              "intensity": 0.9},
+            "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1600, swirl=600, size=4, max=220),
+        }),
+        bind("departure_hole_grows", "hold", "transform2d.Position.x",
+             "transform2d.Scale.factor", -0.2, DEPARTURE_HOLD - HERO_CHARGE_TIME, 0,
+             DEPARTURE_HOLE_SIZE, 1, onto="departure_hole"),
+        bind("departure_hole_rises", "hold", "transform2d.Position.x",
+             "follow2d.Follow.offset_y", -0.2, DEPARTURE_HOLD - HERO_CHARGE_TIME, JUMP_HOLE_Y,
+             JUMP_HOLE_Y - DEPARTURE_HOLE_SIZE + JUMP_HOLE_SIZE, 1, onto="departure_hole"),
+        bind("departure_hole_lights", "departure_hole", "transform2d.Scale.factor",
+             "light2d.Light.radius", 0, DEPARTURE_HOLE_SIZE, 0, 320, 1, onto="departure_hole"),
+        bind("departure_hole_draws", "departure_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.rate", 0, DEPARTURE_HOLE_SIZE, 0, 140, 1,
+             onto="departure_hole"),
+        bind("departure_hole_draws_wide", "departure_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.area_width", 0, DEPARTURE_HOLE_SIZE, 0, 300, 1,
+             onto="departure_hole"),
+        bind("departure_hole_draws_high", "departure_hole", "transform2d.Scale.factor",
+             "particles2d.Emitter.area_height", 0, DEPARTURE_HOLE_SIZE, 0, 300, 1,
+             onto="departure_hole"),
+        spin("departure_hole_turns", "departure_hole", 110),
     ]
 
 
@@ -2438,7 +2470,8 @@ BASIN = (3700, 5000, 80)  # the basin with fossils, then rocks
 STEPS = ["landing", "black_show", "black", "black_practice", "white_show", "white",
          "white_practice", "harvest_show", "harvest", "harvest_practice", "inventory",
          "inventory_practice", "walk_show", "walk", "jump_show", "jump", "jump_practice",
-         "obstacles", "lack_white", "lack_black", "death", "after_death", "departure", "end"]
+         "obstacles", "lack_white", "lack_black", "death", "after_death", "departure", "end",
+         "orbit"]
 # A step "x_show" comes before the step x (D19): the game does it by itself, seen close, and says
 # how it works; then the player does it, told which key. Its seconds:
 SHOW_SECONDS = {"black": 6, "white": 6, "harvest": 6, "walk": 4, "jump": 4}
@@ -2477,6 +2510,7 @@ TEXTS = {
                   "Maintiens Espace cinq secondes : le plus grand saut possible."),
 }
 DEPARTURE_HOLD = 5.0  # seconds of the jump held for the departure
+HOLD_OFF = -100000  # the clock of the hold when the jump is not held at full charge
 HERO_CHARGE_TIME = 1.2  # seconds to charge a jump fully
 PRACTICE_SECONDS = {"black": 6, "white": 6, "harvest": 5, "inventory": 3, "jump": 2}
 
@@ -2523,6 +2557,12 @@ def watch(name, step, source, field, action, low=None, high=None, inside=False):
     return {"name": name, "components": {"rules.Watch": rule,
                                          "phase.ActiveIn": {"phases": [step]},
                                          "transform2d.Disabled": {}}}
+
+
+def tagged(made, tag):
+    """The entity made, answering to tag (a tag.Tag)."""
+    made["components"]["tag.Tag"] = {"tag": tag}
+    return made
 
 
 def on(name, action, source, field, value):
@@ -2696,7 +2736,7 @@ def story():
                                    "transform2d.Velocity": {"x": 1}})]
     ends = {}
     for index, step in enumerate(STEPS[:-1]):
-        action = {"death": "revive"}.get(step, f"{step}_done" if not step.endswith(
+        action = {"death": "revive", "end": "leaving"}.get(step, f"{step}_done" if not step.endswith(
             "_practice") else f"{step[:-len('_practice')]}_next")
         ends[step] = action
         made.append({"name": f"after_{step}", "components": {"phase.Transition": {
@@ -2780,14 +2820,16 @@ def story():
         # head; full, it slips out of his hands (no need to let go).
         # The jump is the same as before (D19): only the time it is held counts. Full, the clock
         # starts; let go, it is put far back; five seconds held in all, he goes.
-        on("hold_clock_off", "after_death_done", "clock", "transform2d.Position.x", -1000),
+        entity("hold", HOLD_OFF, 0, {"tag.Tag": {"tag": "hold"},
+                                     "transform2d.Velocity": {"x": 1}}),
         watch("charge_full_watch", "departure", "hero", "jump.Jumper.charge", "charge_full",
               0.995),
-        on("hold_clock", "charge_full", "clock", "transform2d.Position.x", 0),
+        on("hold_starts", "charge_full", "hold", "transform2d.Position.x", 0),
         watch("charge_lost_watch", "departure", "hero", "jump.Jumper.charge", "charge_lost",
               high=0.5),
-        on("hold_clock_lost", "charge_lost", "clock", "transform2d.Position.x", -1000),
-        watch("departure_watch", "departure", "clock", "transform2d.Position.x",
+        on("hold_lost", "charge_lost", "hold", "transform2d.Position.x", HOLD_OFF),
+        on("hold_spent", "departure_done", "hold", "transform2d.Position.x", HOLD_OFF),
+        watch("departure_watch", "departure", "hold", "transform2d.Position.x",
               "departure_done", DEPARTURE_HOLD - HERO_CHARGE_TIME),
     ]
     return made + step_texts()
@@ -2880,7 +2922,7 @@ def landing():
     ]
 
 
-LEAVING_Y = GROUND_Y - 1900  # this high, the planet's pull slows him and bends his way
+LEAVING_Y = TUTORIAL_TOP - 300  # above the top of the ground: out of the atmosphere, he is gone
 ORBIT_SPEED = 320  # ... down to this speed upwards: he is out of the pull, he drifts
 VOYAGE_TICKS = 600  # the drift to the next planet (GDD: 5 to 10 seconds, no control)
 VOYAGE_SPEED = ((290, -320), (30, -20))  # his speed as the drift starts, and once there
@@ -2926,27 +2968,39 @@ def departure():
     (vx0, vy0), (vx1, vy1) = VOYAGE_SPEED
     return [
         sleeper, bubble, planet_ahead, air, to_follow,
-        # Thrown up, faster and faster (as fast as his fall can be), without control or powers.
+        # Thrown up, faster and faster (as fast as his fall can be), without steering.
         on("thrown_up", "departure_done", "hero", "transform2d.Velocity.y", -1400),
         on("out_of_pull", "departure_done", "hero", "gravity2d.Gravity.y", -300),
         on("no_steering", "departure_done", "hero", "action_control.Controlled.horizontal", 0),
-        on("no_powers", "departure_done", "kit", "loadout.Kit.unlocked", 0),
-        on("no_dust", "departure_done", "hero_dust", "particles2d.Emitter.max", 0),
-        on("matter_kept", "departure_done", "matter", "reserve.Reserve.drain", 0),
-        on("carbon_kept", "departure_done", "carbon", "reserve.Reserve.drain", 0),
-        on("no_ash", "departure_done", "ash", "particles2d.Emitter.rate", 0),
         on("sky_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_top", -100000),
-        on("space_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_right",
-           100000),
-        # The great barrier around the planet lets him through, and dissolves.
-        track("dome_dissolves", "dome", "sprite2d.Sprite.alpha", [(0, 230), (240, 0)],
-              start="departure_done"),
-        # High above, the pull slows him down and bends his way; out of it, he drifts.
+        # Something over his head stops him (D21): he falls back, the departure is to be done
+        # again (the five seconds held again).
+        tagged(watch("blocked_watch", "end", "hero", "collision2d.Blocked.above",
+                     "launch_blocked", 1), "blocked_watch"),
+        # Each launch watches afresh (blocked again right away counts).
+        on("blocked_rearmed", "departure_done", "blocked_watch", "rules.Watch.inside", 0),
+        {"name": "back_to_departure", "components": {"phase.Transition": {
+            "action": "launch_blocked", "from": ["end"], "from_any": False,
+            "to": "departure"}}},
+        on("falls_back", "launch_blocked", "hero", "gravity2d.Gravity.y", 1800),
+        on("steers_again", "launch_blocked", "hero", "action_control.Controlled.horizontal", 1),
+        on("sky_closes", "launch_blocked", "camera", "camera2d.CameraFollow.bound_top", -2000),
+        # Out of the atmosphere (above the top of the planet's ground): he is gone. No control,
+        # no powers, his reserves kept; the great barrier lets him through and dissolves; the
+        # pull slows him down and bends his way; out of it, he drifts.
         watch("leaving_watch", "end", "hero", "transform2d.Position.y", "leaving",
               high=LEAVING_Y),
+        on("no_powers", "leaving", "kit", "loadout.Kit.unlocked", 0),
+        on("no_dust", "leaving", "hero_dust", "particles2d.Emitter.max", 0),
+        on("matter_kept", "leaving", "matter", "reserve.Reserve.drain", 0),
+        on("carbon_kept", "leaving", "carbon", "reserve.Reserve.drain", 0),
+        on("no_ash", "leaving", "ash", "particles2d.Emitter.rate", 0),
+        on("space_opens", "leaving", "camera", "camera2d.CameraFollow.bound_right", 100000),
+        track("dome_dissolves", "dome", "sprite2d.Sprite.alpha", [(0, 230), (240, 0)],
+              start="leaving"),
         on("slowed", "leaving", "hero", "gravity2d.Gravity.y", 380),
         on("bent", "leaving", "hero", "gravity2d.Gravity.x", 140),
-        watch("orbit_watch", "end", "hero", "transform2d.Velocity.y", "in_orbit",
+        watch("orbit_watch", "orbit", "hero", "transform2d.Velocity.y", "in_orbit",
               low=-ORBIT_SPEED, inside=True),
         on("floats", "in_orbit", "hero", "gravity2d.Gravity.y", 0),
         on("floats_x", "in_orbit", "hero", "gravity2d.Gravity.x", 0),
@@ -3110,7 +3164,7 @@ def opening():
 
 ACTIONS = ["move_x", "jump", "out_of_matter", "out_of_carbon", "hand_left", "hand_right",
            "change", "pointer_x", "pointer_y", "harvest", "inventory", "take_off", "revive",
-           "locked", "skip", "leaving", "in_orbit", "refill", "awakens_black", "awakens_white",
+           "locked", "skip", "leaving", "in_orbit", "launch_blocked", "refill", "awakens_black", "awakens_white",
            "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
 for _step in STEPS[:-1]:
@@ -3125,7 +3179,7 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "text_jump_show_line", "demo_black", "demo_harvest", "demo_bubble", "demo_wall", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
-        "stars_2", "stars_3", "stars_4", "sky", "gas", "gas_colour", "births", "ash", "voyage_bubble",
+        "stars_2", "stars_3", "stars_4", "sky", "hold", "departure_hole", "blocked_watch", "gas", "gas_colour", "births", "ash", "voyage_bubble",
         "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",

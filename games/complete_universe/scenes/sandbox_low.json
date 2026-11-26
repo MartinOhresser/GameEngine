@@ -2586,6 +2586,174 @@
       }
     },
     {
+      "name": "departure_hole",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "departure_hole"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 16,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_y": -78,
+          "stiffness": 1
+        },
+        "light2d.Light": {
+          "radius": 0,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0.9
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 4,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 220,
+          "pull": 1600,
+          "swirl": 600
+        }
+      }
+    },
+    {
+      "name": "departure_hole_grows",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "transform2d.Scale.factor",
+          "onto": "departure_hole",
+          "low": -0.2,
+          "high": 3.8,
+          "out_low": 0,
+          "out_high": 70,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_rises",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "follow2d.Follow.offset_y",
+          "onto": "departure_hole",
+          "low": -0.2,
+          "high": 3.8,
+          "out_low": -78,
+          "out_high": -124,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_lights",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "departure_hole",
+          "target": "light2d.Light.radius",
+          "onto": "departure_hole",
+          "low": 0,
+          "high": 70,
+          "out_low": 0,
+          "out_high": 320,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_draws",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "departure_hole",
+          "target": "particles2d.Emitter.rate",
+          "onto": "departure_hole",
+          "low": 0,
+          "high": 70,
+          "out_low": 0,
+          "out_high": 140,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_draws_wide",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "departure_hole",
+          "target": "particles2d.Emitter.area_width",
+          "onto": "departure_hole",
+          "low": 0,
+          "high": 70,
+          "out_low": 0,
+          "out_high": 300,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_draws_high",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Scale.factor",
+          "from": "departure_hole",
+          "target": "particles2d.Emitter.area_height",
+          "onto": "departure_hole",
+          "low": 0,
+          "high": 70,
+          "out_low": 0,
+          "out_high": 300,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "departure_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "departure_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 110,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
       "name": "dead",
       "components": {
         "transform2d.Position": {
