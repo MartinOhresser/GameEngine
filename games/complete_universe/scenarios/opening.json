@@ -1,8 +1,9 @@
 // The opening plays by itself (D23, D24): black, a point that grows and trembles; at tick 220
 // the explosion: the flash, rays, clouds of gas in colours that go out in turn, black, then the
 // sky builds up. The white light of its heart fades out slowly: far off in it, the hero, who
-// grows nearer and wanders to the planet; it grows behind him until it fills the background,
-// finer; the pivot: it slides down, the sky after it, which stops. Then the tutorial's scene,
+// grows nearer and wanders to the planet: a point of light at the bottom right, which grows coming
+// towards him until it fills the background, finer; the pivot: it slides down, the sky after it
+// (nearly a screen: the view turns), which stops. Then the tutorial's scene,
 // "arrival", the same picture: he falls to the ground, and the tutorial goes on.
 {
   "schema_version": 1,
@@ -31,6 +32,11 @@
     { "at": 950, "check": "wanderer.transform2d.Scale.factor == 1" },
     { "at": 950, "check": "cloud_0.sprite2d.Sprite.alpha == 0" },
     { "at": 950, "check": "cloud_21.sprite2d.Sprite.alpha > 60" },
+    { "at": 1020, "check": "planet_dot.sprite2d.Sprite.alpha == 255" },
+    { "at": 1020, "check": "planet.sprite2d.Sprite.alpha == 0" },
+    { "at": 1020, "check": "planet.transform2d.Scale.factor < 0.05" },
+    { "at": 1020, "check": "planet.transform2d.Position.x > 380" },
+    { "at": 1120, "check": "planet_dot.sprite2d.Sprite.alpha == 0" },
     { "at": 1120, "check": "planet.sprite2d.Sprite.alpha == 255" },
     { "at": 1120, "check": "planet.transform2d.Scale.factor < 1" },
     { "at": 1530, "check": "stars_1.sprite2d.Sprite.alpha == 0" },
@@ -40,17 +46,17 @@
     { "at": 1680, "check": "wanderer.transform2d.Rotation.angle == 0" },
     { "at": 1980, "check": "planet.transform2d.Position.y > 2600" },
     { "at": 1982, "check": "sky_t.transform2d.Scale.factor == 1" },
-    { "at": 1982, "check": "sky_t.transform2d.Position.y < -10" },
-    { "at": 1982, "check": "sky_t.transform2d.Position.y > -60" },
-    { "at": 1945, "check": "sky_t.transform2d.Position.y > -1" },
+    { "at": 1982, "check": "sky_t.transform2d.Position.y < 300" },
+    { "at": 1982, "check": "sky_t.transform2d.Position.y > 280" },
+    { "at": 1945, "check": "sky_t.transform2d.Position.y > 319" },
     { "at": 1982, "check": "camera.camera2d.Camera.zoom == 1.5" },
     { "at": 1982, "check": "wanderer.transform2d.Velocity.y > 1000" },
     { "at": 1995, "check": "hero.transform2d.Position.y < -1150" },
     { "at": 1995, "check": "hero.transform2d.Velocity.y == 1100" },
     // At the switch, nothing stops: he is already in his fall, the sky already rising.
     { "at": 1985, "check": "hero.sprite2d.Animator.clip == 6" },
-    { "at": 1985, "check": "sky.transform2d.Position.y < -30.5" },
-    { "at": 1986, "check": "sky.transform2d.Position.y < -32" },
+    { "at": 1985, "check": "sky.transform2d.Position.y < 289.5" },
+    { "at": 1986, "check": "sky.transform2d.Position.y < 288" },
     { "at": 1995, "check": "story.phase.Phase.current == 0" },
     { "at": 2200, "check": "hero.collision2d.Blocked.below == true" },
     "story.phase.Phase.current == 1",

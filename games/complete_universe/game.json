@@ -190,6 +190,7 @@
       "nebula_colour",
       "flash",
       "planet",
+      "planet_dot",
       "sleeper",
       "wanderer",
       "void",
@@ -328,6 +329,7 @@
   "atlases": [
     "art/sky.json",
     "art/sky_colour.json",
+    "art/sky_big.json",
     "art/stars_1.json",
     "art/stars_2.json",
     "art/stars_3.json",

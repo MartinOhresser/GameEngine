@@ -3507,8 +3507,8 @@
       "name": "planet",
       "components": {
         "transform2d.Position": {
-          "x": 330,
-          "y": 170
+          "x": 400,
+          "y": 205
         },
         "tag.Tag": {
           "tag": "planet"
@@ -3526,7 +3526,7 @@
           "y": 0
         },
         "transform2d.Scale": {
-          "factor": 0.3
+          "factor": 0.006
         }
       }
     },
@@ -3534,8 +3534,8 @@
       "name": "planet_near",
       "components": {
         "transform2d.Position": {
-          "x": 330,
-          "y": 170
+          "x": 400,
+          "y": 205
         },
         "tag.Tag": {
           "tag": "planet_near"
@@ -3553,7 +3553,57 @@
           "y": 0
         },
         "transform2d.Scale": {
-          "factor": 0.3
+          "factor": 0.006
+        }
+      }
+    },
+    {
+      "name": "planet_dot",
+      "components": {
+        "transform2d.Position": {
+          "x": 400,
+          "y": 205
+        },
+        "tag.Tag": {
+          "tag": "planet_dot"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 640.0,
+          "height": 640.0,
+          "layer": -95,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "red": 205,
+          "green": 212,
+          "blue": 228
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 0.006
+        }
+      }
+    },
+    {
+      "name": "planet_dot_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "planet_dot",
+          "smooth": true,
+          "keys": 4,
+          "t0": 1000,
+          "v0": 0,
+          "t1": 1006,
+          "v1": 255,
+          "t2": 1050,
+          "v2": 255,
+          "t3": 1100,
+          "v3": 0
         }
       }
     },
@@ -3565,9 +3615,9 @@
           "onto": "planet",
           "smooth": true,
           "keys": 2,
-          "t0": 1000,
+          "t0": 1035,
           "v0": 0,
-          "t1": 1100,
+          "t1": 1095,
           "v1": 255
         }
       }
@@ -3594,17 +3644,19 @@
           "field": "transform2d.Position.x",
           "onto": "planet",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 330.0,
-          "t1": 1270,
-          "v1": 260.0,
-          "t2": 1470,
-          "v2": 120.0,
-          "t3": 1640,
-          "v3": 0.0,
-          "t4": 1980,
+          "v0": 400.0,
+          "t1": 1220,
+          "v1": 330.0,
+          "t2": 1370,
+          "v2": 220.0,
+          "t3": 1470,
+          "v3": 120.0,
+          "t4": 1640,
           "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0,
           "curve": true
         }
       }
@@ -3616,17 +3668,19 @@
           "field": "transform2d.Position.y",
           "onto": "planet",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 170.0,
-          "t1": 1270,
-          "v1": 180.0,
-          "t2": 1470,
-          "v2": 330.0,
-          "t3": 1640,
-          "v3": 700.0,
-          "t4": 1980,
-          "v4": 2700.0,
+          "v0": 205.0,
+          "t1": 1220,
+          "v1": 215.0,
+          "t2": 1370,
+          "v2": 260.0,
+          "t3": 1470,
+          "v3": 330.0,
+          "t4": 1640,
+          "v4": 700.0,
+          "t5": 1980,
+          "v5": 2700.0,
           "curve": true
         }
       }
@@ -3638,17 +3692,91 @@
           "field": "transform2d.Scale.factor",
           "onto": "planet",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 0.3,
-          "t1": 1270,
-          "v1": 0.55,
-          "t2": 1470,
-          "v2": 2.2,
-          "t3": 1640,
-          "v3": 7.0,
-          "t4": 1980,
-          "v4": 10.0,
+          "v0": 0.006,
+          "t1": 1220,
+          "v1": 0.3,
+          "t2": 1370,
+          "v2": 1.0,
+          "t3": 1470,
+          "v3": 2.2,
+          "t4": 1640,
+          "v4": 7.0,
+          "t5": 1980,
+          "v5": 10.0,
+          "curve": true
+        }
+      }
+    },
+    {
+      "name": "planet_dot_x",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "onto": "planet_dot",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 400.0,
+          "t1": 1220,
+          "v1": 330.0,
+          "t2": 1370,
+          "v2": 220.0,
+          "t3": 1470,
+          "v3": 120.0,
+          "t4": 1640,
+          "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0,
+          "curve": true
+        }
+      }
+    },
+    {
+      "name": "planet_dot_y",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "planet_dot",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 205.0,
+          "t1": 1220,
+          "v1": 215.0,
+          "t2": 1370,
+          "v2": 260.0,
+          "t3": 1470,
+          "v3": 330.0,
+          "t4": 1640,
+          "v4": 700.0,
+          "t5": 1980,
+          "v5": 2700.0,
+          "curve": true
+        }
+      }
+    },
+    {
+      "name": "planet_dot_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "planet_dot",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 0.006,
+          "t1": 1220,
+          "v1": 0.3,
+          "t2": 1370,
+          "v2": 1.0,
+          "t3": 1470,
+          "v3": 2.2,
+          "t4": 1640,
+          "v4": 7.0,
+          "t5": 1980,
+          "v5": 10.0,
           "curve": true
         }
       }
@@ -3660,17 +3788,19 @@
           "field": "transform2d.Position.x",
           "onto": "planet_near",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 330.0,
-          "t1": 1270,
-          "v1": 260.0,
-          "t2": 1470,
-          "v2": 120.0,
-          "t3": 1640,
-          "v3": 0.0,
-          "t4": 1980,
+          "v0": 400.0,
+          "t1": 1220,
+          "v1": 330.0,
+          "t2": 1370,
+          "v2": 220.0,
+          "t3": 1470,
+          "v3": 120.0,
+          "t4": 1640,
           "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0,
           "curve": true
         }
       }
@@ -3682,17 +3812,19 @@
           "field": "transform2d.Position.y",
           "onto": "planet_near",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 132.8,
-          "t1": 1270,
-          "v1": 111.8,
-          "t2": 1470,
-          "v2": 57.2,
-          "t3": 1640,
-          "v3": -168.0,
-          "t4": 1980,
-          "v4": 1460.0,
+          "v0": 204.3,
+          "t1": 1220,
+          "v1": 177.8,
+          "t2": 1370,
+          "v2": 136.0,
+          "t3": 1470,
+          "v3": 57.2,
+          "t4": 1640,
+          "v4": -168.0,
+          "t5": 1980,
+          "v5": 1460.0,
           "curve": true
         }
       }
@@ -3704,17 +3836,19 @@
           "field": "transform2d.Scale.factor",
           "onto": "planet_near",
           "smooth": true,
-          "keys": 5,
+          "keys": 6,
           "t0": 1000,
-          "v0": 0.3,
-          "t1": 1270,
-          "v1": 0.55,
-          "t2": 1470,
-          "v2": 2.2,
-          "t3": 1640,
-          "v3": 7.0,
-          "t4": 1980,
-          "v4": 10.0,
+          "v0": 0.006,
+          "t1": 1220,
+          "v1": 0.3,
+          "t2": 1370,
+          "v2": 1.0,
+          "t3": 1470,
+          "v3": 2.2,
+          "t4": 1640,
+          "v4": 7.0,
+          "t5": 1980,
+          "v5": 10.0,
           "curve": true
         }
       }
@@ -3724,15 +3858,15 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": -180
+          "y": -320.0
         },
         "tag.Tag": {
           "tag": "sky_t"
         },
         "sprite2d.Sprite": {
-          "atlas": "sky",
-          "width": 1920.0,
-          "height": 1080.0,
+          "atlas": "sky_big",
+          "width": 2432.0,
+          "height": 1368.0,
           "layer": -118,
           "alpha": 0,
           "unlit": true
@@ -3751,15 +3885,15 @@
       "components": {
         "transform2d.Position": {
           "x": -38.4,
-          "y": -86.8
+          "y": -226.8
         },
         "tag.Tag": {
           "tag": "veil_t"
         },
         "sprite2d.Sprite": {
           "atlas": "veil",
-          "width": 2560.0,
-          "height": 1440.0,
+          "width": 2944.0,
+          "height": 1655.9999999999998,
           "layer": -95,
           "alpha": 0
         },
@@ -3811,11 +3945,11 @@
           "smooth": true,
           "keys": 3,
           "t0": 1600,
-          "v0": -180.0,
+          "v0": -320.0,
           "t1": 1945,
-          "v1": -0.0,
+          "v1": 320.0,
           "t2": 2092,
-          "v2": -180.0
+          "v2": 140.0
         }
       }
     },
@@ -3828,11 +3962,11 @@
           "smooth": true,
           "keys": 3,
           "t0": 1600,
-          "v0": -86.8,
+          "v0": -226.8,
           "t1": 1945,
-          "v1": 93.2,
+          "v1": 413.2,
           "t2": 2092,
-          "v2": -86.8
+          "v2": 233.2
         }
       }
     },

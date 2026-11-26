@@ -1004,7 +1004,7 @@ def crystal(seed=3):
 
 def glow():
     """A soft white glow, bright in the middle."""
-    size = 256
+    size = 512  # drawn big (the air of a planet): smooth even enlarged
     y, x = np.mgrid[0:size, 0:size].astype(np.float64)
     r = np.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2)
     return to_image(np.full((size, size, 3), 255.0), np.clip(1 - r, 0, 1) ** 2.2)
@@ -1132,7 +1132,7 @@ BAND_SLOPE = -0.42  # the milky band of the skies rises to the right, as in the 
 def octave(width, height, rng, scale):
     """One smooth random layer, features about scale pixels apart, -1 to 1."""
     small = rng.uniform(0, 1, (height // scale + 3, width // scale + 3))
-    big = np.asarray(Image.fromarray((small * 65535).astype(np.uint16), "I;16").convert(
+    big = np.asarray(Image.fromarray((small * 65535).astype(np.uint16)).convert(
         "I").resize(((width // scale + 3) * scale, (height // scale + 3) * scale),
                     Image.BICUBIC), dtype=np.float64)[:height, :width] / 65535.0
     return np.clip(big, 0, 1) * 2 - 1
@@ -1263,18 +1263,18 @@ def blur_rgb(rgb, radius):
     return np.dstack([blur(rgb[..., channel], radius) for channel in range(3)])
 
 
-def sky(coloured=False):
+def sky(coloured=False, scale=1.0):
     """The sky behind everything, the size of the screen, after Spacescape: black, a band of gas
     in filaments with dark lanes, stars thick in it. In colour for the opening and the title
     (docs: "le ciel"), in greys for the tutorial (docs: the character's picture)."""
-    w, h = SCREEN_W, SCREEN_H
+    w, h = round(SCREEN_W * scale), round(SCREEN_H * scale)
     if coloured:
         rgb, gas = nebula(w, h, 31, [(8, 30, 48), (14, 70, 90), (30, 130, 140), (60, 150, 210),
                                      (150, 140, 235), (240, 200, 245)], 1.3)
     else:
         rgb, gas = nebula(w, h, 31, [(40, 41, 48), (78, 80, 90), (122, 124, 136),
                                      (170, 172, 184), (220, 222, 232)], 0.85)
-    star = stars(w, h, 7, 16000 if coloured else 13000, coloured=coloured,
+    star = stars(w, h, 7, round((16000 if coloured else 13000) * scale * scale), coloured=coloured,
                  density=np.clip(gas * 1.5 + band_of(w, h, 0.3) * 0.3, 0, 1))
     base = np.dstack([np.full((h, w), 3.0), np.full((h, w), 3.5), np.full((h, w), 6.0)])
     picture = base * (1 - gas[..., None]) + rgb * gas[..., None]
@@ -3208,12 +3208,15 @@ def arrival_sky_end(made, arrival):
     if not arrival:
         return made
     sky = next(item for item in made if item["name"] == "sky")
-    sky["components"]["sprite2d.Sprite"].update(width=VIEW_W * SKY_BIG, height=VIEW_H * SKY_BIG)
+    sky["components"]["sprite2d.Sprite"].update(atlas="sky_big", width=VIEW_W * SKY_BIG,
+                                                height=VIEW_H * SKY_BIG)
     # The opening's last frame showed it at OPENING_TICKS - 2: this one, one tick on; the
     # track's first key, the next.
     sky["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
     veil = next(item for item in made if item["name"] == "veil")
     veil["components"]["tag.Tag"] = {"tag": "veil"}
+    veil["components"]["sprite2d.Sprite"].update(width=1600 * 1.6 * VEIL_BIG,
+                                                 height=900 * 1.6 * VEIL_BIG)
     veil["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
     ticks = [0, 1, 30, 60, 85, ARRIVAL_DOWN]
     keys = [(tick, sky_slide(OPENING_TICKS + tick)) for tick in ticks]
@@ -3355,8 +3358,10 @@ ARRIVAL_VY = 1100
 ARRIVAL_CAMERA_DY = 152.7
 ARRIVAL_FALL = 70  # the ticks his fall takes, more than from the usual start
 ARRIVAL_DOWN = 107  # ... and from the tutorial's start to the ground
-SKY_BIG = 1.5  # the sky of the arrival, bigger than the screen: it can come down
-SKY_SLIDE = 180  # ... by this much: down with the pivot, then up as he falls
+SKY_BIG = 1.9  # the sky of the arrival (its own picture), bigger than the screen: it can slide
+PIVOT_SLIDE = 640  # ... down this much with the pivot, nearly a screen: the view turns 90 degrees
+FALL_RISE = 180  # ... then up this much as he falls (the stars rise)
+VEIL_BIG = 1.15  # its veil of gas, bigger too: it slides with it
 # The ticks (of the opening) of the pivot, of the planet's pull and of his landing.
 SKY_SLIDE_TICKS = (1380, ARRIVAL_PULL, OPENING_TICKS + ARRIVAL_DOWN)
 
@@ -3368,9 +3373,9 @@ def sky_slide(tick):
     start, pull, end = SKY_SLIDE_TICKS
     if tick <= pull:
         k = min(max((tick - start) / (pull - start), 0.0), 1.0)
-        return round(-SKY_SLIDE * (1 - k * k * (3 - 2 * k)), 2)
+        return round(PIVOT_SLIDE / 2 - PIVOT_SLIDE * (1 - k * k * (3 - 2 * k)), 2)
     k = min((tick - pull) / (end - pull), 1.0)
-    return round(-SKY_SLIDE * k * k * (3 - 2 * k), 2)
+    return round(PIVOT_SLIDE / 2 - FALL_RISE * k * k * (3 - 2 * k), 2)
 # The camera's zoom along the opening: back from the explosion, close on him as he nears, then
 # at rest, as in the tutorial.
 OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER, 1.6 * ZOOM), (880, ZOOM)]
@@ -3527,30 +3532,39 @@ def screen_entity(name, x, y, sprite, scale=1.0):
 
 
 def arrival_planet():
-    """He nears the planet of the tutorial (D24): behind him, small; it grows until it fills the
-    background, its lands, seas and mountains getting finer. Then the pivot: the planet slides
-    down out of the screen, the sky after it, slower and slower, until it stops: the planet is
+    """He nears the planet of the tutorial (D24, D27): a point of light far off at the bottom
+    right of the screen, that grows coming towards him until it fills the background, its lands,
+    seas and mountains getting finer. Then the pivot: the planet slides down out of the screen, the sky after it, slower and slower, until it stops: the planet is
     below him now, he falls to it."""
     # (tick, x, y, scale): where the planet is on the screen and how big.
-    keys = [(780, 330, 170, 0.3), (1050, 260, 180, 0.55), (1250, 120, 330, 2.2),
-            (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
+    # (The camera is still closer than at rest when it shows: 2.1 times, then 1.5 from 880.)
+    keys = [(780, 400, 205, 0.006), (1000, 330, 215, 0.3), (1150, 220, 260, 1.0),
+            (1250, 120, 330, 2.2), (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
     near_x = (PLANET_NEAR[0] + PLANET_NEAR[2]) / 2 * PLANET_W / 2
     near_y = (PLANET_NEAR[1] + PLANET_NEAR[3]) / 2 * PLANET_W / 2
     near_w = (PLANET_NEAR[2] - PLANET_NEAR[0]) * PLANET_W / 2
     near_h = (PLANET_NEAR[3] - PLANET_NEAR[1]) * PLANET_W / 2
     made = [
-        screen_entity("planet", 330, 170, {
+        screen_entity("planet", 400, 205, {
             "atlas": "planet", "width": PLANET_W * PLANET_MARGIN,
             "height": PLANET_W * PLANET_MARGIN, "layer": -96, "alpha": 0,
-            "unlit": True}, 0.3),
-        screen_entity("planet_near", 330, 170, {
+            "unlit": True}, 0.006),
+        screen_entity("planet_near", 400, 205, {
             "atlas": "planet_near", "width": near_w, "height": near_h, "layer": -95,
-            "alpha": 0, "unlit": True}, 0.3),
-        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(780, 0), (880, 255)]),
+            "alpha": 0, "unlit": True}, 0.006),
+        # First a point of light, which lights up at once: the planet far off (its picture, a few
+        # pixels wide, would flicker). As it nears, the disc takes its place.
+        screen_entity("planet_dot", 400, 205, {
+            "atlas": "glow", "width": PLANET_W * 1.6, "height": PLANET_W * 1.6, "layer": -95,
+            "alpha": 0, "additive": True, "unlit": True, "red": 205, "green": 212,
+            "blue": 228}, 0.006),
+        track("planet_dot_shows", "planet_dot", "sprite2d.Sprite.alpha",
+              [(780, 0), (786, 255), (830, 255), (880, 0)]),
+        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(815, 0), (875, 255)]),
         track("planet_near_shows", "planet_near", "sprite2d.Sprite.alpha",
               [(1360, 0), (1440, 255)]),
     ]
-    for name in ("planet", "planet_near"):
+    for name in ("planet", "planet_dot", "planet_near"):
         dx, dy = (near_x, near_y) if name == "planet_near" else (0, 0)
         made += [
             curve(f"{name}_x", name, "transform2d.Position.x",
@@ -3570,12 +3584,13 @@ def arrival_sky():
     veil_x, veil_y = -0.06 * VIEW_W / 2, -0.06 * (ARRIVAL_Y - ARRIVAL_CAMERA_DY)
     # (the tutorial's veil, seen from its camera at the start: the same place on the screen)
     return [
-        screen_entity("sky_t", 0, -SKY_SLIDE, {
-            "atlas": "sky", "width": VIEW_W * SKY_BIG, "height": VIEW_H * SKY_BIG,
+        screen_entity("sky_t", 0, sky_slide(0), {
+            "atlas": "sky_big", "width": VIEW_W * SKY_BIG, "height": VIEW_H * SKY_BIG,
             "layer": -118, "alpha": 0, "unlit": True}),
         # As in the tutorial, a veil of gas lit by him in the dark (light2d).
-        screen_entity("veil_t", round(veil_x, 1), round(veil_y - SKY_SLIDE, 1), {
-            "atlas": "veil", "width": 1600 * 1.6, "height": 900 * 1.6, "layer": -95,
+        screen_entity("veil_t", round(veil_x, 1), round(veil_y + sky_slide(0), 1), {
+            "atlas": "veil", "width": 1600 * 1.6 * VEIL_BIG, "height": 900 * 1.6 * VEIL_BIG,
+            "layer": -95,
             "alpha": 0}),
         track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 255)]),
         track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 200)]),
@@ -3798,13 +3813,13 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
-        "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "planet", "sleeper",
+        "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "planet", "planet_dot", "sleeper",
         "wanderer", "void", "core", "seed", "pause_hero", "veil", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
         "sleeper_bubble", "whiteout", "whitein", "runaway", "blast", "to_follow", "pause"]
 TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
          [f"glow_{index}" for index in range(GLOW_COUNT)] +
          [f"burst_{name}" for name, _ in FRAGMENT_COLOURS + [("grey", None)]])
-ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "mountains", "mist", "ground_far", "front", "hero",
+ATLASES = ["sky", "sky_colour", "sky_big", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
            "cave_far", "ore", "planet_near", "bang_rays", "bang_core", "flares", "clouds"]
@@ -3927,6 +3942,7 @@ def write_pictures():
     save(hero_curled(), "hero_curled")
     save(sky(), "sky")
     save(sky(coloured=True), "sky_colour")
+    save(sky(scale=SKY_BIG), "sky_big")  # the arrival's, bigger: it slides nearly a screen
     for index, picture in enumerate(star_layers()):
         save(picture, f"stars_{index + 1}")
     save(gas(), "gas")

@@ -333,7 +333,7 @@ private:
 
     static constexpr float default_size = 16.0F;
     /// Side of the picture of a glow, in pixels: smoothed when drawn bigger.
-    static constexpr int glow_size = 128;
+    static constexpr int glow_size = 256;
 
     struct Atlas {
         SDL_Texture* texture = nullptr;
@@ -707,7 +707,10 @@ private:
         quarter_ = make(width / 4, height / 4);
         blur_ = make(width / 16, height / 16);
         bright_ = make(width / 16, height / 16);
-        if (scene_ == nullptr || quarter_ == nullptr || blur_ == nullptr || bright_ == nullptr) {
+        bloom_ = make(width / 4, height / 4);
+        bloom_spare_ = make(width / 4, height / 4);
+        if (scene_ == nullptr || quarter_ == nullptr || blur_ == nullptr || bright_ == nullptr ||
+            bloom_ == nullptr || bloom_spare_ == nullptr) {
             destroy_effect_targets();
             return false;
         }
@@ -717,7 +720,8 @@ private:
     }
 
     void destroy_effect_targets() {
-        for (SDL_Texture** texture : {&scene_, &quarter_, &blur_, &bright_}) {
+        for (SDL_Texture** texture :
+             {&scene_, &quarter_, &blur_, &bright_, &bloom_, &bloom_spare_}) {
             if (*texture != nullptr) {
                 SDL_DestroyTexture(*texture);
                 *texture = nullptr;
@@ -811,12 +815,19 @@ private:
     }
 
     /// The bright parts enlarged and added over the screen: a soft glow around what is bright.
+    /// Enlarged in two steps, softened between them: a sixteenth of the view laid straight on the
+    /// screen shows its pixels, as blocks and creases in the glows.
     void add_bright(float strength) {
-        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_ADD);
-        SDL_SetTextureAlphaMod(bright_, static_cast<std::uint8_t>(std::lround(strength * 255.0F)));
+        SDL_SetRenderTarget(renderer_, bloom_);
         SDL_RenderTexture(renderer_, bright_, nullptr, nullptr);
-        SDL_SetTextureBlendMode(bright_, SDL_BLENDMODE_NONE);
-        SDL_SetTextureAlphaMod(bright_, 255U);
+        spread(bloom_, bloom_spare_);
+        spread(bloom_spare_, bloom_);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_SetTextureBlendMode(bloom_, SDL_BLENDMODE_ADD);
+        SDL_SetTextureAlphaMod(bloom_, static_cast<std::uint8_t>(std::lround(strength * 255.0F)));
+        SDL_RenderTexture(renderer_, bloom_, nullptr, nullptr);
+        SDL_SetTextureBlendMode(bloom_, SDL_BLENDMODE_NONE);
+        SDL_SetTextureAlphaMod(bloom_, 255U);
     }
 
     /// Shafts of light: the bright parts added again and again, each copy bigger around the rays'
@@ -1068,6 +1079,10 @@ private:
     SDL_Texture* quarter_ = nullptr;
     SDL_Texture* blur_ = nullptr;
     SDL_Texture* bright_ = nullptr;
+    /// The glow of the bright parts, enlarged from `bright_` to a quarter of the view and softened
+    /// there, before it goes on the screen.
+    SDL_Texture* bloom_ = nullptr;
+    SDL_Texture* bloom_spare_ = nullptr;
     SDL_Texture* vignette_ = nullptr;
     SDL_Texture* edge_glow_ = nullptr;
     SDL_Texture* grain_ = nullptr;

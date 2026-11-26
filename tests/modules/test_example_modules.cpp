@@ -25,8 +25,9 @@ TEST_CASE("modules: installing records the module and its systems") {
     CHECK(app.module_names() == std::vector<std::string>{"transform2d"});
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
-          (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
-                                    "transform2d.wear_off", "transform2d.anchor"}));
+          (std::vector<std::string>{"transform2d.smooth", "transform2d.integrate",
+                                    "transform2d.attach", "transform2d.wear_off",
+                                    "transform2d.anchor"}));
 }
 
 TEST_CASE("modules: the generated info matches module.json") {
@@ -104,9 +105,9 @@ TEST_CASE("modules: screen_wrap brings entities back on the other side, after th
     CHECK(app.module_problems().empty());
     CHECK(app.schedule().problems().empty());
     CHECK(app.schedule().system_names(ge::app::Stage::FixedUpdate) ==
-          (std::vector<std::string>{"transform2d.integrate", "transform2d.attach",
-                                    "transform2d.wear_off", "transform2d.anchor",
-                                    "screen_wrap.wrap"}));
+          (std::vector<std::string>{"transform2d.smooth", "transform2d.integrate",
+                                    "transform2d.attach", "transform2d.wear_off",
+                                    "transform2d.anchor", "screen_wrap.wrap"}));
 
     const Entity right = app.world().spawn_with(transform2d::Position{99.0F, 5.0F},
                                                 transform2d::Velocity{120.0F, 0.0F},

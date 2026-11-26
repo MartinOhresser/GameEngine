@@ -244,6 +244,28 @@ TEST_CASE("transform2d: without real time, a jump or a new entity, the Position 
     CHECK(app.world().resource<transform2d::Trail>() != nullptr);
 }
 
+TEST_CASE("transform2d: a Smooth entity moves evenly on a screen faster than the ticks") {
+    ge::app::App app = game();
+    app.world().resource<ge::app::Time>()->interpolate = true;
+    const ge::ecs::Entity entity = runner(app, 60.0F); // one unit per tick
+    transform2d::Smooth smooth;
+    smooth.share = 0.3F;
+    smooth.most = 20.0F;
+    CHECK(app.world().insert(entity, smooth));
+    const std::chrono::nanoseconds frame{1'000'000'000 / 144}; // a 144 Hz screen
+    for (int frame_index = 0; frame_index < 144; frame_index += 1) {
+        app.advance(frame); // the glide settles
+    }
+    float before = drawn_x(app, entity);
+    for (int frame_index = 0; frame_index < 144; frame_index += 1) {
+        app.advance(frame);
+        const float now = drawn_x(app, entity);
+        // 60 units a second on 144 frames a second: the same step every frame, never back.
+        CHECK(std::abs((now - before) - (60.0F / 144.0F)) < 0.02F);
+        before = now;
+    }
+}
+
 TEST_CASE("transform2d: a Smooth entity is drawn gliding after where it is, never too far") {
     ge::app::App app = game();
     const ge::ecs::Entity entity = app.world().spawn();
