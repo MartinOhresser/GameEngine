@@ -3459,6 +3459,9 @@
             "and_max": {
               "type": "number"
             },
+            "and_absolute": {
+              "type": "boolean"
+            },
             "id": {
               "type": "integer",
               "minimum": 0,

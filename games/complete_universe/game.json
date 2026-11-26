@@ -197,6 +197,7 @@
       "core",
       "seed",
       "pause_hero",
+      "veil",
       "mountains",
       "mist_far",
       "mist_near",
@@ -313,7 +314,8 @@
       "harvest"
     ],
     "animation_set": [
-      "hero"
+      "hero",
+      "hero_space"
     ],
     "menu": [
       "title",

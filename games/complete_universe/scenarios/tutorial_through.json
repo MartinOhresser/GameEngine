@@ -160,6 +160,9 @@
     { "at": 7495, "check": "hero.transform2d.Velocity.y < -100" },
     { "at": 7495, "check": "hero.sprite2d.Sprite.alpha == 255" },
     { "at": 7755, "check": "space_hole.transform2d.Scale.factor == 0" },
+    { "at": 7495, "check": "hero.sprite2d.Animator.set == 1" },
+    { "at": 7495, "check": "hero.sprite2d.Animator.clip == 102" },
+    { "at": 7755, "check": "hero.sprite2d.Animator.clip == 101" },
     { "at": 8005, "check": "next_planet.sprite2d.Sprite.alpha == 255" },
     { "at": 8005, "check": "to_follow.text2d.Text.alpha > 200" },
     // Still there, ahead of him.
