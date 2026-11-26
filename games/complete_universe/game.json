@@ -189,7 +189,6 @@
       "nebula",
       "nebula_colour",
       "flash",
-      "great_barrier",
       "planet",
       "sleeper",
       "wanderer",
@@ -222,7 +221,6 @@
       "sleeper_bubble",
       "whiteout",
       "whitein",
-      "dome",
       "runaway",
       "blast",
       "to_follow",
@@ -260,15 +258,7 @@
       "burst_yellow",
       "burst_green",
       "burst_blue",
-      "burst_grey",
-      "rocks_0",
-      "rocks_1",
-      "rocks_2",
-      "rocks_3",
-      "rocks_4",
-      "rocks_5",
-      "rocks_near_1",
-      "rocks_near_4"
+      "burst_grey"
     ],
     "resource": [
       "matter",
@@ -349,7 +339,6 @@
     "art/hills_far.json",
     "art/hills_near.json",
     "art/cave.json",
-    "art/dome.json",
     "art/mountains.json",
     "art/mist.json",
     "art/ground_far.json",
@@ -373,12 +362,10 @@
     "art/cave_far.json",
     "art/ore.json",
     "art/planet_near.json",
-    "art/great_barrier.json",
     "art/bang_rays.json",
     "art/bang_core.json",
     "art/flares.json",
-    "art/clouds.json",
-    "art/asteroids.json"
+    "art/clouds.json"
   ],
   "prefabs": [
     "prefabs/fade_white.json",

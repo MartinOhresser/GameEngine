@@ -9,7 +9,7 @@
     { "tick": 21, "action": "accept", "value": 0 },
   ],
   "expect": [
-    "great_barrier alive",
+    "planet alive",
     "wanderer alive",
   ],
 }

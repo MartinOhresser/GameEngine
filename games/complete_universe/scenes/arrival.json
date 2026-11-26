@@ -8203,45 +8203,6 @@
       }
     },
     {
-      "name": "dome",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 2560
-        },
-        "tag.Tag": {
-          "tag": "dome"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "dome",
-          "width": 5600,
-          "height": 5600,
-          "layer": -90,
-          "alpha": 0,
-          "unlit": true
-        },
-        "sprite2d.Parallax": {
-          "x": 0.04,
-          "y": 0.04
-        }
-      }
-    },
-    {
-      "name": "dome_shows",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "dome",
-          "smooth": true,
-          "keys": 2,
-          "t0": 110,
-          "v0": 0,
-          "t1": 270,
-          "v1": 230
-        }
-      }
-    },
-    {
       "name": "camera_keeps_up",
       "components": {
         "tween2d.Track": {
@@ -10118,22 +10079,6 @@
           "source": "camera",
           "field": "camera2d.CameraFollow.bound_right",
           "value": 100000
-        }
-      }
-    },
-    {
-      "name": "dome_dissolves",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "dome",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 230,
-          "t1": 240,
-          "v1": 0,
-          "start": "departure_done"
         }
       }
     },

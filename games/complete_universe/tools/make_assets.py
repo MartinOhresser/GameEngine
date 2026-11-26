@@ -851,18 +851,6 @@ def button(focused):
     return to_image(rgb, alpha)
 
 
-def dome(size=2048):
-    """The great barrier over the planet, seen from inside: only its rim, a thin arc of light
-    with a soft glow on both sides."""
-    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
-    r = np.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2)
-    rim = np.exp(-((r - 0.96) / 0.0018) ** 2) * 0.9
-    glow = np.exp(-((r - 0.96) / 0.009) ** 2) * 0.3
-    alpha = np.clip(rim + glow, 0, 1)
-    return to_image(np.dstack([np.full_like(r, 215), np.full_like(r, 240), np.full_like(r, 238)]),
-                    alpha)
-
-
 def wall_pane(size=BARRIER):
     """A wall of the white: a flat pane of glass seen edge on, its two faces bright and the
     inside clear. Stretched along its length, it stays the same across."""
@@ -1086,18 +1074,24 @@ def planet_at(nx, ny, detail=7):
     cloud = value_noise(x * 1.6 + sx * 0.9, y * 4.0, z * 1.6 + sx * 0.9, 307, 1.3, detail)
     clouds = np.clip((cloud - 0.63) / 0.14, 0, 1) ** 1.4 * 0.85
     value = value * (1 - clouds) + 232 * clouds
-    # Light: day, a soft edge to the night, which stays faintly seen.
-    light = np.clip(nx * PLANET_LIGHT[0] + ny * PLANET_LIGHT[1] + nz * PLANET_LIGHT[2], 0, 1)
-    shine = np.exp(-((nx + 0.38) ** 2 + (ny + 0.42) ** 2) / 0.03) * 0.35 * (1 - land) * (
+    # Light: day, a wide soft edge to the night (the terminator), the night faintly seen (lit by
+    # the stars), so that the whole disc stands out from the black of space.
+    sun = nx * PLANET_LIGHT[0] + ny * PLANET_LIGHT[1] + nz * PLANET_LIGHT[2]
+    light = np.clip((sun + 0.1) / 1.1, 0, 1)
+    shine = np.exp(-((nx + 0.38) ** 2 + (ny + 0.42) ** 2) / 0.03) * 0.3 * (1 - land) * (
         1 - clouds)  # the sun in the seas
-    value = value * (0.1 + 0.95 * light ** 0.8) + 255 * shine
-    rim = np.exp(-((r - 1) / 0.012) ** 2) * np.clip(light * 1.6 + 0.25, 0, 1)
-    air = (np.exp(-np.clip(r - 1, 0, None) / 0.025) * (r > 1) * 0.5 * np.clip(light + 0.4, 0, 1)
-           * np.clip((PLANET_MARGIN - 0.02 - r) / 0.08, 0, 1))
+    value = value * (0.13 + 0.92 * light ** 0.9) + 255 * shine
+    # The air: a thin bright line along the whole edge, strong on the side of the sun, and a
+    # glow out of it into space, as wide as the air is thick.
+    edge_light = np.clip(nx * PLANET_LIGHT[0] + ny * PLANET_LIGHT[1] + 0.45, 0, 1) / 1.45
+    rim = np.exp(-((r - 1) / 0.016) ** 2) * (0.3 + 0.7 * edge_light)
+    haze = np.exp(-((1 - np.clip(r, 0, 1)) / 0.06)) * (r < 1) * (0.15 + 0.5 * edge_light)
+    air = (np.exp(-np.clip(r - 1, 0, None) / 0.05) * (r > 1) * (0.25 + 0.45 * edge_light)
+           * np.clip((PLANET_MARGIN - 0.02 - r) / 0.12, 0, 1))
     inside = np.clip((1 - r) * 300, 0, 1)
     alpha = np.clip(inside + rim + air, 0, 1)
-    value = np.where(r < 1, value + 120 * rim, 236)
-    rgb = np.dstack([value * 0.97, value * 0.99, value * 1.04])
+    value = np.where(r < 1, value * (1 - haze) + 215 * haze + 110 * rim, 225)
+    rgb = np.dstack([value * 0.96, value * 0.99, value * 1.05])
     return rgb, alpha
 
 
@@ -1436,48 +1430,6 @@ def clouds():
         value = 140 + 115 * np.clip(wisps * 1.3, 0, 1)
         made.append(to_image(np.dstack([value, value, value]), cover))
     return sheet_of(made, 4, size, size)
-
-
-ASTEROID = 128
-
-
-def asteroids():
-    """Rocks thrown by the explosion: dark lumps, their edge lit by the light behind them, a few
-    craters. Six of them, in cells of ASTEROID."""
-    made = []
-    n = ASTEROID * SUPER
-    for seed in range(6):
-        rng = np.random.default_rng(120 + seed)
-        mask_picture = Image.new("L", (n, n), 0)
-        points = []
-        long = rng.uniform(0.6, 1.0)
-        turn = rng.uniform(0, math.pi)
-        lumps = rng.uniform(0.75, 1.05, 7)
-        for i in range(28):
-            t = 2 * math.pi * i / 28
-            radius = 0.4 * rng.uniform(0.9, 1.04) * lumps[(i * 7) // 28]
-            px, py = radius * math.cos(t), radius * long * math.sin(t)
-            points.append(((0.5 + px * math.cos(turn) - py * math.sin(turn)) * n,
-                           (0.5 + px * math.sin(turn) + py * math.cos(turn)) * n))
-        ImageDraw.Draw(mask_picture).polygon(points, fill=255)
-        mask = blur(np.asarray(mask_picture, dtype=np.float64) / 255.0, n * 0.015)
-        mask = np.clip((mask - 0.5) * 5 + 0.5, 0, 1)
-        inner = blur(mask, n * 0.04)
-        rim = np.clip((mask - inner) * 2.6, 0, 1) ** 2
-        grain = noise(n, n, 130 + seed, ((32, 1.0), (12, 0.6), (4, 0.4)))
-        body = np.array([22.0, 23.0, 28.0])[None, None, :] * (0.6 + 0.8 * grain[..., None])
-        for _ in range(int(rng.integers(2, 6))):
-            cx, cy = rng.uniform(0.3, 0.7, 2) * n
-            cr = rng.uniform(0.04, 0.1) * n
-            d = np.hypot(*(np.mgrid[0:n, 0:n] - np.array([cy, cx])[:, None, None])) / cr
-            body *= (1 - 0.4 * np.clip(1 - d, 0, 1) ** 0.5)[..., None]
-            rim += np.clip(1 - np.abs(d - 1.05) * 6, 0, 1) * 0.08 * mask
-        side = np.clip(np.mgrid[0:n, 0:n][1] / n * 1.4 - 0.2, 0, 1)
-        light = np.array([150.0, 180.0, 235.0]) * (1 - side[..., None]) + \
-            np.array([255.0, 200.0, 160.0]) * side[..., None]
-        rgb = body + light * np.clip(rim, 0, 1)[..., None]
-        made.append(shrink(rgb, mask, ASTEROID, ASTEROID))
-    return sheet_of(made, 6, ASTEROID, ASTEROID)
 
 
 HILLS_W, HILLS_H = 2048, 400  # world units of a band of hills (drawn at one pixel each)
@@ -2741,7 +2693,7 @@ def sandbox_scene(matter=100, carbon=100):
 
 
 # ---------------------------------------------------------------------------------------------
-# The tutorial (docs/complete_universe/TUTORIEL.md): one planet in the great barrier, played flat.
+# The tutorial (docs/complete_universe/TUTORIEL.md): one planet, played flat.
 
 TUTORIAL_W = 6600  # the planet's ground runs from x 0 to here
 TUTORIAL_TOP = -1000  # the ground's grid starts this high (walls at both ends go up to it)
@@ -3135,7 +3087,7 @@ def story(fall=0):
 
 def tutorial(arrival=False):
     """The planet of the tutorial, from left to right: the landing on hard rock, the path, the
-    pit and the ledge, the basin, the edge under the top of the dome. Its ground goes deep: what
+    pit and the ledge, the basin, the far edge. Its ground goes deep: what
     is dug opens the way down, and the camera follows. With arrival, he starts high in its sky,
     as the opening leaves him (the same picture: no cut), and falls to the ground."""
     bottom = GROUND_Y + TUTORIAL_DEPTH
@@ -3156,7 +3108,7 @@ def tutorial(arrival=False):
                                                     "despawn": True}
     rock_w = LANDING_ROCK[1] - LANDING_ROCK[0]
     shapes = relief_shapes(GROUND_Y) + [
-        # Walls at both ends, up to the top of the grid: the barrier holds the planet.
+        # Walls at both ends, up to the top of the grid.
         shape("wall_left", 8, (TUTORIAL_TOP + bottom) / 2, 16, height, True, hard=True),
         shape("wall_right", TUTORIAL_W - 8, (TUTORIAL_TOP + bottom) / 2, 16, height, True,
               hard=True),
@@ -3272,22 +3224,13 @@ def arrival_sky_end(made, arrival):
 def landing(arrival=False):
     """The start of the tutorial: out of the white of the opening (or, with arrival, from high
     in the sky, as the opening leaves him), he falls to the ground."""
-    dome = entity("dome", 0, 2560, {"tag.Tag": {"tag": "dome"}, "sprite2d.Sprite": {
-        "atlas": "dome", "width": 5600, "height": 5600, "layer": -90,
-        "alpha": 0 if arrival else 230, "unlit": True},
-        "sprite2d.Parallax": {"x": 0.04, "y": 0.04}})
     if arrival:
-        # The great barrier, high above, shows once he is down; the camera keeps up with his
-        # fall, then is soft again.
-        return [dome, track("dome_shows", "dome", "sprite2d.Sprite.alpha",
-                            [(ARRIVAL_FALL + 40, 0), (ARRIVAL_FALL + 200, 230)]),
-                track("camera_keeps_up", "camera", "camera2d.CameraFollow.stiffness",
+        # The camera keeps up with his fall, then is soft again.
+        return [track("camera_keeps_up", "camera", "camera2d.CameraFollow.stiffness",
                       [(0, 0.25), (ARRIVAL_FALL + 20, 0.25), (ARRIVAL_FALL + 80, 0.06)])]
     return [
         cover("whitein", 255),
         track("whitein_fades", "whitein", "sprite2d.Sprite.alpha", [(0, 255), (80, 0)]),
-        # The great barrier, high above: a dome over the whole planet.
-        dome,
     ]
 
 
@@ -3339,8 +3282,8 @@ def departure():
                             "way_turn": SPACE_HOLE_TURN}})
     return [
         planet_ahead, air, to_follow, pull,
-        # Out of the atmosphere: no control, no powers, his reserves kept; the great barrier
-        # lets him through and dissolves; the planet's pull slows him down and bends his way.
+        # Out of the atmosphere: no control, no powers, his reserves kept; the
+        # planet's pull slows him down and bends his way.
         on("no_steering", "departure_done", "hero", "action_control.Controlled.horizontal", 0),
         on("no_jump", "departure_done", "hero", "jump.Jumper.action", ACTIONS.index("locked")),
         on("no_powers", "departure_done", "kit", "loadout.Kit.unlocked", 0),
@@ -3351,8 +3294,6 @@ def departure():
         on("sky_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_top", -100000),
         on("space_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_right",
            100000),
-        track("dome_dissolves", "dome", "sprite2d.Sprite.alpha", [(0, 230), (240, 0)],
-              start="departure_done"),
         on("bent", "departure_done", "hero", "gravity2d.Gravity.x", 140),
         watch("orbit_watch", "end", "hero", "transform2d.Velocity.y", "in_orbit",
               low=-ORBIT_SPEED, inside=True),
@@ -3566,26 +3507,6 @@ def bang_light():
     return made
 
 
-def bang_rocks():
-    """Rocks thrown out of the explosion, small and far, then a few that pass close by."""
-    made = []
-    for name, frame, burst, life, speed, spread, size, end_size, layer in (
-            [(f"rocks_{frame}", frame, 7, 10, 170, 150, 14, 70, 55) for frame in range(6)] +
-            [(f"rocks_near_{frame}", frame, 2, 6, 520, 120, 8, 320, 60) for frame in (1, 4)]):
-        made += [
-            entity(name, 0, 0, {"tag.Tag": {"tag": name}, "particles2d.Emitter": {
-                "rate": 0, "burst": burst, "active": False, "lifetime": life,
-                "lifetime_spread": 3 if burst > 2 else 1, "speed": speed,
-                "speed_spread": spread, "spread": 360, "drag": 0.02 if burst > 2 else 0,
-                "size": size, "end_size": end_size, "red": 255, "green": 255, "blue": 255,
-                "alpha": 255, "fade": True, "unlit": True, "layer": layer,
-                "atlas": "asteroids", "frame": frame, "max": burst}}),
-            track(f"{name}_thrown", name, "particles2d.Emitter.active", [(0, 1)],
-                  smooth=False),
-        ]
-    return made
-
-
 def later(made, ticks):
     """The tracks among made played that many ticks later (before its first key, a track
     leaves its field alone)."""
@@ -3606,10 +3527,10 @@ def screen_entity(name, x, y, sprite, scale=1.0):
 
 
 def arrival_planet():
-    """He nears the planet of the tutorial (D24): behind him, small, in its great barrier; it
-    grows until it fills the background, its lands, seas and mountains getting finer; he goes
-    through the barrier. Then the pivot: the planet slides down out of the screen, the sky after
-    it, slower and slower, until it stops: the planet is below him now, he falls to it."""
+    """He nears the planet of the tutorial (D24): behind him, small; it grows until it fills the
+    background, its lands, seas and mountains getting finer. Then the pivot: the planet slides
+    down out of the screen, the sky after it, slower and slower, until it stops: the planet is
+    below him now, he falls to it."""
     # (tick, x, y, scale): where the planet is on the screen and how big.
     keys = [(780, 330, 170, 0.3), (1050, 260, 180, 0.55), (1250, 120, 330, 2.2),
             (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
@@ -3618,9 +3539,6 @@ def arrival_planet():
     near_w = (PLANET_NEAR[2] - PLANET_NEAR[0]) * PLANET_W / 2
     near_h = (PLANET_NEAR[3] - PLANET_NEAR[1]) * PLANET_W / 2
     made = [
-        screen_entity("great_barrier", 330, 170, {
-            "atlas": "great_barrier", "width": PLANET_W * 2.4, "height": PLANET_W * 2.4,
-            "layer": -95, "alpha": 0, "unlit": True}, 0.3),
         screen_entity("planet", 330, 170, {
             "atlas": "planet", "width": PLANET_W * PLANET_MARGIN,
             "height": PLANET_W * PLANET_MARGIN, "layer": -96, "alpha": 0,
@@ -3629,12 +3547,10 @@ def arrival_planet():
             "atlas": "planet_near", "width": near_w, "height": near_h, "layer": -95,
             "alpha": 0, "unlit": True}, 0.3),
         track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(780, 0), (880, 255)]),
-        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha",
-              [(780, 0), (880, 170), (1120, 170), (1260, 0)]),
         track("planet_near_shows", "planet_near", "sprite2d.Sprite.alpha",
               [(1360, 0), (1440, 255)]),
     ]
-    for name in ("planet", "great_barrier", "planet_near"):
+    for name in ("planet", "planet_near"):
         dx, dy = (near_x, near_y) if name == "planet_near" else (0, 0)
         made += [
             curve(f"{name}_x", name, "transform2d.Position.x",
@@ -3784,7 +3700,7 @@ def opening():
             track(f"burst_{name}_goes", f"burst_{name}", "particles2d.Emitter.active",
                   [(0, 1)], smooth=False),
         ]
-    made += bang_light() + bang_clouds() + bang_rocks() + arrival_planet() + arrival_sky()
+    made += bang_light() + bang_clouds() + arrival_planet() + arrival_sky()
     made += [
         track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 5)]),
         track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (60, 0)]),
@@ -3882,17 +3798,16 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
-        "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
+        "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "planet", "sleeper",
         "wanderer", "void", "core", "seed", "pause_hero", "veil", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
-        "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
+        "sleeper_bubble", "whiteout", "whitein", "runaway", "blast", "to_follow", "pause"]
 TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
          [f"glow_{index}" for index in range(GLOW_COUNT)] +
-         [f"burst_{name}" for name, _ in FRAGMENT_COLOURS + [("grey", None)]] +
-         [f"rocks_{index}" for index in range(6)] + ["rocks_near_1", "rocks_near_4"])
-ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
+         [f"burst_{name}" for name, _ in FRAGMENT_COLOURS + [("grey", None)]])
+ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
-           "cave_far", "ore", "planet_near", "great_barrier", "bang_rays", "bang_core", "flares", "clouds", "asteroids"]
+           "cave_far", "ore", "planet_near", "bang_rays", "bang_core", "flares", "clouds"]
 SCENE_NAMES = ["title", "opening", "arrival", "tutorial", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
@@ -4034,7 +3949,6 @@ def write_pictures():
     save(rock(5), "rock")
     save(rock(9, colour=(120, 118, 110), light=(226, 224, 214), spiral=True), "fossil")
     save(barriers(), "barrier", cell=(BARRIER, BARRIER))
-    save(dome(), "dome")
     save(sheet_of([button(False), button(True)], 2, *BUTTON), "button", cell=BUTTON)
     save(harvest(), "harvest")
     save(inventory_bubbles(), "inventory", cell=(INVENTORY, INVENTORY))
@@ -4043,12 +3957,10 @@ def write_pictures():
     save(crystal(), "crystal")
     save(planet(), "planet")
     save(planet_near(), "planet_near")
-    save(bubble(0.9, 2048), "great_barrier")
     save(bang_rays(), "bang_rays")
     save(bang_core(), "bang_core")
     save(flares(), "flares", cell=(512, 128))
     save(clouds(), "clouds", cell=(CLOUD, CLOUD))
-    save(asteroids(), "asteroids", cell=(ASTEROID, ASTEROID))
     save_font()
 
 
