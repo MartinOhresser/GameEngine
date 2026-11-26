@@ -1,6 +1,7 @@
 #include "ge/app/time.hpp"
 #include "ge/mod/gravity2d/gravity2d.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/transform2d/world_speed.hpp"
 
 #include <algorithm>
 
@@ -24,8 +25,7 @@ float pulled(float speed, float pull, float step, float terminal) {
 } // namespace
 
 void pull(ecs::World& world) {
-    const float step = world.resource<app::Time>()->fixed_delta *
-                       world.resource<transform2d::Params>()->speed_scale;
+    const float step = world.resource<app::Time>()->fixed_delta * transform2d::world_speed(world);
     world.each<const Gravity, transform2d::Velocity>(
         [&world, step](ecs::Entity entity, const Gravity& gravity, transform2d::Velocity& velocity) {
             // An entity slowed on its own (transform2d.SpeedScale) falls as slowly as it moves.

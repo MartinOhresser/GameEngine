@@ -7,6 +7,7 @@
 #include "mini_test.hpp"
 
 #include <chrono>
+#include <cmath>
 
 namespace {
 
@@ -45,6 +46,20 @@ TEST_CASE("transform2d: an entity moves by its velocity") {
     app.run_frames(60); // one second at the default 60 ticks per second
     CHECK(app.world().get<transform2d::Position>(entity)->x > 59.0F);
     CHECK(app.world().get<transform2d::Position>(entity)->y < -29.0F);
+}
+
+TEST_CASE("transform2d: a WorldSpeed slows every movement down, and gives it back") {
+    ge::app::App app = game();
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    CHECK(app.world().insert(entity, transform2d::Velocity{60.0F, 0.0F}));
+    const ge::ecs::Entity slow = app.world().spawn();
+    CHECK(app.world().insert(slow, transform2d::WorldSpeed{0.25F}));
+    app.run_frames(60); // a second at a quarter of the speed: 15 units
+    CHECK(std::abs(app.world().get<transform2d::Position>(entity)->x - 15.0F) < 0.01F);
+    app.world().get<transform2d::WorldSpeed>(slow)->factor = 1.0F;
+    app.run_frames(60); // and a second at full speed
+    CHECK(std::abs(app.world().get<transform2d::Position>(entity)->x - 75.0F) < 0.01F);
 }
 
 TEST_CASE("transform2d: an entity links to another and back, and a stale link finds nothing") {

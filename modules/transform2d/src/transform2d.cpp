@@ -3,6 +3,7 @@
 #include "ge/ecs/commands.hpp"
 #include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/transform2d/world_speed.hpp"
 
 #include <utility>
 
@@ -37,8 +38,7 @@ void remember(ecs::World& world) {
 }
 
 void integrate(ecs::World& world) {
-    const float step =
-        world.resource<app::Time>()->fixed_delta * world.resource<Params>()->speed_scale;
+    const float step = world.resource<app::Time>()->fixed_delta * world_speed(world);
     world.each<Position, const Velocity>(
         [&](ecs::Entity entity, Position& position, const Velocity& velocity) {
             const auto* scale = world.get<SpeedScale>(entity);

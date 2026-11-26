@@ -46,6 +46,27 @@ const transform2d::Position& at(ge::app::App& app, ge::ecs::Entity entity) {
 
 } // namespace
 
+TEST_CASE("follow2d: ahead puts the follower along the way its target goes, in any direction") {
+    ge::app::App app = game();
+    const ge::ecs::Entity lead = leader(app, 100.0F, 100.0F, 30.0F);
+    app.world().get<transform2d::Velocity>(lead)->y = -40.0F; // up and right: a length of 50
+    follow2d::Follow follow;
+    follow.target = leader_tag;
+    follow.ahead = 50.0F;
+    follow.stiffness = 1.0F;
+    const ge::ecs::Entity entity = follower(app, follow);
+    app.run_frames(1);
+    const transform2d::Position& lead_at = at(app, lead);
+    CHECK(std::abs(at(app, entity).x - (lead_at.x + 30.0F)) < 0.01F);
+    CHECK(std::abs(at(app, entity).y - (lead_at.y - 40.0F)) < 0.01F);
+    CHECK(std::abs(app.world().get<follow2d::Follow>(entity)->speed - 50.0F) < 0.01F);
+    // Stopped, it keeps the way it last went.
+    *app.world().get<transform2d::Velocity>(lead) = transform2d::Velocity{0.0F, 0.0F};
+    app.run_frames(1);
+    CHECK(std::abs(at(app, entity).x - (at(app, lead).x + 30.0F)) < 0.01F);
+    CHECK(app.world().get<follow2d::Follow>(entity)->speed == 0.0F);
+}
+
 TEST_CASE("follow2d: a follower glides to the place near its target, a share at a time") {
     ge::app::App app = game();
     leader(app, 100.0F, 50.0F, 0.0F);

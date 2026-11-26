@@ -5294,170 +5294,66 @@
       }
     },
     {
-      "name": "departure_hole",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "tag.Tag": {
-          "tag": "departure_hole"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "black_hole",
-          "width": 2,
-          "height": 2,
-          "layer": 16,
-          "unlit": true
-        },
-        "transform2d.Scale": {
-          "factor": 0
-        },
-        "transform2d.Rotation": {},
-        "follow2d.Follow": {
-          "target": "hero",
-          "offset_y": -78,
-          "stiffness": 1
-        },
-        "light2d.Light": {
-          "radius": 0,
-          "red": 190,
-          "green": 210,
-          "blue": 255,
-          "intensity": 0.9
-        },
-        "particles2d.Emitter": {
-          "rate": 0,
-          "lifetime": 1.6,
-          "lifetime_spread": 0.4,
-          "speed": 0,
-          "speed_spread": 20,
-          "drag": 1.6,
-          "size": 4,
-          "end_size": 1.5,
-          "red": 205,
-          "green": 220,
-          "blue": 255,
-          "alpha": 230,
-          "fade": true,
-          "additive": true,
-          "unlit": true,
-          "layer": 14,
-          "max": 220,
-          "pull": 1600,
-          "swirl": 600
-        }
-      }
-    },
-    {
-      "name": "departure_hole_grows",
+      "name": "jump_hole_swells",
       "components": {
         "bind.Bind": {
           "source": "transform2d.Position.x",
           "from": "hold",
-          "target": "transform2d.Scale.factor",
-          "onto": "departure_hole",
-          "low": -0.2,
-          "high": 3.8,
-          "out_low": 0,
-          "out_high": 70,
+          "target": "sprite2d.Sprite.width",
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
+          "out_low": 2,
+          "out_high": 1002.0,
           "power": 1
         }
       }
     },
     {
-      "name": "departure_hole_rises",
+      "name": "jump_hole_swells_high",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "sprite2d.Sprite.height",
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
+          "out_low": 2,
+          "out_high": 1002.0,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_rises",
       "components": {
         "bind.Bind": {
           "source": "transform2d.Position.x",
           "from": "hold",
           "target": "follow2d.Follow.offset_y",
-          "onto": "departure_hole",
-          "low": -0.2,
-          "high": 3.8,
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
           "out_low": -78,
-          "out_high": -124,
+          "out_high": -12078,
           "power": 1
         }
       }
     },
     {
-      "name": "departure_hole_lights",
+      "name": "jump_strengthens",
       "components": {
         "bind.Bind": {
-          "source": "transform2d.Scale.factor",
-          "from": "departure_hole",
-          "target": "light2d.Light.radius",
-          "onto": "departure_hole",
-          "low": 0,
-          "high": 70,
-          "out_low": 0,
-          "out_high": 320,
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "jump.Jumper.speed",
+          "onto": "hero",
+          "low": 5.0,
+          "high": 8.0,
+          "out_low": 560,
+          "out_high": 1900,
           "power": 1
-        }
-      }
-    },
-    {
-      "name": "departure_hole_draws",
-      "components": {
-        "bind.Bind": {
-          "source": "transform2d.Scale.factor",
-          "from": "departure_hole",
-          "target": "particles2d.Emitter.rate",
-          "onto": "departure_hole",
-          "low": 0,
-          "high": 70,
-          "out_low": 0,
-          "out_high": 140,
-          "power": 1
-        }
-      }
-    },
-    {
-      "name": "departure_hole_draws_wide",
-      "components": {
-        "bind.Bind": {
-          "source": "transform2d.Scale.factor",
-          "from": "departure_hole",
-          "target": "particles2d.Emitter.area_width",
-          "onto": "departure_hole",
-          "low": 0,
-          "high": 70,
-          "out_low": 0,
-          "out_high": 300,
-          "power": 1
-        }
-      }
-    },
-    {
-      "name": "departure_hole_draws_high",
-      "components": {
-        "bind.Bind": {
-          "source": "transform2d.Scale.factor",
-          "from": "departure_hole",
-          "target": "particles2d.Emitter.area_height",
-          "onto": "departure_hole",
-          "low": 0,
-          "high": 70,
-          "out_low": 0,
-          "out_high": 300,
-          "power": 1
-        }
-      }
-    },
-    {
-      "name": "departure_hole_turns",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Rotation.angle",
-          "onto": "departure_hole",
-          "smooth": false,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 110,
-          "v1": 360,
-          "loop": true
         }
       }
     },
@@ -5968,7 +5864,7 @@
       "name": "after_end",
       "components": {
         "phase.Transition": {
-          "action": "leaving",
+          "action": "in_orbit",
           "from": [
             "end"
           ],
@@ -6359,7 +6255,7 @@
           "action": "harvest_show_done",
           "source": "harvest_key",
           "field": "loadout.Shortcut.action",
-          "value": 9
+          "value": 10
         }
       }
     },
@@ -6417,7 +6313,7 @@
           "action": "walk_show_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 1
+          "value": 2
         }
       }
     },
@@ -6428,7 +6324,7 @@
           "action": "walk_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 25
+          "value": 24
         }
       }
     },
@@ -6439,7 +6335,7 @@
           "action": "jump_show_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 1
+          "value": 2
         }
       }
     },
@@ -6787,25 +6683,14 @@
       }
     },
     {
-      "name": "hold_spent",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "hold",
-          "field": "transform2d.Position.x",
-          "value": -100000
-        }
-      }
-    },
-    {
       "name": "departure_watch",
       "components": {
         "rules.Watch": {
-          "source": "hold",
+          "source": "hero",
           "own": false,
-          "field": "transform2d.Position.x",
+          "field": "transform2d.Position.y",
           "action": "departure_done",
-          "min": 3.8
+          "max": -1300
         },
         "phase.ActiveIn": {
           "phases": [
@@ -7846,6 +7731,54 @@
         "phase.ShowIn": {
           "phases": [
             "departure"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit"
           ]
         },
         "transform2d.Hidden": {}
@@ -9278,6 +9211,43 @@
       }
     },
     {
+      "name": "world_speed",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "world_speed"
+        },
+        "transform2d.WorldSpeed": {
+          "factor": 1
+        }
+      }
+    },
+    {
+      "name": "demo_jump_slows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.WorldSpeed.factor",
+          "onto": "world_speed",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 1,
+          "t1": 112,
+          "v1": 1,
+          "t2": 130,
+          "v2": 0.25,
+          "t3": 215,
+          "v3": 0.25,
+          "t4": 240,
+          "v4": 1,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
       "name": "pause",
       "components": {
         "transform2d.Position": {
@@ -9522,56 +9492,6 @@
       }
     },
     {
-      "name": "sleeper",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "tag.Tag": {
-          "tag": "sleeper"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "hero_curled",
-          "width": 80,
-          "height": 80,
-          "layer": 10,
-          "alpha": 0,
-          "unlit": true
-        },
-        "follow2d.Follow": {
-          "target": "hero",
-          "stiffness": 1
-        },
-        "transform2d.Rotation": {}
-      }
-    },
-    {
-      "name": "voyage_bubble",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "tag.Tag": {
-          "tag": "voyage_bubble"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "barrier",
-          "frame": 0,
-          "width": 120,
-          "height": 120,
-          "layer": 11,
-          "alpha": 0,
-          "unlit": true
-        },
-        "follow2d.Follow": {
-          "target": "hero",
-          "stiffness": 1
-        }
-      }
-    },
-    {
       "name": "next_planet",
       "components": {
         "transform2d.Position": {
@@ -9594,8 +9514,8 @@
         },
         "follow2d.Follow": {
           "target": "hero",
-          "offset_x": 2300,
-          "offset_y": -2380,
+          "offset_x": 1500,
+          "offset_y": -1300,
           "stiffness": 1
         }
       }
@@ -9650,24 +9570,31 @@
       }
     },
     {
-      "name": "thrown_up",
+      "name": "space_hole",
       "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "hero",
-          "field": "transform2d.Velocity.y",
-          "value": -1400
-        }
-      }
-    },
-    {
-      "name": "out_of_pull",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "hero",
-          "field": "gravity2d.Gravity.y",
-          "value": -300
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "space_hole"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "alpha": 0,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "follow2d.Follow": {
+          "target": "hero",
+          "ahead": 95,
+          "stiffness": 1
         }
       }
     },
@@ -9678,6 +9605,72 @@
           "action": "departure_done",
           "source": "hero",
           "field": "action_control.Controlled.horizontal",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_jump",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "jump.Jumper.action",
+          "value": 14
+        }
+      }
+    },
+    {
+      "name": "no_powers",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_dust",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero_dust",
+          "field": "particles2d.Emitter.max",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "matter_kept",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "matter",
+          "field": "reserve.Reserve.drain",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "carbon_kept",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "carbon",
+          "field": "reserve.Reserve.drain",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_ash",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "ash",
+          "field": "particles2d.Emitter.rate",
           "value": 0
         }
       }
@@ -9694,161 +9687,10 @@
       }
     },
     {
-      "name": "blocked_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "hero",
-          "own": false,
-          "field": "collision2d.Blocked.above",
-          "action": "launch_blocked",
-          "min": 1
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "end"
-          ]
-        },
-        "transform2d.Disabled": {},
-        "tag.Tag": {
-          "tag": "blocked_watch"
-        }
-      }
-    },
-    {
-      "name": "blocked_rearmed",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "blocked_watch",
-          "field": "rules.Watch.inside",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "back_to_departure",
-      "components": {
-        "phase.Transition": {
-          "action": "launch_blocked",
-          "from": [
-            "end"
-          ],
-          "from_any": false,
-          "to": "departure"
-        }
-      }
-    },
-    {
-      "name": "falls_back",
-      "components": {
-        "rules.OnAction": {
-          "action": "launch_blocked",
-          "source": "hero",
-          "field": "gravity2d.Gravity.y",
-          "value": 1800
-        }
-      }
-    },
-    {
-      "name": "steers_again",
-      "components": {
-        "rules.OnAction": {
-          "action": "launch_blocked",
-          "source": "hero",
-          "field": "action_control.Controlled.horizontal",
-          "value": 1
-        }
-      }
-    },
-    {
-      "name": "sky_closes",
-      "components": {
-        "rules.OnAction": {
-          "action": "launch_blocked",
-          "source": "camera",
-          "field": "camera2d.CameraFollow.bound_top",
-          "value": -2000
-        }
-      }
-    },
-    {
-      "name": "leaving_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "hero",
-          "own": false,
-          "field": "transform2d.Position.y",
-          "action": "leaving",
-          "max": -1300
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "end"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "no_powers",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "kit",
-          "field": "loadout.Kit.unlocked",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "no_dust",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "hero_dust",
-          "field": "particles2d.Emitter.max",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "matter_kept",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "matter",
-          "field": "reserve.Reserve.drain",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "carbon_kept",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "carbon",
-          "field": "reserve.Reserve.drain",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "no_ash",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "ash",
-          "field": "particles2d.Emitter.rate",
-          "value": 0
-        }
-      }
-    },
-    {
       "name": "space_opens",
       "components": {
         "rules.OnAction": {
-          "action": "leaving",
+          "action": "departure_done",
           "source": "camera",
           "field": "camera2d.CameraFollow.bound_right",
           "value": 100000
@@ -9867,18 +9709,7 @@
           "v0": 230,
           "t1": 240,
           "v1": 0,
-          "start": "leaving"
-        }
-      }
-    },
-    {
-      "name": "slowed",
-      "components": {
-        "rules.OnAction": {
-          "action": "leaving",
-          "source": "hero",
-          "field": "gravity2d.Gravity.y",
-          "value": 380
+          "start": "departure_done"
         }
       }
     },
@@ -9886,7 +9717,7 @@
       "name": "bent",
       "components": {
         "rules.OnAction": {
-          "action": "leaving",
+          "action": "departure_done",
           "source": "hero",
           "field": "gravity2d.Gravity.x",
           "value": 140
@@ -9906,7 +9737,7 @@
         },
         "phase.ActiveIn": {
           "phases": [
-            "orbit"
+            "end"
           ]
         },
         "transform2d.Disabled": {}
@@ -9935,34 +9766,116 @@
       }
     },
     {
-      "name": "drift_x",
+      "name": "steers_x",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.horizontal",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "steers_y",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.vertical",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "steers_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.action_y",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "space_speed",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.speed",
+          "value": 220
+        }
+      }
+    },
+    {
+      "name": "space_start",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.acceleration",
+          "value": 260
+        }
+      }
+    },
+    {
+      "name": "space_stop",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.braking",
+          "value": 70
+        }
+      }
+    },
+    {
+      "name": "space_hole_grows",
+      "components": {
+        "bind.Bind": {
+          "source": "follow2d.Follow.speed",
+          "from": "space_hole",
+          "target": "transform2d.Scale.factor",
+          "onto": "space_hole",
+          "low": 20,
+          "high": 132.0,
+          "out_low": 0,
+          "out_high": 20,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "space_hole_shows",
       "components": {
         "tween2d.Track": {
-          "field": "transform2d.Velocity.x",
-          "onto": "hero",
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "space_hole",
           "smooth": true,
           "keys": 2,
           "t0": 0,
-          "v0": 290,
-          "t1": 600,
-          "v1": 30,
+          "v0": 0,
+          "t1": 30,
+          "v1": 255,
           "start": "in_orbit"
         }
       }
     },
     {
-      "name": "drift_y",
+      "name": "space_hole_turns",
       "components": {
         "tween2d.Track": {
-          "field": "transform2d.Velocity.y",
-          "onto": "hero",
-          "smooth": true,
+          "field": "transform2d.Rotation.angle",
+          "onto": "space_hole",
+          "smooth": false,
           "keys": 2,
           "t0": 0,
-          "v0": -320,
-          "t1": 600,
-          "v1": -20,
-          "start": "in_orbit"
+          "v0": 0,
+          "t1": 120,
+          "v1": 360,
+          "loop": true
         }
       }
     },
@@ -9974,70 +9887,6 @@
           "source": "next_planet",
           "field": "follow2d.Follow.stiffness",
           "value": 0
-        }
-      }
-    },
-    {
-      "name": "hero_curls",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "hero",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 255,
-          "t1": 40,
-          "v1": 0,
-          "start": "in_orbit"
-        }
-      }
-    },
-    {
-      "name": "sleeper_shows",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 40,
-          "v1": 255,
-          "start": "in_orbit"
-        }
-      }
-    },
-    {
-      "name": "sleeper_turns",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Rotation.angle",
-          "onto": "sleeper",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1200,
-          "v1": 70,
-          "start": "in_orbit"
-        }
-      }
-    },
-    {
-      "name": "bubble_forms",
-      "components": {
-        "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "voyage_bubble",
-          "smooth": true,
-          "keys": 2,
-          "t0": 20,
-          "v0": 0,
-          "t1": 90,
-          "v1": 190,
-          "start": "in_orbit"
         }
       }
     },

@@ -73,7 +73,7 @@ constexpr std::array<::ge::app::FieldInfo, 3> component_0_fields{{{"x", "f32", "
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Gravity", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
-constexpr std::array<std::string_view, 2> system_0_reads{"gravity2d.Gravity", "transform2d.SpeedScale"};
+constexpr std::array<std::string_view, 3> system_0_reads{"gravity2d.Gravity", "transform2d.SpeedScale", "transform2d.WorldSpeed"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Velocity"};
 constexpr std::array<::ge::app::SystemInfo, 1> systems{{{"gravity2d.pull", ::ge::app::Stage::FixedUpdate, system_0_reads, system_0_writes}}};
 

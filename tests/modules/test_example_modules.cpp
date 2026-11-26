@@ -34,7 +34,7 @@ TEST_CASE("modules: the generated info matches module.json") {
     CHECK(info.name == "transform2d");
     CHECK(info.version == "0.1.0");
     CHECK(info.depends.empty());
-    REQUIRE(info.components.size() == 10U);
+    REQUIRE(info.components.size() == 11U);
     CHECK(info.components[0].name == "Position");
     CHECK(info.components[0].replicable);
     REQUIRE(info.components[0].fields.size() == 2U);

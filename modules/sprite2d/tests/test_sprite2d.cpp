@@ -178,6 +178,18 @@ TEST_CASE("sprite2d: a looping animation steps through its cells and starts over
     CHECK(frame_after(app, entity, 2) == 4U); // 6 ticks: back to the start
 }
 
+TEST_CASE("sprite2d: in a slow motion an animation plays slower") {
+    auto renderer = std::make_shared<ge::app::RecordingRenderer>();
+    ge::app::App app = game(renderer);
+    const ge::ecs::Entity entity = spawn(app, 0.0F, 0.0F, sprite2d::Sprite{});
+    CHECK(app.world().insert(entity, sprite2d::SpriteAnimation{0U, 4U, 1U, true, 0U}));
+    const ge::ecs::Entity slow = app.world().spawn();
+    CHECK(app.world().insert(slow, ge::mod::transform2d::WorldSpeed{0.5F}));
+    // A cell a tick at full speed: at half speed, a cell every two ticks.
+    CHECK(frame_after(app, entity, 2) == 1U);
+    CHECK(frame_after(app, entity, 4) == 3U);
+}
+
 TEST_CASE("sprite2d: an animation that does not loop stays on its last cell") {
     auto renderer = std::make_shared<ge::app::RecordingRenderer>();
     ge::app::App app = game(renderer);

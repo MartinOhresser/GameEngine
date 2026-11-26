@@ -268,6 +268,8 @@ void insert_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.looping = ::ge::app::scalar_as<bool>(field.value);
         } else if (field.name == "elapsed") {
             component.elapsed = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "carry") {
+            component.carry = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -293,6 +295,9 @@ std::optional<::ge::app::Scalar> read_component_2(const ::ge::ecs::World& world,
     }
     if (field == "elapsed") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->elapsed)};
+    }
+    if (field == "carry") {
+        return ::ge::app::Scalar{static_cast<double>(component->carry)};
     }
     return std::nullopt;
 }
@@ -324,10 +329,14 @@ bool write_component_2(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->elapsed = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "carry") {
+        component->carry = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 5> component_2_fields{{{"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"elapsed", "u32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 6> component_2_fields{{{"first_frame", "u32", "", false}, {"frame_count", "u32", "", false}, {"ticks_per_frame", "u32", "", false}, {"looping", "bool", "", false}, {"elapsed", "u32", "", false}, {"carry", "f32", "", false}}};
 
 void insert_component_3(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
@@ -687,7 +696,7 @@ constexpr std::array<::ge::app::ComponentInfo, 7> components{{{"Sprite", false, 
 
 constexpr std::array<std::string_view, 2> system_0_reads{"sprite2d.Animator", "sprite2d.AnimationClip"};
 constexpr std::array<std::string_view, 1> system_0_writes{"sprite2d.SpriteAnimation"};
-constexpr std::array<std::string_view, 0> system_1_reads{};
+constexpr std::array<std::string_view, 1> system_1_reads{"transform2d.WorldSpeed"};
 constexpr std::array<std::string_view, 2> system_1_writes{"sprite2d.Sprite", "sprite2d.SpriteAnimation"};
 constexpr std::array<std::string_view, 2> system_2_reads{"sprite2d.Facing", "transform2d.Velocity"};
 constexpr std::array<std::string_view, 1> system_2_writes{"sprite2d.Sprite"};

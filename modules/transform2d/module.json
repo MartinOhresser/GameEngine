@@ -97,6 +97,14 @@
       ]
     },
     {
+      "name": "WorldSpeed",
+      "description": "The speed of the whole world while an entity has it: every movement (Velocity, and the modules that follow it: gravity, particles, the playing of animations) goes at factor times its speed, on top of the game's speed_scale. 0.25 is a slow motion (a moment to show, a choice to make), 0 stops the world, 1 is the normal speed. Its factor can be played along (a tween2d.Track): the world slows down and speeds up again. Several multiply. Read through ge/mod/transform2d/world_speed.hpp.",
+      "replicable": true,
+      "fields": [
+        { "name": "factor", "type": "f32", "default": 1 }
+      ]
+    },
+    {
       "name": "Anchor",
       "description": "Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's \"window\"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.",
       "replicable": false,
@@ -111,9 +119,9 @@
   "systems": [
     {
       "name": "integrate",
-      "description": "Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one).",
+      "description": "Moves every entity that has a Velocity by velocity times the tick duration (times its SpeedScale, if it has one, and the WorldSpeed).",
       "stage": "FixedUpdate",
-      "reads": ["Velocity", "SpeedScale"],
+      "reads": ["Velocity", "SpeedScale", "WorldSpeed"],
       "writes": ["Position"]
     },
     {

@@ -325,7 +325,7 @@ constexpr std::array<::ge::app::FieldInfo, 31> component_0_fields{{{"rate", "f32
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Emitter", false, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 
-constexpr std::array<std::string_view, 2> system_0_reads{"particles2d.Emitter", "transform2d.Position"};
+constexpr std::array<std::string_view, 3> system_0_reads{"particles2d.Emitter", "transform2d.Position", "transform2d.WorldSpeed"};
 constexpr std::array<std::string_view, 0> system_0_writes{};
 constexpr std::array<std::string_view, 1> system_1_reads{"particles2d.Emitter"};
 constexpr std::array<std::string_view, 0> system_1_writes{};

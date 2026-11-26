@@ -34,6 +34,7 @@ Les touches sont modifiables à la phase 8. Par défaut :
 | Inventaire | Tab |
 | Se déplacer | Q/D ou flèches |
 | Sauter | Espace |
+| Se déplacer dans l'espace | Z Q S D ou flèches |
 | Pause | Échap |
 
 Les textes affichés à l'écran ne décrivent que les contrôles, comme le demande le GDD, et sont écrits en français.
@@ -61,14 +62,15 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 | 7 | **Les réserves** | ouvre l'inventaire (Tab) | l'inventaire ouvert, puis 3 s |
 | 8 | **Marcher, montré** | le regarde marcher tout seul, le petit trou noir sous le pied | quatre secondes |
 | 9 | **À toi : marcher** | Q/D, flèches | le bout du chemin |
-| 10 | **Sauter, montré** | le regarde charger puis sauter | quatre secondes |
+| 10 | **Sauter, montré** | le regarde charger puis sauter, au ralenti | quatre secondes |
 | 11 | **À toi : sauter** | maintient Espace puis relâche : le fossé, puis le rebord | sur le rebord, puis 2 s |
 | 12 | **Les deux mains** | creuse le pilier au noir, puis franchit le gouffre sur des murs de blanc | de l'autre côté |
 | 13 | **Le carbone s'épuise** | récolte les fossiles de la cuvette, ou le sol | le carbone au-dessus de la moitié |
 | 14 | **La matière s'épuise** | récolte les pierres, ou creuse le sol | la matière au-dessus de la moitié |
 | 15 | **La mort** | la matière baisse quoi qu'il fasse | il revient |
 | 16 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil | six secondes |
-| 17 | **Le départ** | maintient Espace cinq secondes (le trou noir grossit) : il est propulsé ; sorti de l'atmosphère, il dérive vers la planète suivante ; bloqué par un obstacle, il retombe et recommence | « à suivre » |
+| 17 | **Le départ** | garde Espace chargé : au bout de cinq secondes, le trou noir grandit et le saut devient plus fort ; il relâche : sorti de l'atmosphère, il est parti, sinon il retombe et recommence | — |
+| 18 | **L'espace** | se déplace (Z Q S D ou flèches) vers la planète suivante, un petit trou noir devant lui | « à suivre » |
 
 La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle, tout s'arrête (la consommation aussi), le monde devient flou, et le menu (Reprendre, Retour au titre) s'affiche dans la bulle (D6, T8). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 
