@@ -497,6 +497,20 @@ TEST_CASE("sprite2d: a clip with a second condition needs both") {
     CHECK(walker.frame_after(1U, 30.0F, 0.0F) == 10U);     // to the right only: running
 }
 
+TEST_CASE("sprite2d: and_absolute compares the size of the second number") {
+    Walker walker;
+    // Hardly moving, along both axes: cell 80, above everything.
+    sprite2d::AnimationClip still =
+        clip_when(walker.app, "transform2d.Velocity.x", 0.0F, 40.0F, 9, 80U);
+    still.absolute = true;
+    still.and_field = field_index(walker.app, "transform2d.Velocity.y");
+    still.and_max = 40.0F;
+    still.and_absolute = true;
+    add(walker.app, still);
+    CHECK(walker.frame_after(1U, -20.0F, -30.0F) == 80U);
+    CHECK(walker.frame_after(1U, 20.0F, -100.0F) != 80U); // too fast upwards
+}
+
 TEST_CASE("sprite2d: clips of another set, or on a missing component, are not chosen") {
     Walker walker;
     sprite2d::AnimationClip other = clip(9, 30U, 1U);

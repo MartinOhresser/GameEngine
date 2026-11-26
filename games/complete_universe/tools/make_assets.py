@@ -495,6 +495,21 @@ def fall_poses(count=24):
     return poses
 
 
+def float_poses(count=96):
+    """In space, nothing pulls him: he floats, arms spread, legs apart, breathing slowly, his
+    limbs drifting a little (D26). Every motion is a whole number of waves over the loop."""
+    poses = []
+    for index in range(count):
+        t = index / count
+        breath = math.sin(2 * math.pi * t)
+        late = math.sin(2 * math.pi * t - 0.8)
+        poses.append(Pose(ground=False, squash=1 + 0.02 * breath, bob=-0.8 * breath,
+                          tilt=2.5 * math.sin(2 * math.pi * t + 0.6),
+                          leg_w=-23 - 2.5 * late, leg_b=23 + 2.5 * late,
+                          arm_w=-(62 + 5 * late), arm_b=62 + 5 * breath, look_y=0.4))
+    return poses
+
+
 POSE_NUMBERS = ["turn", "x", "bob", "squash", "lean", "tilt", "head_drop", "leg_w", "leg_b",
                 "leg_len_w", "leg_len_b", "arm_w", "arm_b", "blink", "look_x", "look_y"]
 
@@ -659,6 +674,23 @@ HERO_TRANSITIONS = [
 ]
 
 
+# In space (D26): its own set of animations, floating when he hardly moves, flying (the arms
+# of the fall) when he goes; passages between them, and from his flight up into orbit.
+SPACE_FLOAT = follow_through(float_poses())
+SPACE_TRANSITIONS = [
+    # (name, frames, ticks per frame, from (set, clip), to clip of the space set)
+    ("float_to_fly", follow_through(between(SPACE_FLOAT[0], fall_poses()[0], 10), False), 1,
+     ("hero_space", "float"), "fly"),
+    ("fly_to_float", follow_through(between(fall_poses()[0], SPACE_FLOAT[0], 18), False), 1,
+     ("hero_space", "fly"), "float"),
+    ("rise_to_fly", follow_through(between(rise_poses()[0], fall_poses()[0], 12), False), 1,
+     ("hero", "rise"), "fly"),
+    ("rise_to_float", follow_through(between(rise_poses()[0], SPACE_FLOAT[0], 18), False), 1,
+     ("hero", "rise"), "float"),
+]
+SPACE_IDS = {"float": 101, "fly": 102}
+SPACE_STILL = 70  # slower than this along both axes: he floats
+
 HERO_COLUMNS = 25  # 4000 pixels wide
 
 
@@ -667,6 +699,9 @@ def hero_sheet():
     for clip in HERO_CLIPS + HERO_TRANSITIONS:
         if not isinstance(clip[1], str):
             frames += [hero_frame(pose) for pose in clip[1]]
+    frames += [hero_frame(pose) for pose in SPACE_FLOAT]
+    for clip in SPACE_TRANSITIONS:
+        frames += [hero_frame(pose) for pose in clip[1]]
     return sheet_of(frames, HERO_COLUMNS, CELL_PX, CELL_PX)
 
 
@@ -1931,6 +1966,30 @@ def hero_clips():
         if target is not None:
             clip["to_id"] = ids[target]
         made.append({"name": f"clip_{name}", "components": {"sprite2d.AnimationClip": clip}})
+    # In space: floating when he hardly moves, else flying (the frames of the fall).
+    fall_first, fall_count = hero_frames("fall")
+    made += [
+        {"name": "clip_space_fly", "components": {"sprite2d.AnimationClip": {
+            "set": "hero_space", "first_frame": fall_first, "frame_count": fall_count,
+            "ticks_per_frame": 1, "looping": True, "id": SPACE_IDS["fly"]}}},
+        {"name": "clip_space_float", "components": {"sprite2d.AnimationClip": {
+            "set": "hero_space", "priority": 10, "first_frame": first,
+            "frame_count": len(SPACE_FLOAT), "ticks_per_frame": 1, "looping": True,
+            "field": "transform2d.Velocity.x", "absolute": True, "max": SPACE_STILL,
+            "and_field": "transform2d.Velocity.y", "and_absolute": True,
+            "and_max": SPACE_STILL, "id": SPACE_IDS["float"]}}},
+    ]
+    first += len(SPACE_FLOAT)
+    for name, poses, ticks, (source_set, source), target in SPACE_TRANSITIONS:
+        sources = [SPACE_IDS[source]] if source_set == "hero_space" else [
+            ids[clip] for clip in (source, f"{source}_right", f"{source}_left")]
+        for index, source_id in enumerate(sources):
+            made.append({"name": f"clip_{name}_{index}", "components": {
+                "sprite2d.AnimationClip": {
+                    "set": "hero_space", "first_frame": first, "frame_count": len(poses),
+                    "ticks_per_frame": ticks, "looping": False, "from_id": source_id,
+                    "to_id": SPACE_IDS[target]}}})
+        first += len(poses)
     return made
 
 
@@ -2293,7 +2352,7 @@ def inventory():
     return made
 
 
-def camera(bound_right, bound_bottom, y=None):
+def camera(bound_right, bound_bottom, y=None, stiffness=0.06):
     return entity("camera", VIEW_W / 2, VIEW_H / 2 if y is None else y, {
         "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": ZOOM},
@@ -2307,7 +2366,7 @@ def camera(bound_right, bound_bottom, y=None):
         # The dark between the lights: what the hero's glow does not reach stays dim.
         "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
         # Ori's camera: soft, a little ahead, the hero a little below the middle.
-        "camera2d.CameraFollow": {"stiffness": 0.06, "dead_x": 30, "dead_y": 60,
+        "camera2d.CameraFollow": {"stiffness": stiffness, "dead_x": 30, "dead_y": 60,
                                   "offset_y": -40, "look_ahead": 0.25,
                                   "bounded": True, "bound_left": 0, "bound_right": bound_right,
                                   "bound_top": -2000, "bound_bottom": bound_bottom},
@@ -3142,11 +3201,13 @@ def tutorial(arrival=False):
                                     (5400, surface_at(5400)), (6100, surface_at(6100)))):
         things += deposit(f"deposit_{index + 1}", x, y)
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
-    return (sky_entity() + far_planes(scenery(GROUND_Y), arrival) + [ground, back] + shapes +
+    return (arrival_sky_end(sky_entity(), arrival) + far_planes(scenery(GROUND_Y), arrival) +
+            [ground, back] + shapes +
             things +
-            [hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True,
-                         falling=ARRIVAL_VY if arrival else 0),
-             camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None)] +
+            [falling_now(hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True,
+                                     falling=ARRIVAL_VY if arrival else 0), arrival),
+             camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None,
+                    stiffness=0.25 if arrival else 0.06)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) +
@@ -3173,6 +3234,39 @@ def far_planes(made, arrival):
             made.append(track(f"{item['name']}_comes", tag, "sprite2d.Sprite.alpha",
                               [(20, 0), (ARRIVAL_FALL + 10, alpha)]))
     return made
+
+
+def falling_now(hero, arrival):
+    """With arrival, he is already falling, at the first frame of the fall's loop, where the
+    opening leaves him (its last frame is the loop's last): no pose of rest in between."""
+    if arrival:
+        fall_first, fall_count = hero_frames("fall")
+        fall_id = [name for name, _, _ in HERO_CLIPS].index("fall") + 1
+        hero["components"]["sprite2d.Sprite"]["frame"] = fall_first
+        hero["components"]["sprite2d.Animator"]["clip"] = fall_id
+        hero["components"]["sprite2d.SpriteAnimation"] = {
+            "first_frame": fall_first, "frame_count": fall_count, "ticks_per_frame": 1,
+            "looping": True}
+    return hero
+
+
+def arrival_sky_end(made, arrival):
+    """With arrival, the sky is bigger and still coming down as the opening leaves it; it stops
+    as he lands (one motion with the opening's)."""
+    if not arrival:
+        return made
+    sky = next(item for item in made if item["name"] == "sky")
+    sky["components"]["sprite2d.Sprite"].update(width=VIEW_W * SKY_BIG, height=VIEW_H * SKY_BIG)
+    # The opening's last frame showed it at OPENING_TICKS - 2: this one, one tick on; the
+    # track's first key, the next.
+    sky["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
+    veil = next(item for item in made if item["name"] == "veil")
+    veil["components"]["tag.Tag"] = {"tag": "veil"}
+    veil["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
+    ticks = [0, 1, 30, 60, 85, ARRIVAL_DOWN]
+    keys = [(tick, sky_slide(OPENING_TICKS + tick)) for tick in ticks]
+    return made + [curve("sky_comes_down", "sky", "transform2d.Position.y", keys),
+                   curve("veil_comes_down", "veil", "transform2d.Position.y", keys)]
 
 
 def landing(arrival=False):
@@ -3265,6 +3359,8 @@ def departure():
         # In orbit: nothing pulls him any more. He moves where he wants (D22): a small black hole
         # ahead of him, the way he goes, pulls him; slow to start, slow to stop.
         on("floats", "in_orbit", "hero", "gravity2d.Gravity.y", 0),
+        # Nothing pulls him: he floats, or flies (D26).
+        on("space_moves", "in_orbit", "hero", "sprite2d.Animator.set", 1),
         on("floats_x", "in_orbit", "hero", "gravity2d.Gravity.x", 0),
         on("steers_x", "in_orbit", "hero", "action_control.Controlled.horizontal", 1),
         on("steers_y", "in_orbit", "hero", "action_control.Controlled.vertical", 1),
@@ -3317,6 +3413,23 @@ ARRIVAL_PULL = ARRIVAL[1] - 35  # the planet pulls him: he starts falling (the s
 ARRIVAL_VY = 1100
 ARRIVAL_CAMERA_DY = 152.7
 ARRIVAL_FALL = 70  # the ticks his fall takes, more than from the usual start
+ARRIVAL_DOWN = 107  # ... and from the tutorial's start to the ground
+SKY_BIG = 1.5  # the sky of the arrival, bigger than the screen: it can come down
+SKY_SLIDE = 180  # ... by this much: down with the pivot, then up as he falls
+# The ticks (of the opening) of the pivot, of the planet's pull and of his landing.
+SKY_SLIDE_TICKS = (1380, ARRIVAL_PULL, OPENING_TICKS + ARRIVAL_DOWN)
+
+
+def sky_slide(tick):
+    """Where the sky of the arrival is at a tick of the opening (past its end: of the tutorial
+    that follows, from OPENING_TICKS): it comes down with the pivot, slows down, then, as he
+    falls to the planet, goes up (the stars rise), slower and slower until he lands (D26)."""
+    start, pull, end = SKY_SLIDE_TICKS
+    if tick <= pull:
+        k = min(max((tick - start) / (pull - start), 0.0), 1.0)
+        return round(-SKY_SLIDE * (1 - k * k * (3 - 2 * k)), 2)
+    k = min((tick - pull) / (end - pull), 1.0)
+    return round(-SKY_SLIDE * k * k * (3 - 2 * k), 2)
 # The camera's zoom along the opening: back from the explosion, close on him as he nears, then
 # at rest, as in the tutorial.
 OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER, 1.6 * ZOOM), (880, ZOOM)]
@@ -3541,20 +3654,21 @@ def arrival_sky():
     veil_x, veil_y = -0.06 * VIEW_W / 2, -0.06 * (ARRIVAL_Y - ARRIVAL_CAMERA_DY)
     # (the tutorial's veil, seen from its camera at the start: the same place on the screen)
     return [
-        screen_entity("sky_t", 0, -0.3 * VIEW_H, {
-            "atlas": "sky", "width": VIEW_W, "height": VIEW_H, "layer": -118, "alpha": 0,
-            "unlit": True}, 1.6),
+        screen_entity("sky_t", 0, -SKY_SLIDE, {
+            "atlas": "sky", "width": VIEW_W * SKY_BIG, "height": VIEW_H * SKY_BIG,
+            "layer": -118, "alpha": 0, "unlit": True}),
         # As in the tutorial, a veil of gas lit by him in the dark (light2d).
-        screen_entity("veil_t", round(veil_x, 1), round(veil_y - 300, 1), {
+        screen_entity("veil_t", round(veil_x, 1), round(veil_y - SKY_SLIDE, 1), {
             "atlas": "veil", "width": 1600 * 1.6, "height": 900 * 1.6, "layer": -95,
             "alpha": 0}),
         track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 255)]),
         track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 200)]),
+        # It comes down with the pivot, then goes up as he falls, until he lands (the tutorial
+        # goes on with it: one motion).
         track("sky_t_comes", "sky_t", "transform2d.Position.y",
-              [(1380, -0.3 * VIEW_H), (ARRIVAL[1], 0)]),
-        track("sky_t_settles", "sky_t", "transform2d.Scale.factor", [(1380, 1.6), (ARRIVAL[1], 1.0)]),
+              [(tick, sky_slide(tick)) for tick in SKY_SLIDE_TICKS]),
         track("veil_t_comes", "veil_t", "transform2d.Position.y",
-              [(1380, round(veil_y - 300, 1)), (ARRIVAL[1], round(veil_y, 1))]),
+              [(tick, round(veil_y + sky_slide(tick), 1)) for tick in SKY_SLIDE_TICKS]),
     ]
 
 
@@ -3769,7 +3883,7 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
         "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
-        "wanderer", "void", "core", "seed", "pause_hero", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
+        "wanderer", "void", "core", "seed", "pause_hero", "veil", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
          [f"glow_{index}" for index in range(GLOW_COUNT)] +
@@ -3810,7 +3924,7 @@ def write_manifest():
             "resource": ["matter", "carbon"],
             "phase": STEPS,
             "power": POWERS,
-            "animation_set": ["hero"],
+            "animation_set": ["hero", "hero_space"],
             "menu": ["title", "pause"],
         },
         "simulation": {"tick_rate": 60, "seed": 11},

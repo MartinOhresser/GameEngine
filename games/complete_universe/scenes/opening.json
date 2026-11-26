@@ -4220,15 +4220,15 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": -216.0
+          "y": -180
         },
         "tag.Tag": {
           "tag": "sky_t"
         },
         "sprite2d.Sprite": {
           "atlas": "sky",
-          "width": 1280,
-          "height": 720,
+          "width": 1920.0,
+          "height": 1080.0,
           "layer": -118,
           "alpha": 0,
           "unlit": true
@@ -4238,7 +4238,7 @@
           "y": 0
         },
         "transform2d.Scale": {
-          "factor": 1.6
+          "factor": 1.0
         }
       }
     },
@@ -4247,7 +4247,7 @@
       "components": {
         "transform2d.Position": {
           "x": -38.4,
-          "y": -206.8
+          "y": -86.8
         },
         "tag.Tag": {
           "tag": "veil_t"
@@ -4305,26 +4305,13 @@
           "field": "transform2d.Position.y",
           "onto": "sky_t",
           "smooth": true,
-          "keys": 2,
+          "keys": 3,
           "t0": 1600,
-          "v0": -216.0,
-          "t1": 1980,
-          "v1": 0
-        }
-      }
-    },
-    {
-      "name": "sky_t_settles",
-      "components": {
-        "tween2d.Track": {
-          "field": "transform2d.Scale.factor",
-          "onto": "sky_t",
-          "smooth": true,
-          "keys": 2,
-          "t0": 1600,
-          "v0": 1.6,
-          "t1": 1980,
-          "v1": 1.0
+          "v0": -180.0,
+          "t1": 1945,
+          "v1": -0.0,
+          "t2": 2092,
+          "v2": -180.0
         }
       }
     },
@@ -4335,11 +4322,13 @@
           "field": "transform2d.Position.y",
           "onto": "veil_t",
           "smooth": true,
-          "keys": 2,
+          "keys": 3,
           "t0": 1600,
-          "v0": -206.8,
-          "t1": 1980,
-          "v1": 93.2
+          "v0": -86.8,
+          "t1": 1945,
+          "v1": 93.2,
+          "t2": 2092,
+          "v2": -86.8
         }
       }
     },

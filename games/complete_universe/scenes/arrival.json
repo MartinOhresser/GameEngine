@@ -8,15 +8,15 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 0
+          "y": -31.29
         },
         "tag.Tag": {
           "tag": "sky"
         },
         "sprite2d.Sprite": {
           "atlas": "sky",
-          "width": 1280,
-          "height": 720,
+          "width": 1920.0,
+          "height": 1080.0,
           "layer": -100,
           "unlit": true
         },
@@ -50,7 +50,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 0
+          "y": -31.29
         },
         "sprite2d.Sprite": {
           "atlas": "veil",
@@ -63,6 +63,57 @@
         "sprite2d.Parallax": {
           "x": 0.06,
           "y": 0.06
+        },
+        "tag.Tag": {
+          "tag": "veil"
+        }
+      }
+    },
+    {
+      "name": "sky_comes_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "sky",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": -32.73,
+          "t1": 1,
+          "v1": -34.2,
+          "t2": 30,
+          "v2": -83.58,
+          "t3": 60,
+          "v3": -136.56,
+          "t4": 85,
+          "v4": -169.11,
+          "t5": 107,
+          "v5": -180.0,
+          "curve": true
+        }
+      }
+    },
+    {
+      "name": "veil_comes_down",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "veil",
+          "smooth": true,
+          "keys": 6,
+          "t0": 0,
+          "v0": -32.73,
+          "t1": 1,
+          "v1": -34.2,
+          "t2": 30,
+          "v2": -83.58,
+          "t3": 60,
+          "v3": -136.56,
+          "t4": 85,
+          "v4": -169.11,
+          "t5": 107,
+          "v5": -180.0,
+          "curve": true
         }
       }
     },
@@ -3675,10 +3726,12 @@
           "width": 128,
           "height": 128,
           "layer": 10,
-          "unlit": true
+          "unlit": true,
+          "frame": 312
         },
         "sprite2d.Animator": {
-          "set": "hero"
+          "set": "hero",
+          "clip": 6
         },
         "light2d.Light": {
           "radius": 340,
@@ -3740,6 +3793,12 @@
           "field": "transform2d.Velocity.x",
           "per_unit": 0.0008
         },
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 312,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true
+        },
         "transform2d.Smooth": {
           "share": 0.3,
           "most": 20,
@@ -3788,7 +3847,7 @@
           "blue": 106
         },
         "camera2d.CameraFollow": {
-          "stiffness": 0.06,
+          "stiffness": 0.25,
           "dead_x": 30,
           "dead_y": 60,
           "offset_y": -40,
@@ -4207,6 +4266,151 @@
           "looping": false,
           "from_id": 12,
           "to_id": 8
+        }
+      }
+    },
+    {
+      "name": "clip_space_fly",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 312,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "id": 102
+        }
+      }
+    },
+    {
+      "name": "clip_space_float",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "priority": 10,
+          "first_frame": 672,
+          "frame_count": 96,
+          "ticks_per_frame": 1,
+          "looping": true,
+          "field": "transform2d.Velocity.x",
+          "absolute": true,
+          "max": 70,
+          "and_field": "transform2d.Velocity.y",
+          "and_absolute": true,
+          "and_max": 70,
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "clip_float_to_fly_0",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 768,
+          "frame_count": 10,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 101,
+          "to_id": 102
+        }
+      }
+    },
+    {
+      "name": "clip_fly_to_float_0",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 778,
+          "frame_count": 18,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 102,
+          "to_id": 101
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_fly_0",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 796,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 5,
+          "to_id": 102
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_fly_1",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 796,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 7,
+          "to_id": 102
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_fly_2",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 796,
+          "frame_count": 12,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 8,
+          "to_id": 102
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_float_0",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 808,
+          "frame_count": 18,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 5,
+          "to_id": 101
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_float_1",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 808,
+          "frame_count": 18,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 7,
+          "to_id": 101
+        }
+      }
+    },
+    {
+      "name": "clip_rise_to_float_2",
+      "components": {
+        "sprite2d.AnimationClip": {
+          "set": "hero_space",
+          "first_frame": 808,
+          "frame_count": 18,
+          "ticks_per_frame": 1,
+          "looping": false,
+          "from_id": 8,
+          "to_id": 101
         }
       }
     },
@@ -9971,6 +10175,17 @@
           "source": "hero",
           "field": "gravity2d.Gravity.y",
           "value": 0
+        }
+      }
+    },
+    {
+      "name": "space_moves",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "sprite2d.Animator.set",
+          "value": 1
         }
       }
     },
