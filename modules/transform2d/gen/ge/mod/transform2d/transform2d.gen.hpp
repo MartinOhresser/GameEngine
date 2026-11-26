@@ -137,6 +137,27 @@ struct WorldSpeed {
     [[nodiscard]] friend bool operator==(const WorldSpeed&, const WorldSpeed&) = default;
 };
 
+/// Draws the entity a little behind where it is, gliding after it: a stop against a wall, a step climbed, a corner turned show as a short glide instead of a jump. Each tick the drawn place covers share of the way to the true one (1 at once, 0.25 a soft glide), never more than most units behind it; a move longer than snap (a teleport, a respawn) is drawn at once. Presentation only: the simulation, the collisions and the camera use the true Position. Give it with the same numbers to what is drawn on the entity (a hand, a glow that follows it), so that it glides with it. x, y and tick are the module's own state (the drawn place, and the tick it was last moved).
+struct Smooth {
+    float share = 0.25F;
+    float most = 24.0F;
+    float snap = 300.0F;
+    float x = 0.0F;
+    float y = 0.0F;
+    std::uint64_t tick = 0ULL;
+
+    void hash(::ge::Hasher& hasher) const {
+        hasher.add(share);
+        hasher.add(most);
+        hasher.add(snap);
+        hasher.add(x);
+        hasher.add(y);
+        hasher.add(tick);
+    }
+
+    [[nodiscard]] friend bool operator==(const Smooth&, const Smooth&) = default;
+};
+
 /// Puts the entity's Position relative to the window: anchor_x and anchor_y say which point of the window (0 is the left or top edge, 0.5 the middle, 1 the right or bottom edge) and offset_x and offset_y move it from there, in pixels. The entity then follows the window's size (the game's "window"). Use it with screen sprites and texts (a HUD, a button, a touch control), or with a grid drawn on the screen.
 struct Anchor {
     float anchor_x = 0.0F;
@@ -173,6 +194,10 @@ void anchor(::ge::ecs::World& world);
 /// When the game is drawn in real time, keeps where every entity was at the last two ticks, so that the drawing modules place things between them (ge/mod/transform2d/drawn.hpp). Presentation only: nothing in the simulation reads it, and it does nothing in tests and scenarios.
 /// Runs in PreUpdate.
 void remember(::ge::ecs::World& world);
+
+/// Moves the drawn place of every Smooth entity after its true Position, share of the way for each tick that ran since it was last moved (ge/mod/transform2d/drawn.hpp draws it there).
+/// Runs in PreUpdate.
+void smooth(::ge::ecs::World& world);
 
 /// What this module declares, for the catalog and for `App::add_module`.
 [[nodiscard]] const ::ge::app::ModuleInfo& info() noexcept;

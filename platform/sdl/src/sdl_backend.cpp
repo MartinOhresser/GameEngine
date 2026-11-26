@@ -216,8 +216,9 @@ private:
         while (index < pending_.size()) {
             const app::DrawCommand& command = pending_[index];
             // Drawn in the other part, or a light: in the light map, or nowhere without lighting.
-            if ((part == Part::World && command.screen) ||
-                (part == Part::Screen && !command.screen) || command.light) {
+            const bool after = command.screen || command.over_effects;
+            if ((part == Part::World && after) || (part == Part::Screen && !after) ||
+                command.light) {
                 ++index;
             } else if (!lit(command)) {
                 draw_now(command);

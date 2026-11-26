@@ -1057,7 +1057,8 @@ def planet_at(nx, ny, detail=7):
         1 - clouds)  # the sun in the seas
     value = value * (0.1 + 0.95 * light ** 0.8) + 255 * shine
     rim = np.exp(-((r - 1) / 0.012) ** 2) * np.clip(light * 1.6 + 0.25, 0, 1)
-    air = np.exp(-np.clip(r - 1, 0, None) / 0.02) * (r > 1) * 0.5 * np.clip(light + 0.4, 0, 1)
+    air = (np.exp(-np.clip(r - 1, 0, None) / 0.025) * (r > 1) * 0.5 * np.clip(light + 0.4, 0, 1)
+           * np.clip((PLANET_MARGIN - 0.02 - r) / 0.08, 0, 1))
     inside = np.clip((1 - r) * 300, 0, 1)
     alpha = np.clip(inside + rim + air, 0, 1)
     value = np.where(r < 1, value + 120 * rim, 236)
@@ -1068,15 +1069,16 @@ def planet_at(nx, ny, detail=7):
 PLANET_PX = 2048
 # The part of the planet seen when it covers the screen, drawn on its own and much finer (its
 # disc's coordinates): its top, where he comes down.
-PLANET_NEAR = (-0.5, -1.06, 0.5, -0.1)
+PLANET_NEAR = (-0.5, -1.14, 0.5, -0.1)
+PLANET_MARGIN = 1.2  # the picture of the whole planet: its disc and as much again round it (air)
 PLANET_NEAR_PX = 2048
 
 
 def planet():
     """The whole planet, PLANET_PX wide."""
-    t = (np.arange(PLANET_PX) + 0.5) / PLANET_PX * 2 - 1
+    t = ((np.arange(PLANET_PX) + 0.5) / PLANET_PX * 2 - 1) * PLANET_MARGIN
     nx, ny = np.meshgrid(t, t)
-    rgb, alpha = planet_at(nx * 1.01, ny * 1.01)
+    rgb, alpha = planet_at(nx, ny)
     return to_image(rgb, alpha)
 
 
@@ -1087,7 +1089,7 @@ def planet_near():
     xs = x0 + (np.arange(PLANET_NEAR_PX) + 0.5) / PLANET_NEAR_PX * (x1 - x0)
     ys = y0 + (np.arange(height) + 0.5) / height * (y1 - y0)
     nx, ny = np.meshgrid(xs, ys)
-    rgb, alpha = planet_at(nx * 1.01, ny * 1.01, detail=9)
+    rgb, alpha = planet_at(nx, ny, detail=9)
     # Its edges fade out: the whole planet, under it, shows the same there (no line).
     u = np.linspace(0, 1, PLANET_NEAR_PX)[None, :]
     v = np.linspace(0, 1, height)[:, None]
@@ -1790,13 +1792,21 @@ def track(name, onto, field, keys, start=None, end_action=None, smooth=True, loo
     return {"name": name, "components": {"tween2d.Track": made}}
 
 
+def curve(name, onto, field, keys, start=None):
+    """A track that goes through its keys along one smooth curve (tween2d curve): one motion,
+    slowing down only at its ends."""
+    made = track(name, onto, field, keys, start)
+    made["components"]["tween2d.Track"]["curve"] = True
+    return made
+
+
 def spin(name, onto, ticks):
     """Turns the tagged entity round and round, once every `ticks`."""
     return track(name, onto, "transform2d.Rotation.angle", [(0, 0), (ticks, 360)], smooth=False,
                  loop=True)
 
 
-def hero_entity(x, y, locked=False):
+def hero_entity(x, y, locked=False, falling=0):
     hero = entity("hero", x, y, {
         "sprite2d.Sprite": {"atlas": "hero", "width": CELL, "height": CELL,
                             "layer": LAYERS["hero"], "unlit": True},
@@ -1806,7 +1816,7 @@ def hero_entity(x, y, locked=False):
                           "intensity": 0.95, "offset_y": -24, "flicker": 0.05,
                           "flicker_speed": 2},
         "tag.Tag": {"tag": "hero"},
-        "transform2d.Velocity": {},
+        "transform2d.Velocity": {"y": falling},
         "collision2d.Collider": {"width": HERO_W, "height": HERO_H, "layer": ["hero"],
                                  "mask": ["ground", "barrier"]},
         "collision2d.Body": {},
@@ -2584,30 +2594,28 @@ def menu_buttons(menu, labels, top, shown_by=None):
 
 
 def pause_menu():
-    """The pause (D6): Escape shuts him in a bubble, everything stops (toggle.Toggle.pauses), the
-    world goes soft behind it (postfx paused_blur), and the menu is in the bubble."""
+    """The pause (D6, D25): Escape shuts him in a bubble, everything stops (toggle.Toggle.pauses),
+    all around him goes soft (postfx paused_blur); he and his bubble stay sharp (drawn over the
+    effects). The two buttons, nothing more."""
     shown = {"toggle.ShownBy": {"toggle": "pause"}, "transform2d.Hidden": {}}
-    middle = (SCREEN_W / 2, SCREEN_H / 2)
     return [
         entity("pause", 0, 0, {"tag.Tag": {"tag": "pause"}, "toggle.Toggle": {
             "action": "pause", "off": "resume", "pauses": True}}),
-        entity("pause_dim", *middle, {"sprite2d.Sprite": {
-            "atlas": "plain", "width": SCREEN_W + 64, "height": SCREEN_H + 64, "screen": True,
-            "red": 6, "green": 7, "blue": 10, "alpha": 120, "unlit": True,
-            "layer": MENU_LAYER}, **shown}),
-        entity("pause_bubble", *middle, {"sprite2d.Sprite": {
-            "atlas": "barrier", "frame": 0, "width": 760, "height": 760, "screen": True,
-            "layer": MENU_LAYER + 5, "unlit": True}, **shown}),
-        entity("pause_sleeper", middle[0], middle[1] - 205, {"sprite2d.Sprite": {
-            "atlas": "hero_curled", "width": 128, "height": 128, "screen": True,
-            "layer": MENU_LAYER + 10, "unlit": True}, **shown}),
-        entity("pause_title", middle[0], middle[1] - 82, {"text2d.Text": {
-            "string": "menu.pause", "font": "font", "size": 56, "pivot_x": 0.5,
-            "pivot_y": 0.5, "screen": True, "alpha": 235}, **shown}),
+        # Him as he is, sharp over the blur, and his bubble.
+        entity("pause_hero", 0, 0, {"tag.Tag": {"tag": "pause_hero"}, "sprite2d.Sprite": {
+            "atlas": "hero", "width": CELL, "height": CELL, "layer": LAYERS["hero"] + 1,
+            "unlit": True, "over_effects": True},
+            "follow2d.Follow": {"target": "hero", "stiffness": 1}, **shown}),
+        bind("pause_pose", "hero", "sprite2d.Sprite.frame", "sprite2d.Sprite.frame", 0, 100000,
+             0, 100000, 1, onto="pause_hero"),
+        entity("pause_bubble", 0, 0, {"sprite2d.Sprite": {
+            "atlas": "barrier", "frame": 0, "width": 200, "height": 200,
+            "layer": LAYERS["hero"] + 2, "unlit": True, "over_effects": True},
+            "follow2d.Follow": {"target": "hero", "stiffness": 1}, **shown}),
         entity("to_title", 0, 0, {"scene_switch.GoToScene": {
             "scene": "title", "use_action": True, "action": "to_title"}}),
     ] + menu_buttons("pause", [("menu.resume", "resume"), ("menu.leave", "to_title")],
-                     middle[1] + 40, shown_by="pause")
+                     SCREEN_H - 220, shown_by="pause")
 
 
 def title():
@@ -3136,7 +3144,8 @@ def tutorial(arrival=False):
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
     return (sky_entity() + far_planes(scenery(GROUND_Y), arrival) + [ground, back] + shapes +
             things +
-            [hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True),
+            [hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True,
+                         falling=ARRIVAL_VY if arrival else 0),
              camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
@@ -3179,8 +3188,7 @@ def landing(arrival=False):
         return [dome, track("dome_shows", "dome", "sprite2d.Sprite.alpha",
                             [(ARRIVAL_FALL + 40, 0), (ARRIVAL_FALL + 200, 230)]),
                 track("camera_keeps_up", "camera", "camera2d.CameraFollow.stiffness",
-                      [(0, 0.06), (15, 0.25), (ARRIVAL_FALL + 20, 0.25),
-                       (ARRIVAL_FALL + 80, 0.06)])]
+                      [(0, 0.25), (ARRIVAL_FALL + 20, 0.25), (ARRIVAL_FALL + 80, 0.06)])]
     return [
         cover("whitein", 255),
         track("whitein_fades", "whitein", "sprite2d.Sprite.alpha", [(0, 255), (80, 0)]),
@@ -3196,6 +3204,7 @@ NEXT_PLANET = (1500, -1300)  # where the next planet is, from where he reaches o
 SPACE_SPEED = 220  # his speed in space, moving by himself
 SPACE_HOLE_AHEAD = 95  # the small black hole that pulls him in space: this far ahead of him
 SPACE_HOLE_SIZE = 20  # ... and its radius
+SPACE_HOLE_TURN = 240  # it goes round him where the arrows point, this many degrees a second
 NEXT_PLANET_SIZE = 1400
 
 
@@ -3206,8 +3215,9 @@ def departure():
     seen ahead. No cut scene, no other scene: the planet's ground is gone once out of sight."""
     planet_ahead = entity("next_planet", 0, 0, {
         "tag.Tag": {"tag": "next_planet"},
-        "sprite2d.Sprite": {"atlas": "planet", "width": NEXT_PLANET_SIZE,
-                            "height": NEXT_PLANET_SIZE, "layer": LAYERS["far"], "alpha": 0,
+        "sprite2d.Sprite": {"atlas": "planet", "width": NEXT_PLANET_SIZE * PLANET_MARGIN,
+                            "height": NEXT_PLANET_SIZE * PLANET_MARGIN, "layer": LAYERS["far"],
+                            "alpha": 0,
                             "unlit": True},
         "transform2d.Scale": {"factor": 0.75},
         # Kept ahead of him until the drift starts; then it stays where it is.
@@ -3230,7 +3240,9 @@ def departure():
                             "layer": LAYERS["hero"] + 5, "alpha": 0, "unlit": True},
         "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {},
         # Ahead of him, the way he goes, always as far.
-        "follow2d.Follow": {"target": "hero", "ahead": SPACE_HOLE_AHEAD, "stiffness": 1}})
+        "follow2d.Follow": {"target": "hero", "ahead": SPACE_HOLE_AHEAD, "stiffness": 1,
+                            "way_x": ACTIONS.index("move_x"), "way_y": ACTIONS.index("move_y"),
+                            "way_turn": SPACE_HOLE_TURN}})
     return [
         planet_ahead, air, to_follow, pull,
         # Out of the atmosphere: no control, no powers, his reserves kept; the great barrier
@@ -3294,12 +3306,17 @@ BANG = 220  # black, a point that grows and trembles; then the explosion, this t
 REVEAL = (170, 470)  # the white light of the explosion fades out between these ticks: him, far
 WANDER = 720  # he is near, he wanders to the planet of the tutorial
 ARRIVAL = (1450, 1760)  # the pivot: the planet slides down, the sky after it, and stops
-OPENING_TICKS = ARRIVAL[1] + 70  # then the tutorial: he falls to the ground (from the explosion)
+OPENING_TICKS = ARRIVAL[1] + 5  # then the tutorial, as he falls (from the explosion)
 PLANET_W = 400  # the planet seen from space, at first (world units at the zoom at rest)
 # Where the tutorial starts him, high in its sky, and where its camera has him then.
 ARRIVAL_Y = -1400
-ARRIVAL_CAMERA_DX, ARRIVAL_CAMERA_DY = 40, 40
-ARRIVAL_FALL = 90  # the ticks his fall takes, more than from the usual start
+ARRIVAL_CAMERA_DX = 40  # the tutorial's camera stops at the left edge: he is this far left
+ARRIVAL_PULL = ARRIVAL[1] - 35  # the planet pulls him: he starts falling (the sky still stopping)
+# How he is when the tutorial takes over (measured on the opening): falling this fast, the camera
+# this far above him.
+ARRIVAL_VY = 1100
+ARRIVAL_CAMERA_DY = 152.7
+ARRIVAL_FALL = 70  # the ticks his fall takes, more than from the usual start
 # The camera's zoom along the opening: back from the explosion, close on him as he nears, then
 # at rest, as in the tutorial.
 OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER, 1.6 * ZOOM), (880, ZOOM)]
@@ -3482,7 +3499,7 @@ def arrival_planet():
     it, slower and slower, until it stops: the planet is below him now, he falls to it."""
     # (tick, x, y, scale): where the planet is on the screen and how big.
     keys = [(780, 330, 170, 0.3), (1050, 260, 180, 0.55), (1250, 120, 330, 2.2),
-            (1420, 0, 700, 8.0), (1480, 0, 700, 8.2), (ARRIVAL[1], 0, 2300, 8.2)]
+            (1420, 0, 700, 7.0), (ARRIVAL[1], 0, 2700, 10.0)]
     near_x = (PLANET_NEAR[0] + PLANET_NEAR[2]) / 2 * PLANET_W / 2
     near_y = (PLANET_NEAR[1] + PLANET_NEAR[3]) / 2 * PLANET_W / 2
     near_w = (PLANET_NEAR[2] - PLANET_NEAR[0]) * PLANET_W / 2
@@ -3492,7 +3509,8 @@ def arrival_planet():
             "atlas": "great_barrier", "width": PLANET_W * 2.4, "height": PLANET_W * 2.4,
             "layer": -95, "alpha": 0, "unlit": True}, 0.3),
         screen_entity("planet", 330, 170, {
-            "atlas": "planet", "width": PLANET_W, "height": PLANET_W, "layer": -96, "alpha": 0,
+            "atlas": "planet", "width": PLANET_W * PLANET_MARGIN,
+            "height": PLANET_W * PLANET_MARGIN, "layer": -96, "alpha": 0,
             "unlit": True}, 0.3),
         screen_entity("planet_near", 330, 170, {
             "atlas": "planet_near", "width": near_w, "height": near_h, "layer": -95,
@@ -3506,11 +3524,11 @@ def arrival_planet():
     for name in ("planet", "great_barrier", "planet_near"):
         dx, dy = (near_x, near_y) if name == "planet_near" else (0, 0)
         made += [
-            track(f"{name}_x", name, "transform2d.Position.x",
+            curve(f"{name}_x", name, "transform2d.Position.x",
                   [(t, round(x + dx * s, 1)) for t, x, y, s in keys]),
-            track(f"{name}_y", name, "transform2d.Position.y",
+            curve(f"{name}_y", name, "transform2d.Position.y",
                   [(t, round(y + dy * s, 1)) for t, x, y, s in keys]),
-            track(f"{name}_grows", name, "transform2d.Scale.factor",
+            curve(f"{name}_grows", name, "transform2d.Scale.factor",
                   [(t, s) for t, x, y, s in keys]),
         ]
     return made
@@ -3521,6 +3539,7 @@ def arrival_sky():
     down with the pivot and stops where it is when he falls (as the tutorial starts: the same
     picture, no cut)."""
     veil_x, veil_y = -0.06 * VIEW_W / 2, -0.06 * (ARRIVAL_Y - ARRIVAL_CAMERA_DY)
+    # (the tutorial's veil, seen from its camera at the start: the same place on the screen)
     return [
         screen_entity("sky_t", 0, -0.3 * VIEW_H, {
             "atlas": "sky", "width": VIEW_W, "height": VIEW_H, "layer": -118, "alpha": 0,
@@ -3532,11 +3551,10 @@ def arrival_sky():
         track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 255)]),
         track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 200)]),
         track("sky_t_comes", "sky_t", "transform2d.Position.y",
-              [(1480, -0.3 * VIEW_H), (ARRIVAL[1] + 60, 0)]),
-        track("sky_t_settles", "sky_t", "transform2d.Scale.factor",
-              [(1480, 1.6), (ARRIVAL[1] + 60, 1.0)]),
+              [(1380, -0.3 * VIEW_H), (ARRIVAL[1], 0)]),
+        track("sky_t_settles", "sky_t", "transform2d.Scale.factor", [(1380, 1.6), (ARRIVAL[1], 1.0)]),
         track("veil_t_comes", "veil_t", "transform2d.Position.y",
-              [(1480, round(veil_y - 300, 1)), (ARRIVAL[1] + 60, round(veil_y, 1))]),
+              [(1380, round(veil_y - 300, 1)), (ARRIVAL[1], round(veil_y, 1))]),
     ]
 
 
@@ -3592,12 +3610,13 @@ def opening():
             "atlas": "glow", "width": 300, "height": 300, "layer": 51, "additive": True,
             "unlit": True, "alpha": 0}, "transform2d.Scale": {"factor": 0.2}}),
         # The camera stays on him: on the heart of the explosion first, where he is. At the end,
-        # as the tutorial's camera has him: the same light, the same effects.
+        # as the tutorial's camera has him: it follows him the same way, the same light, the
+        # same effects (the tutorial takes over as he falls: one motion).
         entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"},
                                 "camera2d.Camera": {"zoom": 1.3 * ZOOM},
                                 "camera2d.CameraShake": {"strength": 0, "decay": 3,
                                                          "speed": 30},
-                                "follow2d.Follow": {"target": "wanderer", "stiffness": 0.06},
+                                "camera2d.CameraFollow": {"stiffness": 0.06, "look_ahead": 0.25},
                                 "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
                                 "postfx.Effects": {"bloom": 0.8, "vignette": 0.5,
                                                    "vignette_size": 0.4, "grain": 0.05,
@@ -3609,7 +3628,8 @@ def opening():
             "alpha": 0, "unlit": True}, "sprite2d.SpriteAnimation": {
                 "first_frame": fall_first, "frame_count": fall_count, "ticks_per_frame": 3,
                 "looping": True},
-            "light2d.Light": dict(hero_light),
+            "light2d.Light": dict(hero_light), "camera2d.CameraTarget": {},
+            "transform2d.Velocity": {}, "gravity2d.Gravity": {"y": 0, "terminal_speed": 1100},
             "transform2d.Scale": {"factor": 0.02}, "transform2d.Rotation": {"angle": -20}}),
         cover("whiteout"),
     ]
@@ -3682,19 +3702,30 @@ def opening():
               [(0, 0.02), (REVEAL[0], 0.02), (REVEAL[1], 0.25), (WANDER, 1.0)]),
         track("wanderer_turns", "wanderer", "transform2d.Rotation.angle",
               [(0, -20), (WANDER, 15), (1000, -12), (1250, 6), (ARRIVAL[0], 0)]),
-        track("wanderer_x", "wanderer", "transform2d.Position.x",
-              [(WANDER, 0), (ARRIVAL[1], 520)]),
-        track("wanderer_y", "wanderer", "transform2d.Position.y",
-              [(WANDER, 0), (ARRIVAL[1], 260)]),
-        # His limbs at the pace of the tutorial's fall, before the end.
+        # He drifts, slowly; then stops drifting: the planet pulls him down, he falls.
+        track("wanderer_drifts", "wanderer", "transform2d.Velocity.x",
+              [(WANDER, 0), (WANDER + 150, 28), (ARRIVAL[0], 28), (ARRIVAL_PULL - 20, 0)]),
+        track("wanderer_pulled", "wanderer", "gravity2d.Gravity.y",
+              [(ARRIVAL_PULL - 1, 0), (ARRIVAL_PULL, 1800)], smooth=False),
+        # His limbs at the pace of the tutorial's fall, before the end, and at the start of their
+        # loop as the tutorial takes over (its animation starts there).
         track("wanderer_pace", "wanderer", "sprite2d.SpriteAnimation.ticks_per_frame",
               [(ARRIVAL[0], 3), (ARRIVAL[0] + 1, 1)], smooth=False),
+        track("wanderer_loop", "wanderer", "sprite2d.SpriteAnimation.elapsed",
+              [(OPENING_TICKS - fall_count, 0), (OPENING_TICKS, fall_count)], smooth=False),
         track("camera_zoom", "camera", "camera2d.Camera.zoom", OPENING_ZOOM),
-        # Where the tutorial's camera will have him: a little left and below the middle.
-        track("camera_aims_x", "camera", "follow2d.Follow.offset_x",
-              [(ARRIVAL[0], 0), (ARRIVAL[1], ARRIVAL_CAMERA_DX)]),
-        track("camera_aims_y", "camera", "follow2d.Follow.offset_y",
-              [(ARRIVAL[0], 0), (ARRIVAL[1], -ARRIVAL_CAMERA_DY)]),
+        # Where the tutorial's camera has him: a little left and below the middle; then it
+        # follows him as it does (a dead zone, a firmer hold while he falls).
+        track("camera_aims_x", "camera", "camera2d.CameraFollow.offset_x",
+              [(ARRIVAL[0], 0), (ARRIVAL_PULL - 10, ARRIVAL_CAMERA_DX)]),
+        track("camera_aims_y", "camera", "camera2d.CameraFollow.offset_y",
+              [(ARRIVAL[0], 0), (ARRIVAL_PULL - 10, -40)]),
+        track("camera_dead_x", "camera", "camera2d.CameraFollow.dead_x",
+              [(ARRIVAL_PULL - 1, 0), (ARRIVAL_PULL, 30)], smooth=False),
+        track("camera_dead_y", "camera", "camera2d.CameraFollow.dead_y",
+              [(ARRIVAL_PULL - 1, 0), (ARRIVAL_PULL, 60)], smooth=False),
+        track("camera_holds", "camera", "camera2d.CameraFollow.stiffness",
+              [(ARRIVAL_PULL - 30, 0.06), (ARRIVAL_PULL, 0.25)]),
         track("camera_bloom", "camera", "postfx.Effects.bloom", [(ARRIVAL[0], 0.8),
                                                                 (ARRIVAL[1], 0.45)]),
         track("camera_vignette", "camera", "postfx.Effects.vignette",
@@ -3738,7 +3769,7 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
         "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
-        "wanderer", "void", "core", "seed", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
+        "wanderer", "void", "core", "seed", "pause_hero", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
          [f"glow_{index}" for index in range(GLOW_COUNT)] +
@@ -3827,7 +3858,24 @@ def write_strings():
         out.write("\n")
 
 
+HERO_SMOOTH = {"share": 0.3, "most": 20, "snap": 300}
+
+
+def smoothed(entities):
+    """The hero, and what is drawn on him, drawn gliding after where he is (transform2d.Smooth):
+    a stop against a wall, a step climbed, a corner turned show as a short glide."""
+    for item in entities:
+        components = item["components"]
+        follows = components.get("follow2d.Follow", {})
+        on_him = follows.get("target") == "hero" and follows.get("stiffness") == 1 and (
+            "sprite2d.Sprite" in components) and not follows.get("ahead")
+        if item["name"] in ("hero", "pause_hero") or on_him:
+            components["transform2d.Smooth"] = dict(HERO_SMOOTH)
+    return entities
+
+
 def write_scene(name, entities):
+    smoothed(entities)
     os.makedirs(SCENES, exist_ok=True)
     with open(os.path.join(SCENES, name + ".json"), "w", encoding="utf-8") as out:
         out.write("// Generated by tools/make_assets.py: edit the script, not this file.\n")

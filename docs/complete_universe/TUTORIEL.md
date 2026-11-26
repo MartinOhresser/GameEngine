@@ -72,7 +72,7 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 | 17 | **Le départ** | garde Espace chargé : au bout de cinq secondes, le trou noir grandit et le saut devient plus fort ; il relâche : sorti de l'atmosphère, il est parti, sinon il retombe et recommence | — |
 | 18 | **L'espace** | se déplace (Z Q S D ou flèches) vers la planète suivante, un petit trou noir devant lui | « à suivre » |
 
-La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle, tout s'arrête (la consommation aussi), le monde devient flou, et le menu (Reprendre, Retour au titre) s'affiche dans la bulle (D6, T8). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
+La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle et reste net, tout s'arrête (la consommation aussi), tout le reste devient flou, et les deux boutons (Reprendre, Retour au titre) s'affichent en bas (D6, D25). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 
 ## 2. Les étapes de travail
 

@@ -61,8 +61,8 @@ struct Trail {
 /// Where to draw `entity`, whose Position is `position` now: the Position itself, unless the host
 /// draws in real time (`app::Time::interpolate`), in which case it is the point between the
 /// previous tick's position and this one, `app::Time::alpha` of the way.
-[[nodiscard]] inline Position drawn_position(const ecs::World& world, ecs::Entity entity,
-                                             const Position& position) {
+[[nodiscard]] inline Position between_ticks(const ecs::World& world, ecs::Entity entity,
+                                            const Position& position) {
     const auto* time = world.resource<app::Time>();
     const auto* trail = world.resource<Trail>();
     if (time == nullptr || trail == nullptr || !time->interpolate) {
@@ -83,6 +83,18 @@ struct Trail {
     }
     const float alpha = time->alpha;
     return Position{previous->x + dx * alpha, previous->y + dy * alpha};
+}
+
+/// Where to draw `entity`, whose Position is `position` now: between the last two ticks (see
+/// between_ticks), and, with a Smooth, as far behind as its drawn place is (it glides).
+[[nodiscard]] inline Position drawn_position(const ecs::World& world, ecs::Entity entity,
+                                             const Position& position) {
+    Position drawn = between_ticks(world, entity, position);
+    if (const auto* smooth = world.get<Smooth>(entity); smooth != nullptr && smooth->tick != 0U) {
+        drawn.x += smooth->x - position.x;
+        drawn.y += smooth->y - position.y;
+    }
+    return drawn;
 }
 
 } // namespace ge::mod::transform2d

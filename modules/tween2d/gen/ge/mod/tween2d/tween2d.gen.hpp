@@ -63,12 +63,13 @@ struct Settle {
     [[nodiscard]] friend bool operator==(const Settle&, const Settle&) = default;
 };
 
-/// A number played along keys: for keys keys (2 to 6), the number field ("camera2d.Camera.zoom") of the entity that answers to onto (a tag.Tag; none: this entity) is v0 at tick t0, v1 at tick t1 and so on (the ticks are counted from the start and go up), and slides from one to the next, smoothly at both ends of each slide with smooth. It starts on the first tick, or with start when that action is pressed; before its first key it is not written, after its last it is left at the last value and end_action is pressed once (none: nothing); with loop it starts again from its first key instead, for ever (a spin, a sway, a pulse). Several Tracks can play several numbers of the same entity at once: a camera that moves, zooms and fades in a cut scene. The module keeps started, elapsed (ticks since the start) and done.
+/// A number played along keys: for keys keys (2 to 6), the number field ("camera2d.Camera.zoom") of the entity that answers to onto (a tag.Tag; none: this entity) is v0 at tick t0, v1 at tick t1 and so on (the ticks are counted from the start and go up), and slides from one to the next, smoothly at both ends of each slide with smooth. It starts on the first tick, or with start when that action is pressed; before its first key it is not written, after its last it is left at the last value and end_action is pressed once (none: nothing); with loop it starts again from its first key instead, for ever (a spin, a sway, a pulse). Several Tracks can play several numbers of the same entity at once: a camera that moves, zooms and fades in a cut scene. The module keeps started, elapsed (ticks since the start) and done. With curve, the number goes through the keys along one smooth curve: it does not slow down at each key (smooth does, between every two), only at the first and the last; a camera's long move, a planet that grows and slides, all one motion.
 struct Track {
     std::uint32_t field = 4294967295U;
     std::uint32_t onto = 4294967295U;
     std::uint32_t start = 4294967295U;
     bool smooth = true;
+    bool curve = false;
     std::uint32_t keys = 2U;
     std::uint32_t t0 = 0U;
     float v0 = 0.0F;
@@ -93,6 +94,7 @@ struct Track {
         hasher.add(onto);
         hasher.add(start);
         hasher.add(smooth);
+        hasher.add(curve);
         hasher.add(keys);
         hasher.add(t0);
         hasher.add(v0);

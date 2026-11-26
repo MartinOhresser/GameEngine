@@ -196,6 +196,7 @@
       "void",
       "core",
       "seed",
+      "pause_hero",
       "mountains",
       "mist_far",
       "mist_near",

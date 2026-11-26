@@ -1,4 +1,6 @@
 #include "ge/app/app.hpp"
+#include "ge/app/input.hpp"
+#include "ge/app/scene.hpp"
 #include "ge/mod/follow2d/follow2d.gen.hpp"
 #include "ge/mod/tag/tag.gen.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -6,6 +8,7 @@
 #include "mini_test.hpp"
 
 #include <cmath>
+#include <numbers>
 
 namespace {
 
@@ -140,4 +143,33 @@ TEST_CASE("follow2d: the owner can be the target, and a missing target leaves it
     static_cast<void>(app.world().despawn(owner));
     app.run_frames(1);
     CHECK(at(app, pet).x == 70.0F);
+}
+
+TEST_CASE("follow2d: way_x and way_y point the way, and way_turn turns it round slowly") {
+    ge::app::App app = game();
+    app.world().insert_resource(ge::app::ActionNames{{"aim_x", "aim_y"}});
+    const ge::ecs::Entity lead = leader(app, 100.0F, 100.0F, 0.0F);
+    follow2d::Follow follow;
+    follow.target = leader_tag;
+    follow.ahead = 10.0F;
+    follow.stiffness = 1.0F;
+    follow.way_x = 0U;
+    follow.way_y = 1U;
+    const ge::ecs::Entity entity = follower(app, follow);
+    auto* actions = app.world().resource<ge::app::Actions>();
+    actions->set("aim_y", -1.0F); // up
+    app.run_frames(1);
+    CHECK(std::abs(at(app, entity).x - at(app, lead).x) < 0.01F);
+    CHECK(std::abs(at(app, entity).y - (at(app, lead).y - 10.0F)) < 0.01F);
+    // To the right, turning at most 90 degrees a second: a tick (1/60 s) turns it by 1.5.
+    app.world().get<follow2d::Follow>(entity)->way_turn = 90.0F;
+    actions->set("aim_x", 1.0F);
+    actions->set("aim_y", 0.0F);
+    app.run_frames(1);
+    const float turned = 1.5F * std::numbers::pi_v<float> / 180.0F;
+    CHECK(std::abs(at(app, entity).x - (at(app, lead).x + 10.0F * std::sin(turned))) < 0.01F);
+    // Let go, it keeps its way.
+    actions->set("aim_x", 0.0F);
+    app.run_frames(1);
+    CHECK(std::abs(at(app, entity).x - (at(app, lead).x + 10.0F * std::sin(turned))) < 0.01F);
 }

@@ -46,6 +46,9 @@ struct DrawCommand {
     /// The position and size are pixels of the window and the camera does not
     /// apply: for the interface, which stays put while the world scrolls.
     bool screen = false;
+    /// Placed in the world, but drawn after the screen effects with the interface: never
+    /// blurred nor darkened by them.
+    bool over_effects = false;
     /// Lines: the end point, in world units.
     float x2 = 0.0F;
     float y2 = 0.0F;

@@ -243,3 +243,25 @@ TEST_CASE("transform2d: without real time, a jump or a new entity, the Position 
     CHECK(drawn_x(app, late) == 0.0F);
     CHECK(app.world().resource<transform2d::Trail>() != nullptr);
 }
+
+TEST_CASE("transform2d: a Smooth entity is drawn gliding after where it is, never too far") {
+    ge::app::App app = game();
+    const ge::ecs::Entity entity = app.world().spawn();
+    CHECK(app.world().insert(entity, transform2d::Position{0.0F, 0.0F}));
+    transform2d::Smooth smooth;
+    smooth.share = 0.5F;
+    smooth.most = 30.0F;
+    smooth.snap = 200.0F;
+    CHECK(app.world().insert(entity, smooth));
+    app.run_frames(1); // placed where it is
+    app.world().get<transform2d::Position>(entity)->x = 20.0F;
+    app.run_frames(1); // a tick: half of the way
+    const transform2d::Position now = *app.world().get<transform2d::Position>(entity);
+    CHECK(std::abs(transform2d::drawn_position(app.world(), entity, now).x - 10.0F) < 0.01F);
+    app.world().get<transform2d::Position>(entity)->x = 120.0F; // 110 away: no more than 30
+    app.run_frames(1);
+    CHECK(std::abs(app.world().get<transform2d::Smooth>(entity)->x - 90.0F) < 0.01F);
+    app.world().get<transform2d::Position>(entity)->x = 1000.0F; // a jump: drawn at once
+    app.run_frames(1);
+    CHECK(app.world().get<transform2d::Smooth>(entity)->x == 1000.0F);
+}
