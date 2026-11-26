@@ -82,7 +82,7 @@ struct Emitter {
     [[nodiscard]] friend bool operator==(const Emitter&, const Emitter&) = default;
 };
 
-/// Lets out the particles of every Emitter and moves every particle by one tick; particles at the end of their lives are removed.
+/// Lets out the particles of every Emitter and moves every particle by one tick (slowed with the world, transform2d.WorldSpeed); particles at the end of their lives are removed.
 /// Runs in FixedUpdate.
 void advance(::ge::ecs::World& world);
 

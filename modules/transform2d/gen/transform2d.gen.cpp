@@ -388,6 +388,45 @@ constexpr std::array<::ge::app::FieldInfo, 2> component_8_fields{{{"factor", "f3
 
 void insert_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
+    WorldSpeed component;
+    for (const ::ge::app::FieldValue& field : values) {
+        if (field.name == "factor") {
+            component.factor = ::ge::app::scalar_as<float>(field.value);
+        }
+    }
+    static_cast<void>(world.insert(entity, std::move(component)));
+}
+
+std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field) {
+    const WorldSpeed* component = world.get<WorldSpeed>(entity);
+    if (component == nullptr) {
+        return std::nullopt;
+    }
+    if (field == "factor") {
+        return ::ge::app::Scalar{static_cast<double>(component->factor)};
+    }
+    return std::nullopt;
+}
+
+bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::string_view field,
+                      [[maybe_unused]] const ::ge::app::Scalar& value) {
+    WorldSpeed* component = world.get<WorldSpeed>(entity);
+    if (component == nullptr) {
+        return false;
+    }
+    if (field == "factor") {
+        component->factor = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
+    return false;
+}
+
+constexpr std::array<::ge::app::FieldInfo, 1> component_9_fields{{{"factor", "f32", "", false}}};
+
+void insert_component_10(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+                      [[maybe_unused]] std::span<const ::ge::app::FieldValue> values) {
     Anchor component;
     for (const ::ge::app::FieldValue& field : values) {
         if (field.name == "anchor_x") {
@@ -403,7 +442,7 @@ void insert_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     static_cast<void>(world.insert(entity, std::move(component)));
 }
 
-std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
+std::optional<::ge::app::Scalar> read_component_10(const ::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field) {
     const Anchor* component = world.get<Anchor>(entity);
     if (component == nullptr) {
@@ -424,7 +463,7 @@ std::optional<::ge::app::Scalar> read_component_9(const ::ge::ecs::World& world,
     return std::nullopt;
 }
 
-bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
+bool write_component_10(::ge::ecs::World& world, ::ge::ecs::Entity entity,
                       [[maybe_unused]] std::string_view field,
                       [[maybe_unused]] const ::ge::app::Scalar& value) {
     Anchor* component = world.get<Anchor>(entity);
@@ -450,11 +489,11 @@ bool write_component_9(::ge::ecs::World& world, ::ge::ecs::Entity entity,
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 4> component_9_fields{{{"anchor_x", "f32", "", false}, {"anchor_y", "f32", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 4> component_10_fields{{{"anchor_x", "f32", "", false}, {"anchor_y", "f32", "", false}, {"offset_x", "f32", "", false}, {"offset_y", "f32", "", false}}};
 
-constexpr std::array<::ge::app::ComponentInfo, 10> components{{{"Position", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Velocity", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Hidden", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Owner", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Attach", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Scale", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Rotation", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"Disabled", false, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"SpeedScale", true, component_8_fields, insert_component_8, read_component_8, write_component_8}, {"Anchor", false, component_9_fields, insert_component_9, read_component_9, write_component_9}}};
+constexpr std::array<::ge::app::ComponentInfo, 11> components{{{"Position", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Velocity", true, component_1_fields, insert_component_1, read_component_1, write_component_1}, {"Hidden", false, component_2_fields, insert_component_2, read_component_2, write_component_2}, {"Owner", false, component_3_fields, insert_component_3, read_component_3, write_component_3}, {"Attach", false, component_4_fields, insert_component_4, read_component_4, write_component_4}, {"Scale", false, component_5_fields, insert_component_5, read_component_5, write_component_5}, {"Rotation", false, component_6_fields, insert_component_6, read_component_6, write_component_6}, {"Disabled", false, component_7_fields, insert_component_7, read_component_7, write_component_7}, {"SpeedScale", true, component_8_fields, insert_component_8, read_component_8, write_component_8}, {"WorldSpeed", true, component_9_fields, insert_component_9, read_component_9, write_component_9}, {"Anchor", false, component_10_fields, insert_component_10, read_component_10, write_component_10}}};
 
-constexpr std::array<std::string_view, 2> system_0_reads{"transform2d.Velocity", "transform2d.SpeedScale"};
+constexpr std::array<std::string_view, 3> system_0_reads{"transform2d.Velocity", "transform2d.SpeedScale", "transform2d.WorldSpeed"};
 constexpr std::array<std::string_view, 1> system_0_writes{"transform2d.Position"};
 constexpr std::array<std::string_view, 2> system_1_reads{"transform2d.Owner", "transform2d.Attach"};
 constexpr std::array<std::string_view, 1> system_1_writes{"transform2d.Position"};

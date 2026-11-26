@@ -6,6 +6,7 @@
   "schema_version": 1,
   "bindings": [
     { "action": "move_x", "sources": { "key:right": 1, "key:d": 1, "key:left": -1, "key:q": -1, "key:a": -1 } },
+    { "action": "move_y", "sources": { "key:up": -1, "key:z": -1, "key:w": -1, "key:down": 1, "key:s": 1 } },
     { "action": "jump", "sources": { "key:space": 1 } },
     { "action": "hand_left", "sources": { "mouse:left": 1 } },
     { "action": "hand_right", "sources": { "mouse:right": 1 } },

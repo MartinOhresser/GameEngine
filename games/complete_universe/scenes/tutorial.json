@@ -10,6 +10,9 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "sky"
+        },
         "sprite2d.Sprite": {
           "atlas": "sky",
           "width": 1280,
@@ -20,6 +23,25 @@
         "sprite2d.Parallax": {
           "x": 0,
           "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1
+        }
+      }
+    },
+    {
+      "name": "sky_covers",
+      "components": {
+        "bind.Bind": {
+          "source": "camera2d.Camera.zoom",
+          "from": "camera",
+          "target": "transform2d.Scale.factor",
+          "onto": "sky",
+          "low": 0.9,
+          "high": 1.5,
+          "out_low": 1.6666666666666665,
+          "out_high": 1.0,
+          "power": 1
         }
       }
     },
@@ -206,7 +228,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 1384.0
+          "y": 1408.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave",
@@ -226,7 +248,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 1384.0
+          "y": 1408.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave_glints",
@@ -249,7 +271,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 2920.0
+          "y": 2944.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave",
@@ -269,7 +291,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 2920.0
+          "y": 2944.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave_glints",
@@ -458,6 +480,9 @@
           "x": 0,
           "y": -500
         },
+        "tag.Tag": {
+          "tag": "ash"
+        },
         "follow2d.Follow": {
           "target": "camera",
           "offset_y": -500,
@@ -503,7 +528,7 @@
             "ground"
           ],
           "surface": 200.0,
-          "amplitude": 1.2,
+          "amplitude": 2.0,
           "wavelength": 40,
           "seed": 3,
           "climb": 20
@@ -518,7 +543,119 @@
           "top_green": 180,
           "top_blue": 190,
           "lip": 10,
-          "grain": 0.08
+          "grain": 0.08,
+          "smooth": 2
+        },
+        "bounds2d.OutOfView": {
+          "side_x": 0,
+          "side_y": 1,
+          "margin": 600,
+          "despawn": true
+        }
+      }
+    },
+    {
+      "name": "ground_back",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": -1000
+        },
+        "terrain2d.Terrain": {
+          "columns": 825,
+          "rows": 225,
+          "cell": 8,
+          "layer": [
+            "back"
+          ],
+          "surface": 200.0,
+          "amplitude": 2.0,
+          "wavelength": 40,
+          "seed": 3
+        },
+        "terrain2d.Look": {
+          "layer": -6,
+          "pixels": 3,
+          "red": 40,
+          "green": 40,
+          "blue": 45,
+          "top_red": 50,
+          "top_green": 50,
+          "top_blue": 56,
+          "lip": 4,
+          "grain": 0.18,
+          "smooth": 3
+        },
+        "bounds2d.OutOfView": {
+          "side_x": 0,
+          "side_y": 1,
+          "margin": 600,
+          "despawn": true
+        }
+      }
+    },
+    {
+      "name": "relief_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 100,
+          "y": 751.6666666666666
+        },
+        "terrain2d.Shape": {
+          "radius": 181.66666666666666,
+          "fill": true
+        }
+      }
+    },
+    {
+      "name": "relief_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 1300,
+          "y": -511.66666666666674
+        },
+        "terrain2d.Shape": {
+          "radius": 1141.6666666666667,
+          "fill": false
+        }
+      }
+    },
+    {
+      "name": "relief_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 5300,
+          "y": 1885.2272727272727
+        },
+        "terrain2d.Shape": {
+          "radius": 1340.2272727272727,
+          "fill": true
+        }
+      }
+    },
+    {
+      "name": "relief_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 5800,
+          "y": -191.66666666666663
+        },
+        "terrain2d.Shape": {
+          "radius": 821.6666666666666,
+          "fill": false
+        }
+      }
+    },
+    {
+      "name": "relief_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 6280,
+          "y": 1090.8333333333333
+        },
+        "terrain2d.Shape": {
+          "radius": 550.8333333333333,
+          "fill": true
         }
       }
     },
@@ -2717,7 +2854,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1078.0,
-          "y": 589.12
+          "y": 601.4652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -2748,7 +2885,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1100.0,
-          "y": 585.92
+          "y": 598.2652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -2788,7 +2925,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1122.0,
-          "y": 589.12
+          "y": 601.4652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -2819,7 +2956,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1478.0,
-          "y": 589.12
+          "y": 601.4652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -2850,7 +2987,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1500.0,
-          "y": 585.92
+          "y": 598.2652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -2890,7 +3027,7 @@
       "components": {
         "transform2d.Position": {
           "x": 1522.0,
-          "y": 589.12
+          "y": 601.4652450930699
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3125,7 +3262,7 @@
       "components": {
         "transform2d.Position": {
           "x": 5378.0,
-          "y": 589.12
+          "y": 537.8559175131869
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3156,7 +3293,7 @@
       "components": {
         "transform2d.Position": {
           "x": 5400.0,
-          "y": 585.92
+          "y": 534.6559175131869
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3196,7 +3333,7 @@
       "components": {
         "transform2d.Position": {
           "x": 5422.0,
-          "y": 589.12
+          "y": 537.8559175131869
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3227,7 +3364,7 @@
       "components": {
         "transform2d.Position": {
           "x": 6078.0,
-          "y": 589.12
+          "y": 559.3600553214952
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3258,7 +3395,7 @@
       "components": {
         "transform2d.Position": {
           "x": 6100.0,
-          "y": 585.92
+          "y": 556.1600553214952
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -3298,7 +3435,7 @@
       "components": {
         "transform2d.Position": {
           "x": 6122.0,
-          "y": 589.12
+          "y": 559.3600553214952
         },
         "sprite2d.Sprite": {
           "atlas": "crystal",
@@ -5157,6 +5294,70 @@
       }
     },
     {
+      "name": "jump_hole_swells",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "sprite2d.Sprite.width",
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
+          "out_low": 2,
+          "out_high": 1002.0,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_swells_high",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "sprite2d.Sprite.height",
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
+          "out_low": 2,
+          "out_high": 1002.0,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_hole_rises",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "follow2d.Follow.offset_y",
+          "onto": "jump_hole",
+          "low": 5.0,
+          "high": 1005.0,
+          "out_low": -78,
+          "out_high": -12078,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "jump_strengthens",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.x",
+          "from": "hold",
+          "target": "jump.Jumper.speed",
+          "onto": "hero",
+          "low": 5.0,
+          "high": 8.0,
+          "out_low": 560,
+          "out_high": 1900,
+          "power": 1
+        }
+      }
+    },
+    {
       "name": "dead",
       "components": {
         "transform2d.Position": {
@@ -5660,6 +5861,19 @@
       }
     },
     {
+      "name": "after_end",
+      "components": {
+        "phase.Transition": {
+          "action": "in_orbit",
+          "from": [
+            "end"
+          ],
+          "from_any": false,
+          "to": "orbit"
+        }
+      }
+    },
+    {
       "name": "black_show_clock",
       "components": {
         "rules.OnAction": {
@@ -6041,7 +6255,7 @@
           "action": "harvest_show_done",
           "source": "harvest_key",
           "field": "loadout.Shortcut.action",
-          "value": 9
+          "value": 10
         }
       }
     },
@@ -6099,7 +6313,7 @@
           "action": "walk_show_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 1
+          "value": 2
         }
       }
     },
@@ -6110,7 +6324,7 @@
           "action": "walk_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 23
+          "value": 24
         }
       }
     },
@@ -6121,7 +6335,7 @@
           "action": "jump_show_done",
           "source": "hero",
           "field": "jump.Jumper.action",
-          "value": 1
+          "value": 2
         }
       }
     },
@@ -6396,13 +6610,17 @@
       }
     },
     {
-      "name": "hold_clock_off",
+      "name": "hold",
       "components": {
-        "rules.OnAction": {
-          "action": "after_death_done",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": -1000
+        "transform2d.Position": {
+          "x": -100000,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "hold"
+        },
+        "transform2d.Velocity": {
+          "x": 1
         }
       }
     },
@@ -6425,11 +6643,11 @@
       }
     },
     {
-      "name": "hold_clock",
+      "name": "hold_starts",
       "components": {
         "rules.OnAction": {
           "action": "charge_full",
-          "source": "clock",
+          "source": "hold",
           "field": "transform2d.Position.x",
           "value": 0
         }
@@ -6454,13 +6672,13 @@
       }
     },
     {
-      "name": "hold_clock_lost",
+      "name": "hold_lost",
       "components": {
         "rules.OnAction": {
           "action": "charge_lost",
-          "source": "clock",
+          "source": "hold",
           "field": "transform2d.Position.x",
-          "value": -1000
+          "value": -100000
         }
       }
     },
@@ -6468,11 +6686,11 @@
       "name": "departure_watch",
       "components": {
         "rules.Watch": {
-          "source": "clock",
+          "source": "hero",
           "own": false,
-          "field": "transform2d.Position.x",
+          "field": "transform2d.Position.y",
           "action": "departure_done",
-          "min": 3.8
+          "max": -1300
         },
         "phase.ActiveIn": {
           "phases": [
@@ -7519,6 +7737,54 @@
       }
     },
     {
+      "name": "text_orbit_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 912
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 240
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 976
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 215
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
       "name": "whitein",
       "components": {
         "transform2d.Position": {
@@ -7578,71 +7844,6 @@
         "sprite2d.Parallax": {
           "x": 0.04,
           "y": 0.04
-        }
-      }
-    },
-    {
-      "name": "thrown_up",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "hero",
-          "field": "transform2d.Velocity.y",
-          "value": -1400
-        }
-      }
-    },
-    {
-      "name": "out_of_pull",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "hero",
-          "field": "gravity2d.Gravity.y",
-          "value": -700
-        }
-      }
-    },
-    {
-      "name": "sky_opens",
-      "components": {
-        "rules.OnAction": {
-          "action": "departure_done",
-          "source": "camera",
-          "field": "camera2d.CameraFollow.bound_top",
-          "value": -100000
-        }
-      }
-    },
-    {
-      "name": "orbit_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "hero",
-          "own": false,
-          "field": "transform2d.Position.y",
-          "action": "exploded",
-          "max": -3000
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "end"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "to_drift",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "scene_switch.GoToScene": {
-          "scene": "drift",
-          "use_action": true,
-          "action": "exploded"
         }
       }
     },
@@ -9010,6 +9211,43 @@
       }
     },
     {
+      "name": "world_speed",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "world_speed"
+        },
+        "transform2d.WorldSpeed": {
+          "factor": 1
+        }
+      }
+    },
+    {
+      "name": "demo_jump_slows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.WorldSpeed.factor",
+          "onto": "world_speed",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 1,
+          "t1": 112,
+          "v1": 1,
+          "t2": 130,
+          "v2": 0.25,
+          "t3": 215,
+          "v3": 0.25,
+          "t4": 240,
+          "v4": 1,
+          "start": "walk_done"
+        }
+      }
+    },
+    {
       "name": "pause",
       "components": {
         "transform2d.Position": {
@@ -9251,6 +9489,507 @@
           "toggle": "pause"
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "next_planet",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "next_planet"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "planet",
+          "width": 1400,
+          "height": 1400,
+          "layer": -60,
+          "alpha": 0,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0.75
+        },
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": 1500,
+          "offset_y": -1300,
+          "stiffness": 1
+        }
+      }
+    },
+    {
+      "name": "next_planet_air",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "next_planet_air"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 2100.0,
+          "height": 2100.0,
+          "layer": -61,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0.75
+        },
+        "follow2d.Follow": {
+          "target": "next_planet",
+          "stiffness": 1
+        }
+      }
+    },
+    {
+      "name": "to_follow",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 930
+        },
+        "tag.Tag": {
+          "tag": "to_follow"
+        },
+        "text2d.Text": {
+          "string": "tutorial.next",
+          "font": "font",
+          "size": 44,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        }
+      }
+    },
+    {
+      "name": "space_hole",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "space_hole"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "alpha": 0,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "follow2d.Follow": {
+          "target": "hero",
+          "ahead": 95,
+          "stiffness": 1
+        }
+      }
+    },
+    {
+      "name": "no_steering",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "action_control.Controlled.horizontal",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_jump",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "jump.Jumper.action",
+          "value": 14
+        }
+      }
+    },
+    {
+      "name": "no_powers",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_dust",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero_dust",
+          "field": "particles2d.Emitter.max",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "matter_kept",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "matter",
+          "field": "reserve.Reserve.drain",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "carbon_kept",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "carbon",
+          "field": "reserve.Reserve.drain",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "no_ash",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "ash",
+          "field": "particles2d.Emitter.rate",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "sky_opens",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "camera",
+          "field": "camera2d.CameraFollow.bound_top",
+          "value": -100000
+        }
+      }
+    },
+    {
+      "name": "space_opens",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "camera",
+          "field": "camera2d.CameraFollow.bound_right",
+          "value": 100000
+        }
+      }
+    },
+    {
+      "name": "dome_dissolves",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "dome",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 230,
+          "t1": 240,
+          "v1": 0,
+          "start": "departure_done"
+        }
+      }
+    },
+    {
+      "name": "bent",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "hero",
+          "field": "gravity2d.Gravity.x",
+          "value": 140
+        }
+      }
+    },
+    {
+      "name": "orbit_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "transform2d.Velocity.y",
+          "action": "in_orbit",
+          "min": -320,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "end"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "floats",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "gravity2d.Gravity.y",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "floats_x",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "gravity2d.Gravity.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "steers_x",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.horizontal",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "steers_y",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.vertical",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "steers_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.action_y",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "space_speed",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.speed",
+          "value": 220
+        }
+      }
+    },
+    {
+      "name": "space_start",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.acceleration",
+          "value": 260
+        }
+      }
+    },
+    {
+      "name": "space_stop",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.braking",
+          "value": 70
+        }
+      }
+    },
+    {
+      "name": "space_hole_grows",
+      "components": {
+        "bind.Bind": {
+          "source": "follow2d.Follow.speed",
+          "from": "space_hole",
+          "target": "transform2d.Scale.factor",
+          "onto": "space_hole",
+          "low": 20,
+          "high": 132.0,
+          "out_low": 0,
+          "out_high": 20,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "space_hole_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "space_hole",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 255,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "space_hole_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "space_hole",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 120,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "planet_stays",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "next_planet",
+          "field": "follow2d.Follow.stiffness",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "planet_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "next_planet",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 160,
+          "v1": 255,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "planet_air_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "next_planet_air",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 160,
+          "v1": 70,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "planet_nears",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "next_planet",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0.75,
+          "t1": 600,
+          "v1": 1.0,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "planet_air_nears",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "next_planet_air",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0.75,
+          "t1": 600,
+          "v1": 1.0,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "voyage_zoom",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.Camera.zoom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 1.5,
+          "t1": 240,
+          "v1": 1.08,
+          "t2": 540,
+          "v2": 1.08,
+          "t3": 720,
+          "v3": 1.35,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "to_follow_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "to_follow",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 540,
+          "v1": 0,
+          "t2": 660,
+          "v2": 230,
+          "start": "in_orbit"
+        }
       }
     }
   ]

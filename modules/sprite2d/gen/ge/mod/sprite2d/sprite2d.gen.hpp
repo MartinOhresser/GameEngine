@@ -76,6 +76,7 @@ struct SpriteAnimation {
     std::uint32_t ticks_per_frame = 6U;
     bool looping = true;
     std::uint32_t elapsed = 0U;
+    float carry = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(first_frame);
@@ -83,6 +84,7 @@ struct SpriteAnimation {
         hasher.add(ticks_per_frame);
         hasher.add(looping);
         hasher.add(elapsed);
+        hasher.add(carry);
     }
 
     [[nodiscard]] friend bool operator==(const SpriteAnimation&, const SpriteAnimation&) = default;
@@ -180,7 +182,7 @@ struct Facing {
 /// Runs in FixedUpdate.
 void choose_clip(::ge::ecs::World& world);
 
-/// Advances every SpriteAnimation by one tick and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.
+/// Advances every SpriteAnimation by one tick (by less in a slow motion, transform2d.WorldSpeed: carry keeps the share of a tick not played yet) and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.
 /// Runs in FixedUpdate.
 void animate(::ge::ecs::World& world);
 

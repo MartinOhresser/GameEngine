@@ -1057,12 +1057,24 @@
                   "wave_period": {
                     "type": "number"
                   },
+                  "ahead": {
+                    "type": "number"
+                  },
                   "side": {
                     "type": "integer",
                     "minimum": -2147483648,
                     "maximum": 2147483647
                   },
                   "time": {
+                    "type": "number"
+                  },
+                  "speed": {
+                    "type": "number"
+                  },
+                  "dir_x": {
+                    "type": "number"
+                  },
+                  "dir_y": {
                     "type": "number"
                   }
                 },
@@ -3332,6 +3344,9 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  },
+                  "carry": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false
@@ -3644,6 +3659,11 @@
                   },
                   "grain": {
                     "type": "number"
+                  },
+                  "smooth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
                   },
                   "unlit": {
                     "type": "boolean"
@@ -3968,6 +3988,15 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "transform2d.WorldSpeed": {
+                "type": "object",
+                "properties": {
+                  "factor": {
+                    "type": "number"
                   }
                 },
                 "additionalProperties": false

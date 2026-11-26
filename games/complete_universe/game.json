@@ -41,6 +41,7 @@
   "lists": {
     "action": [
       "move_x",
+      "move_y",
       "jump",
       "out_of_matter",
       "out_of_carbon",
@@ -55,7 +56,7 @@
       "revive",
       "locked",
       "skip",
-      "exploded",
+      "in_orbit",
       "refill",
       "awakens_black",
       "awakens_white",
@@ -111,13 +112,16 @@
       "after_death_done",
       "after_death_next",
       "departure_done",
-      "departure_next"
+      "departure_next",
+      "end_done",
+      "end_next"
     ],
     "layer": [
       "hero",
       "ground",
       "rock",
-      "barrier"
+      "barrier",
+      "back"
     ],
     "tag": [
       "front",
@@ -168,8 +172,20 @@
       "hand_right",
       "story",
       "clock",
-      "stars",
-      "colours",
+      "stars_1",
+      "stars_2",
+      "stars_3",
+      "stars_4",
+      "sky",
+      "hold",
+      "space_hole",
+      "world_speed",
+      "gas",
+      "gas_colour",
+      "births",
+      "ash",
+      "next_planet",
+      "next_planet_air",
       "nebula",
       "nebula_colour",
       "flash",
@@ -213,7 +229,8 @@
       "death",
       "after_death",
       "departure",
-      "end"
+      "end",
+      "orbit"
     ],
     "power": [
       "black",
@@ -251,6 +268,12 @@
   "atlases": [
     "art/sky.json",
     "art/sky_colour.json",
+    "art/stars_1.json",
+    "art/stars_2.json",
+    "art/stars_3.json",
+    "art/stars_4.json",
+    "art/gas.json",
+    "art/gas_colour.json",
     "art/veil.json",
     "art/veil_colour.json",
     "art/hills_far.json",
@@ -289,7 +312,6 @@
     "scenes/title.json",
     "scenes/opening.json",
     "scenes/tutorial.json",
-    "scenes/drift.json",
     "scenes/sandbox.json",
     "scenes/sandbox_low.json"
   ],

@@ -4,46 +4,21 @@
   "name": "opening",
   "entities": [
     {
-      "name": "stars",
+      "name": "void",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
-        "tag.Tag": {
-          "tag": "stars"
-        },
         "sprite2d.Sprite": {
-          "atlas": "sky",
-          "width": 2400,
-          "height": 1350,
-          "layer": -110,
-          "alpha": 0,
-          "unlit": true
-        },
-        "sprite2d.Parallax": {
-          "x": 0,
-          "y": 0
-        }
-      }
-    },
-    {
-      "name": "colours",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "tag.Tag": {
-          "tag": "colours"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "sky_colour",
-          "width": 2400,
-          "height": 1350,
-          "layer": -108,
-          "alpha": 0,
-          "unlit": true
+          "atlas": "plain",
+          "width": 4800,
+          "height": 2700,
+          "layer": -120,
+          "unlit": true,
+          "red": 0,
+          "green": 0,
+          "blue": 0
         },
         "sprite2d.Parallax": {
           "x": 0,
@@ -266,6 +241,185 @@
           "after_ticks": 900,
           "use_action": true,
           "action": "skip"
+        }
+      }
+    },
+    {
+      "name": "gas",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "gas"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "gas",
+          "width": 2400,
+          "height": 1350,
+          "layer": -112,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "gas_colour",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "gas_colour"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "gas_colour",
+          "width": 2400,
+          "height": 1350,
+          "layer": -111,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "stars_4",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "stars_4"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "stars_4",
+          "width": 2400,
+          "height": 1350,
+          "layer": -110,
+          "alpha": 0,
+          "unlit": true,
+          "additive": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "stars_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "stars_3"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "stars_3",
+          "width": 2400,
+          "height": 1350,
+          "layer": -109,
+          "alpha": 0,
+          "unlit": true,
+          "additive": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "stars_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "stars_2"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "stars_2",
+          "width": 2400,
+          "height": 1350,
+          "layer": -108,
+          "alpha": 0,
+          "unlit": true,
+          "additive": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "stars_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "stars_1"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "stars_1",
+          "width": 2400,
+          "height": 1350,
+          "layer": -107,
+          "alpha": 0,
+          "unlit": true,
+          "additive": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "births",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "births"
+        },
+        "particles2d.Emitter": {
+          "rate": 0,
+          "lifetime": 3.5,
+          "lifetime_spread": 1.5,
+          "speed": 0,
+          "size": 5,
+          "end_size": 2,
+          "red": 240,
+          "green": 244,
+          "blue": 255,
+          "alpha": 255,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": -100,
+          "area_width": 3840.0,
+          "area_height": 2160.0,
+          "max": 400
         }
       }
     },
@@ -548,20 +702,99 @@
       }
     },
     {
-      "name": "colours_come",
+      "name": "births_come",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.rate",
+          "onto": "births",
+          "smooth": true,
+          "keys": 4,
+          "t0": 70,
+          "v0": 0,
+          "t1": 110,
+          "v1": 60,
+          "t2": 380,
+          "v2": 60,
+          "t3": 470,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "stars_1_come",
       "components": {
         "tween2d.Track": {
           "field": "sprite2d.Sprite.alpha",
-          "onto": "colours",
+          "onto": "stars_1",
+          "smooth": true,
+          "keys": 2,
+          "t0": 80,
+          "v0": 0,
+          "t1": 170,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "stars_2_come",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "stars_2",
+          "smooth": true,
+          "keys": 2,
+          "t0": 150,
+          "v0": 0,
+          "t1": 250,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "stars_3_come",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "stars_3",
+          "smooth": true,
+          "keys": 2,
+          "t0": 230,
+          "v0": 0,
+          "t1": 340,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "stars_4_come",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "stars_4",
+          "smooth": true,
+          "keys": 2,
+          "t0": 310,
+          "v0": 0,
+          "t1": 440,
+          "v1": 230
+        }
+      }
+    },
+    {
+      "name": "gas_colour_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "gas_colour",
           "smooth": true,
           "keys": 4,
-          "t0": 40,
+          "t0": 170,
           "v0": 0,
-          "t1": 160,
+          "t1": 290,
           "v1": 255,
-          "t2": 300,
+          "t2": 340,
           "v2": 255,
-          "t3": 470,
+          "t3": 480,
           "v3": 0
         }
       }
@@ -574,28 +807,28 @@
           "onto": "nebula_colour",
           "smooth": true,
           "keys": 4,
-          "t0": 60,
+          "t0": 200,
           "v0": 0,
-          "t1": 200,
+          "t1": 300,
           "v1": 230,
-          "t2": 320,
+          "t2": 350,
           "v2": 230,
-          "t3": 480,
+          "t3": 490,
           "v3": 0
         }
       }
     },
     {
-      "name": "stars_come",
+      "name": "gas_comes",
       "components": {
         "tween2d.Track": {
           "field": "sprite2d.Sprite.alpha",
-          "onto": "stars",
+          "onto": "gas",
           "smooth": true,
           "keys": 2,
-          "t0": 260,
+          "t0": 330,
           "v0": 0,
-          "t1": 470,
+          "t1": 480,
           "v1": 255
         }
       }
@@ -608,7 +841,7 @@
           "onto": "nebula",
           "smooth": true,
           "keys": 2,
-          "t0": 300,
+          "t0": 340,
           "v0": 0,
           "t1": 520,
           "v1": 210

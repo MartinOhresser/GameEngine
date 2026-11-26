@@ -4,6 +4,7 @@
 #include "ge/mod/sprite2d/sprite2d.gen.hpp"
 #include "ge/mod/transform2d/drawn.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/transform2d/world_speed.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -250,14 +251,22 @@ void face(ecs::World& world) {
 }
 
 void animate(ecs::World& world) {
-    world.each<Sprite, SpriteAnimation>([](ecs::Entity, Sprite& sprite, SpriteAnimation& anim) {
+    // The world slowed down plays a tick of animation every few ticks (carry keeps the rest).
+    constexpr float most_ticks = 8.0F;
+    const float speed = std::clamp(transform2d::world_speed(world), 0.0F, most_ticks);
+    world.each<Sprite, SpriteAnimation>([speed](ecs::Entity, Sprite& sprite,
+                                                SpriteAnimation& anim) {
         const std::uint32_t count = std::max<std::uint32_t>(anim.frame_count, 1U);
         const std::uint32_t length = std::max<std::uint32_t>(anim.ticks_per_frame, 1U);
         const std::uint32_t total = count * length;
-        if (anim.looping) {
-            anim.elapsed = (anim.elapsed + 1U) % total;
-        } else if (anim.elapsed < total - 1U) {
-            ++anim.elapsed; // stops on the last tick of the last cell
+        anim.carry += speed;
+        while (anim.carry >= 1.0F) {
+            anim.carry -= 1.0F;
+            if (anim.looping) {
+                anim.elapsed = (anim.elapsed + 1U) % total;
+            } else if (anim.elapsed < total - 1U) {
+                anim.elapsed += 1U; // stops on the last tick of the last cell
+            }
         }
         sprite.frame = anim.first_frame + std::min(anim.elapsed / length, count - 1U);
     });

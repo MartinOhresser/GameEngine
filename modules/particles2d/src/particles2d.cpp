@@ -4,6 +4,7 @@
 #include "ge/mod/particles2d/particles2d.gen.hpp"
 #include "ge/mod/sprite2d/layered.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
+#include "ge/mod/transform2d/world_speed.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -195,8 +196,7 @@ app::DrawCommand command_for(const Emitter& e, const Particle& p, float alpha) {
 
 void advance(ecs::World& world) {
     Clouds& all = clouds_of(world);
-    const float step = world.resource<app::Time>()->fixed_delta *
-                       world.resource<transform2d::Params>()->speed_scale;
+    const float step = world.resource<app::Time>()->fixed_delta * transform2d::world_speed(world);
     for (auto& [key, cloud] : all.clouds) {
         cloud.seen = false;
     }

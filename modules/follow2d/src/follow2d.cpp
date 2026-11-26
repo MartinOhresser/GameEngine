@@ -33,6 +33,21 @@ void track_side(const ecs::World& world, ecs::Entity target, Follow& follow) {
     }
 }
 
+/// How fast the target goes, and the way it last went (kept while it stands still).
+void track_way(const ecs::World& world, ecs::Entity target, Follow& follow) {
+    constexpr float still = 1.0F;
+    const auto* velocity = world.get<transform2d::Velocity>(target);
+    if (velocity == nullptr) {
+        follow.speed = 0.0F;
+        return;
+    }
+    follow.speed = std::hypot(velocity->x, velocity->y);
+    if (follow.speed > still) {
+        follow.dir_x = velocity->x / follow.speed;
+        follow.dir_y = velocity->y / follow.speed;
+    }
+}
+
 } // namespace
 
 void follow(ecs::World& world) {
@@ -52,8 +67,9 @@ void follow(ecs::World& world) {
                 track_side(world, target, follow);
                 offset_x *= follow.side < 0 ? -1.0F : 1.0F;
             }
-            float aim_x = place->x + offset_x;
-            float aim_y = place->y + follow.offset_y;
+            track_way(world, target, follow);
+            float aim_x = place->x + offset_x + follow.ahead * follow.dir_x;
+            float aim_y = place->y + follow.offset_y + follow.ahead * follow.dir_y;
             if (follow.wave_period > 0.0F && (follow.wave_x != 0.0F || follow.wave_y != 0.0F)) {
                 follow.time = std::fmod(follow.time + step, follow.wave_period);
                 const float turn_angle =

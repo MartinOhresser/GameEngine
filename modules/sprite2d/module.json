@@ -49,7 +49,8 @@
         { "name": "frame_count", "type": "u32", "default": 1 },
         { "name": "ticks_per_frame", "type": "u32", "default": 6 },
         { "name": "looping", "type": "bool", "default": true },
-        { "name": "elapsed", "type": "u32", "default": 0 }
+        { "name": "elapsed", "type": "u32", "default": 0 },
+        { "name": "carry", "type": "f32", "default": 0 }
       ]
     },
     {
@@ -118,9 +119,9 @@
     },
     {
       "name": "animate",
-      "description": "Advances every SpriteAnimation by one tick and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.",
+      "description": "Advances every SpriteAnimation by one tick (by less in a slow motion, transform2d.WorldSpeed: carry keeps the share of a tick not played yet) and sets its Sprite's frame. It runs in the simulation, so an animation is the same on every run and every machine.",
       "stage": "FixedUpdate",
-      "reads": [],
+      "reads": ["transform2d.WorldSpeed"],
       "writes": ["Sprite", "SpriteAnimation"]
     },
     {

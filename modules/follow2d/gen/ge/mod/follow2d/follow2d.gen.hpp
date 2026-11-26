@@ -11,7 +11,7 @@
 
 namespace ge::mod::follow2d {
 
-/// Moves the entity's Position towards a place near its target: the entity that answers to target (a tag.Tag; the oldest when several do), or with owner the entity of its transform2d.Owner. The place is the target's Position moved by (offset_x, offset_y). stiffness is the share of the distance covered each tick: 1 sticks to the place, 0.1 glides after it, 0 does not move. With turn, offset_x is the one for a target going right (a negative one is behind it, a positive one ahead of it) and is turned round when the target goes left (its transform2d.Velocity x below -1), so that the follower stays behind it, or ahead of it, whichever way it goes; side keeps the way it last went (1 right, -1 left). wave_x and wave_y make the place float around: it moves back and forth by up to that many units, along x and along y, once every wave_period seconds (the y wave goes twice as fast as the x one, so together they draw a slow figure of eight). side and time (the seconds into the wave) are the module's own state. Nothing happens while the target is missing.
+/// Moves the entity's Position towards a place near its target: the entity that answers to target (a tag.Tag; the oldest when several do), or with owner the entity of its transform2d.Owner. The place is the target's Position moved by (offset_x, offset_y). stiffness is the share of the distance covered each tick: 1 sticks to the place, 0.1 glides after it, 0 does not move. With turn, offset_x is the one for a target going right (a negative one is behind it, a positive one ahead of it) and is turned round when the target goes left (its transform2d.Velocity x below -1), so that the follower stays behind it, or ahead of it, whichever way it goes; side keeps the way it last went (1 right, -1 left). ahead moves the place that many units further along the way the target moves, in any direction (a light ahead of a diver, the pull ahead of a swimmer, a guide ahead of a ship); the module keeps speed, how fast the target goes (a picture can grow while it moves), and dir_x and dir_y, the way it last went (a length of 1). wave_x and wave_y make the place float around: it moves back and forth by up to that many units, along x and along y, once every wave_period seconds (the y wave goes twice as fast as the x one, so together they draw a slow figure of eight). side, time (the seconds into the wave), speed, dir_x and dir_y are the module's own state. Nothing happens while the target is missing.
 struct Follow {
     std::uint32_t target = 0U;
     bool owner = false;
@@ -22,8 +22,12 @@ struct Follow {
     float wave_x = 0.0F;
     float wave_y = 0.0F;
     float wave_period = 4.0F;
+    float ahead = 0.0F;
     std::int32_t side = 1;
     float time = 0.0F;
+    float speed = 0.0F;
+    float dir_x = 1.0F;
+    float dir_y = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(target);
@@ -35,8 +39,12 @@ struct Follow {
         hasher.add(wave_x);
         hasher.add(wave_y);
         hasher.add(wave_period);
+        hasher.add(ahead);
         hasher.add(side);
         hasher.add(time);
+        hasher.add(speed);
+        hasher.add(dir_x);
+        hasher.add(dir_y);
     }
 
     [[nodiscard]] friend bool operator==(const Follow&, const Follow&) = default;
