@@ -102,7 +102,8 @@
           "height": 300,
           "layer": 51,
           "additive": true,
-          "unlit": true
+          "unlit": true,
+          "alpha": 0
         },
         "transform2d.Scale": {
           "factor": 0.2
@@ -122,56 +123,29 @@
         "camera2d.Camera": {
           "zoom": 1.9500000000000002
         },
+        "camera2d.CameraShake": {
+          "strength": 0,
+          "decay": 3,
+          "speed": 30
+        },
         "follow2d.Follow": {
           "target": "wanderer",
           "stiffness": 0.06
+        },
+        "light2d.Ambient": {
+          "red": 92,
+          "green": 94,
+          "blue": 106
         },
         "postfx.Effects": {
           "bloom": 0.8,
           "vignette": 0.5,
           "vignette_size": 0.4,
-          "grain": 0.05
-        }
-      }
-    },
-    {
-      "name": "great_barrier",
-      "components": {
-        "transform2d.Position": {
-          "x": 2400,
-          "y": 1500
-        },
-        "tag.Tag": {
-          "tag": "great_barrier"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "barrier",
-          "frame": 0,
-          "width": 3300,
-          "height": 3300,
-          "layer": 20,
-          "alpha": 0,
-          "unlit": true
-        }
-      }
-    },
-    {
-      "name": "planet",
-      "components": {
-        "transform2d.Position": {
-          "x": 2400,
-          "y": 1845
-        },
-        "tag.Tag": {
-          "tag": "planet"
-        },
-        "sprite2d.Sprite": {
-          "atlas": "planet",
-          "width": 1500,
-          "height": 1500,
-          "layer": 10,
-          "alpha": 0,
-          "unlit": true
+          "grain": 0.05,
+          "rays": 0,
+          "rays_x": 0.5,
+          "rays_y": 0.08,
+          "rays_length": 0.22
         }
       }
     },
@@ -191,6 +165,7 @@
           "width": 128,
           "height": 128,
           "layer": 45,
+          "alpha": 0,
           "unlit": true
         },
         "sprite2d.SpriteAnimation": {
@@ -198,6 +173,16 @@
           "frame_count": 24,
           "ticks_per_frame": 3,
           "looping": true
+        },
+        "light2d.Light": {
+          "radius": 340,
+          "red": 232,
+          "green": 236,
+          "blue": 246,
+          "intensity": 0.95,
+          "offset_y": -24,
+          "flicker": 0.05,
+          "flicker_speed": 2
         },
         "transform2d.Scale": {
           "factor": 0.02
@@ -228,21 +213,6 @@
           "alpha": 0,
           "unlit": true,
           "layer": 1000
-        }
-      }
-    },
-    {
-      "name": "to_tutorial",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
-        "scene_switch.GoToScene": {
-          "scene": "tutorial",
-          "after_ticks": 1430,
-          "use_action": true,
-          "action": "skip"
         }
       }
     },
@@ -419,19 +389,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "void",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -442,19 +408,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "nebula",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -465,19 +427,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "nebula_colour",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -488,19 +446,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "gas",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -511,19 +465,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "gas_colour",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -534,19 +484,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "stars_1",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -557,19 +503,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "stars_2",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -580,19 +522,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "stars_3",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -603,19 +541,15 @@
           "field": "transform2d.Scale.factor",
           "onto": "stars_4",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 0.5128,
-          "t1": 240,
+          "t1": 460,
           "v1": 1.2121,
-          "t2": 720,
+          "t2": 940,
           "v2": 0.4167,
-          "t3": 880,
-          "v3": 0.7407,
-          "t4": 1100,
-          "v4": 1.5873,
-          "t5": 1380,
-          "v5": 0.2778
+          "t3": 1100,
+          "v3": 0.6667
         }
       }
     },
@@ -657,9 +591,13 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_pink"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 2.2,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -682,15 +620,32 @@
       }
     },
     {
+      "name": "burst_pink_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_pink",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_violet",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_violet"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 2.8000000000000003,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -713,15 +668,32 @@
       }
     },
     {
+      "name": "burst_violet_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_violet",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_orange",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_orange"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 3.4000000000000004,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -744,15 +716,32 @@
       }
     },
     {
+      "name": "burst_orange_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_orange",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_red",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_red"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 4.0,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -775,15 +764,32 @@
       }
     },
     {
+      "name": "burst_red_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_red",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_yellow",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_yellow"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 4.6,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -806,15 +812,32 @@
       }
     },
     {
+      "name": "burst_yellow_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_yellow",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_green",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_green"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 5.2,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -837,15 +860,32 @@
       }
     },
     {
+      "name": "burst_green_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_green",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_blue",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_blue"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 5.8,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -868,15 +908,32 @@
       }
     },
     {
+      "name": "burst_blue_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_blue",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "burst_grey",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "burst_grey"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 160,
+          "active": false,
           "lifetime": 9,
           "lifetime_spread": 0.5,
           "speed": 440,
@@ -899,6 +956,19 @@
       }
     },
     {
+      "name": "burst_grey_goes",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "burst_grey",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "core",
       "components": {
         "transform2d.Position": {
@@ -914,6 +984,7 @@
           "height": 700,
           "layer": 50,
           "additive": true,
+          "alpha": 0,
           "unlit": true
         },
         "transform2d.Scale": {
@@ -929,13 +1000,13 @@
           "onto": "core",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 20,
+          "t1": 240,
           "v1": 1.1,
-          "t2": 170,
+          "t2": 390,
           "v2": 1.25,
-          "t3": 470,
+          "t3": 690,
           "v3": 0.5
         }
       }
@@ -948,11 +1019,11 @@
           "onto": "core",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 255,
-          "t1": 170,
+          "t1": 390,
           "v1": 255,
-          "t2": 470,
+          "t2": 690,
           "v2": 0
         }
       }
@@ -993,11 +1064,11 @@
           "onto": "rays_a",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.15,
-          "t1": 30,
+          "t1": 250,
           "v1": 1.0,
-          "t2": 320,
+          "t2": 540,
           "v2": 2.6
         }
       }
@@ -1010,13 +1081,13 @@
           "onto": "rays_a",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 6,
+          "t1": 226,
           "v1": 200,
-          "t2": 140,
+          "t2": 360,
           "v2": 150,
-          "t3": 380,
+          "t3": 600,
           "v3": 0
         }
       }
@@ -1029,9 +1100,9 @@
           "onto": "rays_a",
           "smooth": false,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 9000,
+          "t1": 9220,
           "v1": 360
         }
       }
@@ -1072,11 +1143,11 @@
           "onto": "rays_b",
           "smooth": true,
           "keys": 3,
-          "t0": 10,
+          "t0": 230,
           "v0": 0.3,
-          "t1": 60,
+          "t1": 280,
           "v1": 1.4,
-          "t2": 380,
+          "t2": 600,
           "v2": 3.4
         }
       }
@@ -1089,13 +1160,13 @@
           "onto": "rays_b",
           "smooth": true,
           "keys": 4,
-          "t0": 10,
+          "t0": 230,
           "v0": 0,
-          "t1": 35,
+          "t1": 255,
           "v1": 130,
-          "t2": 210,
+          "t2": 430,
           "v2": 90,
-          "t3": 430,
+          "t3": 650,
           "v3": 0
         }
       }
@@ -1108,9 +1179,9 @@
           "onto": "rays_b",
           "smooth": false,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 9000,
+          "t1": 9220,
           "v1": -360
         }
       }
@@ -1148,11 +1219,11 @@
           "onto": "streak",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.4,
-          "t1": 40,
+          "t1": 260,
           "v1": 1.0,
-          "t2": 420,
+          "t2": 640,
           "v2": 1.3
         }
       }
@@ -1165,13 +1236,13 @@
           "onto": "streak",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 12,
+          "t1": 232,
           "v1": 255,
-          "t2": 200,
+          "t2": 420,
           "v2": 170,
-          "t3": 430,
+          "t3": 650,
           "v3": 0
         }
       }
@@ -1209,13 +1280,13 @@
           "onto": "ghost_0",
           "smooth": true,
           "keys": 4,
-          "t0": 8,
+          "t0": 228,
           "v0": 0,
-          "t1": 40,
+          "t1": 260,
           "v1": 120,
-          "t2": 180,
+          "t2": 400,
           "v2": 90,
-          "t3": 320,
+          "t3": 540,
           "v3": 0
         }
       }
@@ -1253,13 +1324,13 @@
           "onto": "ghost_1",
           "smooth": true,
           "keys": 4,
-          "t0": 8,
+          "t0": 228,
           "v0": 0,
-          "t1": 40,
+          "t1": 260,
           "v1": 120,
-          "t2": 180,
+          "t2": 400,
           "v2": 90,
-          "t3": 320,
+          "t3": 540,
           "v3": 0
         }
       }
@@ -1297,13 +1368,13 @@
           "onto": "ghost_2",
           "smooth": true,
           "keys": 4,
-          "t0": 8,
+          "t0": 228,
           "v0": 0,
-          "t1": 40,
+          "t1": 260,
           "v1": 120,
-          "t2": 180,
+          "t2": 400,
           "v2": 90,
-          "t3": 320,
+          "t3": 540,
           "v3": 0
         }
       }
@@ -1341,13 +1412,13 @@
           "onto": "ghost_3",
           "smooth": true,
           "keys": 4,
-          "t0": 8,
+          "t0": 228,
           "v0": 0,
-          "t1": 40,
+          "t1": 260,
           "v1": 120,
-          "t2": 180,
+          "t2": 400,
           "v2": 90,
-          "t3": 320,
+          "t3": 540,
           "v3": 0
         }
       }
@@ -1356,8 +1427,8 @@
       "name": "cloud_0",
       "components": {
         "transform2d.Position": {
-          "x": 320,
-          "y": 44
+          "x": 133,
+          "y": 18
         },
         "tag.Tag": {
           "tag": "cloud_0"
@@ -1395,13 +1466,13 @@
           "onto": "cloud_0",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 39,
+          "t1": 259,
           "v1": 247,
-          "t2": 336,
+          "t2": 556,
           "v2": 198,
-          "t3": 496,
+          "t3": 716,
           "v3": 0
         }
       }
@@ -1414,11 +1485,11 @@
           "onto": "cloud_0",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1431,9 +1502,9 @@
           "onto": "cloud_0",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 235,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 250
         }
       }
@@ -1442,8 +1513,8 @@
       "name": "cloud_1",
       "components": {
         "transform2d.Position": {
-          "x": -190,
-          "y": 181
+          "x": 0,
+          "y": 0
         },
         "tag.Tag": {
           "tag": "cloud_1"
@@ -1481,13 +1552,13 @@
           "onto": "cloud_1",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 52,
+          "t1": 272,
           "v1": 217,
-          "t2": 387,
+          "t2": 607,
           "v2": 174,
-          "t3": 547,
+          "t3": 767,
           "v3": 0
         }
       }
@@ -1500,11 +1571,11 @@
           "onto": "cloud_1",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1517,9 +1588,9 @@
           "onto": "cloud_1",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 164,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 177
         }
       }
@@ -1528,8 +1599,8 @@
       "name": "cloud_2",
       "components": {
         "transform2d.Position": {
-          "x": 61,
-          "y": -345
+          "x": 34,
+          "y": -195
         },
         "tag.Tag": {
           "tag": "cloud_2"
@@ -1567,13 +1638,13 @@
           "onto": "cloud_2",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 31,
+          "t1": 251,
           "v1": 247,
-          "t2": 448,
+          "t2": 668,
           "v2": 198,
-          "t3": 608,
+          "t3": 828,
           "v3": 0
         }
       }
@@ -1586,11 +1657,11 @@
           "onto": "cloud_2",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1603,9 +1674,9 @@
           "onto": "cloud_2",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 195,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 218
         }
       }
@@ -1614,8 +1685,8 @@
       "name": "cloud_3",
       "components": {
         "transform2d.Position": {
-          "x": 234,
-          "y": 216
+          "x": -59,
+          "y": -54
         },
         "tag.Tag": {
           "tag": "cloud_3"
@@ -1653,13 +1724,13 @@
           "onto": "cloud_3",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 50,
+          "t1": 270,
           "v1": 235,
-          "t2": 491,
+          "t2": 711,
           "v2": 188,
-          "t3": 651,
+          "t3": 871,
           "v3": 0
         }
       }
@@ -1672,11 +1743,11 @@
           "onto": "cloud_3",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1689,9 +1760,9 @@
           "onto": "cloud_3",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 339,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 320
         }
       }
@@ -1700,8 +1771,8 @@
       "name": "cloud_4",
       "components": {
         "transform2d.Position": {
-          "x": -284,
-          "y": 18
+          "x": 108,
+          "y": -7
         },
         "tag.Tag": {
           "tag": "cloud_4"
@@ -1739,13 +1810,13 @@
           "onto": "cloud_4",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 49,
+          "t1": 269,
           "v1": 207,
-          "t2": 539,
+          "t2": 759,
           "v2": 166,
-          "t3": 699,
+          "t3": 919,
           "v3": 0
         }
       }
@@ -1758,11 +1829,11 @@
           "onto": "cloud_4",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1775,9 +1846,9 @@
           "onto": "cloud_4",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 245,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 268
         }
       }
@@ -1786,8 +1857,8 @@
       "name": "cloud_5",
       "components": {
         "transform2d.Position": {
-          "x": 331,
-          "y": -143
+          "x": 80,
+          "y": -35
         },
         "tag.Tag": {
           "tag": "cloud_5"
@@ -1825,13 +1896,13 @@
           "onto": "cloud_5",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 70,
+          "t1": 290,
           "v1": 218,
-          "t2": 567,
+          "t2": 787,
           "v2": 174,
-          "t3": 727,
+          "t3": 947,
           "v3": 0
         }
       }
@@ -1844,11 +1915,11 @@
           "onto": "cloud_5",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1861,9 +1932,9 @@
           "onto": "cloud_5",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 164,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 151
         }
       }
@@ -1872,8 +1943,8 @@
       "name": "cloud_6",
       "components": {
         "transform2d.Position": {
-          "x": -86,
-          "y": 175
+          "x": 65,
+          "y": -132
         },
         "tag.Tag": {
           "tag": "cloud_6"
@@ -1911,13 +1982,13 @@
           "onto": "cloud_6",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 53,
+          "t1": 273,
           "v1": 222,
-          "t2": 358,
+          "t2": 578,
           "v2": 178,
-          "t3": 518,
+          "t3": 738,
           "v3": 0
         }
       }
@@ -1930,11 +2001,11 @@
           "onto": "cloud_6",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -1947,9 +2018,9 @@
           "onto": "cloud_6",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 87,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 88
         }
       }
@@ -1958,8 +2029,8 @@
       "name": "cloud_7",
       "components": {
         "transform2d.Position": {
-          "x": -76,
-          "y": -276
+          "x": -27,
+          "y": -99
         },
         "tag.Tag": {
           "tag": "cloud_7"
@@ -1997,13 +2068,13 @@
           "onto": "cloud_7",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 69,
+          "t1": 289,
           "v1": 226,
-          "t2": 381,
+          "t2": 601,
           "v2": 181,
-          "t3": 541,
+          "t3": 761,
           "v3": 0
         }
       }
@@ -2016,11 +2087,11 @@
           "onto": "cloud_7",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2033,9 +2104,9 @@
           "onto": "cloud_7",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 259,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 243
         }
       }
@@ -2044,8 +2115,8 @@
       "name": "cloud_8",
       "components": {
         "transform2d.Position": {
-          "x": 201,
-          "y": 122
+          "x": -134,
+          "y": -82
         },
         "tag.Tag": {
           "tag": "cloud_8"
@@ -2083,13 +2154,13 @@
           "onto": "cloud_8",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 47,
+          "t1": 267,
           "v1": 239,
-          "t2": 429,
+          "t2": 649,
           "v2": 191,
-          "t3": 589,
+          "t3": 809,
           "v3": 0
         }
       }
@@ -2102,11 +2173,11 @@
           "onto": "cloud_8",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2119,9 +2190,9 @@
           "onto": "cloud_8",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 13,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 28
         }
       }
@@ -2130,8 +2201,8 @@
       "name": "cloud_9",
       "components": {
         "transform2d.Position": {
-          "x": -270,
-          "y": 13
+          "x": 98,
+          "y": -5
         },
         "tag.Tag": {
           "tag": "cloud_9"
@@ -2169,13 +2240,13 @@
           "onto": "cloud_9",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 36,
+          "t1": 256,
           "v1": 209,
-          "t2": 495,
+          "t2": 715,
           "v2": 167,
-          "t3": 655,
+          "t3": 875,
           "v3": 0
         }
       }
@@ -2188,11 +2259,11 @@
           "onto": "cloud_9",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2205,9 +2276,9 @@
           "onto": "cloud_9",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 240,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 252
         }
       }
@@ -2216,8 +2287,8 @@
       "name": "cloud_10",
       "components": {
         "transform2d.Position": {
-          "x": 23,
-          "y": -172
+          "x": -35,
+          "y": 259
         },
         "tag.Tag": {
           "tag": "cloud_10"
@@ -2255,13 +2326,13 @@
           "onto": "cloud_10",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 67,
+          "t1": 287,
           "v1": 215,
-          "t2": 512,
+          "t2": 732,
           "v2": 172,
-          "t3": 672,
+          "t3": 892,
           "v3": 0
         }
       }
@@ -2274,11 +2345,11 @@
           "onto": "cloud_10",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2291,9 +2362,9 @@
           "onto": "cloud_10",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 35,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 59
         }
       }
@@ -2302,8 +2373,8 @@
       "name": "cloud_11",
       "components": {
         "transform2d.Position": {
-          "x": 38,
-          "y": 336
+          "x": -3,
+          "y": -30
         },
         "tag.Tag": {
           "tag": "cloud_11"
@@ -2341,13 +2412,13 @@
           "onto": "cloud_11",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 63,
+          "t1": 283,
           "v1": 217,
-          "t2": 572,
+          "t2": 792,
           "v2": 174,
-          "t3": 732,
+          "t3": 952,
           "v3": 0
         }
       }
@@ -2360,11 +2431,11 @@
           "onto": "cloud_11",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2377,9 +2448,9 @@
           "onto": "cloud_11",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 20,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 16
         }
       }
@@ -2388,8 +2459,8 @@
       "name": "cloud_12",
       "components": {
         "transform2d.Position": {
-          "x": -302,
-          "y": -110
+          "x": 131,
+          "y": 48
         },
         "tag.Tag": {
           "tag": "cloud_12"
@@ -2427,13 +2498,13 @@
           "onto": "cloud_12",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 36,
+          "t1": 256,
           "v1": 216,
-          "t2": 353,
+          "t2": 573,
           "v2": 173,
-          "t3": 513,
+          "t3": 733,
           "v3": 0
         }
       }
@@ -2446,11 +2517,11 @@
           "onto": "cloud_12",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2463,9 +2534,9 @@
           "onto": "cloud_12",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 202,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 214
         }
       }
@@ -2474,8 +2545,8 @@
       "name": "cloud_13",
       "components": {
         "transform2d.Position": {
-          "x": 304,
-          "y": -134
+          "x": 18,
+          "y": -8
         },
         "tag.Tag": {
           "tag": "cloud_13"
@@ -2513,13 +2584,13 @@
           "onto": "cloud_13",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 31,
+          "t1": 251,
           "v1": 250,
-          "t2": 389,
+          "t2": 609,
           "v2": 200,
-          "t3": 549,
+          "t3": 769,
           "v3": 0
         }
       }
@@ -2532,11 +2603,11 @@
           "onto": "cloud_13",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2549,9 +2620,9 @@
           "onto": "cloud_13",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 204,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 237
         }
       }
@@ -2560,8 +2631,8 @@
       "name": "cloud_14",
       "components": {
         "transform2d.Position": {
-          "x": -266,
-          "y": 260
+          "x": 34,
+          "y": -33
         },
         "tag.Tag": {
           "tag": "cloud_14"
@@ -2599,13 +2670,13 @@
           "onto": "cloud_14",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 36,
+          "t1": 256,
           "v1": 205,
-          "t2": 429,
+          "t2": 649,
           "v2": 164,
-          "t3": 589,
+          "t3": 809,
           "v3": 0
         }
       }
@@ -2618,11 +2689,11 @@
           "onto": "cloud_14",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2635,9 +2706,9 @@
           "onto": "cloud_14",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 315,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 314
         }
       }
@@ -2646,8 +2717,8 @@
       "name": "cloud_15",
       "components": {
         "transform2d.Position": {
-          "x": -71,
-          "y": -195
+          "x": 45,
+          "y": 123
         },
         "tag.Tag": {
           "tag": "cloud_15"
@@ -2685,13 +2756,13 @@
           "onto": "cloud_15",
           "smooth": true,
           "keys": 4,
-          "t0": 4,
+          "t0": 224,
           "v0": 0,
-          "t1": 65,
+          "t1": 285,
           "v1": 238,
-          "t2": 465,
+          "t2": 685,
           "v2": 190,
-          "t3": 625,
+          "t3": 845,
           "v3": 0
         }
       }
@@ -2704,11 +2775,11 @@
           "onto": "cloud_15",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2721,9 +2792,9 @@
           "onto": "cloud_15",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 173,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 191
         }
       }
@@ -2732,8 +2803,8 @@
       "name": "cloud_16",
       "components": {
         "transform2d.Position": {
-          "x": 370,
-          "y": 442
+          "x": 72,
+          "y": 86
         },
         "tag.Tag": {
           "tag": "cloud_16"
@@ -2769,11 +2840,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_16",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 509,
-          "v1": 71
+          "t1": 671,
+          "v1": 107,
+          "t2": 1320,
+          "v2": 107,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -2785,11 +2860,11 @@
           "onto": "cloud_16",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2802,9 +2877,9 @@
           "onto": "cloud_16",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 30,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 39
         }
       }
@@ -2813,8 +2888,8 @@
       "name": "cloud_17",
       "components": {
         "transform2d.Position": {
-          "x": -665,
-          "y": -28
+          "x": -486,
+          "y": -21
         },
         "tag.Tag": {
           "tag": "cloud_17"
@@ -2850,11 +2925,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_17",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 478,
-          "v1": 85
+          "t1": 693,
+          "v1": 87,
+          "t2": 1320,
+          "v2": 87,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -2866,11 +2945,11 @@
           "onto": "cloud_17",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2883,9 +2962,9 @@
           "onto": "cloud_17",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 273,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 251
         }
       }
@@ -2894,8 +2973,8 @@
       "name": "cloud_18",
       "components": {
         "transform2d.Position": {
-          "x": 212,
-          "y": -439
+          "x": 139,
+          "y": -288
         },
         "tag.Tag": {
           "tag": "cloud_18"
@@ -2931,11 +3010,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_18",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 483,
-          "v1": 100
+          "t1": 719,
+          "v1": 91,
+          "t2": 1320,
+          "v2": 91,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -2947,11 +3030,11 @@
           "onto": "cloud_18",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -2964,9 +3047,9 @@
           "onto": "cloud_18",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 264,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 296
         }
       }
@@ -2975,8 +3058,8 @@
       "name": "cloud_19",
       "components": {
         "transform2d.Position": {
-          "x": 97,
-          "y": 531
+          "x": 31,
+          "y": 169
         },
         "tag.Tag": {
           "tag": "cloud_19"
@@ -3012,11 +3095,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_19",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 463,
-          "v1": 89
+          "t1": 700,
+          "v1": 78,
+          "t2": 1320,
+          "v2": 78,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3028,11 +3115,11 @@
           "onto": "cloud_19",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -3045,9 +3132,9 @@
           "onto": "cloud_19",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 123,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 127
         }
       }
@@ -3056,8 +3143,8 @@
       "name": "cloud_20",
       "components": {
         "transform2d.Position": {
-          "x": -134,
-          "y": -348
+          "x": 21,
+          "y": 53
         },
         "tag.Tag": {
           "tag": "cloud_20"
@@ -3093,11 +3180,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_20",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 496,
-          "v1": 71
+          "t1": 672,
+          "v1": 99,
+          "t2": 1320,
+          "v2": 99,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3109,11 +3200,11 @@
           "onto": "cloud_20",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -3126,9 +3217,9 @@
           "onto": "cloud_20",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 132,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 166
         }
       }
@@ -3137,8 +3228,8 @@
       "name": "cloud_21",
       "components": {
         "transform2d.Position": {
-          "x": 317,
-          "y": 40
+          "x": -89,
+          "y": -11
         },
         "tag.Tag": {
           "tag": "cloud_21"
@@ -3174,11 +3265,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "cloud_21",
           "smooth": true,
-          "keys": 2,
-          "t0": 250,
+          "keys": 4,
+          "t0": 470,
           "v0": 0,
-          "t1": 529,
-          "v1": 84
+          "t1": 692,
+          "v1": 119,
+          "t2": 1320,
+          "v2": 119,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3190,11 +3285,11 @@
           "onto": "cloud_21",
           "smooth": true,
           "keys": 3,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.3,
-          "t1": 220,
+          "t1": 440,
           "v1": 1.0,
-          "t2": 1430,
+          "t2": 2050,
           "v2": 1.9
         }
       }
@@ -3207,9 +3302,9 @@
           "onto": "cloud_21",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 265,
-          "t1": 1430,
+          "t1": 2050,
           "v1": 269
         }
       }
@@ -3218,8 +3313,8 @@
       "name": "glow_0",
       "components": {
         "transform2d.Position": {
-          "x": 107,
-          "y": 90
+          "x": -19,
+          "y": -16
         },
         "tag.Tag": {
           "tag": "glow_0"
@@ -3250,13 +3345,13 @@
           "onto": "glow_0",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 25,
+          "t1": 245,
           "v1": 170,
-          "t2": 160,
+          "t2": 380,
           "v2": 120,
-          "t3": 330,
+          "t3": 550,
           "v3": 0
         }
       }
@@ -3265,8 +3360,8 @@
       "name": "glow_1",
       "components": {
         "transform2d.Position": {
-          "x": -99,
-          "y": 99
+          "x": 18,
+          "y": -18
         },
         "tag.Tag": {
           "tag": "glow_1"
@@ -3297,13 +3392,13 @@
           "onto": "glow_1",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 35,
+          "t1": 255,
           "v1": 170,
-          "t2": 210,
+          "t2": 430,
           "v2": 120,
-          "t3": 390,
+          "t3": 610,
           "v3": 0
         }
       }
@@ -3312,8 +3407,8 @@
       "name": "glow_2",
       "components": {
         "transform2d.Position": {
-          "x": -90,
-          "y": -107
+          "x": 16,
+          "y": 19
         },
         "tag.Tag": {
           "tag": "glow_2"
@@ -3344,13 +3439,13 @@
           "onto": "glow_2",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 45,
+          "t1": 265,
           "v1": 170,
-          "t2": 260,
+          "t2": 480,
           "v2": 120,
-          "t3": 450,
+          "t3": 670,
           "v3": 0
         }
       }
@@ -3359,8 +3454,8 @@
       "name": "glow_3",
       "components": {
         "transform2d.Position": {
-          "x": 115,
-          "y": -80
+          "x": -20,
+          "y": 14
         },
         "tag.Tag": {
           "tag": "glow_3"
@@ -3391,13 +3486,13 @@
           "onto": "glow_3",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0,
-          "t1": 55,
+          "t1": 275,
           "v1": 170,
-          "t2": 310,
+          "t2": 530,
           "v2": 120,
-          "t3": 510,
+          "t3": 730,
           "v3": 0
         }
       }
@@ -3409,9 +3504,13 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_0"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3434,15 +3533,32 @@
       }
     },
     {
+      "name": "rocks_0_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_0",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_1",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_1"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3465,15 +3581,32 @@
       }
     },
     {
+      "name": "rocks_1_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_1",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_2",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_2"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3496,15 +3629,32 @@
       }
     },
     {
+      "name": "rocks_2_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_2",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_3",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_3"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3527,15 +3677,32 @@
       }
     },
     {
+      "name": "rocks_3_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_3",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_4",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_4"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3558,15 +3725,32 @@
       }
     },
     {
+      "name": "rocks_4_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_4",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_5",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_5"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 7,
+          "active": false,
           "lifetime": 10,
           "lifetime_spread": 3,
           "speed": 170,
@@ -3589,20 +3773,38 @@
       }
     },
     {
+      "name": "rocks_5_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_5",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_near_1",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_near_1"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 2,
+          "active": false,
           "lifetime": 6,
           "lifetime_spread": 1,
           "speed": 520,
           "speed_spread": 120,
           "spread": 360,
+          "drag": 0,
           "size": 8,
           "end_size": 320,
           "red": 255,
@@ -3619,20 +3821,38 @@
       }
     },
     {
+      "name": "rocks_near_1_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_near_1",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
       "name": "rocks_near_4",
       "components": {
         "transform2d.Position": {
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "rocks_near_4"
+        },
         "particles2d.Emitter": {
           "rate": 0,
           "burst": 2,
+          "active": false,
           "lifetime": 6,
           "lifetime_spread": 1,
           "speed": 520,
           "speed_spread": 120,
           "spread": 360,
+          "drag": 0,
           "size": 8,
           "end_size": 320,
           "red": 255,
@@ -3649,6 +3869,484 @@
       }
     },
     {
+      "name": "rocks_near_4_thrown",
+      "components": {
+        "tween2d.Track": {
+          "field": "particles2d.Emitter.active",
+          "onto": "rocks_near_4",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 1
+        }
+      }
+    },
+    {
+      "name": "great_barrier",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 170
+        },
+        "tag.Tag": {
+          "tag": "great_barrier"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "great_barrier",
+          "width": 960.0,
+          "height": 960.0,
+          "layer": -95,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        }
+      }
+    },
+    {
+      "name": "planet",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 170
+        },
+        "tag.Tag": {
+          "tag": "planet"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "planet",
+          "width": 400,
+          "height": 400,
+          "layer": -96,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        }
+      }
+    },
+    {
+      "name": "planet_near",
+      "components": {
+        "transform2d.Position": {
+          "x": 330,
+          "y": 170
+        },
+        "tag.Tag": {
+          "tag": "planet_near"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "planet_near",
+          "width": 200.0,
+          "height": 192.00000000000003,
+          "layer": -95,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 0.3
+        }
+      }
+    },
+    {
+      "name": "planet_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "planet",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1000,
+          "v0": 0,
+          "t1": 1100,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "barrier_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "great_barrier",
+          "smooth": true,
+          "keys": 4,
+          "t0": 1000,
+          "v0": 0,
+          "t1": 1100,
+          "v1": 170,
+          "t2": 1340,
+          "v2": 170,
+          "t3": 1480,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "planet_near_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "planet_near",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1580,
+          "v0": 0,
+          "t1": 1660,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "planet_x",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "onto": "planet",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 330.0,
+          "t1": 1270,
+          "v1": 260.0,
+          "t2": 1470,
+          "v2": 120.0,
+          "t3": 1640,
+          "v3": 0.0,
+          "t4": 1700,
+          "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0
+        }
+      }
+    },
+    {
+      "name": "planet_y",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "planet",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 170.0,
+          "t1": 1270,
+          "v1": 180.0,
+          "t2": 1470,
+          "v2": 330.0,
+          "t3": 1640,
+          "v3": 700.0,
+          "t4": 1700,
+          "v4": 700.0,
+          "t5": 1980,
+          "v5": 2300.0
+        }
+      }
+    },
+    {
+      "name": "planet_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "planet",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 0.3,
+          "t1": 1270,
+          "v1": 0.55,
+          "t2": 1470,
+          "v2": 2.2,
+          "t3": 1640,
+          "v3": 8.0,
+          "t4": 1700,
+          "v4": 8.2,
+          "t5": 1980,
+          "v5": 8.2
+        }
+      }
+    },
+    {
+      "name": "great_barrier_x",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "onto": "great_barrier",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 330.0,
+          "t1": 1270,
+          "v1": 260.0,
+          "t2": 1470,
+          "v2": 120.0,
+          "t3": 1640,
+          "v3": 0.0,
+          "t4": 1700,
+          "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0
+        }
+      }
+    },
+    {
+      "name": "great_barrier_y",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "great_barrier",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 170.0,
+          "t1": 1270,
+          "v1": 180.0,
+          "t2": 1470,
+          "v2": 330.0,
+          "t3": 1640,
+          "v3": 700.0,
+          "t4": 1700,
+          "v4": 700.0,
+          "t5": 1980,
+          "v5": 2300.0
+        }
+      }
+    },
+    {
+      "name": "great_barrier_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "great_barrier",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 0.3,
+          "t1": 1270,
+          "v1": 0.55,
+          "t2": 1470,
+          "v2": 2.2,
+          "t3": 1640,
+          "v3": 8.0,
+          "t4": 1700,
+          "v4": 8.2,
+          "t5": 1980,
+          "v5": 8.2
+        }
+      }
+    },
+    {
+      "name": "planet_near_x",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "onto": "planet_near",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 330.0,
+          "t1": 1270,
+          "v1": 260.0,
+          "t2": 1470,
+          "v2": 120.0,
+          "t3": 1640,
+          "v3": 0.0,
+          "t4": 1700,
+          "v4": 0.0,
+          "t5": 1980,
+          "v5": 0.0
+        }
+      }
+    },
+    {
+      "name": "planet_near_y",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "planet_near",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 135.2,
+          "t1": 1270,
+          "v1": 116.2,
+          "t2": 1470,
+          "v2": 74.8,
+          "t3": 1640,
+          "v3": -228.0,
+          "t4": 1700,
+          "v4": -251.2,
+          "t5": 1980,
+          "v5": 1348.8
+        }
+      }
+    },
+    {
+      "name": "planet_near_grows",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "planet_near",
+          "smooth": true,
+          "keys": 6,
+          "t0": 1000,
+          "v0": 0.3,
+          "t1": 1270,
+          "v1": 0.55,
+          "t2": 1470,
+          "v2": 2.2,
+          "t3": 1640,
+          "v3": 8.0,
+          "t4": 1700,
+          "v4": 8.2,
+          "t5": 1980,
+          "v5": 8.2
+        }
+      }
+    },
+    {
+      "name": "sky_t",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": -216.0
+        },
+        "tag.Tag": {
+          "tag": "sky_t"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "sky",
+          "width": 1280,
+          "height": 720,
+          "layer": -118,
+          "alpha": 0,
+          "unlit": true
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1.6
+        }
+      }
+    },
+    {
+      "name": "veil_t",
+      "components": {
+        "transform2d.Position": {
+          "x": -38.4,
+          "y": -213.6
+        },
+        "tag.Tag": {
+          "tag": "veil_t"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "veil",
+          "width": 2560.0,
+          "height": 1440.0,
+          "layer": -95,
+          "alpha": 0
+        },
+        "sprite2d.Parallax": {
+          "x": 0,
+          "y": 0
+        },
+        "transform2d.Scale": {
+          "factor": 1.0
+        }
+      }
+    },
+    {
+      "name": "sky_t_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "sky_t",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1320,
+          "v0": 0,
+          "t1": 1520,
+          "v1": 255
+        }
+      }
+    },
+    {
+      "name": "veil_t_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "veil_t",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1320,
+          "v0": 0,
+          "t1": 1520,
+          "v1": 200
+        }
+      }
+    },
+    {
+      "name": "sky_t_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "sky_t",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1700,
+          "v0": -216.0,
+          "t1": 2040,
+          "v1": 0
+        }
+      }
+    },
+    {
+      "name": "sky_t_settles",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "sky_t",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1700,
+          "v0": 1.6,
+          "t1": 2040,
+          "v1": 1.0
+        }
+      }
+    },
+    {
+      "name": "veil_t_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Position.y",
+          "onto": "veil_t",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1700,
+          "v0": -213.6,
+          "t1": 2040,
+          "v1": 86.4
+        }
+      }
+    },
+    {
       "name": "flash_grows",
       "components": {
         "tween2d.Track": {
@@ -3656,9 +4354,9 @@
           "onto": "flash",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.2,
-          "t1": 30,
+          "t1": 250,
           "v1": 5
         }
       }
@@ -3671,9 +4369,9 @@
           "onto": "flash",
           "smooth": true,
           "keys": 2,
-          "t0": 0,
+          "t0": 220,
           "v0": 255,
-          "t1": 60,
+          "t1": 280,
           "v1": 0
         }
       }
@@ -3686,13 +4384,13 @@
           "onto": "births",
           "smooth": true,
           "keys": 4,
-          "t0": 70,
+          "t0": 290,
           "v0": 0,
-          "t1": 110,
+          "t1": 330,
           "v1": 60,
-          "t2": 380,
+          "t2": 600,
           "v2": 60,
-          "t3": 470,
+          "t3": 690,
           "v3": 0
         }
       }
@@ -3704,11 +4402,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "stars_1",
           "smooth": true,
-          "keys": 2,
-          "t0": 80,
+          "keys": 4,
+          "t0": 300,
           "v0": 0,
-          "t1": 170,
-          "v1": 255
+          "t1": 390,
+          "v1": 255,
+          "t2": 1320,
+          "v2": 255,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3719,11 +4421,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "stars_2",
           "smooth": true,
-          "keys": 2,
-          "t0": 150,
+          "keys": 4,
+          "t0": 370,
           "v0": 0,
-          "t1": 250,
-          "v1": 255
+          "t1": 470,
+          "v1": 255,
+          "t2": 1320,
+          "v2": 255,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3734,11 +4440,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "stars_3",
           "smooth": true,
-          "keys": 2,
-          "t0": 230,
+          "keys": 4,
+          "t0": 450,
           "v0": 0,
-          "t1": 340,
-          "v1": 255
+          "t1": 560,
+          "v1": 255,
+          "t2": 1320,
+          "v2": 255,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3749,11 +4459,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "stars_4",
           "smooth": true,
-          "keys": 2,
-          "t0": 310,
+          "keys": 4,
+          "t0": 530,
           "v0": 0,
-          "t1": 440,
-          "v1": 230
+          "t1": 660,
+          "v1": 230,
+          "t2": 1320,
+          "v2": 230,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3765,13 +4479,13 @@
           "onto": "gas_colour",
           "smooth": true,
           "keys": 4,
-          "t0": 170,
+          "t0": 390,
           "v0": 0,
-          "t1": 290,
+          "t1": 510,
           "v1": 255,
-          "t2": 340,
+          "t2": 560,
           "v2": 255,
-          "t3": 480,
+          "t3": 700,
           "v3": 0
         }
       }
@@ -3784,13 +4498,13 @@
           "onto": "nebula_colour",
           "smooth": true,
           "keys": 4,
-          "t0": 200,
+          "t0": 420,
           "v0": 0,
-          "t1": 300,
+          "t1": 520,
           "v1": 230,
-          "t2": 350,
+          "t2": 570,
           "v2": 230,
-          "t3": 490,
+          "t3": 710,
           "v3": 0
         }
       }
@@ -3802,11 +4516,15 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "gas",
           "smooth": true,
-          "keys": 2,
-          "t0": 330,
+          "keys": 4,
+          "t0": 550,
           "v0": 0,
-          "t1": 480,
-          "v1": 255
+          "t1": 700,
+          "v1": 255,
+          "t2": 1320,
+          "v2": 255,
+          "t3": 1520,
+          "v3": 0
         }
       }
     },
@@ -3817,11 +4535,28 @@
           "field": "sprite2d.Sprite.alpha",
           "onto": "nebula",
           "smooth": true,
-          "keys": 2,
-          "t0": 340,
+          "keys": 4,
+          "t0": 560,
           "v0": 0,
-          "t1": 520,
-          "v1": 210
+          "t1": 740,
+          "v1": 210,
+          "t2": 1320,
+          "v2": 210,
+          "t3": 1520,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "wanderer_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "wanderer",
+          "smooth": false,
+          "keys": 1,
+          "t0": 220,
+          "v0": 255
         }
       }
     },
@@ -3833,13 +4568,13 @@
           "onto": "wanderer",
           "smooth": true,
           "keys": 4,
-          "t0": 0,
+          "t0": 220,
           "v0": 0.02,
-          "t1": 170,
+          "t1": 390,
           "v1": 0.02,
-          "t2": 470,
+          "t2": 690,
           "v2": 0.25,
-          "t3": 720,
+          "t3": 940,
           "v3": 1.0
         }
       }
@@ -3852,15 +4587,15 @@
           "onto": "wanderer",
           "smooth": true,
           "keys": 5,
-          "t0": 0,
+          "t0": 220,
           "v0": -20,
-          "t1": 720,
+          "t1": 940,
           "v1": 15,
-          "t2": 1000,
+          "t2": 1220,
           "v2": -12,
-          "t3": 1200,
-          "v3": 8,
-          "t4": 1380,
+          "t3": 1470,
+          "v3": 6,
+          "t4": 1670,
           "v4": 0
         }
       }
@@ -3872,17 +4607,11 @@
           "field": "transform2d.Position.x",
           "onto": "wanderer",
           "smooth": true,
-          "keys": 5,
-          "t0": 720,
+          "keys": 2,
+          "t0": 940,
           "v0": 0,
-          "t1": 900,
-          "v1": 300,
-          "t2": 1080,
-          "v2": 900,
-          "t3": 1250,
-          "v3": 1800,
-          "t4": 1380,
-          "v4": 2390
+          "t1": 1980,
+          "v1": 520
         }
       }
     },
@@ -3893,17 +4622,26 @@
           "field": "transform2d.Position.y",
           "onto": "wanderer",
           "smooth": true,
-          "keys": 5,
-          "t0": 720,
+          "keys": 2,
+          "t0": 940,
           "v0": 0,
-          "t1": 900,
-          "v1": 80,
-          "t2": 1080,
-          "v2": 380,
-          "t3": 1250,
-          "v3": 760,
-          "t4": 1380,
-          "v4": 1025
+          "t1": 1980,
+          "v1": 260
+        }
+      }
+    },
+    {
+      "name": "wanderer_pace",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.SpriteAnimation.ticks_per_frame",
+          "onto": "wanderer",
+          "smooth": false,
+          "keys": 2,
+          "t0": 1670,
+          "v0": 3,
+          "t1": 1671,
+          "v1": 1
         }
       }
     },
@@ -3914,102 +4652,261 @@
           "field": "camera2d.Camera.zoom",
           "onto": "camera",
           "smooth": true,
-          "keys": 6,
-          "t0": 0,
+          "keys": 4,
+          "t0": 220,
           "v0": 1.9500000000000002,
-          "t1": 240,
+          "t1": 460,
           "v1": 0.8250000000000001,
-          "t2": 720,
+          "t2": 940,
           "v2": 2.4000000000000004,
-          "t3": 880,
-          "v3": 1.35,
-          "t4": 1100,
-          "v4": 0.63,
-          "t5": 1380,
-          "v5": 3.5999999999999996
+          "t3": 1100,
+          "v3": 1.5
         }
       }
     },
     {
-      "name": "camera_ahead_x",
+      "name": "camera_aims_x",
       "components": {
         "tween2d.Track": {
           "field": "follow2d.Follow.offset_x",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
-          "t0": 720,
+          "keys": 2,
+          "t0": 1670,
           "v0": 0,
-          "t1": 950,
-          "v1": 700,
-          "t2": 1150,
-          "v2": 500,
-          "t3": 1380,
-          "v3": 0
+          "t1": 1980,
+          "v1": 40
         }
       }
     },
     {
-      "name": "camera_ahead_y",
+      "name": "camera_aims_y",
       "components": {
         "tween2d.Track": {
           "field": "follow2d.Follow.offset_y",
           "onto": "camera",
           "smooth": true,
-          "keys": 4,
-          "t0": 720,
+          "keys": 2,
+          "t0": 1670,
           "v0": 0,
-          "t1": 950,
-          "v1": 700,
-          "t2": 1150,
-          "v2": 350,
-          "t3": 1380,
+          "t1": 1980,
+          "v1": -40
+        }
+      }
+    },
+    {
+      "name": "camera_bloom",
+      "components": {
+        "tween2d.Track": {
+          "field": "postfx.Effects.bloom",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1670,
+          "v0": 0.8,
+          "t1": 1980,
+          "v1": 0.45
+        }
+      }
+    },
+    {
+      "name": "camera_vignette",
+      "components": {
+        "tween2d.Track": {
+          "field": "postfx.Effects.vignette",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1670,
+          "v0": 0.5,
+          "t1": 1980,
+          "v1": 0.42
+        }
+      }
+    },
+    {
+      "name": "camera_vignette_size",
+      "components": {
+        "tween2d.Track": {
+          "field": "postfx.Effects.vignette_size",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1670,
+          "v0": 0.4,
+          "t1": 1980,
+          "v1": 0.48
+        }
+      }
+    },
+    {
+      "name": "camera_rays",
+      "components": {
+        "tween2d.Track": {
+          "field": "postfx.Effects.rays",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 2,
+          "t0": 1670,
+          "v0": 0,
+          "t1": 1980,
+          "v1": 0.22
+        }
+      }
+    },
+    {
+      "name": "seed",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "seed"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 60,
+          "height": 60,
+          "layer": 51,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0.15
+        }
+      }
+    },
+    {
+      "name": "seed_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "seed",
+          "smooth": true,
+          "keys": 4,
+          "t0": 30,
+          "v0": 0,
+          "t1": 90,
+          "v1": 255,
+          "t2": 220,
+          "v2": 255,
+          "t3": 221,
           "v3": 0
         }
       }
     },
     {
-      "name": "barrier_shows",
+      "name": "seed_grows",
       "components": {
         "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "great_barrier",
+          "field": "transform2d.Scale.factor",
+          "onto": "seed",
           "smooth": true,
-          "keys": 2,
-          "t0": 860,
-          "v0": 0,
-          "t1": 1000,
-          "v1": 150
+          "keys": 4,
+          "t0": 30,
+          "v0": 0.15,
+          "t1": 90,
+          "v1": 0.35,
+          "t2": 205,
+          "v2": 0.9,
+          "t3": 220,
+          "v3": 0.7
         }
       }
     },
     {
-      "name": "planet_shows",
+      "name": "seed_trembles_x",
       "components": {
         "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "planet",
-          "smooth": true,
-          "keys": 2,
-          "t0": 860,
+          "field": "transform2d.Position.x",
+          "onto": "seed",
+          "smooth": false,
+          "keys": 6,
+          "t0": 0,
           "v0": 0,
-          "t1": 980,
-          "v1": 255
+          "t1": 2,
+          "v1": 2.5,
+          "t2": 4,
+          "v2": -2,
+          "t3": 6,
+          "v3": 1.5,
+          "t4": 8,
+          "v4": -2.5,
+          "t5": 10,
+          "v5": 0,
+          "loop": true
         }
       }
     },
     {
-      "name": "white_comes",
+      "name": "seed_trembles_y",
       "components": {
         "tween2d.Track": {
-          "field": "sprite2d.Sprite.alpha",
-          "onto": "whiteout",
-          "smooth": true,
-          "keys": 2,
-          "t0": 1330,
+          "field": "transform2d.Position.y",
+          "onto": "seed",
+          "smooth": false,
+          "keys": 6,
+          "t0": 0,
           "v0": 0,
-          "t1": 1420,
-          "v1": 255
+          "t1": 3,
+          "v1": -2,
+          "t2": 5,
+          "v2": 2.5,
+          "t3": 7,
+          "v3": -1.5,
+          "t4": 9,
+          "v4": 2,
+          "t5": 11,
+          "v5": 0,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "seed_shakes",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraShake.strength",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 100,
+          "v0": 0,
+          "t1": 220,
+          "v1": 7,
+          "t2": 221,
+          "v2": 34,
+          "t3": 290,
+          "v3": 0
+        }
+      }
+    },
+    {
+      "name": "to_arrival",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "scene_switch.GoToScene": {
+          "scene": "arrival",
+          "after_ticks": 2050
+        }
+      }
+    },
+    {
+      "name": "to_tutorial",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "scene_switch.GoToScene": {
+          "scene": "tutorial",
+          "use_action": true,
+          "action": "skip"
         }
       }
     }

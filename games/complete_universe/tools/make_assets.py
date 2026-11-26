@@ -987,30 +987,112 @@ def glow():
     return to_image(np.full((size, size, 3), 255.0), np.clip(1 - r, 0, 1) ** 2.2)
 
 
+def value_noise(x, y, z, seed, frequency, octaves=6, gain=0.5):
+    """Smooth noise read at any points of space (x, y, z, arrays of any shape), the same
+    whatever the resolution it is read at: a far picture and a near one of the same thing agree.
+    Laid on a sphere, it has no seams nor stretching. 0 to about 1."""
+    rng = np.random.default_rng(seed)
+    total = np.zeros_like(x)
+    amplitude, norm = 1.0, 0.0
+    n = 64
+    for _ in range(octaves):
+        grid = rng.uniform(0, 1, (n, n, n))
+        px, py, pz = x * frequency + 100, y * frequency + 100, z * frequency + 100
+        i0 = [np.floor(p).astype(int) for p in (px, py, pz)]
+        f = [p - np.floor(p) for p in (px, py, pz)]
+        f = [t * t * (3 - 2 * t) for t in f]
+        a, b, c = (i % n for i in i0)
+        a1, b1, c1 = (a + 1) % n, (b + 1) % n, (c + 1) % n
+        fx, fy, fz = f
+        x00 = grid[a, b, c] * (1 - fx) + grid[a1, b, c] * fx
+        x10 = grid[a, b1, c] * (1 - fx) + grid[a1, b1, c] * fx
+        x01 = grid[a, b, c1] * (1 - fx) + grid[a1, b, c1] * fx
+        x11 = grid[a, b1, c1] * (1 - fx) + grid[a1, b1, c1] * fx
+        total += ((x00 * (1 - fy) + x10 * fy) * (1 - fz) + (x01 * (1 - fy) + x11 * fy) * fz) *             amplitude
+        norm += amplitude
+        amplitude *= gain
+        frequency *= 2.03
+    return total / norm
+
+
+PLANET_TURN, PLANET_TILT = 0.0, -0.3  # how the planet is turned: a land at its top
+PLANET_LIGHT = np.array([-0.55, -0.6, 0.58]) / np.linalg.norm([-0.55, -0.6, 0.58])
+
+
+def planet_at(nx, ny, detail=7):
+    """The planet of the tutorial seen from space, at the points (nx, ny) of its disc (-1 to 1,
+    any resolution): in black and white, seas dark and smooth, lands grey with mountain ridges,
+    ice at its poles, swirls of cloud; lit from the upper left, a thin bright edge of air.
+    Colours (0 to 255) and opacity (0 to 1)."""
+    r = np.hypot(nx, ny)
+    nz = np.sqrt(np.clip(1 - r * r, 0, 1))
+    # A point of the sphere, the planet a little turned: the noise is laid on it, not on the disc.
+    x, y, z = nx * math.cos(PLANET_TURN) + nz * math.sin(PLANET_TURN), ny,         nz * math.cos(PLANET_TURN) - nx * math.sin(PLANET_TURN)
+    y, z = y * math.cos(PLANET_TILT) - z * math.sin(PLANET_TILT),         y * math.sin(PLANET_TILT) + z * math.cos(PLANET_TILT)
+    wx = value_noise(x, y, z, 301, 1.5, 3) - 0.5
+    wy = value_noise(x, y, z, 311, 1.5, 3) - 0.5
+    lands = value_noise(x + wx * 0.35, y + wy * 0.35, z, 302, 1.4, detail)
+    land = np.clip((lands - 0.49) / 0.012, 0, 1)
+    coast = np.exp(-((lands - 0.49) / 0.006) ** 2)
+    ridges = 1 - np.abs(value_noise(x, y, z, 303, 4.0, detail) * 2 - 1)
+    mountains = np.clip(ridges ** 5 * 2.0 * np.clip((lands - 0.505) * 12, 0, 1), 0, 1)
+    plains = value_noise(x, y, z, 304, 7.0, detail)
+    ground = 78 + 50 * plains + 115 * mountains
+    deep = np.clip((0.49 - lands) * 6, 0, 1)
+    sea = 50 - 26 * deep + 8 * value_noise(x, y, z, 305, 5.0, 4)
+    value = sea * (1 - land) + ground * land + 30 * coast
+    # Relief: the lands lit on their slopes that face the light, shaded on the others.
+    height = (lands * 0.5 + mountains * 0.05 + plains * 0.012) * land
+    slope_y, slope_x = np.gradient(height, ny[:, 0], nx[0, :])
+    relief = np.clip(-(slope_x * PLANET_LIGHT[0] + slope_y * PLANET_LIGHT[1]) * 2.2, -0.6, 0.6)
+    value = value * (1 + relief * land)
+    # Clouds: long swirls along the latitudes, drawn over all.
+    sx = value_noise(x, y, z, 306, 1.2, 3) - 0.5
+    cloud = value_noise(x * 1.6 + sx * 0.9, y * 4.0, z * 1.6 + sx * 0.9, 307, 1.3, detail)
+    clouds = np.clip((cloud - 0.63) / 0.14, 0, 1) ** 1.4 * 0.85
+    value = value * (1 - clouds) + 232 * clouds
+    # Light: day, a soft edge to the night, which stays faintly seen.
+    light = np.clip(nx * PLANET_LIGHT[0] + ny * PLANET_LIGHT[1] + nz * PLANET_LIGHT[2], 0, 1)
+    shine = np.exp(-((nx + 0.38) ** 2 + (ny + 0.42) ** 2) / 0.03) * 0.35 * (1 - land) * (
+        1 - clouds)  # the sun in the seas
+    value = value * (0.1 + 0.95 * light ** 0.8) + 255 * shine
+    rim = np.exp(-((r - 1) / 0.012) ** 2) * np.clip(light * 1.6 + 0.25, 0, 1)
+    air = np.exp(-np.clip(r - 1, 0, None) / 0.02) * (r > 1) * 0.5 * np.clip(light + 0.4, 0, 1)
+    inside = np.clip((1 - r) * 300, 0, 1)
+    alpha = np.clip(inside + rim + air, 0, 1)
+    value = np.where(r < 1, value + 120 * rim, 236)
+    rgb = np.dstack([value * 0.97, value * 0.99, value * 1.04])
+    return rgb, alpha
+
+
+PLANET_PX = 2048
+# The part of the planet seen when it covers the screen, drawn on its own and much finer (its
+# disc's coordinates): its top, where he comes down.
+PLANET_NEAR = (-0.5, -1.06, 0.5, -0.1)
+PLANET_NEAR_PX = 2048
+
+
 def planet():
-    """The planet of the tutorial seen from space: a grey disc lit from the upper left, with
-    craters, its night side lost in the dark, a thin bright edge of air."""
-    size = 1536
-    rng = np.random.default_rng(21)
-    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
-    cx = cy = size / 2 - 0.5
-    r = np.hypot(x - cx, y - cy) / (size / 2 - 6)
-    inside = r <= 1
-    nz = np.sqrt(np.clip(1 - r ** 2, 0, 1))
-    nx, ny = (x - cx) / (size / 2), (y - cy) / (size / 2)
-    light = np.clip(-0.55 * nx - 0.6 * ny + 0.58 * nz, 0, 1)
-    value = 26 + 175 * light ** 0.9 * (0.85 + 0.3 * noise(size, size, 4))
-    for _ in range(36):
-        px, py = rng.uniform(-0.8, 0.8, 2)
-        pr = rng.uniform(0.025, 0.11)
-        d = np.hypot(nx - px, ny - py) / pr
-        value -= np.where(d < 1, 34 * (1 - d) * light, 0)
-        value += np.where((d > 0.85) & (d < 1.1), 20 * light, 0)
-    rim = np.exp(-((r - 1) / 0.015) ** 2) * np.clip(light * 2 + 0.15, 0, 1)
-    alpha = np.clip(np.where(inside, np.clip((1 - r) * 70, 0, 1), 0) + rim, 0, 1)
-    value = np.where(inside, value, 255)
-    rgb = np.dstack([value, value, value * 1.04])
+    """The whole planet, PLANET_PX wide."""
+    t = (np.arange(PLANET_PX) + 0.5) / PLANET_PX * 2 - 1
+    nx, ny = np.meshgrid(t, t)
+    rgb, alpha = planet_at(nx * 1.01, ny * 1.01)
     return to_image(rgb, alpha)
+
+
+def planet_near():
+    """The top of the planet, PLANET_NEAR of its disc, finer: seen when it fills the screen."""
+    x0, y0, x1, y1 = PLANET_NEAR
+    height = round(PLANET_NEAR_PX * (y1 - y0) / (x1 - x0))
+    xs = x0 + (np.arange(PLANET_NEAR_PX) + 0.5) / PLANET_NEAR_PX * (x1 - x0)
+    ys = y0 + (np.arange(height) + 0.5) / height * (y1 - y0)
+    nx, ny = np.meshgrid(xs, ys)
+    rgb, alpha = planet_at(nx * 1.01, ny * 1.01, detail=9)
+    # Its edges fade out: the whole planet, under it, shows the same there (no line).
+    u = np.linspace(0, 1, PLANET_NEAR_PX)[None, :]
+    v = np.linspace(0, 1, height)[:, None]
+    edges = np.clip(np.minimum(np.minimum(u, 1 - u), np.minimum(v, 1 - v)) / 0.04, 0, 1)
+    return to_image(rgb, alpha * edges)
 
 
 BAND_SLOPE = -0.42  # the milky band of the skies rises to the right, as in the docs' pictures
@@ -2201,8 +2283,8 @@ def inventory():
     return made
 
 
-def camera(bound_right, bound_bottom):
-    return entity("camera", VIEW_W / 2, VIEW_H / 2, {
+def camera(bound_right, bound_bottom, y=None):
+    return entity("camera", VIEW_W / 2, VIEW_H / 2 if y is None else y, {
         "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": ZOOM},
         "camera2d.CameraShake": {"strength": 0, "decay": 3, "speed": 30},
@@ -2875,7 +2957,7 @@ def awakenings():
     return made
 
 
-def story():
+def story(fall=0):
     """The steps of the tutorial (module phase), what ends each one (rules.Watch) and what each
     one gives (rules.OnAction). The clock counts the seconds of the steps of practice."""
     made = [entity("story", 0, 0, {"tag.Tag": {"tag": "story"},
@@ -2905,7 +2987,7 @@ def story():
     made += [
         # The landing: he wakes, a moment, then the black (D4: he does not move yet).
         entity("landing_timer", 0, 0, {"tween2d.Tween": {
-            "field": "transform2d.Position.x", "from": 0, "to": 1, "ticks": 170,
+            "field": "transform2d.Position.x", "from": 0, "to": 1, "ticks": 170 + fall,
             "use_action": True, "action": "landing_done"}}),
         on("gives_black", "black_show_done", "kit", "loadout.Kit.unlocked", 1),
         # The black swallows two rocks.
@@ -2984,10 +3066,11 @@ def story():
     return made + step_texts()
 
 
-def tutorial():
+def tutorial(arrival=False):
     """The planet of the tutorial, from left to right: the landing on hard rock, the path, the
     pit and the ledge, the basin, the edge under the top of the dome. Its ground goes deep: what
-    is dug opens the way down, and the camera follows."""
+    is dug opens the way down, and the camera follows. With arrival, he starts high in its sky,
+    as the opening leaves him (the same picture: no cut), and falls to the ground."""
     bottom = GROUND_Y + TUTORIAL_DEPTH
     height = bottom - TUTORIAL_TOP
     ground = terrain_entity("ground", 0, TUTORIAL_TOP, TUTORIAL_W, height, GROUND_Y,
@@ -3051,23 +3134,58 @@ def tutorial():
                                     (5400, surface_at(5400)), (6100, surface_at(6100)))):
         things += deposit(f"deposit_{index + 1}", x, y)
     # Early on the reserves cannot fall below a quarter: nothing to lose before learning.
-    return (sky_entity() + scenery(GROUND_Y) + [ground, back] + shapes + things +
-            [hero_entity(LANDING_X, 220, locked=True), camera(TUTORIAL_W, bottom)] +
+    return (sky_entity() + far_planes(scenery(GROUND_Y), arrival) + [ground, back] + shapes +
+            things +
+            [hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True),
+             camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
-            death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) + story() +
-            landing() + awakenings() + demonstrations() + pause_menu() + departure())
+            death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) +
+            story(ARRIVAL_FALL if arrival else 0) + landing(arrival) + awakenings() +
+            demonstrations() + pause_menu() + departure())
 
 
-def landing():
-    """The start of the tutorial: out of the white of the opening, he falls to the ground."""
+FAR_PLANES = ["mountains", "mist_far", "mist_near", "ground_far", "hills_far",
+              "hills_near", "inside_far"] + [f"{name}_skirt" for name, *_ in SKIRTED]
+
+
+def far_planes(made, arrival):
+    """With arrival, the planes of the planet's surface come out of the dark as he falls to it:
+    high in its sky, there is only the sky (as the opening leaves him: no cut)."""
+    if not arrival:
+        return made
+    for item in list(made):
+        if item["name"] in FAR_PLANES:
+            sprite = item["components"]["sprite2d.Sprite"]
+            alpha = sprite.get("alpha", 255)
+            sprite["alpha"] = 0
+            item["components"].setdefault("tag.Tag", {"tag": item["name"]})
+            tag = item["components"]["tag.Tag"]["tag"]
+            made.append(track(f"{item['name']}_comes", tag, "sprite2d.Sprite.alpha",
+                              [(20, 0), (ARRIVAL_FALL + 10, alpha)]))
+    return made
+
+
+def landing(arrival=False):
+    """The start of the tutorial: out of the white of the opening (or, with arrival, from high
+    in the sky, as the opening leaves him), he falls to the ground."""
+    dome = entity("dome", 0, 2560, {"tag.Tag": {"tag": "dome"}, "sprite2d.Sprite": {
+        "atlas": "dome", "width": 5600, "height": 5600, "layer": -90,
+        "alpha": 0 if arrival else 230, "unlit": True},
+        "sprite2d.Parallax": {"x": 0.04, "y": 0.04}})
+    if arrival:
+        # The great barrier, high above, shows once he is down; the camera keeps up with his
+        # fall, then is soft again.
+        return [dome, track("dome_shows", "dome", "sprite2d.Sprite.alpha",
+                            [(ARRIVAL_FALL + 40, 0), (ARRIVAL_FALL + 200, 230)]),
+                track("camera_keeps_up", "camera", "camera2d.CameraFollow.stiffness",
+                      [(0, 0.06), (15, 0.25), (ARRIVAL_FALL + 20, 0.25),
+                       (ARRIVAL_FALL + 80, 0.06)])]
     return [
         cover("whitein", 255),
         track("whitein_fades", "whitein", "sprite2d.Sprite.alpha", [(0, 255), (80, 0)]),
         # The great barrier, high above: a dome over the whole planet.
-        entity("dome", 0, 2560, {"tag.Tag": {"tag": "dome"}, "sprite2d.Sprite": {
-            "atlas": "dome", "width": 5600, "height": 5600, "layer": -90,
-            "alpha": 230, "unlit": True}, "sprite2d.Parallax": {"x": 0.04, "y": 0.04}}),
+        dome,
     ]
 
 
@@ -3172,16 +3290,19 @@ FRAGMENT_COLOURS = [("pink", (240, 130, 190)), ("violet", (150, 90, 210)),
                     ("orange", (240, 140, 50)), ("red", (220, 60, 50)),
                     ("yellow", (240, 210, 80)), ("green", (80, 190, 110)),
                     ("blue", (70, 130, 230))]
-PLANET_AT = (2400, 1500)  # the planet of the tutorial in its great barrier, from the explosion
-PLANET_SIZE, GREAT_BARRIER_SIZE = 1500, 3300  # ... far bigger than him
-PLANET_TOP = PLANET_AT[1] + 0.23 * PLANET_SIZE - PLANET_SIZE / 2  # its ground, where he comes down
-OPENING_TICKS = 1430
+BANG = 220  # black, a point that grows and trembles; then the explosion, this tick (D24)
 REVEAL = (170, 470)  # the white light of the explosion fades out between these ticks: him, far
-WANDER = (720, 1380)  # he wanders through space to the planet, down onto it
-# The camera's zoom along the opening: back from the explosion, close on him as he nears, back
-# again to show the planet, close on him as he comes down onto it.
-OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER[0], 1.6 * ZOOM), (880, 0.9 * ZOOM),
-                (1100, 0.42 * ZOOM), (WANDER[1], 2.4 * ZOOM)]
+WANDER = 720  # he is near, he wanders to the planet of the tutorial
+ARRIVAL = (1450, 1760)  # the pivot: the planet slides down, the sky after it, and stops
+OPENING_TICKS = ARRIVAL[1] + 70  # then the tutorial: he falls to the ground (from the explosion)
+PLANET_W = 400  # the planet seen from space, at first (world units at the zoom at rest)
+# Where the tutorial starts him, high in its sky, and where its camera has him then.
+ARRIVAL_Y = -1400
+ARRIVAL_CAMERA_DX, ARRIVAL_CAMERA_DY = 40, 40
+ARRIVAL_FALL = 90  # the ticks his fall takes, more than from the usual start
+# The camera's zoom along the opening: back from the explosion, close on him as he nears, then
+# at rest, as in the tutorial.
+OPENING_ZOOM = [(0, 1.3 * ZOOM), (240, 0.55 * ZOOM), (WANDER, 1.6 * ZOOM), (880, ZOOM)]
 SKY_MARGIN = 1.08  # the skies of the opening, a little bigger than the screen whatever the zoom
 # The gas of the explosion, the colours going out in turn (GDD §2), then the grey that stays.
 CLOUD_TINTS = [(255, 150, 70), (255, 110, 190), (180, 110, 255), (90, 140, 255),
@@ -3220,14 +3341,17 @@ def bang_clouds():
         if not grey:
             sprite["additive"] = True
         turn = round(float(rng.uniform(0, 360)))
-        made.append(entity(name, round(math.cos(angle) * near), round(math.sin(angle) * near), {
+        before = BANG / 60 * speed  # they move from the start: there at the bang
+        made.append(entity(name, round(math.cos(angle) * (near - before)),
+                           round(math.sin(angle) * (near - before)), {
             "tag.Tag": {"tag": name}, "sprite2d.Sprite": sprite,
             "transform2d.Velocity": {"x": round(math.cos(angle) * speed, 1),
                                      "y": round(math.sin(angle) * speed, 1)},
             "transform2d.Scale": {"factor": 0.3}, "transform2d.Rotation": {"angle": turn}}))
         if grey:
-            keys = [(250, 0), (450 + round(float(rng.uniform(0, 80))),
-                               round(float(rng.uniform(70, 120))))]
+            strength = round(float(rng.uniform(70, 120)))
+            keys = [(250, 0), (450 + round(float(rng.uniform(0, 80))), strength),
+                    (1100, strength), (1300, 0)]
         else:
             strength = round(float(rng.uniform(200, 255)))
             out = 330 + (index % len(CLOUD_TINTS)) * 45 + round(float(rng.uniform(0, 30)))
@@ -3245,7 +3369,8 @@ def bang_clouds():
         name = f"glow_{index}"
         angle = math.radians(40 + index * 95)
         made += [
-            entity(name, round(math.cos(angle) * 140), round(math.sin(angle) * 140), {
+            entity(name, round(math.cos(angle) * (140 - BANG / 60 * 45)),
+                   round(math.sin(angle) * (140 - BANG / 60 * 45)), {
                 "tag.Tag": {"tag": name},
                 "sprite2d.Sprite": {"atlas": "glow", "width": 1100, "height": 1100,
                                     "layer": -97, "alpha": 0, "additive": True, "unlit": True,
@@ -3265,7 +3390,7 @@ def bang_light():
     made = [
         entity("core", 0, 0, {"tag.Tag": {"tag": "core"}, "sprite2d.Sprite": {
             "atlas": "bang_core", "width": 700, "height": 700, "layer": 50, "additive": True,
-            "unlit": True}, "transform2d.Scale": {"factor": 0.5}}),
+            "alpha": 0, "unlit": True}, "transform2d.Scale": {"factor": 0.5}}),
         track("core_grows", "core", "transform2d.Scale.factor",
               [(0, 0.3), (20, 1.1), (REVEAL[0], 1.25), (REVEAL[1], 0.5)]),
         track("core_fades", "core", "sprite2d.Sprite.alpha",
@@ -3314,30 +3439,142 @@ def bang_light():
 def bang_rocks():
     """Rocks thrown out of the explosion, small and far, then a few that pass close by."""
     made = []
-    for frame in range(6):
-        made.append(entity(f"rocks_{frame}", 0, 0, {"particles2d.Emitter": {
-            "rate": 0, "burst": 7, "lifetime": 10, "lifetime_spread": 3, "speed": 170,
-            "speed_spread": 150, "spread": 360, "drag": 0.02, "size": 14, "end_size": 70,
-            "red": 255, "green": 255, "blue": 255, "alpha": 255, "fade": True,
-            "unlit": True, "layer": 55, "atlas": "asteroids", "frame": frame, "max": 7}}))
-    for frame in (1, 4):
-        made.append(entity(f"rocks_near_{frame}", 0, 0, {"particles2d.Emitter": {
-            "rate": 0, "burst": 2, "lifetime": 6, "lifetime_spread": 1, "speed": 520,
-            "speed_spread": 120, "spread": 360, "size": 8, "end_size": 320, "red": 255,
-            "green": 255, "blue": 255, "alpha": 255, "fade": True, "unlit": True,
-            "layer": 60, "atlas": "asteroids", "frame": frame, "max": 2}}))
+    for name, frame, burst, life, speed, spread, size, end_size, layer in (
+            [(f"rocks_{frame}", frame, 7, 10, 170, 150, 14, 70, 55) for frame in range(6)] +
+            [(f"rocks_near_{frame}", frame, 2, 6, 520, 120, 8, 320, 60) for frame in (1, 4)]):
+        made += [
+            entity(name, 0, 0, {"tag.Tag": {"tag": name}, "particles2d.Emitter": {
+                "rate": 0, "burst": burst, "active": False, "lifetime": life,
+                "lifetime_spread": 3 if burst > 2 else 1, "speed": speed,
+                "speed_spread": spread, "spread": 360, "drag": 0.02 if burst > 2 else 0,
+                "size": size, "end_size": end_size, "red": 255, "green": 255, "blue": 255,
+                "alpha": 255, "fade": True, "unlit": True, "layer": layer,
+                "atlas": "asteroids", "frame": frame, "max": burst}}),
+            track(f"{name}_thrown", name, "particles2d.Emitter.active", [(0, 1)],
+                  smooth=False),
+        ]
     return made
 
 
-def opening():
-    """The opening (GDD §2, D23): an explosion, rays and reflections, clouds of gas in every
-    colour flying out with rocks; the colours go out in turn, the sky builds up. The white light
-    of its heart fades out slowly: far off in it, him. He grows nearer, wanders through space,
-    and comes down onto the planet of the tutorial in its great barrier: white, and the game."""
-    fall_first, fall_count = hero_frames("fall")
+def later(made, ticks):
+    """The tracks among made played that many ticks later (before its first key, a track
+    leaves its field alone)."""
+    for item in made:
+        track_of = item["components"].get("tween2d.Track")
+        if track_of and not track_of.get("loop"):
+            for index in range(track_of["keys"]):
+                track_of[f"t{index}"] += ticks
+    return made
+
+
+def screen_entity(name, x, y, sprite, scale=1.0):
+    """A picture of the background that stays on the screen whatever the camera does: (x, y)
+    from the middle of the screen, in world units at the camera's zoom at rest."""
+    return entity(name, x, y, {"tag.Tag": {"tag": name}, "sprite2d.Sprite": sprite,
+                               "sprite2d.Parallax": {"x": 0, "y": 0},
+                               "transform2d.Scale": {"factor": scale}})
+
+
+def arrival_planet():
+    """He nears the planet of the tutorial (D24): behind him, small, in its great barrier; it
+    grows until it fills the background, its lands, seas and mountains getting finer; he goes
+    through the barrier. Then the pivot: the planet slides down out of the screen, the sky after
+    it, slower and slower, until it stops: the planet is below him now, he falls to it."""
+    # (tick, x, y, scale): where the planet is on the screen and how big.
+    keys = [(780, 330, 170, 0.3), (1050, 260, 180, 0.55), (1250, 120, 330, 2.2),
+            (1420, 0, 700, 8.0), (1480, 0, 700, 8.2), (ARRIVAL[1], 0, 2300, 8.2)]
+    near_x = (PLANET_NEAR[0] + PLANET_NEAR[2]) / 2 * PLANET_W / 2
+    near_y = (PLANET_NEAR[1] + PLANET_NEAR[3]) / 2 * PLANET_W / 2
+    near_w = (PLANET_NEAR[2] - PLANET_NEAR[0]) * PLANET_W / 2
+    near_h = (PLANET_NEAR[3] - PLANET_NEAR[1]) * PLANET_W / 2
     made = [
-        # The skies stay on the screen; big enough for the camera's widest view. Black after
-        # the flash (nothing behind: true black); the gas and the stars come in turn.
+        screen_entity("great_barrier", 330, 170, {
+            "atlas": "great_barrier", "width": PLANET_W * 2.4, "height": PLANET_W * 2.4,
+            "layer": -95, "alpha": 0, "unlit": True}, 0.3),
+        screen_entity("planet", 330, 170, {
+            "atlas": "planet", "width": PLANET_W, "height": PLANET_W, "layer": -96, "alpha": 0,
+            "unlit": True}, 0.3),
+        screen_entity("planet_near", 330, 170, {
+            "atlas": "planet_near", "width": near_w, "height": near_h, "layer": -95,
+            "alpha": 0, "unlit": True}, 0.3),
+        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(780, 0), (880, 255)]),
+        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha",
+              [(780, 0), (880, 170), (1120, 170), (1260, 0)]),
+        track("planet_near_shows", "planet_near", "sprite2d.Sprite.alpha",
+              [(1360, 0), (1440, 255)]),
+    ]
+    for name in ("planet", "great_barrier", "planet_near"):
+        dx, dy = (near_x, near_y) if name == "planet_near" else (0, 0)
+        made += [
+            track(f"{name}_x", name, "transform2d.Position.x",
+                  [(t, round(x + dx * s, 1)) for t, x, y, s in keys]),
+            track(f"{name}_y", name, "transform2d.Position.y",
+                  [(t, round(y + dy * s, 1)) for t, x, y, s in keys]),
+            track(f"{name}_grows", name, "transform2d.Scale.factor",
+                  [(t, s) for t, x, y, s in keys]),
+        ]
+    return made
+
+
+def arrival_sky():
+    """The sky of the planet, behind it, a little bigger than the screen and higher; it comes
+    down with the pivot and stops where it is when he falls (as the tutorial starts: the same
+    picture, no cut)."""
+    veil_x, veil_y = -0.06 * VIEW_W / 2, -0.06 * (ARRIVAL_Y - ARRIVAL_CAMERA_DY)
+    return [
+        screen_entity("sky_t", 0, -0.3 * VIEW_H, {
+            "atlas": "sky", "width": VIEW_W, "height": VIEW_H, "layer": -118, "alpha": 0,
+            "unlit": True}, 1.6),
+        # As in the tutorial, a veil of gas lit by him in the dark (light2d).
+        screen_entity("veil_t", round(veil_x, 1), round(veil_y - 300, 1), {
+            "atlas": "veil", "width": 1600 * 1.6, "height": 900 * 1.6, "layer": -95,
+            "alpha": 0}),
+        track("sky_t_shows", "sky_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 255)]),
+        track("veil_t_shows", "veil_t", "sprite2d.Sprite.alpha", [(1100, 0), (1300, 200)]),
+        track("sky_t_comes", "sky_t", "transform2d.Position.y",
+              [(1480, -0.3 * VIEW_H), (ARRIVAL[1] + 60, 0)]),
+        track("sky_t_settles", "sky_t", "transform2d.Scale.factor",
+              [(1480, 1.6), (ARRIVAL[1] + 60, 1.0)]),
+        track("veil_t_comes", "veil_t", "transform2d.Position.y",
+              [(1480, round(veil_y - 300, 1)), (ARRIVAL[1] + 60, round(veil_y, 1))]),
+    ]
+
+
+def big_bang_seed():
+    """Before the explosion (D24): black; a point of light appears, grows a little and
+    trembles more and more; then it bursts."""
+    return [
+        entity("seed", 0, 0, {"tag.Tag": {"tag": "seed"}, "sprite2d.Sprite": {
+            "atlas": "glow", "width": 60, "height": 60, "layer": 51, "alpha": 0,
+            "additive": True, "unlit": True}, "transform2d.Scale": {"factor": 0.15}}),
+        track("seed_shows", "seed", "sprite2d.Sprite.alpha",
+              [(30, 0), (90, 255), (BANG, 255), (BANG + 1, 0)]),
+        track("seed_grows", "seed", "transform2d.Scale.factor",
+              [(30, 0.15), (90, 0.35), (BANG - 15, 0.9), (BANG, 0.7)]),
+        track("seed_trembles_x", "seed", "transform2d.Position.x",
+              [(0, 0), (2, 2.5), (4, -2), (6, 1.5), (8, -2.5), (10, 0)], smooth=False,
+              loop=True),
+        track("seed_trembles_y", "seed", "transform2d.Position.y",
+              [(0, 0), (3, -2), (5, 2.5), (7, -1.5), (9, 2), (11, 0)], smooth=False,
+              loop=True),
+        # The camera trembles with it, more and more, and is thrown by the explosion.
+        track("seed_shakes", "camera", "camera2d.CameraShake.strength",
+              [(100, 0), (BANG, 7), (BANG + 1, 34), (BANG + 70, 0)]),
+    ]
+
+
+def opening():
+    """The opening (GDD §2, D23, D24): black, a point that grows and trembles; an explosion,
+    rays and reflections, clouds of gas in every colour flying out with rocks; the colours go out
+    in turn, the sky builds up. The white light of its heart fades out slowly: far off in it,
+    him. He grows nearer and wanders to the planet of the tutorial, which grows behind him until
+    it fills the background; the pivot: it slides down, the sky after it, which stops; he falls
+    (the tutorial's scene, the same picture: no cut)."""
+    fall_first, fall_count = hero_frames("fall")
+    hero_light = hero_entity(0, 0)["components"]["light2d.Light"]
+    made = [
+        # The skies stay on the screen, the screen's size whatever the zoom. Black after the
+        # flash (nothing behind: true black); the gas and the stars come in turn.
         entity("void", 0, 0, {"tag.Tag": {"tag": "void"}, "sprite2d.Sprite": {
             "atlas": "plain", "width": SCREEN_W * 2, "height": SCREEN_H * 2,
             "layer": -120, "unlit": True, "red": 0, "green": 0, "blue": 0},
@@ -3353,33 +3590,28 @@ def opening():
             "transform2d.Scale": {"factor": 1}}),
         entity("flash", 0, 0, {"tag.Tag": {"tag": "flash"}, "sprite2d.Sprite": {
             "atlas": "glow", "width": 300, "height": 300, "layer": 51, "additive": True,
-            "unlit": True}, "transform2d.Scale": {"factor": 0.2}}),
-        # The camera stays on him: on the heart of the explosion first, where he is.
+            "unlit": True, "alpha": 0}, "transform2d.Scale": {"factor": 0.2}}),
+        # The camera stays on him: on the heart of the explosion first, where he is. At the end,
+        # as the tutorial's camera has him: the same light, the same effects.
         entity("camera", 0, 0, {"tag.Tag": {"tag": "camera"},
                                 "camera2d.Camera": {"zoom": 1.3 * ZOOM},
+                                "camera2d.CameraShake": {"strength": 0, "decay": 3,
+                                                         "speed": 30},
                                 "follow2d.Follow": {"target": "wanderer", "stiffness": 0.06},
+                                "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
                                 "postfx.Effects": {"bloom": 0.8, "vignette": 0.5,
-                                                   "vignette_size": 0.4, "grain": 0.05}}),
-        entity("great_barrier", *PLANET_AT, {"tag.Tag": {"tag": "great_barrier"},
-                                             "sprite2d.Sprite": {
-            "atlas": "barrier", "frame": 0, "width": GREAT_BARRIER_SIZE,
-            "height": GREAT_BARRIER_SIZE, "layer": 20, "alpha": 0, "unlit": True}}),
-        entity("planet", PLANET_AT[0], round(PLANET_AT[1] + 0.23 * PLANET_SIZE),
-               {"tag.Tag": {"tag": "planet"}, "sprite2d.Sprite": {
-                   "atlas": "planet", "width": PLANET_SIZE, "height": PLANET_SIZE, "layer": 10,
-                   "alpha": 0, "unlit": True}}),
+                                                   "vignette_size": 0.4, "grain": 0.05,
+                                                   "rays": 0, "rays_x": 0.5, "rays_y": 0.08,
+                                                   "rays_length": 0.22}}),
         # Him, in the heart of the explosion: a speck in the white light, his limbs moving.
         entity("wanderer", 0, 0, {"tag.Tag": {"tag": "wanderer"}, "sprite2d.Sprite": {
             "atlas": "hero", "frame": fall_first, "width": CELL, "height": CELL, "layer": 45,
-            "unlit": True}, "sprite2d.SpriteAnimation": {
+            "alpha": 0, "unlit": True}, "sprite2d.SpriteAnimation": {
                 "first_frame": fall_first, "frame_count": fall_count, "ticks_per_frame": 3,
                 "looping": True},
+            "light2d.Light": dict(hero_light),
             "transform2d.Scale": {"factor": 0.02}, "transform2d.Rotation": {"angle": -20}}),
         cover("whiteout"),
-        # The end, or a press of Escape: the planet.
-        entity("to_tutorial", 0, 0, {"scene_switch.GoToScene": {
-            "scene": "tutorial", "after_ticks": OPENING_TICKS, "use_action": True,
-            "action": "skip"}}),
     ]
     for name, atlas, layer, additive in (("gas", "gas", -112, False),
                                          ("gas_colour", "gas_colour", -111, False),
@@ -3406,54 +3638,80 @@ def opening():
         "area_height": SCREEN_H * 1.4, "max": 400}}))
     # Sparks of every colour fly out, and go out in turn; the grey stays longest.
     for index, (name, colour) in enumerate(FRAGMENT_COLOURS + [("grey", (200, 200, 200))]):
-        made.append(entity(f"burst_{name}", 0, 0, {"particles2d.Emitter": {
-            "rate": 0, "burst": 160, "lifetime": 2.2 + 0.6 * index if name != "grey" else 9,
-            "lifetime_spread": 0.5, "speed": 440, "speed_spread": 320, "spread": 360,
-            "drag": 0.45, "wander": 30, "size": 7, "end_size": 2.5, "red": colour[0],
-            "green": colour[1], "blue": colour[2], "alpha": 255, "fade": True,
-            "additive": True, "unlit": True, "layer": 40, "max": 180}}))
-    made += bang_light() + bang_clouds() + bang_rocks()
+        made += [
+            entity(f"burst_{name}", 0, 0, {"tag.Tag": {"tag": f"burst_{name}"},
+                                           "particles2d.Emitter": {
+                "rate": 0, "burst": 160, "active": False,
+                "lifetime": 2.2 + 0.6 * index if name != "grey" else 9,
+                "lifetime_spread": 0.5, "speed": 440, "speed_spread": 320, "spread": 360,
+                "drag": 0.45, "wander": 30, "size": 7, "end_size": 2.5, "red": colour[0],
+                "green": colour[1], "blue": colour[2], "alpha": 255, "fade": True,
+                "additive": True, "unlit": True, "layer": 40, "max": 180}}),
+            track(f"burst_{name}_goes", f"burst_{name}", "particles2d.Emitter.active",
+                  [(0, 1)], smooth=False),
+        ]
+    made += bang_light() + bang_clouds() + bang_rocks() + arrival_planet() + arrival_sky()
     made += [
         track("flash_grows", "flash", "transform2d.Scale.factor", [(0, 0.2), (30, 5)]),
         track("flash_fades", "flash", "sprite2d.Sprite.alpha", [(0, 255), (60, 0)]),
         # Black, then the sky builds up: a few bright stars, then more and more, new ones
         # lighting up all over; the gas of the universe in colours, which then go out: black
-        # and white is left.
+        # and white is left. Near the planet, its own sky takes their place.
         track("births_come", "births", "particles2d.Emitter.rate",
               [(70, 0), (110, 60), (380, 60), (470, 0)]),
-        track("stars_1_come", "stars_1", "sprite2d.Sprite.alpha", [(80, 0), (170, 255)]),
-        track("stars_2_come", "stars_2", "sprite2d.Sprite.alpha", [(150, 0), (250, 255)]),
-        track("stars_3_come", "stars_3", "sprite2d.Sprite.alpha", [(230, 0), (340, 255)]),
-        track("stars_4_come", "stars_4", "sprite2d.Sprite.alpha", [(310, 0), (440, 230)]),
+        track("stars_1_come", "stars_1", "sprite2d.Sprite.alpha",
+              [(80, 0), (170, 255), (1100, 255), (1300, 0)]),
+        track("stars_2_come", "stars_2", "sprite2d.Sprite.alpha",
+              [(150, 0), (250, 255), (1100, 255), (1300, 0)]),
+        track("stars_3_come", "stars_3", "sprite2d.Sprite.alpha",
+              [(230, 0), (340, 255), (1100, 255), (1300, 0)]),
+        track("stars_4_come", "stars_4", "sprite2d.Sprite.alpha",
+              [(310, 0), (440, 230), (1100, 230), (1300, 0)]),
         track("gas_colour_comes", "gas_colour", "sprite2d.Sprite.alpha",
               [(170, 0), (290, 255), (340, 255), (480, 0)]),
         track("nebula_colour_comes", "nebula_colour", "sprite2d.Sprite.alpha",
               [(200, 0), (300, 230), (350, 230), (490, 0)]),
-        track("gas_comes", "gas", "sprite2d.Sprite.alpha", [(330, 0), (480, 255)]),
-        track("dust_comes", "nebula", "sprite2d.Sprite.alpha", [(340, 0), (520, 210)]),
-        # Out of the white light, far: he grows nearer, the camera closing in on him; then
-        # back a little, the planet ahead, and down onto it with him.
+        track("gas_comes", "gas", "sprite2d.Sprite.alpha",
+              [(330, 0), (480, 255), (1100, 255), (1300, 0)]),
+        track("dust_comes", "nebula", "sprite2d.Sprite.alpha",
+              [(340, 0), (520, 210), (1100, 210), (1300, 0)]),
+        # Out of the white light, far: he grows nearer, the camera closing in on him; he
+        # wanders, turning slowly, and ends upright, his feet to the planet.
+        track("wanderer_shows", "wanderer", "sprite2d.Sprite.alpha", [(0, 255)], smooth=False),
         track("wanderer_nears", "wanderer", "transform2d.Scale.factor",
-              [(0, 0.02), (REVEAL[0], 0.02), (REVEAL[1], 0.25), (WANDER[0], 1.0)]),
+              [(0, 0.02), (REVEAL[0], 0.02), (REVEAL[1], 0.25), (WANDER, 1.0)]),
         track("wanderer_turns", "wanderer", "transform2d.Rotation.angle",
-              [(0, -20), (WANDER[0], 15), (1000, -12), (1200, 8), (WANDER[1], 0)]),
+              [(0, -20), (WANDER, 15), (1000, -12), (1250, 6), (ARRIVAL[0], 0)]),
         track("wanderer_x", "wanderer", "transform2d.Position.x",
-              [(WANDER[0], 0), (900, 300), (1080, 900), (1250, 1800),
-               (WANDER[1], PLANET_AT[0] - 10)]),
+              [(WANDER, 0), (ARRIVAL[1], 520)]),
         track("wanderer_y", "wanderer", "transform2d.Position.y",
-              [(WANDER[0], 0), (900, 80), (1080, 380), (1250, 760),
-               (WANDER[1], round(PLANET_TOP - 70))]),
+              [(WANDER, 0), (ARRIVAL[1], 260)]),
+        # His limbs at the pace of the tutorial's fall, before the end.
+        track("wanderer_pace", "wanderer", "sprite2d.SpriteAnimation.ticks_per_frame",
+              [(ARRIVAL[0], 3), (ARRIVAL[0] + 1, 1)], smooth=False),
         track("camera_zoom", "camera", "camera2d.Camera.zoom", OPENING_ZOOM),
-        # Looking ahead of him, to the planet, while he goes to it.
-        track("camera_ahead_x", "camera", "follow2d.Follow.offset_x",
-              [(WANDER[0], 0), (950, 700), (1150, 500), (WANDER[1], 0)]),
-        track("camera_ahead_y", "camera", "follow2d.Follow.offset_y",
-              [(WANDER[0], 0), (950, 700), (1150, 350), (WANDER[1], 0)]),
-        track("barrier_shows", "great_barrier", "sprite2d.Sprite.alpha",
-              [(860, 0), (1000, 150)]),
-        track("planet_shows", "planet", "sprite2d.Sprite.alpha", [(860, 0), (980, 255)]),
-        track("white_comes", "whiteout", "sprite2d.Sprite.alpha",
-              [(WANDER[1] - 50, 0), (OPENING_TICKS - 10, 255)]),
+        # Where the tutorial's camera will have him: a little left and below the middle.
+        track("camera_aims_x", "camera", "follow2d.Follow.offset_x",
+              [(ARRIVAL[0], 0), (ARRIVAL[1], ARRIVAL_CAMERA_DX)]),
+        track("camera_aims_y", "camera", "follow2d.Follow.offset_y",
+              [(ARRIVAL[0], 0), (ARRIVAL[1], -ARRIVAL_CAMERA_DY)]),
+        track("camera_bloom", "camera", "postfx.Effects.bloom", [(ARRIVAL[0], 0.8),
+                                                                (ARRIVAL[1], 0.45)]),
+        track("camera_vignette", "camera", "postfx.Effects.vignette",
+              [(ARRIVAL[0], 0.5), (ARRIVAL[1], BASE_VIGNETTE)]),
+        track("camera_vignette_size", "camera", "postfx.Effects.vignette_size",
+              [(ARRIVAL[0], 0.4), (ARRIVAL[1], BASE_VIGNETTE_SIZE)]),
+        track("camera_rays", "camera", "postfx.Effects.rays", [(ARRIVAL[0], 0),
+                                                              (ARRIVAL[1], 0.22)]),
+    ]
+    later(made, BANG)
+    made += big_bang_seed() + [
+        # The end: the tutorial, he falls to the ground (the same picture); or, Escape, the
+        # tutorial at once.
+        entity("to_arrival", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "arrival", "after_ticks": BANG + OPENING_TICKS}}),
+        entity("to_tutorial", 0, 0, {"scene_switch.GoToScene": {
+            "scene": "tutorial", "use_action": True, "action": "skip"}}),
     ]
     return made
 
@@ -3480,15 +3738,17 @@ TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gath
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
         "next_planet", "next_planet_air", "nebula", "nebula_colour", "flash", "great_barrier", "planet", "sleeper",
-        "wanderer", "void", "core", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
+        "wanderer", "void", "core", "seed", *FAR_PLANES, "sky_t", "veil_t", "planet_near", "rays_a", "rays_b", "streak", "ghost_0", "ghost_1", "ghost_2", "ghost_3",
         "sleeper_bubble", "whiteout", "whitein", "dome", "runaway", "blast", "to_follow", "pause"]
 TAGS += ([f"cloud_{index}" for index in range(CLOUD_COUNT)] +
-         [f"glow_{index}" for index in range(GLOW_COUNT)])
+         [f"glow_{index}" for index in range(GLOW_COUNT)] +
+         [f"burst_{name}" for name, _ in FRAGMENT_COLOURS + [("grey", None)]] +
+         [f"rocks_{index}" for index in range(6)] + ["rocks_near_1", "rocks_near_4"])
 ATLASES = ["sky", "sky_colour", "stars_1", "stars_2", "stars_3", "stars_4", "gas", "gas_colour", "veil", "veil_colour", "hills_far", "hills_near", "cave", "dome", "mountains", "mist", "ground_far", "front", "hero",
            "hero_curled", "orb", "black_hole", "rock", "fossil", "barrier", "harvest",
            "inventory", "plain", "font", "glow", "planet", "button", "crystal", "cave_glints",
-           "cave_far", "ore", "bang_rays", "bang_core", "flares", "clouds", "asteroids"]
-SCENE_NAMES = ["title", "opening", "tutorial", "sandbox", "sandbox_low"]
+           "cave_far", "ore", "planet_near", "great_barrier", "bang_rays", "bang_core", "flares", "clouds", "asteroids"]
+SCENE_NAMES = ["title", "opening", "arrival", "tutorial", "sandbox", "sandbox_low"]
 SCENARIOS = ["walks", "jumps", "terrain", "life_drains", "edges_turn", "assigns_hands", "wheel",
              "hands_apart", "black_hole", "barrier_catches_rock", "harvest_sorts",
              "inventory_opens", "walking_costs", "charged_jump", "dies_and_restarts",
@@ -3580,6 +3840,7 @@ def write_scenes():
     write_scene("sandbox", sandbox_scene())
     write_scene("sandbox_low", sandbox_scene(matter=20, carbon=8))
     write_scene("tutorial", tutorial())
+    write_scene("arrival", tutorial(arrival=True))
     write_scene("opening", opening())
     write_scene("title", title())
 
@@ -3619,6 +3880,8 @@ def write_pictures():
     save(glow(), "glow")
     save(crystal(), "crystal")
     save(planet(), "planet")
+    save(planet_near(), "planet_near")
+    save(bubble(0.9, 2048), "great_barrier")
     save(bang_rays(), "bang_rays")
     save(bang_core(), "bang_core")
     save(flares(), "flares", cell=(512, 128))
