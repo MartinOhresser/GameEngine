@@ -8,7 +8,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": -32.73
+          "y": -31.29
         },
         "tag.Tag": {
           "tag": "sky"
@@ -50,7 +50,7 @@
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": -32.73
+          "y": -31.29
         },
         "sprite2d.Sprite": {
           "atlas": "veil",
@@ -3726,10 +3726,12 @@
           "width": 128,
           "height": 128,
           "layer": 10,
-          "unlit": true
+          "unlit": true,
+          "frame": 312
         },
         "sprite2d.Animator": {
-          "set": "hero"
+          "set": "hero",
+          "clip": 6
         },
         "light2d.Light": {
           "radius": 340,
@@ -3791,6 +3793,12 @@
           "field": "transform2d.Velocity.x",
           "per_unit": 0.0008
         },
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 312,
+          "frame_count": 24,
+          "ticks_per_frame": 1,
+          "looping": true
+        },
         "transform2d.Smooth": {
           "share": 0.3,
           "most": 20,
@@ -3839,7 +3847,7 @@
           "blue": 106
         },
         "camera2d.CameraFollow": {
-          "stiffness": 0.06,
+          "stiffness": 0.25,
           "dead_x": 30,
           "dead_y": 60,
           "offset_y": -40,

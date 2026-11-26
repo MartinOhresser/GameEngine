@@ -2352,7 +2352,7 @@ def inventory():
     return made
 
 
-def camera(bound_right, bound_bottom, y=None):
+def camera(bound_right, bound_bottom, y=None, stiffness=0.06):
     return entity("camera", VIEW_W / 2, VIEW_H / 2 if y is None else y, {
         "tag.Tag": {"tag": "camera"},
         "camera2d.Camera": {"zoom": ZOOM},
@@ -2366,7 +2366,7 @@ def camera(bound_right, bound_bottom, y=None):
         # The dark between the lights: what the hero's glow does not reach stays dim.
         "light2d.Ambient": {"red": 92, "green": 94, "blue": 106},
         # Ori's camera: soft, a little ahead, the hero a little below the middle.
-        "camera2d.CameraFollow": {"stiffness": 0.06, "dead_x": 30, "dead_y": 60,
+        "camera2d.CameraFollow": {"stiffness": stiffness, "dead_x": 30, "dead_y": 60,
                                   "offset_y": -40, "look_ahead": 0.25,
                                   "bounded": True, "bound_left": 0, "bound_right": bound_right,
                                   "bound_top": -2000, "bound_bottom": bound_bottom},
@@ -3204,9 +3204,10 @@ def tutorial(arrival=False):
     return (arrival_sky_end(sky_entity(), arrival) + far_planes(scenery(GROUND_Y), arrival) +
             [ground, back] + shapes +
             things +
-            [hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True,
-                         falling=ARRIVAL_VY if arrival else 0),
-             camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None)] +
+            [falling_now(hero_entity(LANDING_X, ARRIVAL_Y if arrival else 220, locked=True,
+                                     falling=ARRIVAL_VY if arrival else 0), arrival),
+             camera(TUTORIAL_W, bottom, ARRIVAL_Y - ARRIVAL_CAMERA_DY if arrival else None,
+                    stiffness=0.25 if arrival else 0.06)] +
             hero_clips() + hero_trail() + hands() + powers(harvest_locked=True) +
             inventory() + jump_hole() +
             death(watch_story=True) + reserves(matter=80, carbon=80, floor=25) +
@@ -3235,6 +3236,20 @@ def far_planes(made, arrival):
     return made
 
 
+def falling_now(hero, arrival):
+    """With arrival, he is already falling, at the first frame of the fall's loop, where the
+    opening leaves him (its last frame is the loop's last): no pose of rest in between."""
+    if arrival:
+        fall_first, fall_count = hero_frames("fall")
+        fall_id = [name for name, _, _ in HERO_CLIPS].index("fall") + 1
+        hero["components"]["sprite2d.Sprite"]["frame"] = fall_first
+        hero["components"]["sprite2d.Animator"]["clip"] = fall_id
+        hero["components"]["sprite2d.SpriteAnimation"] = {
+            "first_frame": fall_first, "frame_count": fall_count, "ticks_per_frame": 1,
+            "looping": True}
+    return hero
+
+
 def arrival_sky_end(made, arrival):
     """With arrival, the sky is bigger and still coming down as the opening leaves it; it stops
     as he lands (one motion with the opening's)."""
@@ -3242,10 +3257,12 @@ def arrival_sky_end(made, arrival):
         return made
     sky = next(item for item in made if item["name"] == "sky")
     sky["components"]["sprite2d.Sprite"].update(width=VIEW_W * SKY_BIG, height=VIEW_H * SKY_BIG)
-    sky["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS)
+    # The opening's last frame showed it at OPENING_TICKS - 2: this one, one tick on; the
+    # track's first key, the next.
+    sky["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
     veil = next(item for item in made if item["name"] == "veil")
     veil["components"]["tag.Tag"] = {"tag": "veil"}
-    veil["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS)
+    veil["components"]["transform2d.Position"]["y"] = sky_slide(OPENING_TICKS - 1)
     ticks = [0, 1, 30, 60, 85, ARRIVAL_DOWN]
     keys = [(tick, sky_slide(OPENING_TICKS + tick)) for tick in ticks]
     return made + [curve("sky_comes_down", "sky", "transform2d.Position.y", keys),
