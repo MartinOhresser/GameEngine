@@ -35,6 +35,19 @@
         { "name": "add", "type": "bool", "default": false },
         { "name": "link", "type": "u32", "default": 4294967295, "ref": "field" }
       ]
+    },
+    {
+      "name": "Press",
+      "description": "When start is pressed, the game holds action at value for ticks ticks, delay ticks later, as a player would: a demonstration (the character walks or jumps by itself to show how), an attract mode, a cut scene. Several Presses on the same start make a sequence. times counts the presses made. A Disabled entity does not press.",
+      "replicable": false,
+      "fields": [
+        { "name": "start", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "action", "type": "u32", "default": 0, "ref": "action" },
+        { "name": "value", "type": "f32", "default": 1 },
+        { "name": "delay", "type": "u32", "default": 0 },
+        { "name": "ticks", "type": "u32", "default": 60 },
+        { "name": "times", "type": "u32", "default": 0 }
+      ]
     }
   ],
   "systems": [
@@ -50,6 +63,13 @@
       "description": "Applies every OnAction whose action is pressed this tick.",
       "stage": "FixedUpdate",
       "reads": ["OnAction", "tag.Tag", "transform2d.Disabled"]
+    },
+    {
+      "name": "press",
+      "description": "Starts every Press whose start is pressed this tick: its action is held from the next tick on (after its delay), then let go.",
+      "stage": "FixedUpdate",
+      "reads": ["transform2d.Disabled"],
+      "writes": ["Press"]
     }
   ]
 }

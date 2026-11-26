@@ -42,6 +42,8 @@ void insert_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.dir_x = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "dir_y") {
             component.dir_y = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "working") {
+            component.working = ::ge::app::scalar_as<bool>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -88,6 +90,9 @@ std::optional<::ge::app::Scalar> read_component_0(const ::ge::ecs::World& world,
     }
     if (field == "dir_y") {
         return ::ge::app::Scalar{static_cast<double>(component->dir_y)};
+    }
+    if (field == "working") {
+        return ::ge::app::Scalar{static_cast<bool>(component->working)};
     }
     return std::nullopt;
 }
@@ -147,10 +152,14 @@ bool write_component_0(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->dir_y = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "working") {
+        component->working = ::ge::app::scalar_as<bool>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 12> component_0_fields{{{"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"from", "u32", "tag", false}, {"range", "f32", "", false}, {"lock", "bool", "", false}, {"x", "f32", "", false}, {"y", "f32", "", false}, {"reach_x", "f32", "", false}, {"reach_y", "f32", "", false}, {"distance", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 13> component_0_fields{{{"pointer_x", "u32", "action", false}, {"pointer_y", "u32", "action", false}, {"from", "u32", "tag", false}, {"range", "f32", "", false}, {"lock", "bool", "", false}, {"x", "f32", "", false}, {"y", "f32", "", false}, {"reach_x", "f32", "", false}, {"reach_y", "f32", "", false}, {"distance", "f32", "", false}, {"dir_x", "f32", "", false}, {"dir_y", "f32", "", false}, {"working", "bool", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 1> components{{{"Aim", true, component_0_fields, insert_component_0, read_component_0, write_component_0}}};
 

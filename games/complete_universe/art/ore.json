@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "ore",
+  "image": "ore.png",
+  "cell_width": 96,
+  "cell_height": 96,
+  "filter": "linear"
+}

@@ -11,7 +11,7 @@
 
 namespace ge::mod::aim2d {
 
-/// Puts the entity's Position on the point of the world under the pointer, whose place on the screen (in pixels of the game's window) the actions pointer_x and pointer_y give (none: the actions named pointer_x and pointer_y), seen through the oldest camera2d.Camera. With from, the entity that answers to that tag (a tag.Tag) is the one who aims: the point is kept within range units of it (0: no limit). With lock, the Position follows the pointer only while the entity is transform2d.Disabled: it is placed where it is when it starts working, and stays there (a wall raised where one clicked). The module keeps x and y, the point under the pointer itself; reach_x and reach_y, that point brought within range (where the Position goes, locked or not: the other end of a wall being drawn); distance, how far it is from the one who aims; and dir_x and dir_y, the direction from the one who aims to it (a length of 1; 1, 0 when they are at the same place).
+/// Puts the entity's Position on the point of the world under the pointer, whose place on the screen (in pixels of the game's window) the actions pointer_x and pointer_y give (none: the actions named pointer_x and pointer_y), seen through the oldest camera2d.Camera. With from, the entity that answers to that tag (a tag.Tag) is the one who aims: the point is kept within range units of it (0: no limit). With lock, the Position follows the pointer only while the entity is transform2d.Disabled: it is placed where it is when it starts working, and stays there (a wall raised where one clicked); on the tick it stops working it is still there, so that what it leaves behind is placed where it was locked (working is kept for that). The module keeps x and y, the point under the pointer itself; reach_x and reach_y, that point brought within range (where the Position goes, locked or not: the other end of a wall being drawn); distance, how far it is from the one who aims; and dir_x and dir_y, the direction from the one who aims to it (a length of 1; 1, 0 when they are at the same place).
 struct Aim {
     std::uint32_t pointer_x = 4294967295U;
     std::uint32_t pointer_y = 4294967295U;
@@ -25,6 +25,7 @@ struct Aim {
     float distance = 0.0F;
     float dir_x = 1.0F;
     float dir_y = 0.0F;
+    bool working = false;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(pointer_x);
@@ -39,6 +40,7 @@ struct Aim {
         hasher.add(distance);
         hasher.add(dir_x);
         hasher.add(dir_y);
+        hasher.add(working);
     }
 
     [[nodiscard]] friend bool operator==(const Aim&, const Aim&) = default;

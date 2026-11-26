@@ -51,19 +51,24 @@ Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9
 
 | # | Étape | Le joueur… | Suite quand… |
 | --- | --- | --- | --- |
-| 0 | **Ouverture** | regarde l'explosion, le ciel en couleurs qui s'éteint, la barrière et la planète (Échap pour passer) | fin de la cinématique |
-| 1 | **Atterrissage** | regarde : il se pose sur une roche dure (rien ne peut s'y creuser) | trois secondes |
-| 2 | **Le noir** | maintient le clic droit sur les pierres : un trou noir les attire et les avale | deux pierres avalées, puis 6 s d'entraînement |
-| 3 | **Le blanc** | clic gauche : une bulle ; clic gauche glissé : un mur plat | deux barrières, puis 6 s |
-| 4 | **La récolte** | maintient F sur un fossile : il rejoint ses réserves, avec le sol autour | du carbone gagné, puis 5 s |
-| 5 | **Les réserves** | ouvre l'inventaire (Tab) : matière à droite, carbone à gauche | l'inventaire ouvert, puis 3 s |
-| 6 | **Marcher** | marche (Q/D, flèches) ; un petit trou noir tire chaque jambe. Le saut est déjà là | le bout du chemin |
-| 7 | **Sauter** | maintient Espace puis relâche : saute le fossé, puis monte sur le rebord | il est sur le rebord, puis 2 s |
-| 8 | **Le carbone s'épuise** | récolte les fossiles de la cuvette, ou le sol (il contient du carbone) | le carbone au-dessus de la moitié |
-| 9 | **La matière s'épuise** | récolte les pierres, ou creuse le sol ; il peut s'y enfoncer, la caméra suit | la matière au-dessus de la moitié |
-| 10 | **La mort** | la matière baisse quoi qu'il fasse, tout devient blanc | il revient |
-| 11 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil ; ses réserves lui sont rendues | six secondes |
-| 12 | **Le départ** | maintient Espace cinq secondes : le trou noir du saut grossit au-dessus de sa tête, lui échappe, la planète est aspirée, le dôme fond, tout devient blanc | « à suivre » |
+| 0 | **Ouverture** et **atterrissage** | regarde | trois secondes |
+| 1 | **Le noir, montré** | regarde, de près, un trou noir avaler une pierre ; le principe est expliqué | six secondes |
+| 2 | **À toi : le noir** | maintient le clic droit sur les pierres | deux pierres avalées, puis 6 s d'entraînement |
+| 3 | **Le blanc, montré** | regarde une bulle puis un mur se lever | six secondes |
+| 4 | **À toi : le blanc** | clic gauche : une bulle ; clic gauche glissé : un mur | deux barrières, puis 6 s |
+| 5 | **La récolte, montrée** | regarde une bulle de récolte avaler un fossile | six secondes |
+| 6 | **À toi : la récolte** | maintient F sur un fossile | du carbone gagné, puis 5 s |
+| 7 | **Les réserves** | ouvre l'inventaire (Tab) | l'inventaire ouvert, puis 3 s |
+| 8 | **Marcher, montré** | le regarde marcher tout seul, le petit trou noir sous le pied | quatre secondes |
+| 9 | **À toi : marcher** | Q/D, flèches | le bout du chemin |
+| 10 | **Sauter, montré** | le regarde charger puis sauter | quatre secondes |
+| 11 | **À toi : sauter** | maintient Espace puis relâche : le fossé, puis le rebord | sur le rebord, puis 2 s |
+| 12 | **Les deux mains** | creuse le pilier au noir, puis franchit le gouffre sur des murs de blanc | de l'autre côté |
+| 13 | **Le carbone s'épuise** | récolte les fossiles de la cuvette, ou le sol | le carbone au-dessus de la moitié |
+| 14 | **La matière s'épuise** | récolte les pierres, ou creuse le sol | la matière au-dessus de la moitié |
+| 15 | **La mort** | la matière baisse quoi qu'il fasse | il revient |
+| 16 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil | six secondes |
+| 17 | **Le départ** | maintient Espace cinq secondes : il est propulsé en orbite | « à suivre » |
 
 La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle, tout s'arrête (la consommation aussi), le monde devient flou, et le menu (Reprendre, Retour au titre) s'affiche dans la bulle (D6, T8). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 

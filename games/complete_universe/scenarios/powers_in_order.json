@@ -1,10 +1,11 @@
 // Each power works from its own step on (docs/complete_universe/TUTORIEL.md): nothing during the
-// landing; then the black only (right button), not yet the white (left button) nor the harvest.
+// landing, nor while the black is shown; then the black only (right button), not yet the white
+// (left button) nor the harvest.
 {
   "schema_version": 1,
   "name": "powers_in_order",
   "scene": "tutorial",
-  "ticks": 300,
+  "ticks": 640,
   "inputs": [
     { "tick": 0, "action": "pointer_x", "value": 1095 },
     { "tick": 0, "action": "pointer_y", "value": 600 },
@@ -15,6 +16,8 @@
     { "tick": 240, "action": "harvest", "value": 1 },
     { "tick": 270, "action": "harvest", "value": 0 },
     { "tick": 280, "action": "hand_right", "value": 1 },
+    { "tick": 320, "action": "hand_right", "value": 0 },
+    { "tick": 600, "action": "hand_right", "value": 1 },
   ],
   "expect": [
     { "at": 130, "check": "black_hole.attractor2d.Attractor.radius == 0" },
@@ -23,7 +26,10 @@
     { "at": 220, "check": "white_caster.barrier2d.Caster.working == false" },
     { "at": 240, "check": "white_caster.barrier2d.Caster.raised == 0" },
     { "at": 260, "check": "harvest_bubble.loadout.Ability.active == false" },
-    { "at": 290, "check": "black_hole.loadout.Ability.active == true" },
+    // While it is shown, the black does nothing yet; then it is the player's.
+    { "at": 290, "check": "black_hole.loadout.Ability.active == false" },
+    { "at": 590, "check": "story.phase.Phase.current == 2" },
+    { "at": 620, "check": "black_hole.loadout.Ability.active == true" },
     // The white hand is on the left, the black one on the right, and they stay there.
     "hand_left.loadout.Hand.item == 1",
     "hand_right.loadout.Hand.item == 0",

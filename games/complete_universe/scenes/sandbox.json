@@ -151,6 +151,9 @@
           "x": 1.35,
           "y": 1.35,
           "repeat_x": true
+        },
+        "tag.Tag": {
+          "tag": "front"
         }
       }
     },
@@ -199,11 +202,11 @@
       }
     },
     {
-      "name": "inside",
+      "name": "inside_0",
       "components": {
         "transform2d.Position": {
           "x": 0,
-          "y": 1392.0
+          "y": 1384.0
         },
         "sprite2d.Sprite": {
           "atlas": "cave",
@@ -215,6 +218,201 @@
           "x": 1,
           "y": 1,
           "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_glints_0",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1384.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_glints",
+          "width": 1024,
+          "height": 1536,
+          "layer": -4,
+          "additive": true,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 2920.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave",
+          "width": 1024,
+          "height": 1536,
+          "layer": -5
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_glints_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 2920.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_glints",
+          "width": 1024,
+          "height": 1536,
+          "layer": -4,
+          "additive": true,
+          "unlit": true,
+          "alpha": 200
+        },
+        "sprite2d.Parallax": {
+          "x": 1,
+          "y": 1,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "inside_far",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 1724.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "cave_far",
+          "width": 1024,
+          "height": 2048,
+          "layer": -7,
+          "alpha": 255
+        },
+        "sprite2d.Parallax": {
+          "x": 0.8,
+          "y": 0.8,
+          "repeat_x": true
+        }
+      }
+    },
+    {
+      "name": "mountains_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3188.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -80,
+          "unlit": true,
+          "red": 31,
+          "green": 31,
+          "blue": 33
+        },
+        "sprite2d.Parallax": {
+          "x": 0.12,
+          "y": 0.12
+        }
+      }
+    },
+    {
+      "name": "hills_far_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3263.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -60,
+          "unlit": true,
+          "red": 58,
+          "green": 58,
+          "blue": 62
+        },
+        "sprite2d.Parallax": {
+          "x": 0.25,
+          "y": 0.25
+        }
+      }
+    },
+    {
+      "name": "hills_near_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3413.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -30,
+          "unlit": true,
+          "red": 20,
+          "green": 20,
+          "blue": 21
+        },
+        "sprite2d.Parallax": {
+          "x": 0.55,
+          "y": 0.55
+        }
+      }
+    },
+    {
+      "name": "ground_far_skirt",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 3648.0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 200000,
+          "height": 6000,
+          "layer": -8,
+          "unlit": true,
+          "red": 12,
+          "green": 12,
+          "blue": 12
+        },
+        "sprite2d.Parallax": {
+          "x": 0.88,
+          "y": 0.88
+        }
+      }
+    },
+    {
+      "name": "front_fades",
+      "components": {
+        "bind.Bind": {
+          "source": "transform2d.Position.y",
+          "from": "camera",
+          "target": "sprite2d.Sprite.alpha",
+          "onto": "front",
+          "low": 540,
+          "high": 720,
+          "out_low": 255,
+          "out_high": 0,
+          "power": 1
         }
       }
     },
@@ -308,7 +506,7 @@
         },
         "terrain2d.Look": {
           "layer": 0,
-          "pixels": 4,
+          "pixels": 6,
           "red": 12,
           "green": 12,
           "blue": 14,

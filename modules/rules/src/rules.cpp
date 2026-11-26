@@ -1,6 +1,7 @@
 #include "ge/app/fields.hpp"
 #include "ge/app/input.hpp"
 #include "ge/app/scene.hpp"
+#include "ge/app/time.hpp"
 #include "ge/mod/rules/rules.gen.hpp"
 #include "ge/mod/tag/find.hpp"
 #include "ge/mod/transform2d/transform2d.gen.hpp"
@@ -8,6 +9,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -93,6 +95,30 @@ void on_action(ecs::World& world) {
         const float next = rule.add ? number(world, target, field) + rule.value : rule.value;
         static_cast<void>(field->component->write(world, target, field->field,
                                                   app::Scalar{static_cast<double>(next)}));
+    });
+}
+
+void press(ecs::World& world) {
+    const auto* names = world.resource<app::ActionNames>();
+    const auto* actions = world.resource<app::Actions>();
+    auto* script = world.resource<app::ScriptedInput>();
+    const auto* time = world.resource<app::Time>();
+    if (names == nullptr || actions == nullptr || script == nullptr || time == nullptr) {
+        return;
+    }
+    world.each<Press>([&](ecs::Entity entity, Press& press) {
+        if (press.start >= names->names.size() || press.action >= names->names.size() ||
+            !actions->pressed(names->names[press.start]) ||
+            world.has<transform2d::Disabled>(entity)) {
+            return;
+        }
+        // The script of tick N is applied as tick N starts: the next tick is the first that can
+        // still be held.
+        const std::uint64_t from = time->tick + 1U + press.delay;
+        const std::string& action = names->names[press.action];
+        script->add(from, action, press.value);
+        script->add(from + std::max<std::uint32_t>(press.ticks, 1U), action, 0.0F);
+        press.times += 1U;
     });
 }
 

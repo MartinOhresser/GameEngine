@@ -100,6 +100,9 @@
                   },
                   "dir_y": {
                     "type": "number"
+                  },
+                  "working": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -2883,6 +2886,40 @@
                     "type": "boolean"
                   },
                   "link": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                },
+                "additionalProperties": false
+              },
+              "rules.Press": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "action": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "delay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "ticks": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "times": {
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 4294967295

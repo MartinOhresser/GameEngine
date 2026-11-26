@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "cave_glints",
+  "image": "cave_glints.png",
+  "cell_width": 1024,
+  "cell_height": 1536,
+  "filter": "linear"
+}
