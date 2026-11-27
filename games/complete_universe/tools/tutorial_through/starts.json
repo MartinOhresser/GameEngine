@@ -1,0 +1,14 @@
+{
+ "black": 1950,
+ "black_charge_test": 2340,
+ "white": 2775,
+ "white_protect": 3560,
+ "harvest": 4225,
+ "walk": 4890,
+ "jump": 5395,
+ "obstacles_test": 5955,
+ "lack_white_test": 7360,
+ "lack_black_test": 7855,
+ "departure": 8665,
+ "orbit_test": 10205
+}
