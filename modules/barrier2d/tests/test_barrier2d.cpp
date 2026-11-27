@@ -194,3 +194,24 @@ TEST_CASE("barrier2d: a barrier springs up when raised, lets glints fly, then br
     CHECK(app.world().get<barrier2d::Barrier>(bubble)->age > 0.9F);
     // It still stops what it stops from the first tick: only the drawing springs up.
 }
+
+TEST_CASE("barrier2d: held counts the seconds something stays inside a bubble") {
+    ge::app::App app = game();
+    const ge::ecs::Entity bubble = app.world().spawn();
+    CHECK(app.world().insert(bubble, transform2d::Position{0.0F, 0.0F}));
+    barrier2d::Barrier made;
+    made.radius = 50.0F;
+    made.holds = 4U; // the layer of the walker below
+    CHECK(app.world().insert(bubble, made));
+    const ge::ecs::Entity walker = app.world().spawn();
+    CHECK(app.world().insert(walker, transform2d::Position{10.0F, 0.0F}));
+    CHECK(app.world().insert(walker, collision2d::Collider{10.0F, 10.0F, 4U, 0U}));
+    app.run_frames(60);
+    CHECK(app.world().get<barrier2d::Barrier>(bubble)->held == 0.0F); // down: nothing counted
+    app.world().get<barrier2d::Barrier>(bubble)->up = true;
+    app.run_frames(60);
+    CHECK(std::abs(app.world().get<barrier2d::Barrier>(bubble)->held - 1.0F) < 0.05F);
+    app.world().get<transform2d::Position>(walker)->x = 80.0F; // out: back to 0
+    app.run_frames(2);
+    CHECK(app.world().get<barrier2d::Barrier>(bubble)->held == 0.0F);
+}

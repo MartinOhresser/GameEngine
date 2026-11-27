@@ -241,10 +241,14 @@ void insert_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
             component.spark_size = ::ge::app::scalar_as<float>(field.value);
         } else if (field.name == "spark_color") {
             component.spark_color = ::ge::app::scalar_as<std::uint32_t>(field.value);
+        } else if (field.name == "holds") {
+            component.holds = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "order") {
             component.order = ::ge::app::scalar_as<std::uint32_t>(field.value);
         } else if (field.name == "age") {
             component.age = ::ge::app::scalar_as<float>(field.value);
+        } else if (field.name == "held") {
+            component.held = ::ge::app::scalar_as<float>(field.value);
         }
     }
     static_cast<void>(world.insert(entity, std::move(component)));
@@ -316,11 +320,17 @@ std::optional<::ge::app::Scalar> read_component_1(const ::ge::ecs::World& world,
     if (field == "spark_color") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->spark_color)};
     }
+    if (field == "holds") {
+        return ::ge::app::Scalar{static_cast<std::int64_t>(component->holds)};
+    }
     if (field == "order") {
         return ::ge::app::Scalar{static_cast<std::int64_t>(component->order)};
     }
     if (field == "age") {
         return ::ge::app::Scalar{static_cast<double>(component->age)};
+    }
+    if (field == "held") {
+        return ::ge::app::Scalar{static_cast<double>(component->held)};
     }
     return std::nullopt;
 }
@@ -412,6 +422,10 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->spark_color = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
     }
+    if (field == "holds") {
+        component->holds = ::ge::app::scalar_as<std::uint32_t>(value);
+        return true;
+    }
     if (field == "order") {
         component->order = ::ge::app::scalar_as<std::uint32_t>(value);
         return true;
@@ -420,10 +434,14 @@ bool write_component_1(::ge::ecs::World& world, ::ge::ecs::Entity entity,
         component->age = ::ge::app::scalar_as<float>(value);
         return true;
     }
+    if (field == "held") {
+        component->held = ::ge::app::scalar_as<float>(value);
+        return true;
+    }
     return false;
 }
 
-constexpr std::array<::ge::app::FieldInfo, 22> component_1_fields{{{"pool", "u32", "", false}, {"up", "bool", "", false}, {"round", "bool", "", false}, {"radius", "f32", "", false}, {"end_x", "f32", "", false}, {"end_y", "f32", "", false}, {"thickness", "f32", "", false}, {"layer", "u32", "layer", true}, {"freezes", "u32", "layer", true}, {"atlas", "u32", "atlas", false}, {"bubble", "u32", "", false}, {"wall", "u32", "", false}, {"draw_layer", "i32", "", false}, {"appear", "f32", "", false}, {"wobble", "f32", "", false}, {"sparks", "u32", "", false}, {"spark_speed", "f32", "", false}, {"spark_life", "f32", "", false}, {"spark_size", "f32", "", false}, {"spark_color", "u32", "", false}, {"order", "u32", "", false}, {"age", "f32", "", false}}};
+constexpr std::array<::ge::app::FieldInfo, 24> component_1_fields{{{"pool", "u32", "", false}, {"up", "bool", "", false}, {"round", "bool", "", false}, {"radius", "f32", "", false}, {"end_x", "f32", "", false}, {"end_y", "f32", "", false}, {"thickness", "f32", "", false}, {"layer", "u32", "layer", true}, {"freezes", "u32", "layer", true}, {"atlas", "u32", "atlas", false}, {"bubble", "u32", "", false}, {"wall", "u32", "", false}, {"draw_layer", "i32", "", false}, {"appear", "f32", "", false}, {"wobble", "f32", "", false}, {"sparks", "u32", "", false}, {"spark_speed", "f32", "", false}, {"spark_life", "f32", "", false}, {"spark_size", "f32", "", false}, {"spark_color", "u32", "", false}, {"holds", "u32", "layer", true}, {"order", "u32", "", false}, {"age", "f32", "", false}, {"held", "f32", "", false}}};
 
 constexpr std::array<::ge::app::ComponentInfo, 2> components{{{"Caster", true, component_0_fields, insert_component_0, read_component_0, write_component_0}, {"Barrier", true, component_1_fields, insert_component_1, read_component_1, write_component_1}}};
 

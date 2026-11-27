@@ -2970,6 +2970,9 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "barrier"
+        },
         "barrier2d.Barrier": {
           "pool": 0,
           "layer": [
@@ -2982,6 +2985,9 @@
           "bubble": 0,
           "wall": 1,
           "draw_layer": 14,
+          "holds": [
+            "hero"
+          ],
           "appear": 0.35,
           "wobble": 0.025,
           "sparks": 16,
@@ -3954,10 +3960,10 @@
           "from": "hold",
           "target": "sprite2d.Sprite.width",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": 2,
-          "out_high": 1002.0,
+          "out_high": 2502.0,
           "power": 1
         }
       }
@@ -3970,10 +3976,10 @@
           "from": "hold",
           "target": "sprite2d.Sprite.height",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": 2,
-          "out_high": 1002.0,
+          "out_high": 2502.0,
           "power": 1
         }
       }
@@ -3986,10 +3992,10 @@
           "from": "hold",
           "target": "follow2d.Follow.offset_y",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": -78,
-          "out_high": -12078,
+          "out_high": -30078,
           "power": 1
         }
       }
@@ -4002,8 +4008,8 @@
           "from": "hold",
           "target": "jump.Jumper.speed",
           "onto": "hero",
-          "low": 5.0,
-          "high": 8.0,
+          "low": 3.0,
+          "high": 5.0,
           "out_low": 560,
           "out_high": 1900,
           "power": 1

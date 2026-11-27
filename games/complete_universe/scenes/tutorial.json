@@ -1071,7 +1071,87 @@
       "name": "rock_demo",
       "components": {
         "transform2d.Position": {
-          "x": 960,
+          "x": 920,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 0
+        }
+      }
+    },
+    {
+      "name": "debris_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 950,
+          "y": 589
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 1800,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 0
+        }
+      }
+    },
+    {
+      "name": "debris_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 895,
           "y": 589
         },
         "sprite2d.Sprite": {
@@ -5681,6 +5761,9 @@
           "x": 0,
           "y": 0
         },
+        "tag.Tag": {
+          "tag": "barrier"
+        },
         "barrier2d.Barrier": {
           "pool": 0,
           "layer": [
@@ -5693,6 +5776,9 @@
           "bubble": 0,
           "wall": 1,
           "draw_layer": 14,
+          "holds": [
+            "hero"
+          ],
           "appear": 0.35,
           "wobble": 0.025,
           "sparks": 16,
@@ -6665,10 +6751,10 @@
           "from": "hold",
           "target": "sprite2d.Sprite.width",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": 2,
-          "out_high": 1002.0,
+          "out_high": 2502.0,
           "power": 1
         }
       }
@@ -6681,10 +6767,10 @@
           "from": "hold",
           "target": "sprite2d.Sprite.height",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": 2,
-          "out_high": 1002.0,
+          "out_high": 2502.0,
           "power": 1
         }
       }
@@ -6697,10 +6783,10 @@
           "from": "hold",
           "target": "follow2d.Follow.offset_y",
           "onto": "jump_hole",
-          "low": 5.0,
-          "high": 1005.0,
+          "low": 3.0,
+          "high": 1003.0,
           "out_low": -78,
-          "out_high": -12078,
+          "out_high": -30078,
           "power": 1
         }
       }
@@ -6713,8 +6799,8 @@
           "from": "hold",
           "target": "jump.Jumper.speed",
           "onto": "hero",
-          "low": 5.0,
-          "high": 8.0,
+          "low": 3.0,
+          "high": 5.0,
           "out_low": 560,
           "out_high": 1900,
           "power": 1
@@ -6934,6 +7020,58 @@
             "landing"
           ],
           "from_any": false,
+          "to": "entity_show"
+        }
+      }
+    },
+    {
+      "name": "after_entity_show",
+      "components": {
+        "phase.Transition": {
+          "action": "entity_show_done",
+          "from": [
+            "entity_show"
+          ],
+          "from_any": false,
+          "to": "entity_black"
+        }
+      }
+    },
+    {
+      "name": "after_entity_black",
+      "components": {
+        "phase.Transition": {
+          "action": "entity_black_done",
+          "from": [
+            "entity_black"
+          ],
+          "from_any": false,
+          "to": "entity_white"
+        }
+      }
+    },
+    {
+      "name": "after_entity_white",
+      "components": {
+        "phase.Transition": {
+          "action": "entity_white_done",
+          "from": [
+            "entity_white"
+          ],
+          "from_any": false,
+          "to": "entity_balance"
+        }
+      }
+    },
+    {
+      "name": "after_entity_balance",
+      "components": {
+        "phase.Transition": {
+          "action": "entity_balance_done",
+          "from": [
+            "entity_balance"
+          ],
+          "from_any": false,
           "to": "black_show"
         }
       }
@@ -6960,17 +7098,30 @@
             "black"
           ],
           "from_any": false,
-          "to": "black_practice"
+          "to": "black_charge"
         }
       }
     },
     {
-      "name": "after_black_practice",
+      "name": "after_black_charge",
       "components": {
         "phase.Transition": {
-          "action": "black_next",
+          "action": "black_charge_done",
           "from": [
-            "black_practice"
+            "black_charge"
+          ],
+          "from_any": false,
+          "to": "black_charge_test"
+        }
+      }
+    },
+    {
+      "name": "after_black_charge_test",
+      "components": {
+        "phase.Transition": {
+          "action": "black_charge_test_done",
+          "from": [
+            "black_charge_test"
           ],
           "from_any": false,
           "to": "white_show"
@@ -6999,17 +7150,43 @@
             "white"
           ],
           "from_any": false,
-          "to": "white_practice"
+          "to": "white_cost"
         }
       }
     },
     {
-      "name": "after_white_practice",
+      "name": "after_white_cost",
       "components": {
         "phase.Transition": {
-          "action": "white_next",
+          "action": "white_cost_done",
           "from": [
-            "white_practice"
+            "white_cost"
+          ],
+          "from_any": false,
+          "to": "white_protect_show"
+        }
+      }
+    },
+    {
+      "name": "after_white_protect_show",
+      "components": {
+        "phase.Transition": {
+          "action": "white_protect_show_done",
+          "from": [
+            "white_protect_show"
+          ],
+          "from_any": false,
+          "to": "white_protect"
+        }
+      }
+    },
+    {
+      "name": "after_white_protect",
+      "components": {
+        "phase.Transition": {
+          "action": "white_protect_done",
+          "from": [
+            "white_protect"
           ],
           "from_any": false,
           "to": "harvest_show"
@@ -7038,19 +7215,6 @@
             "harvest"
           ],
           "from_any": false,
-          "to": "harvest_practice"
-        }
-      }
-    },
-    {
-      "name": "after_harvest_practice",
-      "components": {
-        "phase.Transition": {
-          "action": "harvest_next",
-          "from": [
-            "harvest_practice"
-          ],
-          "from_any": false,
           "to": "inventory"
         }
       }
@@ -7062,19 +7226,6 @@
           "action": "inventory_done",
           "from": [
             "inventory"
-          ],
-          "from_any": false,
-          "to": "inventory_practice"
-        }
-      }
-    },
-    {
-      "name": "after_inventory_practice",
-      "components": {
-        "phase.Transition": {
-          "action": "inventory_next",
-          "from": [
-            "inventory_practice"
           ],
           "from_any": false,
           "to": "walk_show"
@@ -7129,19 +7280,6 @@
             "jump"
           ],
           "from_any": false,
-          "to": "jump_practice"
-        }
-      }
-    },
-    {
-      "name": "after_jump_practice",
-      "components": {
-        "phase.Transition": {
-          "action": "jump_next",
-          "from": [
-            "jump_practice"
-          ],
-          "from_any": false,
           "to": "obstacles"
         }
       }
@@ -7153,6 +7291,19 @@
           "action": "obstacles_done",
           "from": [
             "obstacles"
+          ],
+          "from_any": false,
+          "to": "obstacles_test"
+        }
+      }
+    },
+    {
+      "name": "after_obstacles_test",
+      "components": {
+        "phase.Transition": {
+          "action": "obstacles_test_done",
+          "from": [
+            "obstacles_test"
           ],
           "from_any": false,
           "to": "lack_white"
@@ -7168,6 +7319,19 @@
             "lack_white"
           ],
           "from_any": false,
+          "to": "lack_white_test"
+        }
+      }
+    },
+    {
+      "name": "after_lack_white_test",
+      "components": {
+        "phase.Transition": {
+          "action": "lack_white_test_done",
+          "from": [
+            "lack_white_test"
+          ],
+          "from_any": false,
           "to": "lack_black"
         }
       }
@@ -7179,6 +7343,19 @@
           "action": "lack_black_done",
           "from": [
             "lack_black"
+          ],
+          "from_any": false,
+          "to": "lack_black_test"
+        }
+      }
+    },
+    {
+      "name": "after_lack_black_test",
+      "components": {
+        "phase.Transition": {
+          "action": "lack_black_test_done",
+          "from": [
+            "lack_black_test"
           ],
           "from_any": false,
           "to": "death"
@@ -7215,22 +7392,9 @@
       "name": "after_departure",
       "components": {
         "phase.Transition": {
-          "action": "departure_done",
-          "from": [
-            "departure"
-          ],
-          "from_any": false,
-          "to": "end"
-        }
-      }
-    },
-    {
-      "name": "after_end",
-      "components": {
-        "phase.Transition": {
           "action": "in_orbit",
           "from": [
-            "end"
+            "departure"
           ],
           "from_any": false,
           "to": "orbit"
@@ -7238,7 +7402,20 @@
       }
     },
     {
-      "name": "black_show_clock",
+      "name": "after_orbit",
+      "components": {
+        "phase.Transition": {
+          "action": "orbit_done",
+          "from": [
+            "orbit"
+          ],
+          "from_any": false,
+          "to": "orbit_test"
+        }
+      }
+    },
+    {
+      "name": "entity_show_clock",
       "components": {
         "rules.OnAction": {
           "action": "landing_done",
@@ -7249,14 +7426,134 @@
       }
     },
     {
-      "name": "black_show_watch",
+      "name": "entity_show_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "entity_show_done",
+          "min": 7,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "entity_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "entity_black_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_show_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "entity_black_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "entity_black_done",
+          "min": 5.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "entity_black"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "entity_white_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_black_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "entity_white_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "entity_white_done",
+          "min": 5.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "entity_white"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "entity_balance_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_white_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "entity_balance_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "entity_balance_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "entity_balance"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "black_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_balance_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "black_show_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
           "own": false,
           "field": "transform2d.Position.x",
           "action": "black_show_done",
-          "min": 6,
+          "min": 5.5,
           "inside": true
         },
         "phase.ActiveIn": {
@@ -7268,10 +7565,10 @@
       }
     },
     {
-      "name": "white_show_clock",
+      "name": "black_charge_clock",
       "components": {
         "rules.OnAction": {
-          "action": "black_next",
+          "action": "black_done",
           "source": "clock",
           "field": "transform2d.Position.x",
           "value": 0
@@ -7279,14 +7576,44 @@
       }
     },
     {
-      "name": "white_show_watch",
+      "name": "black_charge_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "black_charge_done",
+          "min": 5.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black_charge"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "white_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_charge_test_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "white_show_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
           "own": false,
           "field": "transform2d.Position.x",
           "action": "white_show_done",
-          "min": 6,
+          "min": 5.5,
           "inside": true
         },
         "phase.ActiveIn": {
@@ -7298,10 +7625,10 @@
       }
     },
     {
-      "name": "harvest_show_clock",
+      "name": "white_cost_clock",
       "components": {
         "rules.OnAction": {
-          "action": "white_next",
+          "action": "white_done",
           "source": "clock",
           "field": "transform2d.Position.x",
           "value": 0
@@ -7309,14 +7636,74 @@
       }
     },
     {
-      "name": "harvest_show_watch",
+      "name": "white_cost_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "white_cost_done",
+          "min": 5.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white_cost"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "white_protect_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_cost_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "white_protect_show_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "white_protect_show_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white_protect_show"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "harvest_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_protect_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "harvest_show_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
           "own": false,
           "field": "transform2d.Position.x",
           "action": "harvest_show_done",
-          "min": 6,
+          "min": 7,
           "inside": true
         },
         "phase.ActiveIn": {
@@ -7328,10 +7715,10 @@
       }
     },
     {
-      "name": "walk_show_clock",
+      "name": "inventory_clock",
       "components": {
         "rules.OnAction": {
-          "action": "inventory_next",
+          "action": "harvest_done",
           "source": "clock",
           "field": "transform2d.Position.x",
           "value": 0
@@ -7339,7 +7726,37 @@
       }
     },
     {
-      "name": "walk_show_watch",
+      "name": "inventory_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "inventory_done",
+          "min": 4.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "inventory"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "walk_show_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "inventory_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "walk_show_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
@@ -7369,14 +7786,14 @@
       }
     },
     {
-      "name": "jump_show_watch",
+      "name": "jump_show_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
           "own": false,
           "field": "transform2d.Position.x",
           "action": "jump_show_done",
-          "min": 4,
+          "min": 5.5,
           "inside": true
         },
         "phase.ActiveIn": {
@@ -7388,127 +7805,7 @@
       }
     },
     {
-      "name": "black_clock",
-      "components": {
-        "rules.OnAction": {
-          "action": "black_done",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "black_practice_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "clock",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "black_next",
-          "min": 6,
-          "inside": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "black_practice"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "white_clock",
-      "components": {
-        "rules.OnAction": {
-          "action": "white_done",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "white_practice_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "clock",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "white_next",
-          "min": 6,
-          "inside": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "white_practice"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "harvest_clock",
-      "components": {
-        "rules.OnAction": {
-          "action": "harvest_done",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "harvest_practice_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "clock",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "harvest_next",
-          "min": 5,
-          "inside": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "harvest_practice"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "inventory_clock",
-      "components": {
-        "rules.OnAction": {
-          "action": "inventory_done",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "inventory_practice_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "clock",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "inventory_next",
-          "min": 3,
-          "inside": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "inventory_practice"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
-      "name": "jump_clock",
+      "name": "obstacles_clock",
       "components": {
         "rules.OnAction": {
           "action": "jump_done",
@@ -7519,19 +7816,139 @@
       }
     },
     {
-      "name": "jump_practice_watch",
+      "name": "obstacles_demo_watch",
       "components": {
         "rules.Watch": {
           "source": "clock",
           "own": false,
           "field": "transform2d.Position.x",
-          "action": "jump_next",
-          "min": 2,
+          "action": "obstacles_done",
+          "min": 4.5,
           "inside": true
         },
         "phase.ActiveIn": {
           "phases": [
-            "jump_practice"
+            "obstacles"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "lack_white_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "obstacles_test_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "lack_white_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "lack_white_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "lack_white"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "lack_black_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_white_test_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "lack_black_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "lack_black_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "lack_black"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "after_death_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "revive",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "after_death_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "after_death_done",
+          "min": 6,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "after_death"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "orbit_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "orbit_demo_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "clock",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "orbit_done",
+          "min": 5.5,
+          "inside": true
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "orbit"
           ]
         },
         "transform2d.Disabled": {}
@@ -7584,6 +8001,24 @@
       }
     },
     {
+      "name": "black_charge_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "black_hole",
+          "own": false,
+          "field": "attractor2d.Attractor.radius",
+          "action": "black_charge_test_done",
+          "min": 80
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "black_charge_test"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
       "name": "gives_white",
       "components": {
         "rules.OnAction": {
@@ -7607,6 +8042,24 @@
         "phase.ActiveIn": {
           "phases": [
             "white"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "protect_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "barrier",
+          "own": false,
+          "field": "barrier2d.Barrier.held",
+          "action": "white_protect_done",
+          "min": 3
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "white_protect"
           ]
         },
         "transform2d.Disabled": {}
@@ -7642,21 +8095,44 @@
       }
     },
     {
-      "name": "inventory_watch",
+      "name": "harvest_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "harvest_show_done",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "fossil_watch",
       "components": {
         "rules.Watch": {
-          "source": "inventory",
+          "source": "clock",
           "own": false,
-          "field": "toggle.Toggle.times",
-          "action": "inventory_done",
-          "min": 1
+          "field": "transform2d.Position.x",
+          "action": "fossil_again",
+          "min": 12,
+          "inside": true
         },
         "phase.ActiveIn": {
           "phases": [
-            "inventory"
+            "harvest"
           ]
         },
         "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "fossil_clock",
+      "components": {
+        "rules.OnAction": {
+          "action": "fossil_again",
+          "source": "clock",
+          "field": "transform2d.Position.x",
+          "value": 0
+        }
       }
     },
     {
@@ -7704,24 +8180,6 @@
       }
     },
     {
-      "name": "obstacles_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "hero",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "obstacles_done",
-          "min": 3480
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "obstacles"
-          ]
-        },
-        "transform2d.Disabled": {}
-      }
-    },
-    {
       "name": "walk_watch",
       "components": {
         "rules.Watch": {
@@ -7758,10 +8216,28 @@
       }
     },
     {
+      "name": "obstacles_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "hero",
+          "own": false,
+          "field": "transform2d.Position.x",
+          "action": "obstacles_test_done",
+          "min": 3480
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "obstacles_test"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
       "name": "matter_unguarded",
       "components": {
         "rules.OnAction": {
-          "action": "obstacles_done",
+          "action": "obstacles_test_done",
           "source": "matter",
           "field": "reserve.Reserve.floor",
           "value": 0
@@ -7772,7 +8248,7 @@
       "name": "carbon_unguarded",
       "components": {
         "rules.OnAction": {
-          "action": "obstacles_done",
+          "action": "obstacles_test_done",
           "source": "carbon",
           "field": "reserve.Reserve.floor",
           "value": 0
@@ -7783,10 +8259,10 @@
       "name": "white_falls",
       "components": {
         "rules.OnAction": {
-          "action": "obstacles_done",
+          "action": "obstacles_test_done",
           "source": "carbon",
           "field": "reserve.Reserve.amount",
-          "value": 25
+          "value": 45
         }
       }
     },
@@ -7794,10 +8270,43 @@
       "name": "white_drains",
       "components": {
         "rules.OnAction": {
-          "action": "obstacles_done",
+          "action": "obstacles_test_done",
+          "source": "carbon",
+          "field": "reserve.Reserve.drain",
+          "value": 4
+        }
+      }
+    },
+    {
+      "name": "white_out",
+      "components": {
+        "rules.OnAction": {
+          "action": "obstacles_test_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "white_slows",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_white_done",
           "source": "carbon",
           "field": "reserve.Reserve.drain",
           "value": 1.2
+        }
+      }
+    },
+    {
+      "name": "white_back",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_white_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 3
         }
       }
     },
@@ -7808,13 +8317,13 @@
           "source": "carbon",
           "own": false,
           "field": "reserve.Reserve.amount",
-          "action": "lack_white_done",
+          "action": "lack_white_test_done",
           "min": 50,
           "inside": true
         },
         "phase.ActiveIn": {
           "phases": [
-            "lack_white"
+            "lack_white_test"
           ]
         },
         "transform2d.Disabled": {}
@@ -7824,7 +8333,7 @@
       "name": "white_steadies",
       "components": {
         "rules.OnAction": {
-          "action": "lack_white_done",
+          "action": "lack_white_test_done",
           "source": "carbon",
           "field": "reserve.Reserve.drain",
           "value": 0.1388888888888889
@@ -7835,10 +8344,10 @@
       "name": "black_falls",
       "components": {
         "rules.OnAction": {
-          "action": "lack_white_done",
+          "action": "lack_white_test_done",
           "source": "matter",
           "field": "reserve.Reserve.amount",
-          "value": 25
+          "value": 45
         }
       }
     },
@@ -7846,10 +8355,43 @@
       "name": "black_drains",
       "components": {
         "rules.OnAction": {
-          "action": "lack_white_done",
+          "action": "lack_white_test_done",
+          "source": "matter",
+          "field": "reserve.Reserve.drain",
+          "value": 4
+        }
+      }
+    },
+    {
+      "name": "black_out",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_white_test_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 2
+        }
+      }
+    },
+    {
+      "name": "black_slows",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_black_done",
           "source": "matter",
           "field": "reserve.Reserve.drain",
           "value": 1.2
+        }
+      }
+    },
+    {
+      "name": "black_back",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_black_done",
+          "source": "kit",
+          "field": "loadout.Kit.unlocked",
+          "value": 3
         }
       }
     },
@@ -7860,13 +8402,13 @@
           "source": "matter",
           "own": false,
           "field": "reserve.Reserve.amount",
-          "action": "lack_black_done",
+          "action": "lack_black_test_done",
           "min": 50,
           "inside": true
         },
         "phase.ActiveIn": {
           "phases": [
-            "lack_black"
+            "lack_black_test"
           ]
         },
         "transform2d.Disabled": {}
@@ -7876,10 +8418,21 @@
       "name": "black_steadies",
       "components": {
         "rules.OnAction": {
-          "action": "lack_black_done",
+          "action": "lack_black_test_done",
           "source": "matter",
           "field": "reserve.Reserve.drain",
           "value": 0.1388888888888889
+        }
+      }
+    },
+    {
+      "name": "death_starts",
+      "components": {
+        "rules.OnAction": {
+          "action": "lack_black_test_done",
+          "source": "matter",
+          "field": "reserve.Reserve.amount",
+          "value": 30
         }
       }
     },
@@ -7892,7 +8445,7 @@
         },
         "reserve.Drain": {
           "kind": "matter",
-          "per_second": 14
+          "per_second": 7.5
         },
         "phase.ActiveIn": {
           "phases": [
@@ -7903,13 +8456,48 @@
       }
     },
     {
-      "name": "after_death_clock",
+      "name": "carbon_glimpse",
       "components": {
-        "rules.OnAction": {
-          "action": "revive",
-          "source": "clock",
-          "field": "transform2d.Position.x",
-          "value": 0
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 540.0
+        },
+        "tag.Tag": {
+          "tag": "carbon_glimpse"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "plain",
+          "width": 1984,
+          "height": 1144,
+          "screen": true,
+          "red": 0,
+          "green": 0,
+          "blue": 0,
+          "alpha": 0,
+          "unlit": true,
+          "layer": 1000
+        }
+      }
+    },
+    {
+      "name": "carbon_glimpse_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "carbon_glimpse",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 70,
+          "v2": 225,
+          "t3": 140,
+          "v3": 225,
+          "t4": 190,
+          "v4": 0,
+          "start": "revive"
         }
       }
     },
@@ -7952,25 +8540,6 @@
           "field": "reserve.Reserve.amount",
           "value": 75
         }
-      }
-    },
-    {
-      "name": "after_death_watch",
-      "components": {
-        "rules.Watch": {
-          "source": "clock",
-          "own": false,
-          "field": "transform2d.Position.x",
-          "action": "after_death_done",
-          "min": 6,
-          "inside": true
-        },
-        "phase.ActiveIn": {
-          "phases": [
-            "after_death"
-          ]
-        },
-        "transform2d.Disabled": {}
       }
     },
     {
@@ -8065,11 +8634,392 @@
       }
     },
     {
+      "name": "platform_watch",
+      "components": {
+        "rules.Watch": {
+          "source": "platform",
+          "own": false,
+          "field": "collision2d.Contacts.count",
+          "action": "orbit_test_done",
+          "min": 1
+        },
+        "phase.ActiveIn": {
+          "phases": [
+            "orbit_test"
+          ]
+        },
+        "transform2d.Disabled": {}
+      }
+    },
+    {
+      "name": "text_entity_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_entity_show_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_show"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_show_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_entity_show_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_show"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_show_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "landing_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_black_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_entity_black_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_black.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_black"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_black_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_black_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "entity_show_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_black_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_entity_black_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_black.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_black"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_black_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_black_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "entity_show_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_white_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_entity_white_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_white.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_white"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_white_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_white_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "entity_black_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_white_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_entity_white_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_white.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_white"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_white_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_white_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "entity_black_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_balance_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_entity_balance_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_balance.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_balance"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_balance_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_balance_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "entity_white_done"
+        }
+      }
+    },
+    {
+      "name": "text_entity_balance_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_entity_balance_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.entity_balance.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "entity_balance"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_entity_balance_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_entity_balance_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "entity_white_done"
+        }
+      }
+    },
+    {
       "name": "text_black_show_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_black_show_title"
         },
         "text2d.Text": {
           "string": "tutorial.black_show.title",
@@ -8085,10 +9035,7 @@
             "black_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_black_show_title"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8101,11 +9048,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 60,
+          "t1": 30,
           "v1": 0,
-          "t2": 90,
+          "t2": 60,
           "v2": 240,
-          "start": "landing_done"
+          "start": "entity_balance_done"
         }
       }
     },
@@ -8114,7 +9061,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_black_show_line"
         },
         "text2d.Text": {
           "string": "tutorial.black_show.line",
@@ -8130,10 +9080,7 @@
             "black_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_black_show_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8146,11 +9093,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 85,
+          "t1": 45,
           "v1": 0,
-          "t2": 115,
+          "t2": 75,
           "v2": 215,
-          "start": "landing_done"
+          "start": "entity_balance_done"
         }
       }
     },
@@ -8159,7 +9106,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_black_title"
         },
         "text2d.Text": {
           "string": "tutorial.black.title",
@@ -8168,15 +9118,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "black",
-            "black_practice"
+            "black"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "black_show_done"
+        }
       }
     },
     {
@@ -8184,7 +9151,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_black_line"
         },
         "text2d.Text": {
           "string": "tutorial.black.line",
@@ -8193,15 +9163,212 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "black",
-            "black_practice"
+            "black"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "black_show_done"
+        }
+      }
+    },
+    {
+      "name": "text_black_charge_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_black_charge_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_charge.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_charge"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_charge_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_charge_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "black_done"
+        }
+      }
+    },
+    {
+      "name": "text_black_charge_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_black_charge_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_charge.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_charge"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_charge_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_charge_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "black_done"
+        }
+      }
+    },
+    {
+      "name": "text_black_charge_test_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_black_charge_test_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_charge_test.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_charge_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_charge_test_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_charge_test_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "black_charge_done"
+        }
+      }
+    },
+    {
+      "name": "text_black_charge_test_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_black_charge_test_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.black_charge_test.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "black_charge_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_black_charge_test_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_black_charge_test_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "black_charge_done"
+        }
       }
     },
     {
@@ -8209,7 +9376,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_white_show_title"
         },
         "text2d.Text": {
           "string": "tutorial.white_show.title",
@@ -8225,10 +9395,7 @@
             "white_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_white_show_title"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8241,11 +9408,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 60,
+          "t1": 30,
           "v1": 0,
-          "t2": 90,
+          "t2": 60,
           "v2": 240,
-          "start": "black_next"
+          "start": "black_charge_test_done"
         }
       }
     },
@@ -8254,7 +9421,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_white_show_line"
         },
         "text2d.Text": {
           "string": "tutorial.white_show.line",
@@ -8270,10 +9440,7 @@
             "white_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_white_show_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8286,11 +9453,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 85,
+          "t1": 45,
           "v1": 0,
-          "t2": 115,
+          "t2": 75,
           "v2": 215,
-          "start": "black_next"
+          "start": "black_charge_test_done"
         }
       }
     },
@@ -8299,7 +9466,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_white_title"
         },
         "text2d.Text": {
           "string": "tutorial.white.title",
@@ -8308,15 +9478,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "white",
-            "white_practice"
+            "white"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "white_show_done"
+        }
       }
     },
     {
@@ -8324,7 +9511,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_white_line"
         },
         "text2d.Text": {
           "string": "tutorial.white.line",
@@ -8333,15 +9523,302 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "white",
-            "white_practice"
+            "white"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "white_show_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_cost_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_white_cost_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_cost.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_cost"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_cost_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_cost_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "white_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_cost_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_white_cost_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_cost.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_cost"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_cost_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_cost_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "white_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_protect_show_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_white_protect_show_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_protect_show.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_protect_show"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_protect_show_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_protect_show_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "white_cost_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_protect_show_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_white_protect_show_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_protect_show.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_protect_show"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_protect_show_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_protect_show_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "white_cost_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_protect_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_white_protect_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_protect.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_protect"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_protect_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_protect_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "white_protect_show_done"
+        }
+      }
+    },
+    {
+      "name": "text_white_protect_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_white_protect_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.white_protect.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "white_protect"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_white_protect_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_white_protect_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "white_protect_show_done"
+        }
       }
     },
     {
@@ -8349,7 +9826,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_harvest_show_title"
         },
         "text2d.Text": {
           "string": "tutorial.harvest_show.title",
@@ -8365,10 +9845,7 @@
             "harvest_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_harvest_show_title"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8381,11 +9858,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 60,
+          "t1": 30,
           "v1": 0,
-          "t2": 90,
+          "t2": 60,
           "v2": 240,
-          "start": "white_next"
+          "start": "white_protect_done"
         }
       }
     },
@@ -8394,7 +9871,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_harvest_show_line"
         },
         "text2d.Text": {
           "string": "tutorial.harvest_show.line",
@@ -8410,10 +9890,7 @@
             "harvest_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_harvest_show_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8426,11 +9903,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 85,
+          "t1": 45,
           "v1": 0,
-          "t2": 115,
+          "t2": 75,
           "v2": 215,
-          "start": "white_next"
+          "start": "white_protect_done"
         }
       }
     },
@@ -8439,7 +9916,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_harvest_title"
         },
         "text2d.Text": {
           "string": "tutorial.harvest.title",
@@ -8448,15 +9928,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "harvest",
-            "harvest_practice"
+            "harvest"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_harvest_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_harvest_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "harvest_show_done"
+        }
       }
     },
     {
@@ -8464,7 +9961,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_harvest_line"
         },
         "text2d.Text": {
           "string": "tutorial.harvest.line",
@@ -8473,15 +9973,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "harvest",
-            "harvest_practice"
+            "harvest"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_harvest_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_harvest_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "harvest_show_done"
+        }
       }
     },
     {
@@ -8489,7 +10006,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_inventory_title"
         },
         "text2d.Text": {
           "string": "tutorial.inventory.title",
@@ -8498,15 +10018,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "inventory",
-            "inventory_practice"
+            "inventory"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_inventory_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_inventory_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "harvest_done"
+        }
       }
     },
     {
@@ -8514,7 +10051,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_inventory_line"
         },
         "text2d.Text": {
           "string": "tutorial.inventory.line",
@@ -8523,15 +10063,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "inventory",
-            "inventory_practice"
+            "inventory"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_inventory_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_inventory_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "harvest_done"
+        }
       }
     },
     {
@@ -8539,7 +10096,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_walk_show_title"
         },
         "text2d.Text": {
           "string": "tutorial.walk_show.title",
@@ -8555,10 +10115,7 @@
             "walk_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_walk_show_title"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8571,11 +10128,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 60,
+          "t1": 30,
           "v1": 0,
-          "t2": 90,
+          "t2": 60,
           "v2": 240,
-          "start": "inventory_next"
+          "start": "inventory_done"
         }
       }
     },
@@ -8584,7 +10141,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_walk_show_line"
         },
         "text2d.Text": {
           "string": "tutorial.walk_show.line",
@@ -8600,10 +10160,7 @@
             "walk_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_walk_show_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8616,11 +10173,11 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 85,
+          "t1": 45,
           "v1": 0,
-          "t2": 115,
+          "t2": 75,
           "v2": 215,
-          "start": "inventory_next"
+          "start": "inventory_done"
         }
       }
     },
@@ -8629,7 +10186,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_walk_title"
         },
         "text2d.Text": {
           "string": "tutorial.walk.title",
@@ -8638,7 +10198,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8649,11 +10209,32 @@
       }
     },
     {
+      "name": "text_walk_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "walk_show_done"
+        }
+      }
+    },
+    {
       "name": "text_walk_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_walk_line"
         },
         "text2d.Text": {
           "string": "tutorial.walk.line",
@@ -8662,7 +10243,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8673,11 +10254,32 @@
       }
     },
     {
+      "name": "text_walk_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_walk_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "walk_show_done"
+        }
+      }
+    },
+    {
       "name": "text_jump_show_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_jump_show_title"
         },
         "text2d.Text": {
           "string": "tutorial.jump_show.title",
@@ -8693,10 +10295,7 @@
             "jump_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_jump_show_title"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8709,9 +10308,9 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 60,
+          "t1": 30,
           "v1": 0,
-          "t2": 90,
+          "t2": 60,
           "v2": 240,
           "start": "walk_done"
         }
@@ -8722,7 +10321,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_jump_show_line"
         },
         "text2d.Text": {
           "string": "tutorial.jump_show.line",
@@ -8738,10 +10340,7 @@
             "jump_show"
           ]
         },
-        "transform2d.Hidden": {},
-        "tag.Tag": {
-          "tag": "text_jump_show_line"
-        }
+        "transform2d.Hidden": {}
       }
     },
     {
@@ -8754,9 +10353,9 @@
           "keys": 3,
           "t0": 0,
           "v0": 0,
-          "t1": 85,
+          "t1": 45,
           "v1": 0,
-          "t2": 115,
+          "t2": 75,
           "v2": 215,
           "start": "walk_done"
         }
@@ -8767,7 +10366,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_jump_title"
         },
         "text2d.Text": {
           "string": "tutorial.jump.title",
@@ -8776,15 +10378,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "jump",
-            "jump_practice"
+            "jump"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_jump_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_jump_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "jump_show_done"
+        }
       }
     },
     {
@@ -8792,7 +10411,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_jump_line"
         },
         "text2d.Text": {
           "string": "tutorial.jump.line",
@@ -8801,15 +10423,32 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
-            "jump",
-            "jump_practice"
+            "jump"
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_jump_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_jump_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "jump_show_done"
+        }
       }
     },
     {
@@ -8817,7 +10456,10 @@
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_obstacles_title"
         },
         "text2d.Text": {
           "string": "tutorial.obstacles.title",
@@ -8826,7 +10468,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8837,11 +10479,32 @@
       }
     },
     {
+      "name": "text_obstacles_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_obstacles_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
       "name": "text_obstacles_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_obstacles_line"
         },
         "text2d.Text": {
           "string": "tutorial.obstacles.line",
@@ -8850,7 +10513,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8861,11 +10524,122 @@
       }
     },
     {
+      "name": "text_obstacles_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_obstacles_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
+      "name": "text_obstacles_test_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_obstacles_test_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.obstacles_test.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "obstacles_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_obstacles_test_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_obstacles_test_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "obstacles_done"
+        }
+      }
+    },
+    {
+      "name": "text_obstacles_test_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_obstacles_test_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.obstacles_test.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "obstacles_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_obstacles_test_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_obstacles_test_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "obstacles_done"
+        }
+      }
+    },
+    {
       "name": "text_lack_white_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_lack_white_title"
         },
         "text2d.Text": {
           "string": "tutorial.lack_white.title",
@@ -8874,7 +10648,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8885,11 +10659,32 @@
       }
     },
     {
+      "name": "text_lack_white_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_white_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "obstacles_test_done"
+        }
+      }
+    },
+    {
       "name": "text_lack_white_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_lack_white_line"
         },
         "text2d.Text": {
           "string": "tutorial.lack_white.line",
@@ -8898,7 +10693,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8909,11 +10704,122 @@
       }
     },
     {
+      "name": "text_lack_white_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_white_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "obstacles_test_done"
+        }
+      }
+    },
+    {
+      "name": "text_lack_white_test_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_lack_white_test_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_white_test.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_white_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_white_test_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_white_test_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "lack_white_done"
+        }
+      }
+    },
+    {
+      "name": "text_lack_white_test_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_lack_white_test_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_white_test.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_white_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_white_test_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_white_test_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "lack_white_done"
+        }
+      }
+    },
+    {
       "name": "text_lack_black_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_lack_black_title"
         },
         "text2d.Text": {
           "string": "tutorial.lack_black.title",
@@ -8922,7 +10828,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8933,11 +10839,32 @@
       }
     },
     {
+      "name": "text_lack_black_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_black_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "lack_white_test_done"
+        }
+      }
+    },
+    {
       "name": "text_lack_black_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_lack_black_line"
         },
         "text2d.Text": {
           "string": "tutorial.lack_black.line",
@@ -8946,7 +10873,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8957,11 +10884,122 @@
       }
     },
     {
+      "name": "text_lack_black_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_black_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "lack_white_test_done"
+        }
+      }
+    },
+    {
+      "name": "text_lack_black_test_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_lack_black_test_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_black_test.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_black_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_black_test_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_black_test_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "lack_black_done"
+        }
+      }
+    },
+    {
+      "name": "text_lack_black_test_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_lack_black_test_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.lack_black_test.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "lack_black_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_lack_black_test_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_lack_black_test_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "lack_black_done"
+        }
+      }
+    },
+    {
       "name": "text_death_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_death_title"
         },
         "text2d.Text": {
           "string": "tutorial.death.title",
@@ -8970,7 +11008,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -8981,11 +11019,32 @@
       }
     },
     {
+      "name": "text_death_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_death_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "lack_black_test_done"
+        }
+      }
+    },
+    {
       "name": "text_death_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_death_line"
         },
         "text2d.Text": {
           "string": "tutorial.death.line",
@@ -8994,7 +11053,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9005,11 +11064,32 @@
       }
     },
     {
+      "name": "text_death_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_death_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "lack_black_test_done"
+        }
+      }
+    },
+    {
       "name": "text_after_death_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_after_death_title"
         },
         "text2d.Text": {
           "string": "tutorial.after_death.title",
@@ -9018,7 +11098,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9029,11 +11109,32 @@
       }
     },
     {
+      "name": "text_after_death_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_after_death_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "revive"
+        }
+      }
+    },
+    {
       "name": "text_after_death_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_after_death_line"
         },
         "text2d.Text": {
           "string": "tutorial.after_death.line",
@@ -9042,7 +11143,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9053,11 +11154,32 @@
       }
     },
     {
+      "name": "text_after_death_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_after_death_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "revive"
+        }
+      }
+    },
+    {
       "name": "text_departure_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_departure_title"
         },
         "text2d.Text": {
           "string": "tutorial.departure.title",
@@ -9066,7 +11188,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9077,11 +11199,32 @@
       }
     },
     {
+      "name": "text_departure_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_departure_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "after_death_done"
+        }
+      }
+    },
+    {
       "name": "text_departure_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_departure_line"
         },
         "text2d.Text": {
           "string": "tutorial.departure.line",
@@ -9090,7 +11233,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9101,11 +11244,32 @@
       }
     },
     {
+      "name": "text_departure_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_departure_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "after_death_done"
+        }
+      }
+    },
+    {
       "name": "text_orbit_title",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 912
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_orbit_title"
         },
         "text2d.Text": {
           "string": "tutorial.orbit.title",
@@ -9114,7 +11278,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 240
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9125,11 +11289,32 @@
       }
     },
     {
+      "name": "text_orbit_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_orbit_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
       "name": "text_orbit_line",
       "components": {
         "transform2d.Position": {
           "x": 960.0,
-          "y": 976
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_orbit_line"
         },
         "text2d.Text": {
           "string": "tutorial.orbit.line",
@@ -9138,7 +11323,7 @@
           "pivot_x": 0.5,
           "pivot_y": 0.5,
           "screen": true,
-          "alpha": 215
+          "alpha": 0
         },
         "phase.ShowIn": {
           "phases": [
@@ -9146,6 +11331,114 @@
           ]
         },
         "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_orbit_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "in_orbit"
+        }
+      }
+    },
+    {
+      "name": "text_orbit_test_title",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 884
+        },
+        "tag.Tag": {
+          "tag": "text_orbit_test_title"
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit_test.title",
+          "font": "font",
+          "size": 50,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_test_title_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_orbit_test_title",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 30,
+          "v1": 0,
+          "t2": 60,
+          "v2": 240,
+          "start": "orbit_done"
+        }
+      }
+    },
+    {
+      "name": "text_orbit_test_line",
+      "components": {
+        "transform2d.Position": {
+          "x": 960.0,
+          "y": 980
+        },
+        "tag.Tag": {
+          "tag": "text_orbit_test_line"
+        },
+        "text2d.Text": {
+          "string": "tutorial.orbit_test.line",
+          "font": "font",
+          "size": 32,
+          "pivot_x": 0.5,
+          "pivot_y": 0.5,
+          "screen": true,
+          "alpha": 0
+        },
+        "phase.ShowIn": {
+          "phases": [
+            "orbit_test"
+          ]
+        },
+        "transform2d.Hidden": {}
+      }
+    },
+    {
+      "name": "text_orbit_test_line_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "text2d.Text.alpha",
+          "onto": "text_orbit_test_line",
+          "smooth": true,
+          "keys": 3,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 0,
+          "t2": 75,
+          "v2": 215,
+          "start": "orbit_done"
+        }
       }
     },
     {
@@ -9188,7 +11481,7 @@
       }
     },
     {
-      "name": "black_comes_close",
+      "name": "comes_close",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.Camera.zoom",
@@ -9204,7 +11497,7 @@
       }
     },
     {
-      "name": "black_looks_down",
+      "name": "looks_down",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.offset_y",
@@ -9220,7 +11513,7 @@
       }
     },
     {
-      "name": "black_follows_close",
+      "name": "follows_close",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.dead_y",
@@ -9236,313 +11529,7 @@
       }
     },
     {
-      "name": "black_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 60,
-          "v1": 1.5,
-          "start": "black_done"
-        }
-      }
-    },
-    {
-      "name": "black_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 4,
-          "t0": 0,
-          "v0": 30,
-          "t1": 60,
-          "v1": -100,
-          "t2": 150,
-          "v2": -100,
-          "t3": 151,
-          "v3": -40,
-          "start": "black_done"
-        }
-      }
-    },
-    {
-      "name": "black_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 150,
-          "v1": 0,
-          "t2": 151,
-          "v2": 60,
-          "start": "black_done"
-        }
-      }
-    },
-    {
-      "name": "white_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "black_next"
-        }
-      }
-    },
-    {
-      "name": "white_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 60,
-          "v1": 1.5,
-          "start": "white_done"
-        }
-      }
-    },
-    {
-      "name": "white_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 4,
-          "t0": 0,
-          "v0": 30,
-          "t1": 60,
-          "v1": -100,
-          "t2": 150,
-          "v2": -100,
-          "t3": 151,
-          "v3": -40,
-          "start": "white_done"
-        }
-      }
-    },
-    {
-      "name": "white_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 150,
-          "v1": 0,
-          "t2": 151,
-          "v2": 60,
-          "start": "white_done"
-        }
-      }
-    },
-    {
-      "name": "harvest_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "white_next"
-        }
-      }
-    },
-    {
-      "name": "harvest_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "white_next"
-        }
-      }
-    },
-    {
-      "name": "harvest_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "white_next"
-        }
-      }
-    },
-    {
-      "name": "harvest_goes_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 2.55,
-          "t1": 60,
-          "v1": 1.5,
-          "start": "harvest_done"
-        }
-      }
-    },
-    {
-      "name": "harvest_looks_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 4,
-          "t0": 0,
-          "v0": 30,
-          "t1": 60,
-          "v1": -100,
-          "t2": 150,
-          "v2": -100,
-          "t3": 151,
-          "v3": -40,
-          "start": "harvest_done"
-        }
-      }
-    },
-    {
-      "name": "harvest_follows_back",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 3,
-          "t0": 0,
-          "v0": 0,
-          "t1": 150,
-          "v1": 0,
-          "t2": 151,
-          "v2": 60,
-          "start": "harvest_done"
-        }
-      }
-    },
-    {
-      "name": "walk_comes_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.Camera.zoom",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 1.5,
-          "t1": 50,
-          "v1": 2.55,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_looks_down",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.offset_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": -40,
-          "t1": 50,
-          "v1": 30,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_follows_close",
-      "components": {
-        "tween2d.Track": {
-          "field": "camera2d.CameraFollow.dead_y",
-          "onto": "camera",
-          "smooth": true,
-          "keys": 2,
-          "t0": 0,
-          "v0": 0,
-          "t1": 1,
-          "v1": 0,
-          "start": "inventory_next"
-        }
-      }
-    },
-    {
-      "name": "walk_goes_back",
+      "name": "goes_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.Camera.zoom",
@@ -9558,7 +11545,7 @@
       }
     },
     {
-      "name": "walk_looks_back",
+      "name": "looks_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.offset_y",
@@ -9578,7 +11565,7 @@
       }
     },
     {
-      "name": "walk_follows_back",
+      "name": "follows_back",
       "components": {
         "tween2d.Track": {
           "field": "camera2d.CameraFollow.dead_y",
@@ -9608,8 +11595,7 @@
         },
         "phase.ActiveIn": {
           "phases": [
-            "black",
-            "black_practice"
+            "black"
           ]
         },
         "transform2d.Disabled": {}
@@ -9735,8 +11721,7 @@
         },
         "phase.ActiveIn": {
           "phases": [
-            "white",
-            "white_practice"
+            "white"
           ]
         },
         "transform2d.Disabled": {}
@@ -9862,8 +11847,7 @@
         },
         "phase.ActiveIn": {
           "phases": [
-            "harvest",
-            "harvest_practice"
+            "harvest"
           ]
         },
         "transform2d.Disabled": {}
@@ -10125,8 +12109,7 @@
         },
         "phase.ActiveIn": {
           "phases": [
-            "jump",
-            "jump_practice"
+            "jump"
           ]
         },
         "transform2d.Disabled": {}
@@ -10245,11 +12228,386 @@
       }
     },
     {
+      "name": "black_half",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "black_half"
+        },
+        "follow2d.Follow": {
+          "target": "hand_right",
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 90,
+          "height": 90,
+          "alpha": 0,
+          "additive": false,
+          "unlit": true,
+          "layer": 14,
+          "red": 170,
+          "green": 185,
+          "blue": 220
+        }
+      }
+    },
+    {
+      "name": "white_half",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "white_half"
+        },
+        "follow2d.Follow": {
+          "target": "hand_left",
+          "stiffness": 1
+        },
+        "sprite2d.Sprite": {
+          "atlas": "glow",
+          "width": 90,
+          "height": 90,
+          "alpha": 0,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "red": 240,
+          "green": 244,
+          "blue": 255
+        }
+      }
+    },
+    {
+      "name": "black_half_entity_black",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "black_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 12,
+          "v0": 0,
+          "t1": 32,
+          "v1": 230,
+          "t2": 112,
+          "v2": 230,
+          "t3": 132,
+          "v3": 0,
+          "start": "entity_show_done"
+        }
+      }
+    },
+    {
+      "name": "demo_spark",
+      "components": {
+        "transform2d.Position": {
+          "x": 710,
+          "y": 528.0
+        },
+        "tag.Tag": {
+          "tag": "demo_spark"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 0,
+          "frame_count": 24,
+          "ticks_per_frame": 3,
+          "looping": true
+        }
+      }
+    },
+    {
+      "name": "demo_spark_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "demo_spark",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "demo_spark_comes",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Scale.factor",
+          "onto": "demo_spark",
+          "smooth": true,
+          "keys": 5,
+          "t0": 0,
+          "v0": 0,
+          "t1": 96,
+          "v1": 0,
+          "t2": 132,
+          "v2": 16,
+          "t3": 276,
+          "v3": 16,
+          "t4": 318,
+          "v4": 0,
+          "start": "entity_show_done"
+        }
+      }
+    },
+    {
+      "name": "white_half_entity_white",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "white_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 12,
+          "v0": 0,
+          "t1": 32,
+          "v1": 230,
+          "t2": 76,
+          "v2": 230,
+          "t3": 96,
+          "v3": 0,
+          "start": "entity_black_done"
+        }
+      }
+    },
+    {
+      "name": "demo_self",
+      "components": {
+        "transform2d.Position": {
+          "x": 600,
+          "y": 558.0
+        },
+        "tag.Tag": {
+          "tag": "demo_self"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 66,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "demo_guard",
+      "components": {
+        "transform2d.Position": {
+          "x": 470,
+          "y": 586
+        },
+        "tag.Tag": {
+          "tag": "demo_guard"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 32,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "at_entity_white_self_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 72,
+          "v1": 1,
+          "start": "entity_black_done",
+          "end_action": "self_up"
+        }
+      }
+    },
+    {
+      "name": "at_entity_white_self_down",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 144,
+          "v1": 1,
+          "start": "entity_black_done",
+          "end_action": "self_down"
+        }
+      }
+    },
+    {
+      "name": "at_entity_white_guard_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 162,
+          "v1": 1,
+          "start": "entity_black_done",
+          "end_action": "guard_up"
+        }
+      }
+    },
+    {
+      "name": "at_entity_white_guard_down",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 234,
+          "v1": 1,
+          "start": "entity_black_done",
+          "end_action": "guard_down"
+        }
+      }
+    },
+    {
+      "name": "self_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "self_up",
+          "source": "demo_self",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "self_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "self_down",
+          "source": "demo_self",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "guard_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "guard_up",
+          "source": "demo_guard",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "guard_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "guard_down",
+          "source": "demo_guard",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "inventory_entity_balance",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_white_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "inventory_entity_balance_off",
+      "components": {
+        "rules.OnAction": {
+          "action": "entity_balance_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 0
+        }
+      }
+    },
+    {
       "name": "demo_black",
       "components": {
         "transform2d.Position": {
-          "x": 960,
-          "y": 570
+          "x": 920,
+          "y": 566
         },
         "tag.Tag": {
           "tag": "demo_black"
@@ -10264,7 +12622,7 @@
           "start_radius": 6,
           "grow": 30,
           "max_radius": 60,
-          "shrink": 120,
+          "shrink": 160,
           "pull": 1500,
           "pulls": [
             "rock"
@@ -10351,6 +12709,720 @@
       }
     },
     {
+      "name": "demo_charge",
+      "components": {
+        "transform2d.Position": {
+          "x": 750,
+          "y": 518.0
+        },
+        "tag.Tag": {
+          "tag": "demo_charge"
+        },
+        "transform2d.Disabled": {},
+        "phase.ActiveIn": {
+          "phases": [
+            "black_charge"
+          ]
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 6,
+          "grow": 21,
+          "max_radius": 90,
+          "shrink": 160,
+          "pull": 1500,
+          "pulls": [],
+          "inner": 0.4
+        },
+        "light2d.Light": {
+          "radius": 140,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0.6
+        },
+        "particles2d.Emitter": {
+          "rate": 40,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 5,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 260,
+          "pull": 1800,
+          "swirl": 520
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 0,
+          "frame_count": 24,
+          "ticks_per_frame": 3,
+          "looping": true
+        },
+        "reserve.Drain": {
+          "kind": "matter",
+          "field": "attractor2d.Attractor.radius",
+          "per_unit": 0.06
+        }
+      }
+    },
+    {
+      "name": "demo_charge_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "demo_charge",
+          "target": "transform2d.Scale.factor",
+          "onto": "demo_charge",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_charge_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "demo_charge",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "inventory_black_charge",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "inventory_black_charge_off",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_charge_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_bubble",
+      "components": {
+        "transform2d.Position": {
+          "x": 760,
+          "y": 470
+        },
+        "tag.Tag": {
+          "tag": "demo_bubble"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 46,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "demo_wall",
+      "components": {
+        "transform2d.Position": {
+          "x": 880,
+          "y": 530
+        },
+        "tag.Tag": {
+          "tag": "demo_wall"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": false,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "end_x": 1000,
+          "end_y": 450,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "at_white_show_wall_now",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 120,
+          "v1": 1,
+          "start": "black_charge_test_done",
+          "end_action": "wall_now"
+        }
+      }
+    },
+    {
+      "name": "demo_bubble_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "black_charge_test_done",
+          "source": "demo_bubble",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_bubble_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_show_done",
+          "source": "demo_bubble",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_wall_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "wall_now",
+          "source": "demo_wall",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_wall_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_show_done",
+          "source": "demo_wall",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_small",
+      "components": {
+        "transform2d.Position": {
+          "x": 720,
+          "y": 510
+        },
+        "tag.Tag": {
+          "tag": "demo_small"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 28,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "demo_big",
+      "components": {
+        "transform2d.Position": {
+          "x": 860,
+          "y": 480
+        },
+        "tag.Tag": {
+          "tag": "demo_big"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": true,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "radius": 95,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "at_white_cost_small_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 18,
+          "v1": 1,
+          "start": "white_done",
+          "end_action": "small_up"
+        }
+      }
+    },
+    {
+      "name": "at_white_cost_big_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 120,
+          "v1": 1,
+          "start": "white_done",
+          "end_action": "big_up"
+        }
+      }
+    },
+    {
+      "name": "small_costs",
+      "components": {
+        "rules.OnAction": {
+          "action": "small_up",
+          "source": "carbon",
+          "field": "reserve.Reserve.amount",
+          "value": -3,
+          "add": true
+        }
+      }
+    },
+    {
+      "name": "big_costs",
+      "components": {
+        "rules.OnAction": {
+          "action": "big_up",
+          "source": "carbon",
+          "field": "reserve.Reserve.amount",
+          "value": -10,
+          "add": true
+        }
+      }
+    },
+    {
+      "name": "demo_small_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "small_up",
+          "source": "demo_small",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_small_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_cost_done",
+          "source": "demo_small",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "demo_big_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "big_up",
+          "source": "demo_big",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_big_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_cost_done",
+          "source": "demo_big",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "inventory_white_cost",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "inventory_white_cost_off",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_cost_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "at_white_protect_show_self_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 18,
+          "v1": 1,
+          "start": "white_cost_done",
+          "end_action": "self_up"
+        }
+      }
+    },
+    {
+      "name": "at_white_protect_show_rocks_fall",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 60,
+          "v1": 1,
+          "start": "white_cost_done",
+          "end_action": "rocks_fall"
+        }
+      }
+    },
+    {
+      "name": "self_down_after",
+      "components": {
+        "rules.OnAction": {
+          "action": "white_protect_show_done",
+          "source": "demo_self",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "falling_1",
+      "components": {
+        "transform2d.Position": {
+          "x": 570,
+          "y": 140
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 0,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 10
+        },
+        "tag.Tag": {
+          "tag": "falling_1"
+        }
+      }
+    },
+    {
+      "name": "falling_1_falls",
+      "components": {
+        "rules.OnAction": {
+          "action": "rocks_fall",
+          "source": "falling_1",
+          "field": "gravity2d.Gravity.y",
+          "value": 1800
+        }
+      }
+    },
+    {
+      "name": "falling_2",
+      "components": {
+        "transform2d.Position": {
+          "x": 610,
+          "y": 70
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 0,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 10
+        },
+        "tag.Tag": {
+          "tag": "falling_2"
+        }
+      }
+    },
+    {
+      "name": "falling_2_falls",
+      "components": {
+        "rules.OnAction": {
+          "action": "rocks_fall",
+          "source": "falling_2",
+          "field": "gravity2d.Gravity.y",
+          "value": 1800
+        }
+      }
+    },
+    {
+      "name": "falling_3",
+      "components": {
+        "transform2d.Position": {
+          "x": 645,
+          "y": 0
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 40,
+          "height": 40,
+          "layer": 8
+        },
+        "transform2d.Velocity": {},
+        "collision2d.Collider": {
+          "width": 26,
+          "height": 22,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "ground",
+            "barrier"
+          ]
+        },
+        "collision2d.Body": {},
+        "collision2d.Blocked": {},
+        "gravity2d.Gravity": {
+          "y": 0,
+          "terminal_speed": 1100
+        },
+        "attractor2d.Absorbable": {
+          "mass": 10
+        },
+        "reserve.Yield": {
+          "kind": "matter",
+          "amount": 10
+        },
+        "tag.Tag": {
+          "tag": "falling_3"
+        }
+      }
+    },
+    {
+      "name": "falling_3_falls",
+      "components": {
+        "rules.OnAction": {
+          "action": "rocks_fall",
+          "source": "falling_3",
+          "field": "gravity2d.Gravity.y",
+          "value": 1800
+        }
+      }
+    },
+    {
+      "name": "black_half_harvest_show",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "black_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 12,
+          "v0": 0,
+          "t1": 32,
+          "v1": 230,
+          "t2": 64,
+          "v2": 230,
+          "t3": 84,
+          "v3": 0,
+          "start": "white_protect_done"
+        }
+      }
+    },
+    {
+      "name": "white_half_harvest_show",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "white_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 12,
+          "v0": 0,
+          "t1": 32,
+          "v1": 230,
+          "t2": 64,
+          "v2": 230,
+          "t3": 84,
+          "v3": 0,
+          "start": "white_protect_done"
+        }
+      }
+    },
+    {
       "name": "demo_harvest",
       "components": {
         "transform2d.Position": {
@@ -10428,136 +13500,77 @@
       }
     },
     {
-      "name": "demo_bubble",
+      "name": "fossil_source",
       "components": {
         "transform2d.Position": {
-          "x": 760,
-          "y": 470
+          "x": 450,
+          "y": 520
         },
-        "tag.Tag": {
-          "tag": "demo_bubble"
-        },
-        "barrier2d.Barrier": {
-          "pool": 7,
-          "round": true,
-          "layer": [
-            "barrier"
-          ],
-          "freezes": [
-            "rock"
-          ],
-          "atlas": "barrier",
-          "bubble": 0,
-          "wall": 1,
-          "draw_layer": 14,
-          "thickness": 14,
-          "radius": 46,
-          "appear": 0.35,
-          "wobble": 0.025,
-          "sparks": 16,
-          "spark_speed": 70,
-          "spark_life": 0.7,
-          "spark_size": 5,
-          "spark_color": 3539662310
+        "spawner2d.Shooter": {
+          "prefab": "fossil",
+          "action": "fossil_again"
         }
       }
     },
     {
-      "name": "demo_wall",
-      "components": {
-        "transform2d.Position": {
-          "x": 880,
-          "y": 530
-        },
-        "tag.Tag": {
-          "tag": "demo_wall"
-        },
-        "barrier2d.Barrier": {
-          "pool": 7,
-          "round": false,
-          "layer": [
-            "barrier"
-          ],
-          "freezes": [
-            "rock"
-          ],
-          "atlas": "barrier",
-          "bubble": 0,
-          "wall": 1,
-          "draw_layer": 14,
-          "thickness": 14,
-          "end_x": 1000,
-          "end_y": 450,
-          "appear": 0.35,
-          "wobble": 0.025,
-          "sparks": 16,
-          "spark_speed": 70,
-          "spark_life": 0.7,
-          "spark_size": 5,
-          "spark_color": 3539662310
-        }
-      }
-    },
-    {
-      "name": "demo_bubble_up",
+      "name": "inventory_inventory",
       "components": {
         "rules.OnAction": {
-          "action": "black_next",
-          "source": "demo_bubble",
-          "field": "barrier2d.Barrier.up",
+          "action": "harvest_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
           "value": 1
         }
       }
     },
     {
-      "name": "demo_bubble_down",
+      "name": "inventory_inventory_off",
       "components": {
         "rules.OnAction": {
-          "action": "white_show_done",
-          "source": "demo_bubble",
-          "field": "barrier2d.Barrier.up",
+          "action": "inventory_done",
+          "source": "inventory",
+          "field": "toggle.Toggle.on",
           "value": 0
         }
       }
     },
     {
-      "name": "demo_wall_up",
+      "name": "black_half_inventory",
       "components": {
-        "rules.OnAction": {
-          "action": "demo_wall_now",
-          "source": "demo_wall",
-          "field": "barrier2d.Barrier.up",
-          "value": 1
-        }
-      }
-    },
-    {
-      "name": "demo_wall_down",
-      "components": {
-        "rules.OnAction": {
-          "action": "white_show_done",
-          "source": "demo_wall",
-          "field": "barrier2d.Barrier.up",
-          "value": 0
-        }
-      }
-    },
-    {
-      "name": "demo_wall_timer",
-      "components": {
-        "transform2d.Position": {
-          "x": 0,
-          "y": 0
-        },
         "tween2d.Track": {
-          "field": "transform2d.Position.x",
-          "keys": 2,
-          "t0": 0,
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "black_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 60,
           "v0": 0,
-          "t1": 170,
-          "v1": 1,
-          "start": "black_next",
-          "end_action": "demo_wall_now"
+          "t1": 80,
+          "v1": 230,
+          "t2": 196,
+          "v2": 230,
+          "t3": 216,
+          "v3": 0,
+          "start": "harvest_done"
+        }
+      }
+    },
+    {
+      "name": "white_half_inventory",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "white_half",
+          "smooth": true,
+          "keys": 4,
+          "t0": 60,
+          "v0": 0,
+          "t1": 80,
+          "v1": 230,
+          "t2": 196,
+          "v2": 230,
+          "t3": 216,
+          "v3": 0,
+          "start": "harvest_done"
         }
       }
     },
@@ -10565,11 +13578,11 @@
       "name": "demo_walks",
       "components": {
         "rules.Press": {
-          "start": "inventory_next",
+          "start": "inventory_done",
           "action": "demo_walk",
           "value": 1,
-          "delay": 70,
-          "ticks": 90
+          "delay": 10,
+          "ticks": 168
         }
       }
     },
@@ -10580,7 +13593,7 @@
           "start": "walk_done",
           "action": "demo_jump",
           "value": 1,
-          "delay": 80,
+          "delay": 20,
           "ticks": 55
         }
       }
@@ -10610,15 +13623,240 @@
           "keys": 5,
           "t0": 0,
           "v0": 1,
-          "t1": 112,
+          "t1": 52,
           "v1": 1,
-          "t2": 130,
+          "t2": 70,
           "v2": 0.25,
-          "t3": 215,
+          "t3": 155,
           "v3": 0.25,
-          "t4": 240,
+          "t4": 180,
           "v4": 1,
           "start": "walk_done"
+        }
+      }
+    },
+    {
+      "name": "looks_ahead",
+      "components": {
+        "tween2d.Track": {
+          "field": "camera2d.CameraFollow.offset_x",
+          "onto": "camera",
+          "smooth": true,
+          "keys": 4,
+          "t0": 0,
+          "v0": 0,
+          "t1": 45,
+          "v1": 480,
+          "t2": 225,
+          "v2": 480,
+          "t3": 270,
+          "v3": 0,
+          "start": "jump_done"
+        }
+      }
+    },
+    {
+      "name": "at_obstacles_bridge_up",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tween2d.Track": {
+          "field": "transform2d.Position.x",
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 1,
+          "start": "jump_done",
+          "end_action": "bridge_up"
+        }
+      }
+    },
+    {
+      "name": "demo_bridge",
+      "components": {
+        "transform2d.Position": {
+          "x": 2990,
+          "y": 606
+        },
+        "tag.Tag": {
+          "tag": "demo_bridge"
+        },
+        "barrier2d.Barrier": {
+          "pool": 7,
+          "round": false,
+          "layer": [
+            "barrier"
+          ],
+          "freezes": [
+            "rock"
+          ],
+          "atlas": "barrier",
+          "bubble": 0,
+          "wall": 1,
+          "draw_layer": 14,
+          "thickness": 14,
+          "end_x": 3430,
+          "end_y": 606,
+          "appear": 0.35,
+          "wobble": 0.025,
+          "sparks": 16,
+          "spark_speed": 70,
+          "spark_life": 0.7,
+          "spark_size": 5,
+          "spark_color": 3539662310
+        }
+      }
+    },
+    {
+      "name": "demo_dig",
+      "components": {
+        "transform2d.Position": {
+          "x": 2755.0,
+          "y": 540
+        },
+        "tag.Tag": {
+          "tag": "demo_dig"
+        },
+        "transform2d.Disabled": {},
+        "phase.ActiveIn": {
+          "phases": [
+            "obstacles"
+          ]
+        },
+        "attractor2d.Attractor": {
+          "start_radius": 6,
+          "grow": 30,
+          "max_radius": 26,
+          "shrink": 160,
+          "pull": 1500,
+          "pulls": [
+            "rock"
+          ],
+          "inner": 0.4
+        },
+        "light2d.Light": {
+          "radius": 140,
+          "red": 190,
+          "green": 210,
+          "blue": 255,
+          "intensity": 0.6
+        },
+        "particles2d.Emitter": {
+          "rate": 40,
+          "lifetime": 1.6,
+          "lifetime_spread": 0.4,
+          "speed": 0,
+          "speed_spread": 20,
+          "drag": 1.6,
+          "size": 5,
+          "end_size": 1.5,
+          "red": 205,
+          "green": 220,
+          "blue": 255,
+          "alpha": 230,
+          "fade": true,
+          "additive": true,
+          "unlit": true,
+          "layer": 14,
+          "max": 260,
+          "pull": 1800,
+          "swirl": 520
+        },
+        "sprite2d.Sprite": {
+          "atlas": "black_hole",
+          "width": 2,
+          "height": 2,
+          "layer": 15,
+          "unlit": true
+        },
+        "transform2d.Scale": {
+          "factor": 0
+        },
+        "transform2d.Rotation": {},
+        "sprite2d.SpriteAnimation": {
+          "first_frame": 0,
+          "frame_count": 24,
+          "ticks_per_frame": 3,
+          "looping": true
+        },
+        "terrain2d.Digger": {
+          "radius": 0,
+          "layers": [
+            "ground"
+          ]
+        }
+      }
+    },
+    {
+      "name": "demo_dig_shows",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.radius",
+          "from": "demo_dig",
+          "target": "transform2d.Scale.factor",
+          "onto": "demo_dig",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_dig_turns",
+      "components": {
+        "tween2d.Track": {
+          "field": "transform2d.Rotation.angle",
+          "onto": "demo_dig",
+          "smooth": false,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 150,
+          "v1": 360,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "demo_dig_digs",
+      "components": {
+        "bind.Bind": {
+          "source": "attractor2d.Attractor.heart",
+          "from": "demo_dig",
+          "target": "terrain2d.Digger.radius",
+          "onto": "demo_dig",
+          "low": 0,
+          "high": 5000,
+          "out_low": 0,
+          "out_high": 5000,
+          "power": 1
+        }
+      }
+    },
+    {
+      "name": "demo_bridge_up",
+      "components": {
+        "rules.OnAction": {
+          "action": "bridge_up",
+          "source": "demo_bridge",
+          "field": "barrier2d.Barrier.up",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "demo_bridge_down",
+      "components": {
+        "rules.OnAction": {
+          "action": "obstacles_done",
+          "source": "demo_bridge",
+          "field": "barrier2d.Barrier.up",
+          "value": 0
         }
       }
     },
@@ -10857,6 +14095,102 @@
       }
     },
     {
+      "name": "demo_flies_0",
+      "components": {
+        "rules.Press": {
+          "start": "in_orbit",
+          "action": "demo_fly_x",
+          "value": 1,
+          "delay": 20,
+          "ticks": 50
+        }
+      }
+    },
+    {
+      "name": "demo_flies_1",
+      "components": {
+        "rules.Press": {
+          "start": "in_orbit",
+          "action": "demo_fly_y",
+          "value": -1,
+          "delay": 75,
+          "ticks": 50
+        }
+      }
+    },
+    {
+      "name": "demo_flies_2",
+      "components": {
+        "rules.Press": {
+          "start": "in_orbit",
+          "action": "demo_fly_x",
+          "value": -1,
+          "delay": 130,
+          "ticks": 50
+        }
+      }
+    },
+    {
+      "name": "demo_flies_3",
+      "components": {
+        "rules.Press": {
+          "start": "in_orbit",
+          "action": "demo_fly_y",
+          "value": 1,
+          "delay": 185,
+          "ticks": 50
+        }
+      }
+    },
+    {
+      "name": "platform",
+      "components": {
+        "transform2d.Position": {
+          "x": 0,
+          "y": 0
+        },
+        "tag.Tag": {
+          "tag": "platform"
+        },
+        "sprite2d.Sprite": {
+          "atlas": "rock",
+          "width": 240,
+          "height": 240,
+          "layer": 8,
+          "alpha": 0
+        },
+        "light2d.Light": {
+          "radius": 260,
+          "red": 220,
+          "green": 230,
+          "blue": 245,
+          "intensity": 0.5
+        },
+        "collision2d.Collider": {
+          "width": 192.0,
+          "height": 144.0,
+          "layer": [
+            "rock"
+          ],
+          "mask": [
+            "hero"
+          ]
+        },
+        "collision2d.Contacts": {},
+        "follow2d.Follow": {
+          "target": "hero",
+          "offset_x": 700,
+          "offset_y": -420,
+          "stiffness": 1
+        },
+        "transform2d.Smooth": {
+          "share": 0.3,
+          "most": 20,
+          "snap": 300
+        }
+      }
+    },
+    {
       "name": "next_planet",
       "components": {
         "transform2d.Position": {
@@ -10971,8 +14305,8 @@
           "target": "hero",
           "ahead": 95,
           "stiffness": 1,
-          "way_x": 0,
-          "way_y": 1,
+          "way_x": 80,
+          "way_y": 81,
           "way_turn": 240
         }
       }
@@ -11095,15 +14429,28 @@
           "own": false,
           "field": "transform2d.Velocity.y",
           "action": "in_orbit",
-          "min": -320,
-          "inside": true
+          "min": 100000
         },
         "phase.ActiveIn": {
           "phases": [
-            "end"
+            "departure"
           ]
         },
-        "transform2d.Disabled": {}
+        "transform2d.Disabled": {},
+        "tag.Tag": {
+          "tag": "orbit_watch"
+        }
+      }
+    },
+    {
+      "name": "orbit_watched",
+      "components": {
+        "rules.OnAction": {
+          "action": "departure_done",
+          "source": "orbit_watch",
+          "field": "rules.Watch.min",
+          "value": -320
+        }
       }
     },
     {
@@ -11162,13 +14509,95 @@
       }
     },
     {
-      "name": "steers_up",
+      "name": "shown_x",
+      "components": {
+        "rules.OnAction": {
+          "action": "in_orbit",
+          "source": "hero",
+          "field": "action_control.Controlled.action_x",
+          "value": 80
+        }
+      }
+    },
+    {
+      "name": "shown_y",
       "components": {
         "rules.OnAction": {
           "action": "in_orbit",
           "source": "hero",
           "field": "action_control.Controlled.action_y",
+          "value": 81
+        }
+      }
+    },
+    {
+      "name": "steers_x_now",
+      "components": {
+        "rules.OnAction": {
+          "action": "orbit_done",
+          "source": "hero",
+          "field": "action_control.Controlled.action_x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "steers_y_now",
+      "components": {
+        "rules.OnAction": {
+          "action": "orbit_done",
+          "source": "hero",
+          "field": "action_control.Controlled.action_y",
           "value": 1
+        }
+      }
+    },
+    {
+      "name": "hole_way_x",
+      "components": {
+        "rules.OnAction": {
+          "action": "orbit_done",
+          "source": "space_hole",
+          "field": "follow2d.Follow.way_x",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "hole_way_y",
+      "components": {
+        "rules.OnAction": {
+          "action": "orbit_done",
+          "source": "space_hole",
+          "field": "follow2d.Follow.way_y",
+          "value": 1
+        }
+      }
+    },
+    {
+      "name": "platform_stays",
+      "components": {
+        "rules.OnAction": {
+          "action": "orbit_done",
+          "source": "platform",
+          "field": "follow2d.Follow.stiffness",
+          "value": 0
+        }
+      }
+    },
+    {
+      "name": "platform_shows",
+      "components": {
+        "tween2d.Track": {
+          "field": "sprite2d.Sprite.alpha",
+          "onto": "platform",
+          "smooth": true,
+          "keys": 2,
+          "t0": 0,
+          "v0": 0,
+          "t1": 90,
+          "v1": 255,
+          "start": "in_orbit"
         }
       }
     },
@@ -11355,14 +14784,12 @@
           "field": "text2d.Text.alpha",
           "onto": "to_follow",
           "smooth": true,
-          "keys": 3,
+          "keys": 2,
           "t0": 0,
           "v0": 0,
-          "t1": 540,
-          "v1": 0,
-          "t2": 660,
-          "v2": 230,
-          "start": "in_orbit"
+          "t1": 60,
+          "v1": 230,
+          "start": "orbit_test_done"
         }
       }
     }
