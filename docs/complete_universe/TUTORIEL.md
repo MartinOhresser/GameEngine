@@ -41,36 +41,55 @@ Les textes affichés à l'écran ne décrivent que les contrôles, comme le dema
 
 ### Les étapes
 
-Refaites le 25 novembre 2026 après le premier essai de Martin (DECISIONS.md, D9 à D15). Chaque
-étape suit le même schéma :
+Refaites le 27 novembre 2026 sur les textes de Martin (DECISIONS.md, D31). Deux sortes
+d'étapes :
 
-1. Un titre et une ligne de contrôle en bas de l'écran.
-2. Le pouvoir de l'étape se débloque ; ceux des étapes suivantes ne marchent pas encore.
-3. Une fois l'étape réussie, quelques secondes d'entraînement, puis l'étape suivante. Les étapes
-   du Noir, du Blanc, de la récolte, de la marche et du saut se font vues de près (D18).
-4. Une mort ramène au début de l'étape en cours (D7).
+1. **Démonstration** : le jeu montre, de près, pendant que le titre et la ligne en bas de l'écran
+   expliquent ; puis une pause, le texte toujours là ; puis l'étape suivante.
+2. **Test** : le joueur le fait ; l'étape suivante vient dès que c'est fait. Le pouvoir d'une
+   étape se débloque à la fin de sa démonstration ; ceux des étapes suivantes ne marchent pas
+   encore.
 
-| # | Étape | Le joueur… | Suite quand… |
-| --- | --- | --- | --- |
-| 0 | **Ouverture** et **atterrissage** | regarde | trois secondes |
-| 1 | **Le noir, montré** | regarde, de près, un trou noir avaler une pierre ; le principe est expliqué | six secondes |
-| 2 | **À toi : le noir** | maintient le clic droit sur les pierres | deux pierres avalées, puis 6 s d'entraînement |
-| 3 | **Le blanc, montré** | regarde une bulle puis un mur se lever | six secondes |
-| 4 | **À toi : le blanc** | clic gauche : une bulle ; clic gauche glissé : un mur | deux barrières, puis 6 s |
-| 5 | **La récolte, montrée** | regarde une bulle de récolte avaler un fossile | six secondes |
-| 6 | **À toi : la récolte** | maintient F sur un fossile | du carbone gagné, puis 5 s |
-| 7 | **Les réserves** | ouvre l'inventaire (Tab) | l'inventaire ouvert, puis 3 s |
-| 8 | **Marcher, montré** | le regarde marcher tout seul, le petit trou noir sous le pied | quatre secondes |
-| 9 | **À toi : marcher** | Q/D, flèches | le bout du chemin |
-| 10 | **Sauter, montré** | le regarde charger puis sauter, au ralenti | quatre secondes |
-| 11 | **À toi : sauter** | maintient Espace puis relâche : le fossé, puis le rebord | sur le rebord, puis 2 s |
-| 12 | **Les deux mains** | creuse le pilier au noir, puis franchit le gouffre sur des murs de blanc | de l'autre côté |
-| 13 | **Le carbone s'épuise** | récolte les fossiles de la cuvette, ou le sol | le carbone au-dessus de la moitié |
-| 14 | **La matière s'épuise** | récolte les pierres, ou creuse le sol | la matière au-dessus de la moitié |
-| 15 | **La mort** | la matière baisse quoi qu'il fasse | il revient |
-| 16 | **Sans carbone, le noir** | lit que l'autre réserve fait pareil | six secondes |
-| 17 | **Le départ** | garde Espace chargé : au bout de cinq secondes, le trou noir grandit et le saut devient plus fort ; il relâche : sorti de l'atmosphère, il est parti, sinon il retombe et recommence | — |
-| 18 | **L'espace** | se déplace (Z Q S D ou flèches) vers la planète suivante, un petit trou noir devant lui | « à suivre » |
+La caméra est proche du personnage du début jusqu'à la fin du saut (D18). Une mort ramène au début
+de l'étape en cours (D7).
+
+| # | Étape | Sorte | Ce qui se passe | Durée ou fin |
+| --- | --- | --- | --- | --- |
+| 0 | Atterrissage | — | il se réveille | 3 s |
+| 1 | Une entité, deux parties | démo | le personnage immobile, en gros plan | 5 s + 2 s |
+| 2 | Noir | démo | sa moitié noire s'illumine, un petit trou noir apparaît | 4 s + 1,5 s |
+| 3 | Blanc | démo | sa moitié blanche s'illumine ; une bulle autour de lui, puis autour d'une pierre | 4 s + 1,5 s |
+| 4 | Deux forces complémentaires | démo | les deux réserves (les bulles de l'inventaire), puis elles disparaissent | 4 s + 2 s |
+| 5 | Le trou noir | démo | un trou noir avale des débris | 4 s + 1,5 s |
+| 6 | Utiliser le Noir | test | avaler deux pierres | — |
+| 7 | Un pouvoir qui consomme | démo | un trou noir grandit ; la réserve de matière baisse | 4 s + 1,5 s |
+| 8 | La puissance du Noir | test | maintenir le clic droit jusqu'à un grand trou noir | — |
+| 9 | La barrière | démo | une bulle, puis un mur | 4 s + 1,5 s |
+| 10 | Utiliser le Blanc | test | une bulle puis un mur | — |
+| 11 | Le coût du Blanc | démo | une petite et une grande barrière ; le carbone baisse plus pour la grande | 4 s + 1,5 s |
+| 12 | À l'abri | démo | une bulle autour de lui ; des pierres tombent dessus sans l'atteindre | 4 s + 2 s |
+| 13 | La protection | test | une bulle autour de soi, y rester 3 s | — |
+| 14 | La récolte | démo | les deux mains, puis une bulle de récolte avale un fossile | 5 s + 2 s |
+| 15 | Récolter plus | test | récolter un fossile entier (sinon un nouveau tombe toutes les 12 s) | — |
+| 16 | Les réserves | démo | les deux réserves et les mains qu'elles nourrissent | 3 s + 1,5 s |
+| 17 | Marcher | démo | quelques pas, les petits trous noirs sous les pieds | 3 s + 1 s |
+| 18 | Le déplacement | test | traverser le chemin | — |
+| 19 | Sauter | démo | la charge, le trou noir, la propulsion, au ralenti | 4 s + 1,5 s |
+| 20 | Le saut | test | franchir le fossé, atteindre le rebord | — |
+| 21 | Les deux mains | démo | la caméra regarde devant : un trou noir creuse le pilier, un mur de Blanc couvre le gouffre | 3 s + 1,5 s |
+| 22 | Combiner les pouvoirs | test | détruire le pilier, franchir le gouffre sur un mur | — |
+| 23 | Le carbone s'épuise | démo | le carbone baisse, les bords noircissent, le Blanc s'éteint | 4 s + 2 s |
+| 24 | Récupérer du carbone | test | le carbone au-dessus de la moitié | — |
+| 25 | La matière s'épuise | démo | la matière baisse, les bords blanchissent, le Noir s'éteint | 4 s + 2 s |
+| 26 | Récupérer de la matière | test | la matière au-dessus de la moitié | — |
+| 27 | Sans matière, le corps se défait | démo | la matière tombe à zéro en 4 s, il ne bouge plus, tout devient blanc | il revient |
+| 28 | Sans carbone, ce serait le noir | démo | l'écran noircit un instant ; ses réserves reviennent | 4 s + 2 s |
+| 29 | Le départ | test | garder Espace chargé : au bout de 3 s, le trou noir grandit vite ; relâcher : hors de l'atmosphère, il monte en orbite | en orbite |
+| 30 | L'espace | démo | il vole tout seul à droite, en haut, à gauche, en bas | 4 s + 1,5 s |
+| 31 | Le déplacement orbital | test | rejoindre la plateforme (un rocher qui flotte) ; puis « À suivre… » | — |
+
+Le Noir et le Blanc vides tuent (D7) ; ailleurs dans le jeu, une réserve vide éteindra le pouvoir
+qu'elle nourrit (D31).
 
 La pause (Échap) est disponible partout en jeu : le personnage s'enferme dans une bulle et reste net, tout s'arrête (la consommation aussi), tout le reste devient flou, et les deux boutons (Reprendre, Retour au titre) s'affichent en bas (D6, D25). La pause par une barrière posée sur soi reste à faire. Un écran titre (Jouer, Quitter) précède l'ouverture : le ciel du big bang, encore en couleurs, et le personnage endormi dans sa bulle.
 

@@ -229,6 +229,25 @@ app::DrawCommand wall_picture(std::uint32_t atlas, std::uint32_t frame, float x,
     return command;
 }
 
+/// The seconds something of each bubble's holds layers has stayed inside it, without a break.
+void count_held(ecs::World& world, float tick) {
+    world.each<Barrier, const transform2d::Position>(
+        [&](ecs::Entity, Barrier& barrier, const transform2d::Position& at) {
+            if (!barrier.up || !barrier.round || barrier.holds == 0U) {
+                barrier.held = 0.0F;
+                return;
+            }
+            bool inside = false;
+            world.each<const collision2d::Collider, const transform2d::Position>(
+                [&](ecs::Entity, const collision2d::Collider& collider,
+                    const transform2d::Position& where) {
+                    inside = inside || ((collider.layer & barrier.holds) != 0U &&
+                                        length(where.x - at.x, where.y - at.y) < barrier.radius);
+                });
+            barrier.held = inside ? barrier.held + tick : 0.0F;
+        });
+}
+
 constexpr float turn = 2.0F * std::numbers::pi_v<float>;
 
 /// How much of its size a barrier raised `age` seconds ago is drawn at: from nothing to a little
@@ -353,6 +372,7 @@ void block(ecs::World& world) {
     world.each<Barrier>([tick](ecs::Entity, Barrier& barrier) {
         barrier.age = barrier.up ? barrier.age + tick : 0.0F;
     });
+    count_held(world, tick);
     const std::vector<Up> up = barriers_up(world);
     if (up.empty()) {
         return;

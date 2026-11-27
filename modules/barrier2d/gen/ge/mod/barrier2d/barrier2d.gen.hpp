@@ -54,7 +54,7 @@ struct Caster {
     [[nodiscard]] friend bool operator==(const Caster&, const Caster&) = default;
 };
 
-/// A barrier of pool, raised by a Caster (or by the game: put up, round, radius...). While up, it is a bubble of radius around its Position, or with round off a wall from its Position to (end_x, end_y), thickness units thick. It stops, from outside, every collision2d.Body whose Collider mask meets layer: pushed out, it loses the speed that went into it, and its collision2d.Blocked notes the side (a body stands on top of it). Every entity with a Velocity and a Collider whose layer meets freezes, and whose middle is inside a bubble, is frozen in time (a transform2d.SpeedScale of 0, renewed each tick). Drawn with cell bubble (a bubble) or cell wall (a wall, stretched) of atlas, on layer. Raised, it is drawn springing up in appear seconds (a bubble grows from nothing a little past its size and settles; a wall opens from its middle to its ends), while sparks glints (soft discs of spark_size, coloured spark_color 0xRRGGBBAA) fly off it at about spark_speed units a second and fade out in spark_life seconds; up, it breathes: its drawn size (a wall's thickness) wavers by the share wobble. Only the drawing: it stops what it stops from the first tick. The module keeps order (which was raised last) and age (seconds since it went up).
+/// A barrier of pool, raised by a Caster (or by the game: put up, round, radius...). While up, it is a bubble of radius around its Position, or with round off a wall from its Position to (end_x, end_y), thickness units thick. It stops, from outside, every collision2d.Body whose Collider mask meets layer: pushed out, it loses the speed that went into it, and its collision2d.Blocked notes the side (a body stands on top of it). Every entity with a Velocity and a Collider whose layer meets freezes, and whose middle is inside a bubble, is frozen in time (a transform2d.SpeedScale of 0, renewed each tick). Drawn with cell bubble (a bubble) or cell wall (a wall, stretched) of atlas, on layer. Raised, it is drawn springing up in appear seconds (a bubble grows from nothing a little past its size and settles; a wall opens from its middle to its ends), while sparks glints (soft discs of spark_size, coloured spark_color 0xRRGGBBAA) fly off it at about spark_speed units a second and fade out in spark_life seconds; up, it breathes: its drawn size (a wall's thickness) wavers by the share wobble. Only the drawing: it stops what it stops from the first tick. With holds (layers), held counts the seconds a Collider of those layers has stayed inside the bubble, its middle within it, without a break (back to 0 when none is, or when it goes down): a shelter tried for a while. The module keeps order (which was raised last), age (seconds since it went up) and held.
 struct Barrier {
     std::uint32_t pool = 0U;
     bool up = false;
@@ -76,8 +76,10 @@ struct Barrier {
     float spark_life = 0.8F;
     float spark_size = 4.0F;
     std::uint32_t spark_color = 4294967295U;
+    std::uint32_t holds = 0U;
     std::uint32_t order = 0U;
     float age = 0.0F;
+    float held = 0.0F;
 
     void hash(::ge::Hasher& hasher) const {
         hasher.add(pool);
@@ -100,8 +102,10 @@ struct Barrier {
         hasher.add(spark_life);
         hasher.add(spark_size);
         hasher.add(spark_color);
+        hasher.add(holds);
         hasher.add(order);
         hasher.add(age);
+        hasher.add(held);
     }
 
     [[nodiscard]] friend bool operator==(const Barrier&, const Barrier&) = default;

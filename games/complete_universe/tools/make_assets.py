@@ -12,6 +12,7 @@ the camera's zoom is 1.5, so the world shows 1280 by 720 units, and the pictures
 pixels for each unit, sharp at that size.
 """
 import json
+import textwrap
 import math
 import os
 
@@ -2056,10 +2057,10 @@ def hero_clips():
 
 JUMP_HOLE_Y = -78  # the jump's black hole, over his head
 JUMP_HOLE_SIZE = 24  # its scale (and radius) at a full charge
-HOLE_GROWTH = 12  # held full five seconds, the hole's radius then grows this much a second
+HOLE_GROWTH = 30  # held full three seconds, the hole's radius then grows this much a second (D31)
 JUMP_SPEED = 560  # the jump's speed (times 0.55 to 1.8 with the charge)
-LAUNCH_SPEED = 1900  # ... up to this, the hole growing (three seconds): out of the atmosphere
-LAUNCH_GROWTH = 3.0  # the seconds of growth to the strongest jump
+LAUNCH_SPEED = 1900  # ... up to this, the hole growing (two seconds): out of the atmosphere
+LAUNCH_GROWTH = 2.0  # the seconds of growth to the strongest jump (D31)
 
 
 def jump_hole():
@@ -2091,7 +2092,7 @@ def jump_hole():
         bind("jump_hole_grows", "hero", "jump.Jumper.charge", "transform2d.Scale.factor",
              0, 1, 0, JUMP_HOLE_SIZE, 1, onto="jump_hole"),
         spin("jump_hole_turns", "jump_hole", 150),
-        # The departure (D21, D22): held full for five seconds, the same hole goes on growing,
+        # The departure (D21, D22): held full for three seconds, the same hole goes on growing,
         # without end, its middle going up so that it never covers him (it is drawn to him, it
         # cannot be on him); the bigger it is, the faster he is thrown, up to a limit.
         bind("jump_hole_swells", "hold", "transform2d.Position.x", "sprite2d.Sprite.width",
@@ -2234,9 +2235,10 @@ def powers(harvest_locked=False):
         "loadout.Shortcut": {"action": "locked" if harvest_locked else "harvest",
                              "first": "black", "second": "white"}}}
     # One barrier at a time (D29): a new one takes the place of the last.
-    walls = [entity("barrier_1", 0, 0, {"barrier2d.Barrier": dict({
+    walls = [entity("barrier_1", 0, 0, {"tag.Tag": {"tag": "barrier"},
+                                        "barrier2d.Barrier": dict({
         "pool": 0, "layer": ["barrier"], "freezes": ["rock"], "atlas": "barrier", "bubble": 0,
-        "wall": 1, "draw_layer": LAYERS["hero"] + 4}, **BARRIER_LOOK)})]
+        "wall": 1, "draw_layer": LAYERS["hero"] + 4, "holds": ["hero"]}, **BARRIER_LOOK)})]
     return [
         white,
         bind("white_reaches_x", "white_caster", "aim2d.Aim.reach_x", "barrier2d.Caster.end_x",
@@ -2689,7 +2691,10 @@ def fade(name, colour, ticks, start, end, action=None):
 
 PREFAB_LIST = [fade("fade_white", (240, 240, 236), 60, 0, 255, "revive"),
                fade("fade_black", (0, 0, 0), 60, 0, 255, "revive"),
-               fade("fade_back", (0, 0, 0), 50, 255, 0)]
+               fade("fade_back", (0, 0, 0), 50, 255, 0),
+               {"schema_version": 1, "name": "fossil", "components": {
+                   name: value for name, value in fossil_entity("fossil", 0, 0)["components"].items()
+                   if name != "transform2d.Position"}}]
 
 
 def cover(name, alpha=0, colour=(255, 255, 255)):
@@ -2831,82 +2836,173 @@ PILLAR = (2800, 70)  # x and width of a pillar up to the sky: only digging gets 
 CHASM = (3000, 3420, 220)  # a chasm too wide to jump: a wall of white is the bridge
 BASIN = (3700, 5000, 80)  # the basin with fossils, then rocks
 
-# The steps of the tutorial, in order. A step "x_practice" follows the step x once it is done: a
-# few seconds to try it again and see what it does, before the next one.
-STEPS = ["landing", "black_show", "black", "black_practice", "white_show", "white",
-         "white_practice", "harvest_show", "harvest", "harvest_practice", "inventory",
-         "inventory_practice", "walk_show", "walk", "jump_show", "jump", "jump_practice",
-         "obstacles", "lack_white", "lack_black", "death", "after_death", "departure", "end",
-         "orbit"]
-# A step "x_show" comes before the step x (D19): the game does it by itself, seen close, and says
-# how it works; then the player does it, told which key. Its seconds:
-SHOW_SECONDS = {"black": 6, "white": 6, "harvest": 6, "walk": 4, "jump": 4}
+# The steps of the tutorial (D31), in order: (step, kind, seconds of demonstration, seconds of
+# pause). A "demo" step is done by the game, seen close, while its text says how it works; the
+# text stays the pause after, then the next step comes. A "test" step is the player's: it is done
+# when he has done it. The landing and the death (done when he comes back) have their own ends;
+# the departure goes on until he is in orbit. (A set of phases holds 32 of them at most.)
+TUTORIAL = [
+    ("landing", "start", 0, 0),
+    ("entity_show", "demo", 5, 2),
+    ("entity_black", "demo", 4, 1.5),
+    ("entity_white", "demo", 4, 1.5),
+    ("entity_balance", "demo", 4, 2),
+    ("black_show", "demo", 4, 1.5),
+    ("black", "test", 0, 0),
+    ("black_charge", "demo", 4, 1.5),
+    ("black_charge_test", "test", 0, 0),
+    ("white_show", "demo", 4, 1.5),
+    ("white", "test", 0, 0),
+    ("white_cost", "demo", 4, 1.5),
+    ("white_protect_show", "demo", 4, 2),
+    ("white_protect", "test", 0, 0),
+    ("harvest_show", "demo", 5, 2),
+    ("harvest", "test", 0, 0),
+    ("inventory", "demo", 3, 1.5),
+    ("walk_show", "demo", 3, 1),
+    ("walk", "test", 0, 0),
+    ("jump_show", "demo", 4, 1.5),
+    ("jump", "test", 0, 0),
+    ("obstacles", "demo", 3, 1.5),
+    ("obstacles_test", "test", 0, 0),
+    ("lack_white", "demo", 4, 2),
+    ("lack_white_test", "test", 0, 0),
+    ("lack_black", "demo", 4, 2),
+    ("lack_black_test", "test", 0, 0),
+    ("death", "death", 4, 0),
+    ("after_death", "demo", 4, 2),
+    ("departure", "test", 0, 0),
+    ("orbit", "demo", 4, 1.5),
+    ("orbit_test", "test", 0, 0),
+]
+STEPS = [step for step, *_ in TUTORIAL]
+# The action that ends each step, and so starts the next one.
+ENDS = {step: {"death": "revive", "departure": "in_orbit"}.get(step, f"{step}_done")
+        for step in STEPS}
+BEGINS = {step: ENDS[STEPS[index - 1]] for index, step in enumerate(STEPS) if index > 0}
 
-# The texts of each step (GDD §12: text is only for the controls): a title and a line.
+# The texts of the steps (GDD §12, D31): a title and a line.
 TEXTS = {
-    "black_show": ("Le noir",
-                   "Ta main droite crée un trou noir : il attire, puis avale ce qui l'entoure."),
-    "black": ("À toi : le noir", "Maintiens le clic droit sur les pierres. Avale-en deux."),
-    "white_show": ("Le blanc",
-                   "Ta main gauche lève une barrière : une bulle, ou un mur d'un point à un autre."),
-    "white": ("À toi : le blanc",
-              "Clic gauche : une bulle. Clic gauche glissé : un mur. Fais-en deux."),
+    "entity_show": ("Une entité, deux parties",
+                    "Le Noir et le Blanc. Deux forces opposées, liées au sein d'un même corps."),
+    "entity_black": ("Noir",
+                     "Une force gravitationnelle. Il attire, déforme et absorbe ce qui l'entoure."),
+    "entity_white": ("Blanc",
+                     "Une force protectrice. Une barrière capable de préserver tout ce qu'elle "
+                     "enferme."),
+    "entity_balance": ("Deux forces complémentaires",
+                       "Le Noir a besoin de matière. Le Blanc a besoin de carbone. Leur équilibre "
+                       "est indispensable à la survie."),
+    "black_show": ("Le trou noir",
+                   "La main droite permet de créer un trou noir. Il attire et absorbe ce qu'il "
+                   "touche."),
+    "black": ("Utiliser le Noir",
+              "Le clic droit permet de créer un trou noir sur le point visé. Les pierres peuvent "
+              "ainsi être détruites."),
+    "black_charge": ("Un pouvoir qui consomme",
+                     "Plus le trou noir est maintenu, plus il grandit, devient puissant et "
+                     "consomme de matière."),
+    "black_charge_test": ("La puissance du Noir",
+                          "Le maintien du clic droit permet d'agrandir le trou noir. Sa taille "
+                          "augmente avec le temps."),
+    "white_show": ("La barrière",
+                   "La main gauche déploie une barrière. Elle peut former une bulle ou un mur "
+                   "entre deux points."),
+    "white": ("Utiliser le Blanc",
+              "Le clic gauche crée une bulle. Un clic gauche glissé crée un mur entre deux "
+              "points."),
+    "white_cost": ("Le coût du Blanc",
+                   "Chaque barrière consomme du carbone à sa création. Plus elle est grande, plus "
+                   "son coût est élevé."),
+    "white_protect_show": ("À l'abri",
+                           "Tout ce qui se trouve dans une barrière est protégé de l'extérieur. "
+                           "Même le temps ne peut l'atteindre."),
+    "white_protect": ("La protection",
+                      "Une bulle peut être créée autour du personnage pour le protéger. À "
+                      "l'intérieur, aucune action extérieure n'est possible."),
     "harvest_show": ("La récolte",
-                     "Une bulle de récolte avale ce qu'elle touche, sol compris, et le range en toi."),
-    "harvest": ("À toi : la récolte", "Maintiens F sur un fossile."),
-    "inventory": ("Tes réserves",
-                  "Tab : la matière (noire) et le carbone (blanc) que tu portes."),
-    "walk_show": ("Marcher", "À chaque pas, un petit trou noir s'ouvre devant toi et tire ta jambe."),
-    "walk": ("À toi : marcher", "Q / D ou ← → : avance jusqu'au bout du chemin."),
+                     "Noir et Blanc réunis, les ressources peuvent être absorbées sans être "
+                     "détruites. Elles sont triées et rangées dans l'inventaire."),
+    "harvest": ("Récolter plus",
+                "La touche F permet de récolter un fossile. Les ressources rejoignent "
+                "l'inventaire une fois la récolte terminée."),
+    "inventory": ("Les réserves",
+                  "La touche Tab ouvre l'inventaire. La matière alimente le Noir, le carbone "
+                  "alimente le Blanc."),
+    "walk_show": ("Marcher",
+                  "À chaque pas, un petit trou noir s'ouvre devant le personnage et attire sa "
+                  "jambe."),
+    "walk": ("Le déplacement",
+             "Les touches Q / D ou les flèches permettent d'avancer et de reculer."),
     "jump_show": ("Sauter",
-                  "Un trou noir grandit au-dessus de ta tête tant que tu charges, puis te projette."),
-    "jump": ("À toi : sauter",
-             "Maintiens Espace puis relâche : saute le fossé, puis monte sur le rebord."),
+                  "Un trou noir grandit au-dessus du personnage. La charge accumulée permet "
+                  "ensuite de le propulser."),
+    "jump": ("Le saut",
+             "Le maintien de la touche Espace charge le saut. Son relâchement déclenche la "
+             "propulsion."),
     "obstacles": ("Les deux mains",
-                  "Creuse le pilier avec le noir, puis jette un mur de blanc sur le gouffre."),
+                  "Le Noir détruit ce qu'il absorbe. Le Blanc protège de ce qui vient de "
+                  "l'extérieur. Leur combinaison ouvre de nouvelles possibilités."),
+    "obstacles_test": ("Combiner les pouvoirs",
+                       "Le pilier doit être détruit avec le Noir, puis un mur de Blanc doit "
+                       "permettre de franchir le gouffre."),
     "lack_white": ("Le carbone s'épuise",
-                   "F sur les fossiles, ou dans le sol : il contient aussi du carbone."),
+                   "Sans carbone, le Blanc s'éteint. La vision noircit. Les fossiles et certains "
+                   "gisements contiennent du carbone."),
+    "lack_white_test": ("Récupérer du carbone",
+                        "La touche F permet de récolter les fossiles et le sol pour récupérer du "
+                        "carbone."),
     "lack_black": ("La matière s'épuise",
-                   "F sur les pierres, ou creuse le sol : il est fait de matière."),
-    "death": ("Sans matière, ton corps se défait",
-              "Tout devient blanc…"),
+                   "Sans matière, le Noir s'éteint. La vision blanchit. Les pierres et le sol "
+                   "contiennent de la matière."),
+    "lack_black_test": ("Récupérer de la matière",
+                        "La touche F permet de récolter les pierres et le sol pour récupérer de "
+                        "la matière."),
+    "death": ("Sans matière, le corps se défait",
+              "Le monde devient blanc. Les mouvements s'arrêtent. Puis tout disparaît..."),
     "after_death": ("Sans carbone, ce serait le noir",
-                    "Garde toujours les deux : tu reprends au début de l'étape."),
+                    "Sans carbone, le personnage est consumé par son propre trou noir. Les deux "
+                    "réserves sont indispensables à la survie."),
     "departure": ("Le départ",
-                  "Garde Espace chargé : au bout de cinq secondes, le trou noir grandit. Relâche."),
-    "orbit": ("L'espace", "Z Q S D ou les flèches : un trou noir devant toi t'attire où tu vas."),
+                  "Le maintien de la touche Espace charge le trou noir. Après quelques secondes, "
+                  "sa taille augmente considérablement. Son relâchement déclenche la "
+                  "propulsion."),
+    "orbit": ("L'espace",
+              "Les touches Z Q S D ou les flèches permettent de se déplacer. Un trou noir "
+              "apparaît dans la direction choisie et attire le personnage."),
+    "orbit_test": ("Le déplacement orbital",
+                   "Les quatre directions permettent de rejoindre la prochaine plateforme."),
 }
-DEPARTURE_HOLD = 5.0  # seconds of the jump held for the departure
+DEPARTURE_HOLD = 3.0  # seconds of the jump held for the departure (D31)
 HOLD_OFF = -100000  # the clock of the hold when the jump is not held at full charge
 HERO_CHARGE_TIME = 1.2  # seconds to charge a jump fully
-PRACTICE_SECONDS = {"black": 6, "white": 6, "harvest": 5, "inventory": 3, "jump": 2}
+TEXT_WIDTH = 78  # letters a line of text holds on the screen: longer ones go on two
+FOSSIL_AGAIN = 12  # seconds: no fossil harvested yet, a new one comes
+
+
+def seconds(value):
+    return round(value * 60)
 
 
 def step_texts():
-    """The title and the line of each step. On the steps seen close, they come once the camera is
-    close (the title, then the line)."""
+    """The title and the line of each step, shown during it, coming softly as it starts (the
+    camera may come close first)."""
     made = []
-    close = LATE_TEXTS
-    for step, (title, line) in TEXTS.items():
-        phases = [step] + ([f"{step}_practice"] if step in PRACTICE_SECONDS else [])
-        for part, y, size, alpha in (("title", SCREEN_H - 168, 50, 240),
-                                     ("line", SCREEN_H - 104, 32, 215)):
+    for step in TEXTS:
+        for part, y, size, alpha, delay in (("title", SCREEN_H - 196, 50, 240, 30),
+                                            ("line", SCREEN_H - 100, 32, 215, 45)):
             name = f"text_{step}_{part}"
-            text = entity(name, SCREEN_W / 2, y, {
-                "text2d.Text": {"string": f"tutorial.{step}.{part}", "font": "font",
-                                "size": size, "pivot_x": 0.5, "pivot_y": 0.5, "screen": True,
-                                "alpha": 0 if step in close else alpha},
-                "phase.ShowIn": {"phases": phases},
-                "transform2d.Hidden": {},
-            })
-            made.append(text)
-            if step in close:
-                tag = f"text_{step}_{part}"
-                text["components"]["tag.Tag"] = {"tag": tag}
-                later = 0 if part == "title" else 25
-                made.append(track(f"{name}_comes", tag, "text2d.Text.alpha",
-                                  [(0, 0), (TEXT_AFTER + later, 0),
-                                   (TEXT_AFTER + later + 30, alpha)], start=close[step]))
+            made += [
+                entity(name, SCREEN_W / 2, y, {
+                    "tag.Tag": {"tag": name},
+                    "text2d.Text": {"string": f"tutorial.{step}.{part}", "font": "font",
+                                    "size": size, "pivot_x": 0.5, "pivot_y": 0.5,
+                                    "screen": True, "alpha": 0},
+                    "phase.ShowIn": {"phases": [step]},
+                    "transform2d.Hidden": {}}),
+                track(f"{name}_comes", name, "text2d.Text.alpha",
+                      [(0, 0), (delay, 0), (delay + 30, alpha)], start=BEGINS[step]),
+            ]
     return made
 
 
@@ -2932,28 +3028,25 @@ def tagged(made, tag):
     return made
 
 
-def on(name, action, source, field, value):
-    return {"name": name, "components": {"rules.OnAction": {
+def on(name, action, source, field, value, add=False):
+    made = {"name": name, "components": {"rules.OnAction": {
         "action": action, "source": source, "field": field, "value": value}}}
+    if add:
+        made["components"]["rules.OnAction"]["add"] = True
+    return made
 
 
-# The steps seen close (D18): the camera comes close as the step starts, then its text shows,
-# and the player does it seen close (the black hole that comes, the barrier that rises, the
-# fossils and the ground swallowed, the black holes under his feet, the one over his head); it
-# goes back once the step is done (walking and jumping follow each other: it stays close).
-CLOSE_STEPS = [
-    # (name, the action that starts it, the one that ends it): from the show to his success.
-    ("black", "landing_done", "black_done"),
-    ("white", "black_next", "white_done"),
-    ("harvest", "white_next", "harvest_done"),
-    ("walk", "inventory_next", "jump_done"),
-]
-# The texts of the shows come once the camera is close.
-LATE_TEXTS = {"black_show": "landing_done", "white_show": "black_next",
-              "harvest_show": "white_next", "walk_show": "inventory_next",
-              "jump_show": "walk_done"}
+def at(step, after, action):
+    """Raises action that many seconds into step (a moment of a demonstration)."""
+    return entity(f"at_{step}_{action}", 0, 0, {"tween2d.Track": {
+        "field": "transform2d.Position.x", "keys": 2, "t0": 0, "v0": 0, "t1": seconds(after),
+        "v1": 1, "start": BEGINS[step], "end_action": action}})
+
+
+# The camera close (D18) from the first word of the tutorial to the end of the jump: he is in the
+# middle of the screen, what is shown around him.
+CLOSE_RUN = ("entity_show", "jump")
 AWAKE_ZOOM = ZOOM * 1.7  # the camera close to him
-TEXT_AFTER = 60  # ticks: the camera is close, then the text comes
 # The first time he does it, light gathers into the part of his body that does it: (name, step,
 # watched tag, field, from, part followed, offset y, particles colour, additive).
 AWAKENINGS = [
@@ -2966,54 +3059,168 @@ AWAKENINGS = [
     ("walk", "walk", "hero", "transform2d.Velocity.x", 60, "hero", 40, (210, 220, 240), True),
     ("jump", "jump", "hero", "jump.Jumper.jumps", 1, "hero", -6, (210, 220, 240), True),
 ]
+# The moments the demonstrations raise (D31), for the manifest's list of actions.
+DEMO_ACTIONS = ["self_up", "self_down", "guard_up", "guard_down", "small_up", "big_up",
+                "rocks_fall", "bridge_up", "wall_now", "fossil_again", "departure_done", "demo_fly_x",
+                "demo_fly_y"]
 
 
 def close_steps():
-    """The camera close during the steps of CLOSE_STEPS. Close, it also looks a little lower
-    (he is in the middle of the screen, his feet above the texts) and follows him exactly (no
-    dead zone); going back, it comes back to where a camera at rest stays, at the edge of its
-    dead zone (60 above where it aims), then the dead zone comes back."""
-    made = []
-    for step, begins, ends in CLOSE_STEPS:
-        made += [
-            track(f"{step}_comes_close", "camera", "camera2d.Camera.zoom",
-                  [(0, ZOOM), (50, AWAKE_ZOOM)], start=begins),
-            track(f"{step}_looks_down", "camera", "camera2d.CameraFollow.offset_y",
-                  [(0, -40), (50, 30)], start=begins),
-            track(f"{step}_follows_close", "camera", "camera2d.CameraFollow.dead_y",
-                  [(0, 0), (1, 0)], start=begins),
-        ]
-        made += [
-            track(f"{step}_goes_back", "camera", "camera2d.Camera.zoom",
-                  [(0, AWAKE_ZOOM), (60, ZOOM)], start=ends),
-            track(f"{step}_looks_back", "camera", "camera2d.CameraFollow.offset_y",
-                  [(0, 30), (60, -40 - 60), (150, -40 - 60), (151, -40)], start=ends),
-            track(f"{step}_follows_back", "camera", "camera2d.CameraFollow.dead_y",
-                  [(0, 0), (150, 0), (151, 60)], start=ends),
-        ]
-    return made
+    """The camera close during CLOSE_RUN. Close, it also looks a little lower (he is in the
+    middle of the screen, his feet above the texts) and follows him exactly (no dead zone);
+    going back, it comes back to where a camera at rest stays, at the edge of its dead zone (60
+    above where it aims), then the dead zone comes back."""
+    begins, ends = BEGINS[CLOSE_RUN[0]], ENDS[CLOSE_RUN[1]]
+    return [
+        track("comes_close", "camera", "camera2d.Camera.zoom", [(0, ZOOM), (50, AWAKE_ZOOM)],
+              start=begins),
+        track("looks_down", "camera", "camera2d.CameraFollow.offset_y", [(0, -40), (50, 30)],
+              start=begins),
+        track("follows_close", "camera", "camera2d.CameraFollow.dead_y", [(0, 0), (1, 0)],
+              start=begins),
+        track("goes_back", "camera", "camera2d.Camera.zoom", [(0, AWAKE_ZOOM), (60, ZOOM)],
+              start=ends),
+        track("looks_back", "camera", "camera2d.CameraFollow.offset_y",
+              [(0, 30), (60, -40 - 60), (150, -40 - 60), (151, -40)], start=ends),
+        track("follows_back", "camera", "camera2d.CameraFollow.dead_y",
+              [(0, 0), (150, 0), (151, 60)], start=ends),
+    ]
+
+
+HERO_Y = GROUND_Y - HERO_H / 2  # his middle, standing on the landing
+
+
+def demo_barrier(name, x, y, radius=None, end=None):
+    """A barrier the story raises and takes down (pool 7: not the player's)."""
+    shape = {"radius": radius} if radius else {"round": False, "end_x": end[0], "end_y": end[1]}
+    return entity(name, x, y, {"tag.Tag": {"tag": name}, "barrier2d.Barrier": dict({
+        "pool": 7, "round": True, "layer": ["barrier"], "freezes": ["rock"], "atlas": "barrier",
+        "bubble": 0, "wall": 1, "draw_layer": LAYERS["hero"] + 4, "thickness": 14}, **shape,
+        **BARRIER_LOOK)})
+
+
+def raised(name, up, down):
+    """The barrier name goes up on the action up, down on the action down."""
+    return [on(f"{name}_up", up, name, "barrier2d.Barrier.up", 1),
+            on(f"{name}_down", down, name, "barrier2d.Barrier.up", 0)]
+
+
+def half_glow(name, part, colour, additive):
+    """A glow on one half of him (a hand), shown by the demonstrations."""
+    return entity(name, 0, 0, {
+        "tag.Tag": {"tag": name},
+        "follow2d.Follow": {"target": part, "stiffness": 1},
+        "sprite2d.Sprite": {"atlas": "glow", "width": 90, "height": 90, "alpha": 0,
+                            "additive": additive, "unlit": True, "layer": LAYERS["hero"] + 4,
+                            "red": colour[0], "green": colour[1], "blue": colour[2]}})
+
+
+def glows(name, step, start, end):
+    """The glow name shown from start to end seconds into step."""
+    return track(f"{name}_{step}", name, "sprite2d.Sprite.alpha",
+                 [(seconds(start), 0), (seconds(start) + 20, 230), (seconds(end) - 20, 230),
+                  (seconds(end), 0)], start=BEGINS[step])
+
+
+def inventory_shown(step):
+    """The two reserves shown over him (the inventory's bubbles) during step."""
+    return [on(f"inventory_{step}", BEGINS[step], "inventory", "toggle.Toggle.on", 1),
+            on(f"inventory_{step}_off", ENDS[step], "inventory", "toggle.Toggle.on", 0)]
+
+
+def hole_entity(name, x, y, phase, grow, max_radius, pulls, extra=None):
+    """A black hole of the demonstrations, at work during its step."""
+    made = entity(name, x, y, dict({
+        "tag.Tag": {"tag": name},
+        "transform2d.Disabled": {}, "phase.ActiveIn": {"phases": [phase]},
+        "attractor2d.Attractor": {"start_radius": 6, "grow": grow, "max_radius": max_radius,
+                                  "shrink": 160, "pull": 1500, "pulls": pulls, "inner": HEART},
+        "light2d.Light": {"radius": 140, "red": 190, "green": 210, "blue": 255,
+                          "intensity": 0.6},
+        "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1800, swirl=520, rate=40),
+        "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                            "layer": LAYERS["hero"] + 5, "unlit": True},
+        "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}, **HOLE_LOOP},
+        **(extra or {})))
+    return [made,
+            bind(f"{name}_shows", name, "attractor2d.Attractor.radius",
+                 "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto=name),
+            spin(f"{name}_turns", name, 150)]
 
 
 def demonstrations():
-    """What the game does by itself before the player's turn (D19): a black hole that swallows
-    a rock, a bubble and a wall, a harvest that swallows a fossil; he walks, then jumps."""
-    hole_look = {"sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
-                                     "layer": LAYERS["hero"] + 5, "unlit": True},
-                 "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}, **HOLE_LOOP}
-    made = [
-        entity("demo_black", 960, GROUND_Y - 30, dict({
-            "tag.Tag": {"tag": "demo_black"},
-            "transform2d.Disabled": {}, "phase.ActiveIn": {"phases": ["black_show"]},
-            "attractor2d.Attractor": {"start_radius": 6, "grow": 30, "max_radius": 60,
-                                      "shrink": 120, "pull": 1500, "pulls": ["rock"],
-                                      "inner": HEART},
-            "light2d.Light": {"radius": 140, "red": 190, "green": 210, "blue": 255,
-                              "intensity": 0.6},
-            "particles2d.Emitter": dict(VORTEX_EMITTER, pull=1800, swirl=520, rate=40)},
-            **hole_look)),
-        bind("demo_black_shows", "demo_black", "attractor2d.Attractor.radius",
-             "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="demo_black"),
-        spin("demo_black_turns", "demo_black", 150),
+    """What the game does by itself (D31): his two halves and what they do, a black hole that
+    swallows debris, one that grows and wears matter, a bubble and a wall, two barriers and their
+    cost, a bubble that shelters him from falling rocks, a harvest, his reserves, a few steps, a
+    jump, the two hands on the obstacles."""
+    made = [half_glow("black_half", "hand_right", (170, 185, 220), False),
+            half_glow("white_half", "hand_left", (240, 244, 255), True)]
+    # His black half; a small black hole by him.
+    made += [
+        glows("black_half", "entity_black", 0.2, 2.2),
+        entity("demo_spark", LANDING_X + 110, HERO_Y - 30, {
+            "tag.Tag": {"tag": "demo_spark"},
+            "sprite2d.Sprite": {"atlas": "black_hole", "width": 2, "height": 2,
+                                "layer": LAYERS["hero"] + 5, "unlit": True},
+            "transform2d.Scale": {"factor": 0}, "transform2d.Rotation": {}, **HOLE_LOOP}),
+        spin("demo_spark_turns", "demo_spark", 150),
+        track("demo_spark_comes", "demo_spark", "transform2d.Scale.factor",
+              [(0, 0), (seconds(1.6), 0), (seconds(2.2), 16), (seconds(4.6), 16),
+               (seconds(5.3), 0)], start=BEGINS["entity_black"]),
+    ]
+    # His white half; a bubble round him, then round a rock.
+    made += [
+        glows("white_half", "entity_white", 0.2, 1.6),
+        demo_barrier("demo_self", LANDING_X, HERO_Y, radius=66),
+        demo_barrier("demo_guard", 470, GROUND_Y - 14, radius=32),
+        at("entity_white", 1.2, "self_up"), at("entity_white", 2.4, "self_down"),
+        at("entity_white", 2.7, "guard_up"), at("entity_white", 3.9, "guard_down"),
+        on("self_up", "self_up", "demo_self", "barrier2d.Barrier.up", 1),
+        on("self_down", "self_down", "demo_self", "barrier2d.Barrier.up", 0),
+        on("guard_up", "guard_up", "demo_guard", "barrier2d.Barrier.up", 1),
+        on("guard_down", "guard_down", "demo_guard", "barrier2d.Barrier.up", 0),
+    ]
+    # His two reserves.
+    made += inventory_shown("entity_balance")
+    # A black hole swallows a few things.
+    made += hole_entity("demo_black", 920, GROUND_Y - 34, "black_show", 30, 60, ["rock"])
+    # One held: it grows, and wears matter as it grows (seen in his reserves).
+    made += hole_entity("demo_charge", LANDING_X + 150, HERO_Y - 40, "black_charge", 21, 90, [],
+                        {"reserve.Drain": {"kind": "matter",
+                                           "field": "attractor2d.Attractor.radius",
+                                           "per_unit": 0.06}})
+    made += inventory_shown("black_charge")
+    # A bubble, then a wall.
+    made += [demo_barrier("demo_bubble", LANDING_X + 160, GROUND_Y - 130, radius=46),
+             demo_barrier("demo_wall", LANDING_X + 280, GROUND_Y - 70,
+                          end=(LANDING_X + 400, GROUND_Y - 150)),
+             at("white_show", 2.0, "wall_now")]
+    made += raised("demo_bubble", BEGINS["white_show"], ENDS["white_show"])
+    made += raised("demo_wall", "wall_now", ENDS["white_show"])
+    # Two barriers, a small and a big one, and what each costs (seen in his reserves).
+    made += [demo_barrier("demo_small", LANDING_X + 120, GROUND_Y - 90, radius=28),
+             demo_barrier("demo_big", LANDING_X + 260, GROUND_Y - 120, radius=95),
+             at("white_cost", 0.3, "small_up"), at("white_cost", 2.0, "big_up"),
+             on("small_costs", "small_up", "carbon", "reserve.Reserve.amount", -3, add=True),
+             on("big_costs", "big_up", "carbon", "reserve.Reserve.amount", -10, add=True)]
+    made += raised("demo_small", "small_up", ENDS["white_cost"])
+    made += raised("demo_big", "big_up", ENDS["white_cost"])
+    made += inventory_shown("white_cost")
+    # Sheltered: a bubble round him, rocks fall on it and stay out.
+    made += [at("white_protect_show", 0.3, "self_up"),
+             at("white_protect_show", 1.0, "rocks_fall"),
+             on("self_down_after", ENDS["white_protect_show"], "demo_self",
+                "barrier2d.Barrier.up", 0)]
+    for index, dx in enumerate((-30, 10, 45)):
+        name = f"falling_{index + 1}"
+        rock = rock_entity(name, LANDING_X + dx, GROUND_Y - 460 - 70 * index, amount=10)
+        rock["components"]["gravity2d.Gravity"]["y"] = 0
+        rock["components"]["tag.Tag"] = {"tag": name}
+        made += [rock, on(f"{name}_falls", "rocks_fall", name, "gravity2d.Gravity.y", 1800)]
+    # The harvest: both hands, then the bubble that swallows a fossil.
+    made += [
+        glows("black_half", "harvest_show", 0.2, 1.4),
+        glows("white_half", "harvest_show", 0.2, 1.4),
         entity("demo_harvest", 330, GROUND_Y - 12, {
             "tag.Tag": {"tag": "demo_harvest"},
             "transform2d.Disabled": {}, "phase.ActiveIn": {"phases": ["harvest_show"]},
@@ -3028,38 +3235,46 @@ def demonstrations():
              "transform2d.Scale.factor", 0, 5000, 0, 5000, 1, onto="demo_harvest"),
         bind("demo_harvest_digs", "demo_harvest", "attractor2d.Attractor.heart",
              "terrain2d.Digger.radius", 0, 5000, 0, 5000, 1, onto="demo_harvest"),
+        # No fossil harvested yet after a while: a new one comes down by him.
+        entity("fossil_source", LANDING_X - 150, GROUND_Y - 80, {
+            "spawner2d.Shooter": {"prefab": "fossil", "action": "fossil_again"}}),
     ]
-    # The white: a bubble, then a wall, raised and taken down by the story.
-    for name, x, y, round_, extra in (("demo_bubble", 760, GROUND_Y - 130, True,
-                                       {"radius": 46}),
-                                      ("demo_wall", 880, GROUND_Y - 70, False,
-                                       {"end_x": 1000, "end_y": GROUND_Y - 150})):
-        made.append(entity(name, x, y, {"tag.Tag": {"tag": name}, "barrier2d.Barrier": dict({
-            "pool": 7, "round": round_, "layer": ["barrier"], "freezes": ["rock"],
-            "atlas": "barrier", "bubble": 0, "wall": 1, "draw_layer": LAYERS["hero"] + 4,
-            "thickness": 14}, **extra, **BARRIER_LOOK)}))
+    # His reserves, and the hands they feed.
+    made += inventory_shown("inventory")
+    made += [glows("black_half", "inventory", 1.0, 3.6),
+             glows("white_half", "inventory", 1.0, 3.6)]
+    # Walking: he walks a little by himself; jumping: he charges, then lets go.
     made += [
-        on("demo_bubble_up", "black_next", "demo_bubble", "barrier2d.Barrier.up", 1),
-        on("demo_bubble_down", "white_show_done", "demo_bubble", "barrier2d.Barrier.up", 0),
-        on("demo_wall_up", "demo_wall_now", "demo_wall", "barrier2d.Barrier.up", 1),
-        on("demo_wall_down", "white_show_done", "demo_wall", "barrier2d.Barrier.up", 0),
-        entity("demo_wall_timer", 0, 0, {"tween2d.Track": {
-            "field": "transform2d.Position.x", "keys": 2, "t0": 0, "v0": 0, "t1": 170,
-            "v1": 1, "start": "black_next", "end_action": "demo_wall_now"}}),
-        # Walking: he walks a little by himself; jumping: he charges, then lets go.
         {"name": "demo_walks", "components": {"rules.Press": {
-            "start": "inventory_next", "action": "demo_walk", "value": 1, "delay": 70,
-            "ticks": 90}}},
+            "start": BEGINS["walk_show"], "action": "demo_walk", "value": 1, "delay": 10,
+            "ticks": seconds(2.8)}}},
         {"name": "demo_jumps", "components": {"rules.Press": {
-            "start": "walk_done", "action": "demo_jump", "value": 1, "delay": 80,
+            "start": BEGINS["jump_show"], "action": "demo_jump", "value": 1, "delay": 20,
             "ticks": 55}}},
         # The jump shown in slow motion (D22): the hole at its biggest, then the leap it gives,
         # slowly enough to see that the hole throws him; then the world goes at its speed again.
         entity("world_speed", 0, 0, {"tag.Tag": {"tag": "world_speed"},
                                      "transform2d.WorldSpeed": {"factor": 1}}),
         track("demo_jump_slows", "world_speed", "transform2d.WorldSpeed.factor",
-              [(0, 1), (112, 1), (130, 0.25), (215, 0.25), (240, 1)], start="walk_done"),
+              [(0, 1), (52, 1), (70, 0.25), (155, 0.25), (180, 1)],
+              start=BEGINS["jump_show"]),
     ]
+    # The two hands on the obstacles: the camera looks ahead; a black hole digs into the pillar,
+    # a wall of white goes over the chasm.
+    made += [
+        track("looks_ahead", "camera", "camera2d.CameraFollow.offset_x",
+              [(0, 0), (45, 480), (seconds(4.5) - 45, 480), (seconds(4.5), 0)],
+              start=BEGINS["obstacles"]),
+        at("obstacles", 1.5, "bridge_up"),
+        demo_barrier("demo_bridge", CHASM[0] - 10, GROUND_Y + 6,
+                     end=(CHASM[1] + 10, GROUND_Y + 6)),
+    ]
+    made += hole_entity("demo_dig", PILLAR[0] - PILLAR[1] / 2 - 10, GROUND_Y - 60, "obstacles",
+                        30, 26, ["rock"], {"terrain2d.Digger": {"radius": 0,
+                                                                 "layers": ["ground"]}})
+    made += [bind("demo_dig_digs", "demo_dig", "attractor2d.Attractor.heart",
+                  "terrain2d.Digger.radius", 0, 5000, 0, 5000, 1, onto="demo_dig")]
+    made += raised("demo_bridge", "bridge_up", ENDS["obstacles"])
     return made
 
 
@@ -3073,8 +3288,7 @@ def awakenings():
         made.append({"name": f"{name}_awakens", "components": {
             "rules.Watch": {"source": source, "own": False, "field": field, "min": low,
                             "action": action, "once": True},
-            "phase.ActiveIn": {"phases": [step] + ([f"{step}_practice"] if step in
-                                                   PRACTICE_SECONDS else [])},
+            "phase.ActiveIn": {"phases": [step]},
             "transform2d.Disabled": {}}})
         gather = f"{name}_gathers"
         made.append(entity(gather, 0, 0, {
@@ -3101,34 +3315,24 @@ def awakenings():
 
 
 def story(fall=0):
-    """The steps of the tutorial (module phase), what ends each one (rules.Watch) and what each
-    one gives (rules.OnAction). The clock counts the seconds of the steps of practice."""
+    """The steps of the tutorial (module phase), what ends each one (the clock, for a
+    demonstration; rules.Watch, for a test) and what each one gives (rules.OnAction)."""
     made = [entity("story", 0, 0, {"tag.Tag": {"tag": "story"},
                                    "phase.Phase": {"current": "landing"}}),
             entity("clock", 0, 0, {"tag.Tag": {"tag": "clock"},
                                    "transform2d.Velocity": {"x": 1}})]
-    ends = {}
     for index, step in enumerate(STEPS[:-1]):
-        action = {"death": "revive", "end": "in_orbit"}.get(step, f"{step}_done" if not step.endswith(
-            "_practice") else f"{step[:-len('_practice')]}_next")
-        ends[step] = action
         made.append({"name": f"after_{step}", "components": {"phase.Transition": {
-            "action": action, "from": [step], "from_any": False, "to": STEPS[index + 1]}}})
-    # A step shown: the clock starts again, and the player's turn comes after some seconds.
-    for step, seconds in SHOW_SECONDS.items():
-        show = f"{step}_show"
-        made.append(on(f"{show}_clock", ends[STEPS[STEPS.index(show) - 1]], "clock",
-                       "transform2d.Position.x", 0))
-        made.append(watch(f"{show}_watch", show, "clock", "transform2d.Position.x", ends[show],
-                          seconds, inside=True))
-    # A step of practice: the clock starts again, and the next step comes after some seconds.
-    for step, seconds in PRACTICE_SECONDS.items():
-        made.append(on(f"{step}_clock", ends[step], "clock", "transform2d.Position.x", 0))
-        made.append(watch(f"{step}_practice_watch", f"{step}_practice", "clock",
-                          "transform2d.Position.x", ends[f"{step}_practice"], seconds,
-                          inside=True))
+            "action": ENDS[step], "from": [step], "from_any": False, "to": STEPS[index + 1]}}})
+    # A demonstration: the clock starts again as it starts; its seconds and its pause, then the
+    # next step.
+    for step, kind, shown, pause in TUTORIAL:
+        if kind == "demo":
+            made += [on(f"{step}_clock", BEGINS[step], "clock", "transform2d.Position.x", 0),
+                     watch(f"{step}_demo_watch", step, "clock", "transform2d.Position.x",
+                           ENDS[step], shown + pause, inside=True)]
     made += [
-        # The landing: he wakes, a moment, then the black (D4: he does not move yet).
+        # The landing: he wakes, a moment, then he is shown (D4: he does not move yet).
         entity("landing_timer", 0, 0, {"tween2d.Tween": {
             "field": "transform2d.Position.x", "from": 0, "to": 1, "ticks": 170 + fall,
             "use_action": True, "action": "landing_done"}}),
@@ -3136,63 +3340,84 @@ def story(fall=0):
         # The black swallows two rocks.
         watch("black_watch", "black", "black_hole", "attractor2d.Attractor.swallowed",
               "black_done", 2),
+        # ... and grows held, nearly as big as it gets.
+        watch("black_charge_watch", "black_charge_test", "black_hole",
+              "attractor2d.Attractor.radius", "black_charge_test_done", 80),
         on("gives_white", "white_show_done", "kit", "loadout.Kit.unlocked", 3),
-        # The white raises two barriers.
+        # The white raises a bubble, then a wall (two barriers).
         watch("white_watch", "white", "white_caster", "barrier2d.Caster.raised", "white_done",
               2),
+        # A bubble round him, three seconds inside.
+        watch("protect_watch", "white_protect", "barrier", "barrier2d.Barrier.held",
+              "white_protect_done", 3),
         on("gives_harvest", "harvest_show_done", "harvest_key", "loadout.Shortcut.action",
            ACTIONS.index("harvest")),
-        # The harvest brings carbon in.
+        # A fossil harvested whole (its carbon comes in as the harvest ends); none for a while: a
+        # new one comes.
         watch("harvest_watch", "harvest", "carbon", "reserve.Reserve.gained", "harvest_done",
               15),
-        # The inventory opened.
-        watch("inventory_watch", "inventory", "inventory", "toggle.Toggle.times",
-              "inventory_done", 1),
+        on("harvest_clock", BEGINS["harvest"], "clock", "transform2d.Position.x", 0),
+        watch("fossil_watch", "harvest", "clock", "transform2d.Position.x", "fossil_again",
+              FOSSIL_AGAIN, inside=True),
+        on("fossil_clock", "fossil_again", "clock", "transform2d.Position.x", 0),
         # Walking, and jumping at once (a hole dug in front of him must not trap him); the jump
         # is the game's again while it is shown.
-        on("learns_walking", "walk_show_done", "hero", "action_control.Controlled.action_x",
+        on("learns_walking", ENDS["walk_show"], "hero", "action_control.Controlled.action_x",
            ACTIONS.index("move_x")),
-        on("learns_jumping", "walk_show_done", "hero", "jump.Jumper.action",
+        on("learns_jumping", ENDS["walk_show"], "hero", "jump.Jumper.action",
            ACTIONS.index("jump")),
-        on("shows_jumping", "walk_done", "hero", "jump.Jumper.action", ACTIONS.index("demo_jump")),
-        on("jumps_again", "jump_show_done", "hero", "jump.Jumper.action", ACTIONS.index("jump")),
-        # The obstacles: past the chasm.
-        watch("obstacles_watch", "obstacles", "hero", "transform2d.Position.x", "obstacles_done",
-              CHASM[1] + 60),
+        on("shows_jumping", BEGINS["jump_show"], "hero", "jump.Jumper.action",
+           ACTIONS.index("demo_jump")),
+        on("jumps_again", ENDS["jump_show"], "hero", "jump.Jumper.action",
+           ACTIONS.index("jump")),
         watch("walk_watch", "walk", "hero", "transform2d.Position.x", "walk_done", WALK_TO),
         watch("jump_watch", "jump", "hero", "transform2d.Position.x", "jump_done",
               LEDGE[0] + 60),
+        # The obstacles: past the chasm.
+        watch("obstacles_watch", "obstacles_test", "hero", "transform2d.Position.x",
+              "obstacles_test_done", CHASM[1] + 60),
         # From now on the reserves can run out.
-        on("matter_unguarded", "obstacles_done", "matter", "reserve.Reserve.floor", 0),
-        on("carbon_unguarded", "obstacles_done", "carbon", "reserve.Reserve.floor", 0),
-        # The white runs low and fast: harvest carbon back above half.
-        on("white_falls", "obstacles_done", "carbon", "reserve.Reserve.amount", 25),
-        on("white_drains", "obstacles_done", "carbon", "reserve.Reserve.drain", 1.2),
-        watch("white_watch_back", "lack_white", "carbon", "reserve.Reserve.amount",
-              "lack_white_done", 50, inside=True),
-        on("white_steadies", "lack_white_done", "carbon", "reserve.Reserve.drain", LIFE_DRAIN),
-        # Then the black.
-        on("black_falls", "lack_white_done", "matter", "reserve.Reserve.amount", 25),
-        on("black_drains", "lack_white_done", "matter", "reserve.Reserve.drain", 1.2),
-        watch("black_watch_back", "lack_black", "matter", "reserve.Reserve.amount",
-              "lack_black_done", 50, inside=True),
-        on("black_steadies", "lack_black_done", "matter", "reserve.Reserve.drain", LIFE_DRAIN),
-        # Death, on purpose: the matter runs out whatever he does, everything goes white, and he
-        # comes back. Then he is given his reserves back.
+        on("matter_unguarded", "obstacles_test_done", "matter", "reserve.Reserve.floor", 0),
+        on("carbon_unguarded", "obstacles_test_done", "carbon", "reserve.Reserve.floor", 0),
+        # The carbon runs low, the edges darken, the white goes out; then he gathers it back
+        # above half.
+        on("white_falls", BEGINS["lack_white"], "carbon", "reserve.Reserve.amount", 45),
+        on("white_drains", BEGINS["lack_white"], "carbon", "reserve.Reserve.drain", 4),
+        on("white_out", BEGINS["lack_white"], "kit", "loadout.Kit.unlocked", 1),
+        on("white_slows", ENDS["lack_white"], "carbon", "reserve.Reserve.drain", 1.2),
+        on("white_back", ENDS["lack_white"], "kit", "loadout.Kit.unlocked", 3),
+        watch("white_watch_back", "lack_white_test", "carbon", "reserve.Reserve.amount",
+              "lack_white_test_done", 50, inside=True),
+        on("white_steadies", "lack_white_test_done", "carbon", "reserve.Reserve.drain",
+           LIFE_DRAIN),
+        # Then the matter.
+        on("black_falls", BEGINS["lack_black"], "matter", "reserve.Reserve.amount", 45),
+        on("black_drains", BEGINS["lack_black"], "matter", "reserve.Reserve.drain", 4),
+        on("black_out", BEGINS["lack_black"], "kit", "loadout.Kit.unlocked", 2),
+        on("black_slows", ENDS["lack_black"], "matter", "reserve.Reserve.drain", 1.2),
+        on("black_back", ENDS["lack_black"], "kit", "loadout.Kit.unlocked", 3),
+        watch("black_watch_back", "lack_black_test", "matter", "reserve.Reserve.amount",
+              "lack_black_test_done", 50, inside=True),
+        on("black_steadies", "lack_black_test_done", "matter", "reserve.Reserve.drain",
+           LIFE_DRAIN),
+        # Death, on purpose: the matter runs out in four seconds whatever he does, he can no
+        # longer move, everything goes white, and he comes back.
+        on("death_starts", BEGINS["death"], "matter", "reserve.Reserve.amount", 30),
         entity("death_drain", 0, 0, {
-            "reserve.Drain": {"kind": "matter", "per_second": 14},
+            "reserve.Drain": {"kind": "matter", "per_second": 7.5},
             "phase.ActiveIn": {"phases": ["death"]}, "transform2d.Disabled": {}}),
-        on("after_death_clock", "revive", "clock", "transform2d.Position.x", 0),
+        # Without carbon, it would have been black: shown a moment; then his reserves back.
+        cover("carbon_glimpse", 0, (0, 0, 0)),
+        track("carbon_glimpse_shows", "carbon_glimpse", "sprite2d.Sprite.alpha",
+              [(0, 0), (30, 0), (70, 225), (140, 225), (190, 0)], start=BEGINS["after_death"]),
         watch("refill_watch", "after_death", "clock", "transform2d.Position.x", "refill", 0.6,
               inside=True),
         on("matter_back", "refill", "matter", "reserve.Reserve.amount", 75),
         on("carbon_back", "refill", "carbon", "reserve.Reserve.amount", 75),
-        watch("after_death_watch", "after_death", "clock", "transform2d.Position.x",
-              "after_death_done", 6, inside=True),
-        # The departure: the jump held five seconds, its black hole as big as it gets over his
+        # The departure: the jump held three seconds, its black hole as big as it gets over his
         # head; full, it slips out of his hands (no need to let go).
         # The jump is the same as before (D19): only the time it is held counts. Full, the clock
-        # starts; let go, it is put far back; five seconds held in all, he goes.
+        # starts; let go, it is put far back; three seconds held in all, he goes.
         entity("hold", HOLD_OFF, 0, {"tag.Tag": {"tag": "hold"},
                                      "transform2d.Velocity": {"x": 1}}),
         watch("charge_full_watch", "departure", "hero", "jump.Jumper.charge", "charge_full",
@@ -3205,6 +3430,9 @@ def story(fall=0):
         # high enough, or stopped by what is over his head, he falls back: to be done again.
         watch("departure_watch", "departure", "hero", "transform2d.Position.y",
               "departure_done", high=LEAVING_Y),
+        # In orbit, the platform reached.
+        watch("platform_watch", "orbit_test", "platform", "collision2d.Contacts.count",
+              "orbit_test_done", 1),
     ]
     return made + step_texts()
 
@@ -3262,7 +3490,9 @@ def tutorial(arrival=False):
     things += [fossil_entity(f"fossil_{name}", x, GROUND_Y - 11)
                for name, x in (("a", 420), ("b", 530))]
     # What the demonstrations use, worth nothing: a rock for the black, a fossil for the harvest.
-    things += [rock_entity("rock_demo", 960, GROUND_Y - 11, amount=0),
+    things += [rock_entity("rock_demo", 920, GROUND_Y - 11, amount=0),
+               rock_entity("debris_1", 950, GROUND_Y - 11, amount=0),
+               rock_entity("debris_2", 895, GROUND_Y - 11, amount=0),
                fossil_entity("fossil_demo", 330, GROUND_Y - 11, amount=0)]
     for index, x in enumerate((3850, 4000, 4150, 4300)):
         things.append(fossil_entity(f"fossil_{index + 1}", x, basin_floor - 11))
@@ -3370,6 +3600,8 @@ SPACE_HOLE_AHEAD = 95  # the small black hole that pulls him in space: this far 
 SPACE_HOLE_SIZE = 20  # ... and its radius
 SPACE_HOLE_TURN = 240  # it goes round him where the arrows point, this many degrees a second
 NEXT_PLANET_SIZE = 1400
+PLATFORM = (700, -420)  # the floating rock to reach (D31), from where he is shown how to fly
+PLATFORM_SIZE = 240
 
 
 def departure():
@@ -3406,10 +3638,31 @@ def departure():
         **HOLE_LOOP,
         # Ahead of him, the way he goes, always as far.
         "follow2d.Follow": {"target": "hero", "ahead": SPACE_HOLE_AHEAD, "stiffness": 1,
-                            "way_x": ACTIONS.index("move_x"), "way_y": ACTIONS.index("move_y"),
+                            "way_x": ACTIONS.index("demo_fly_x"),
+                            "way_y": ACTIONS.index("demo_fly_y"),
                             "way_turn": SPACE_HOLE_TURN}})
-    return [
-        planet_ahead, air, to_follow, pull,
+    platform = entity("platform", 0, 0, {
+        "tag.Tag": {"tag": "platform"},
+        "sprite2d.Sprite": {"atlas": "rock", "width": PLATFORM_SIZE, "height": PLATFORM_SIZE,
+                            "layer": LAYERS["hero"] - 2, "alpha": 0},
+        "light2d.Light": {"radius": 260, "red": 220, "green": 230, "blue": 245,
+                          "intensity": 0.5},
+        # Not solid: he reaches it, it does not stop him (only what touches it is counted).
+        "collision2d.Collider": {"width": PLATFORM_SIZE * 0.8, "height": PLATFORM_SIZE * 0.6,
+                                 "layer": ["rock"], "mask": ["hero"]},
+        "collision2d.Contacts": {},
+        "follow2d.Follow": {"target": "hero", "offset_x": PLATFORM[0], "offset_y": PLATFORM[1],
+                            "stiffness": 1}})
+    flights = [(1, 0), (0, -1), (-1, 0), (0, 1)]  # right, up, left, down
+    shown = []
+    for index, (way_x, way_y) in enumerate(flights):
+        for axis, value in (("x", way_x), ("y", way_y)):
+            if value:
+                shown.append({"name": f"demo_flies_{index}", "components": {"rules.Press": {
+                    "start": "in_orbit", "action": f"demo_fly_{axis}", "value": value,
+                    "delay": 20 + 55 * index, "ticks": 50}}})
+    return shown + [
+        platform, planet_ahead, air, to_follow, pull,
         # Out of the atmosphere: no control, no powers, his reserves kept; the
         # planet's pull slows him down and bends his way.
         on("no_steering", "departure_done", "hero", "action_control.Controlled.horizontal", 0),
@@ -3423,8 +3676,11 @@ def departure():
         on("space_opens", "departure_done", "camera", "camera2d.CameraFollow.bound_right",
            100000),
         on("bent", "departure_done", "hero", "gravity2d.Gravity.x", 140),
-        watch("orbit_watch", "end", "hero", "transform2d.Velocity.y", "in_orbit",
-              low=-ORBIT_SPEED, inside=True),
+        # Out of the atmosphere, then slowed down by the pull: in orbit. (Watched once out only:
+        # he slows down too when he falls back.)
+        tagged(watch("orbit_watch", "departure", "hero", "transform2d.Velocity.y", "in_orbit",
+                     low=100000), "orbit_watch"),
+        on("orbit_watched", "departure_done", "orbit_watch", "rules.Watch.min", -ORBIT_SPEED),
         # In orbit: nothing pulls him any more. He moves where he wants (D22): a small black hole
         # ahead of him, the way he goes, pulls him; slow to start, slow to stop.
         on("floats", "in_orbit", "hero", "gravity2d.Gravity.y", 0),
@@ -3433,8 +3689,21 @@ def departure():
         on("floats_x", "in_orbit", "hero", "gravity2d.Gravity.x", 0),
         on("steers_x", "in_orbit", "hero", "action_control.Controlled.horizontal", 1),
         on("steers_y", "in_orbit", "hero", "action_control.Controlled.vertical", 1),
-        on("steers_up", "in_orbit", "hero", "action_control.Controlled.action_y",
+        on("shown_x", "in_orbit", "hero", "action_control.Controlled.action_x",
+           ACTIONS.index("demo_fly_x")),
+        on("shown_y", "in_orbit", "hero", "action_control.Controlled.action_y",
+           ACTIONS.index("demo_fly_y")),
+        on("steers_x_now", ENDS["orbit"], "hero", "action_control.Controlled.action_x",
+           ACTIONS.index("move_x")),
+        on("steers_y_now", ENDS["orbit"], "hero", "action_control.Controlled.action_y",
            ACTIONS.index("move_y")),
+        on("hole_way_x", ENDS["orbit"], "space_hole", "follow2d.Follow.way_x",
+           ACTIONS.index("move_x")),
+        on("hole_way_y", ENDS["orbit"], "space_hole", "follow2d.Follow.way_y",
+           ACTIONS.index("move_y")),
+        on("platform_stays", ENDS["orbit"], "platform", "follow2d.Follow.stiffness", 0),
+        track("platform_shows", "platform", "sprite2d.Sprite.alpha", [(0, 0), (90, 255)],
+              start="in_orbit"),
         on("space_speed", "in_orbit", "hero", "action_control.Controlled.speed", SPACE_SPEED),
         on("space_start", "in_orbit", "hero", "action_control.Controlled.acceleration", 260),
         on("space_stop", "in_orbit", "hero", "action_control.Controlled.braking", 70),
@@ -3456,8 +3725,8 @@ def departure():
         track("voyage_zoom", "camera", "camera2d.Camera.zoom",
               [(0, ZOOM), (240, 0.72 * ZOOM), (VOYAGE_TICKS - 60, 0.72 * ZOOM),
                (VOYAGE_TICKS + 120, 0.9 * ZOOM)], start="in_orbit"),
-        track("to_follow_shows", "to_follow", "text2d.Text.alpha",
-              [(0, 0), (VOYAGE_TICKS - 60, 0), (VOYAGE_TICKS + 60, 230)], start="in_orbit"),
+        track("to_follow_shows", "to_follow", "text2d.Text.alpha", [(0, 0), (60, 230)],
+              start=ENDS["orbit_test"]),
     ]
 
 
@@ -3945,16 +4214,15 @@ ACTIONS = ["move_x", "move_y", "jump", "out_of_matter", "out_of_carbon", "hand_l
            "locked", "skip", "in_orbit", "refill", "awakens_black", "awakens_white",
            "awakens_harvest", "awakens_walk", "awakens_jump", "demo_walk", "demo_jump", "demo_wall_now", "charge_full", "charge_lost", "seed_trembles", "seed_trembles_more", "pause", "resume", "to_title", "menu_up",
            "menu_down", "accept", "menu_click", "play", "quit"]
-for _step in STEPS[:-1]:
-    for _action in (f"{_step}_done", f"{_step}_next"):
-        if _action not in ACTIONS and not _step.endswith("_practice"):
-            ACTIONS.append(_action)
+for _action in list(ENDS.values()) + DEMO_ACTIONS:
+    if _action not in ACTIONS:
+        ACTIONS.append(_action)
 TAGS = ["front", "black_gathers", "white_gathers", "harvest_gathers", "walk_gathers", "jump_gathers",
         "black_shines", "white_shines", "harvest_shines", "walk_shines", "jump_shines",
-        "text_black_show_title", "text_white_show_title", "text_harvest_show_title",
-        "text_walk_show_title", "text_jump_show_title", "text_black_show_line",
-        "text_white_show_line", "text_harvest_show_line", "text_walk_show_line",
-        "text_jump_show_line", "demo_black", "demo_harvest", "demo_bubble", "demo_wall", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
+        *[f"text_{step}_{part}" for step in TEXTS for part in ("title", "line")],
+        "black_half", "white_half", "demo_spark", "demo_self", "demo_guard", "demo_charge",
+        "demo_small", "demo_big", "falling_1", "falling_2", "falling_3", "demo_bridge",
+        "demo_dig", "platform", "barrier", "carbon_glimpse", "orbit_watch", "demo_black", "demo_harvest", "demo_bubble", "demo_wall", "hero", "hero_dust", "white_sparks", "black_hole_chips", "harvest_bubble_chips", "camera", "matter", "carbon", "black_hole", "white_caster", "harvest_bubble",
         "harvest_key", "ground_carbon", "inventory", "matter_bubble", "carbon_bubble",
         "jump_hole", "dead", "kit", "hand_left", "hand_right", "story", "clock", "stars_1",
         "stars_2", "stars_3", "stars_4", "sky", "hold", "space_hole", "world_speed", "gas", "gas_colour", "births", "ash",
@@ -4036,7 +4304,7 @@ def write_strings():
     entries = {}
     for step, (title, line) in TEXTS.items():
         entries[f"tutorial.{step}.title"] = title
-        entries[f"tutorial.{step}.line"] = line
+        entries[f"tutorial.{step}.line"] = "\n".join(textwrap.wrap(line, TEXT_WIDTH))
     entries["tutorial.next"] = "À suivre…"
     entries.update({"menu.title": "COMPLETE UNIVERSE", "menu.play": "Jouer",
                     "menu.quit": "Quitter", "menu.pause": "Pause", "menu.resume": "Reprendre",
